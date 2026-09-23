@@ -1,0 +1,260 @@
+@use 'typography' as t;
+
+// Deep navy sidebar (Flutter AppColors.sidebarBackground #1E293B).
+:host {
+  --sb-fg: rgb(226 232 240 / 0.8);
+  --sb-muted: rgb(148 163 184 / 0.7);
+  --sb-hover: rgb(255 255 255 / 0.06);
+  --sb-active-bg: rgb(124 196 228 / 0.14);
+  --sb-accent: #7cc4e4;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 264px;
+  background: var(--c-sidebar);
+  color: var(--sb-fg);
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  border-right: 1px solid rgb(255 255 255 / 0.04);
+}
+:host(.collapsed) {
+  width: 72px;
+}
+
+// ── Brand (aligns with the 64px toolbar) ────────────────────────────────────
+.brand {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 18px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 0.06);
+}
+:host(.collapsed) .brand {
+  justify-content: center;
+  padding: 0;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #3b7597, #4a8aa8);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
+}
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+  strong {
+    color: #fff;
+    font-size: 0.98rem;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+  }
+  small {
+    @include t.ellipsis;
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--sb-muted);
+  }
+}
+
+// ── Nav ─────────────────────────────────────────────────────────────────────
+.nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 10px;
+  // Thin navy scrollbar, only visible while hovering the menu.
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  &:hover {
+    scrollbar-color: rgb(255 255 255 / 0.18) transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: transparent;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.18);
+  }
+}
+
+.section {
+  margin-top: 8px;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  color: var(--sb-muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  &:hover {
+    color: #fff;
+    background: var(--sb-hover);
+  }
+  .chev {
+    transition: transform 0.2s ease;
+    transform: rotate(-90deg);
+    &.open {
+      transform: rotate(0deg);
+    }
+  }
+}
+.section.has-active .section-head {
+  color: var(--sb-accent);
+}
+.section-rule {
+  display: block;
+  height: 1px;
+  margin: 8px 14px;
+  background: rgb(255 255 255 / 0.08);
+}
+
+// Smooth collapse via grid-template-rows 1fr ↔ 0fr.
+.items {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.22s ease;
+  &.closed {
+    grid-template-rows: 0fr;
+  }
+}
+.items-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-top: 2px;
+}
+
+.item {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 9px;
+  color: var(--sb-fg);
+  text-decoration: none;
+  font-size: 0.855rem;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  .label {
+    flex: 1;
+    min-width: 0;
+    @include t.ellipsis;
+  }
+  lsms-icon {
+    opacity: 0.85;
+  }
+  &:hover {
+    background: var(--sb-hover);
+    color: #fff;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--sb-accent);
+    outline-offset: -2px;
+  }
+  &.active {
+    background: var(--sb-active-bg);
+    color: #fff;
+    font-weight: 600;
+    lsms-icon {
+      opacity: 1;
+      color: var(--sb-accent);
+    }
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--sb-accent);
+    }
+  }
+  &.locked {
+    opacity: 0.42;
+    cursor: not-allowed;
+    &:hover {
+      background: transparent;
+      color: var(--sb-fg);
+    }
+  }
+  .lock {
+    color: var(--sb-muted);
+  }
+}
+.item.home {
+  margin-bottom: 4px;
+}
+:host(.collapsed) .item {
+  justify-content: center;
+  padding: 0;
+  height: 40px;
+}
+
+// ── Footer ──────────────────────────────────────────────────────────────────
+.foot {
+  flex-shrink: 0;
+  padding: 10px;
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+}
+.collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--sb-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover {
+    background: var(--sb-hover);
+    color: #fff;
+  }
+}
+:host(:not(.collapsed)) .collapse-btn {
+  justify-content: flex-start;
+  padding: 0 12px;
+}

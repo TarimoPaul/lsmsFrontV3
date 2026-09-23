@@ -1,0 +1,167 @@
+// Design tokens — ported from Flutter `shared/constants/appColors.dart`,
+// `app_spacing.dart` and `appTheme.dart`.
+//
+// Colours are CSS custom properties so the whole app re-themes at runtime by
+// flipping attributes on <html> (see ThemeService):
+//   data-theme="light" | "dark"      → light / dark palette
+//   data-comfort="on"                 → light "eye comfort" variant (warm cream)
+// Components must read colours ONLY through these variables, never hex values.
+
+// ─── Spacing (AppSpacing) ───────────────────────────────────────────────────
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$space-xl: 32px;
+$space-xxl: 48px;
+$space-xxxl: 64px;
+
+// ─── Radius ─────────────────────────────────────────────────────────────────
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-xxl: 20px;
+$radius-circular: 24px;
+
+// ─── Icon sizes ─────────────────────────────────────────────────────────────
+$icon-tiny: 12px;
+$icon-sm: 16px;
+$icon-md: 24px;
+$icon-lg: 32px;
+$icon-xl: 48px;
+
+// ─── Control heights ────────────────────────────────────────────────────────
+$button-height-sm: 36px;
+$button-height: 48px;
+$button-height-lg: 56px;
+$input-height-sm: 40px;
+$input-height: 48px;
+
+// ─── Breakpoints (AppBreakpoints) ───────────────────────────────────────────
+$bp-xs: 320px;
+$bp-sm: 576px;
+$bp-md: 768px; // mobile ↔ tablet (primary)
+$bp-lg: 992px;
+$bp-xl: 1200px; // desktop
+$bp-xxl: 1440px;
+
+$sidebar-collapsed: 72px;
+$sidebar-expanded: 280px;
+
+@mixin mobile {
+  @media (max-width: #{$bp-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: $bp-md) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $bp-xl) {
+    @content;
+  }
+}
+
+// ─── Colour palettes ────────────────────────────────────────────────────────
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --c-primary: #3b7597; // Royal blue
+  --c-primary-light: #4a8aa8;
+  --c-primary-pressed: #2c5a73;
+  --c-on-primary: #ffffff;
+  --c-primary-container: #d0e6fd;
+  --c-secondary: #3a5ba0;
+  --c-accent: #f1e4d1; // Bone
+  --c-accent-on: #3b7597;
+
+  --c-bg: #eef4fb;
+  --c-surface: #ffffff;
+  --c-surface-variant: #ebf3fe;
+  --c-card: #ffffff;
+  --c-elevated: #ffffff;
+  --c-input-fill: #f8fbff;
+  --c-sidebar: #1e293b;
+
+  --c-text: #2d3748;
+  --c-text-2: #4a5568;
+  --c-text-disabled: #bdbdbd;
+
+  --c-border: #e2e8f0;
+  --c-divider: #e0e0e0;
+  --c-hover: rgb(59 117 151 / 0.06);
+
+  --c-success: #2e7d32;
+  --c-warning: #e67e22;
+  --c-error: #d32f2f;
+  --c-info: #2b3f8e;
+  --c-purple: #9c27b0;
+  --c-teal: #009688;
+
+  --c-shadow: 26 26 26; // rgb triplet for rgba() use
+  --c-metric-gradient-end: #f7faff;
+}
+
+// Eye-comfort light variant (Flutter default: eyeComfortMode = true)
+:root[data-theme='light'][data-comfort='on'],
+:root:not([data-theme])[data-comfort='on'] {
+  --c-bg: #f5f5f0;
+  --c-card: #fafaf7;
+  --c-input-fill: #fafaf7;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --c-primary: #96d4d4; // soft cyan
+  --c-primary-light: #8fdfcd;
+  --c-primary-pressed: #84cbcb;
+  --c-on-primary: #0f1419;
+  --c-primary-container: #0d3c34;
+  --c-secondary: #e4b429;
+  --c-accent: #e4b429;
+  --c-accent-on: #0f1419;
+
+  --c-bg: #0f1419;
+  --c-surface: #1c2128;
+  --c-surface-variant: #22272e;
+  --c-card: #21262d;
+  --c-elevated: #2d333b;
+  --c-input-fill: rgb(34 39 46 / 0.5);
+  --c-sidebar: #161b22;
+
+  --c-text: #e6edf3;
+  --c-text-2: #b1bac4;
+  --c-text-disabled: #6e7681;
+
+  --c-border: #373e47;
+  --c-divider: #30363d;
+  --c-hover: #2f363d;
+
+  --c-success: #56d364;
+  --c-warning: #e3b341;
+  --c-error: #ff7b72;
+  --c-info: #58a6ff;
+  --c-purple: #b794f6;
+  --c-teal: #4db6ac;
+
+  --c-shadow: 0 0 0;
+  --c-metric-gradient-end: #1c2128;
+}
+
+// ─── Shadows (AppSpacing.shadow*) ───────────────────────────────────────────
+:root {
+  --shadow-sm: 0 2px 4px rgb(var(--c-shadow) / 0.1);
+  --shadow-md: 0 4px 8px rgb(var(--c-shadow) / 0.1);
+  --shadow-lg: 0 8px 16px rgb(var(--c-shadow) / 0.15);
+  --shadow-card: 0 3px 8px color-mix(in srgb, var(--c-primary) 8%, transparent);
+
+  --font-family: 'PlusJakartaSans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-scale: 1; // ThemeService text-size multiplier (0.8 – 1.5)
+}

@@ -1,0 +1,38 @@
+/* Tailwind v4 — utilities mapped onto the LSMS design tokens (src/styles/_tokens.scss).
+   Use e.g. `bg-surface text-fg border-line rounded-xl text-primary`. Colours follow the
+   active theme automatically because they point at CSS variables. */
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme inline {
+  --font-sans: var(--font-family);
+
+  --color-primary: var(--c-primary);
+  --color-primary-light: var(--c-primary-light);
+  --color-on-primary: var(--c-on-primary);
+  --color-primary-container: var(--c-primary-container);
+  --color-secondary: var(--c-secondary);
+  --color-accent: var(--c-accent);
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-variant: var(--c-surface-variant);
+  --color-card: var(--c-card);
+  --color-elevated: var(--c-elevated);
+  --color-sidebar: var(--c-sidebar);
+
+  --color-fg: var(--c-text);
+  --color-muted: var(--c-text-2);
+  --color-disabled: var(--c-text-disabled);
+  --color-line: var(--c-border);
+  --color-divider: var(--c-divider);
+  --color-hover: var(--c-hover);
+
+  --color-success: var(--c-success);
+  --color-warning: var(--c-warning);
+  --color-error: var(--c-error);
+  --color-info: var(--c-info);
+  --color-purple: var(--c-purple);
+  --color-teal: var(--c-teal);
+}

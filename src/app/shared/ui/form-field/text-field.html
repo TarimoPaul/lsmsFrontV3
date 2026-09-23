@@ -1,0 +1,86 @@
+@if (label()) {
+  <label class="label" [for]="id">
+    {{ label() }}
+    @if (required()) {
+      <span class="req">*</span>
+    }
+  </label>
+}
+
+<div class="control" [class.dense]="dense()" [class.multiline]="type() === 'textarea'">
+  @if (effectivePrefixIcon()) {
+    <lsms-icon class="affix-icon" [name]="effectivePrefixIcon()!" [size]="18" />
+  }
+  @if (effectivePrefixText()) {
+    <span class="affix-text">{{ effectivePrefixText() }}</span>
+  }
+
+  @if (type() === 'textarea') {
+    <textarea
+      #field
+      [id]="id"
+      [rows]="rows()"
+      [value]="text()"
+      [placeholder]="placeholder()"
+      [readOnly]="readonly()"
+      [disabled]="disabled()"
+      [attr.maxlength]="maxLength() ?? null"
+      [attr.aria-invalid]="showError()"
+      [attr.aria-describedby]="id + '-msg'"
+      (input)="onInput($any($event.target).value)"
+      (focus)="focused.set(true)"
+      (blur)="onBlur()"
+    ></textarea>
+  } @else {
+    <input
+      #field
+      [id]="id"
+      [type]="inputType()"
+      [attr.inputmode]="inputMode()"
+      [value]="text()"
+      [placeholder]="placeholder()"
+      [readOnly]="readonly()"
+      [disabled]="disabled()"
+      [attr.maxlength]="maxLength() ?? null"
+      [attr.autocomplete]="autocomplete() ?? null"
+      [attr.aria-invalid]="showError()"
+      [attr.aria-describedby]="id + '-msg'"
+      [style.text-align]="align() === 'end' ? 'right' : null"
+      (input)="onInput($any($event.target).value)"
+      (focus)="focused.set(true)"
+      (blur)="onBlur()"
+      (keydown.enter)="enter.emit()"
+    />
+  }
+
+  @if (suffixText()) {
+    <span class="affix-text">{{ suffixText() }}</span>
+  }
+  @if (clearable() && text() && !disabled() && !readonly()) {
+    <button type="button" class="affix-btn" [attr.aria-label]="i18n.t('Clear', 'Futa')" (click)="clear()">
+      <lsms-icon name="close" [size]="16" />
+    </button>
+  }
+  @if (type() === 'password') {
+    <button
+      type="button"
+      class="affix-btn"
+      [attr.aria-label]="revealed() ? i18n.t('Hide password', 'Ficha nenosiri') : i18n.t('Show password', 'Onyesha nenosiri')"
+      (click)="revealed.set(!revealed())"
+    >
+      <lsms-icon [name]="revealed() ? 'visibility' : 'visibility_off'" [size]="20" />
+    </button>
+  }
+  <ng-content select="[fieldSuffix]" />
+</div>
+
+<div class="msg" [id]="id + '-msg'">
+  @if (errorMessage()) {
+    <span class="error">{{ errorMessage() }}</span>
+  } @else if (hint()) {
+    <span class="hint">{{ hint() }}</span>
+  }
+  @if (maxLength() && type() === 'textarea') {
+    <span class="counter">{{ text().length }}/{{ maxLength() }}</span>
+  }
+</div>

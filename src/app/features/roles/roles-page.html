@@ -1,0 +1,90 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Role Management', 'Usimamizi wa Majukumu')"
+    [subtitle]="i18n.t('Configure user roles and permissions', 'Sanidi majukumu ya watumiaji na ruhusa')"
+    icon="admin_panel_settings"
+    [refreshable]="true"
+    (refresh)="load()"
+  >
+    <button *lsmsCan="'ROLE_WRITE'" lsmsButton icon="add" size="sm" (click)="openForm()">
+      {{ i18n.t('New role', 'Jukumu jipya') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card [title]="i18n.t('Total roles', 'Majukumu yote')" [value]="stats().total + ''" icon="badge" color="var(--c-primary)" />
+    <lsms-metric-card [title]="i18n.t('Active', 'Hai')" [value]="stats().active + ''" icon="check_circle" color="var(--c-success)" />
+    <lsms-metric-card
+      [title]="i18n.t('Avg. permissions', 'Wastani wa ruhusa')"
+      [value]="stats().avg + ''"
+      [subtitle]="i18n.t('per role', 'kwa kila jukumu')"
+      icon="key"
+      color="var(--c-info)"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Without permissions', 'Bila ruhusa')"
+      [value]="stats().empty + ''"
+      icon="warning"
+      color="var(--c-warning)"
+      [urgent]="stats().empty > 0"
+    />
+  </lsms-metrics-grid>
+
+  @if (error()) {
+    <lsms-empty-state
+      icon="error"
+      iconColor="var(--c-error)"
+      [title]="i18n.t('Could not load roles', 'Imeshindikana kupakia majukumu')"
+      [message]="error()!"
+      [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+      (secondaryAction)="load()"
+    />
+  } @else {
+    <div class="table-card">
+      <lsms-filter-panel [searchPlaceholder]="i18n.t('Search roles…', 'Tafuta majukumu…')" (search)="search.set($event)">
+        <lsms-segmented-filter-bar filterSegments [options]="statusOptions()" [(selected)]="status" />
+      </lsms-filter-panel>
+
+      <lsms-data-table
+        [title]="i18n.t('Roles', 'Majukumu')"
+        [items]="filtered()"
+        [rowId]="rowId"
+        [loading]="loading()"
+        [showRowNumbers]="true"
+        [mobileTitle]="nameOf"
+        [mobileColumns]="['description', 'permissions', 'status']"
+        [actionsInlineWithTitle]="true"
+        defaultSortColumn="name"
+        [emptyTitle]="i18n.t('No roles found', 'Hakuna majukumu')"
+        emptyIcon="group_off"
+        (rowClick)="openPermissions($event)"
+      >
+        <ng-template lsmsColumn="name" [label]="i18n.t('Role name', 'Jina la jukumu')" [sortBy]="nameOf" let-row>
+          <span class="role-name">
+            <span class="r-ic" [class.protected]="isProtected(row)">
+              <lsms-icon [name]="isProtected(row) ? 'shield' : 'badge'" [size]="16" />
+            </span>
+            <strong>{{ row.name }}</strong>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="description" [label]="i18n.t('Description', 'Maelezo')" let-row>
+          <span class="desc">{{ row.description || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="permissions" [label]="i18n.t('Permissions', 'Ruhusa')" [sortBy]="permCountOf" align="center" let-row>
+          <span class="perm-count" [class.zero]="!row.permissions.length">
+            <lsms-icon name="key" [size]="13" />{{ row.permissions.length }}
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" [sortBy]="statusOf" let-row>
+          <lsms-status-chip [status]="isActive(row) ? 'active' : 'inactive'" />
+        </ng-template>
+        <ng-template lsmsColumn="type" [label]="i18n.t('Type', 'Aina')" [hidden]="true" let-row>
+          {{ isProtected(row) ? i18n.t('System', 'Mfumo') : i18n.t('Custom', 'Maalum') }}
+        </ng-template>
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    </div>
+  }
+</div>

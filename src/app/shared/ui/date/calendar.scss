@@ -1,0 +1,108 @@
+@use 'typography' as t;
+
+:host {
+  display: block;
+  user-select: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.month-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  @include t.body-lg;
+  font-weight: 700;
+  color: var(--c-text);
+  text-align: left;
+  lsms-icon {
+    color: var(--c-primary);
+  }
+  &:hover {
+    background: var(--c-hover);
+  }
+}
+
+.panel {
+  height: 264px;
+  margin-top: 4px;
+}
+
+.weekdays,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.weekdays span {
+  text-align: center;
+  padding: 4px 0;
+  @include t.badge-label-compact;
+  color: var(--c-text-2);
+  opacity: 0.8;
+}
+.grid {
+  grid-auto-rows: 38px;
+  margin-top: 4px;
+}
+
+.day {
+  margin: 1px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  @include t.body-sm;
+  color: var(--c-text);
+  transition: background-color 0.1s ease;
+
+  &:hover:not(:disabled):not(.edge) {
+    background: var(--c-hover);
+  }
+  &.today:not(.edge) {
+    box-shadow: inset 0 0 0 1px var(--c-primary);
+  }
+  &.in-range {
+    background: color-mix(in srgb, var(--c-primary) 18%, transparent);
+  }
+  &.edge {
+    background: var(--c-primary);
+    color: var(--c-on-primary);
+    font-weight: 700;
+  }
+  &:disabled {
+    color: var(--c-text-disabled);
+    cursor: default;
+  }
+}
+
+.years {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 44px;
+  height: 100%;
+  overflow-y: auto;
+}
+.year {
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  @include t.body;
+  color: var(--c-text);
+  &:hover {
+    background: var(--c-hover);
+  }
+  &.on {
+    color: var(--c-primary);
+    font-weight: 700;
+  }
+}

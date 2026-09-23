@@ -1,0 +1,95 @@
+<div class="brand">
+  <a class="logo" routerLink="/dashboard" (click)="navigate.emit()" [attr.aria-label]="'ELIKOM ' + i18n.t('Home', 'Nyumbani')">
+    <span class="mark"><img src="/icons/Finallogo.png" alt="" width="22" height="22" /></span>
+    @if (!collapsed()) {
+      <span class="wordmark">
+        <strong>ELIKOM</strong>
+        <small>Sales &amp; Management</small>
+      </span>
+    }
+  </a>
+</div>
+
+<nav class="nav" [attr.aria-label]="i18n.t('Main navigation', 'Menyu kuu')">
+  <!-- Home -->
+  <a
+    class="item home"
+    matRipple
+    [routerLink]="home().route"
+    routerLinkActive="active"
+    #homeRla="routerLinkActive"
+    [matTooltip]="collapsed() ? home().label : ''"
+    matTooltipPosition="right"
+    (click)="navigate.emit()"
+  >
+    <lsms-icon [name]="home().icon" [size]="20" [filled]="homeRla.isActive" />
+    @if (!collapsed()) {
+      <span class="label">{{ home().label }}</span>
+    }
+  </a>
+
+  @for (section of sections(); track section.key) {
+    <div class="section" [class.has-active]="activeIn(section)">
+      @if (!collapsed()) {
+        <button
+          type="button"
+          class="section-head"
+          [attr.aria-expanded]="isOpen(section.key)"
+          (click)="toggleSection(section.key)"
+        >
+          <span>{{ section.label }}</span>
+          <lsms-icon class="chev" [class.open]="isOpen(section.key)" name="expand_more" [size]="16" />
+        </button>
+      } @else {
+        <span class="section-rule"></span>
+      }
+      <div class="items" [class.closed]="!isOpen(section.key)">
+        <div class="items-inner">
+          @for (item of section.items; track item.id) {
+            <a
+              class="item"
+              matRipple
+              [matRippleDisabled]="item.locked"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              #rla="routerLinkActive"
+              [class.locked]="item.locked"
+              [attr.aria-disabled]="item.locked || null"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+              [attr.tabindex]="isOpen(section.key) ? null : -1"
+              [matTooltip]="collapsed() ? item.label + (item.locked ? ' · ' + i18n.t('no access', 'huna ruhusa') : '') : ''"
+              matTooltipPosition="right"
+              (click)="onItemClick($event, item)"
+            >
+              <lsms-icon [name]="item.icon" [size]="19" [filled]="rla.isActive" />
+              @if (!collapsed()) {
+                <span class="label">{{ item.label }}</span>
+                @if (item.locked) {
+                  <lsms-icon name="lock" [size]="13" class="lock" />
+                }
+              }
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</nav>
+
+@if (collapsible()) {
+  <div class="foot">
+    <button
+      type="button"
+      class="collapse-btn"
+      [matTooltip]="collapsed() ? i18n.t('Expand sidebar', 'Panua menyu') : ''"
+      matTooltipPosition="right"
+      [attr.aria-label]="collapsed() ? i18n.t('Expand sidebar', 'Panua menyu') : i18n.t('Collapse sidebar', 'Kunja menyu')"
+      (click)="toggleCollapse.emit()"
+    >
+      <lsms-icon [name]="collapsed() ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left'" [size]="18" />
+      @if (!collapsed()) {
+        <span>{{ i18n.t('Collapse', 'Kunja') }}</span>
+      }
+    </button>
+  </div>
+}

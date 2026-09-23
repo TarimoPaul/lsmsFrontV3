@@ -1,0 +1,15 @@
+{
+  "/api": {
+    "target": "http://localhost:8086",
+    "secure": false,
+    "changeOrigin": true,
+    "headers": { "Origin": "http://localhost:8086" },
+    "logLevel": "warn"
+  },
+  "/uploads": {
+    "target": "http://localhost:8086",
+    "secure": false,
+    "changeOrigin": true,
+    "headers": { "Origin": "http://localhost:8086" }
+  }
+}

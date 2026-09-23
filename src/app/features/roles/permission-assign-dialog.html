@@ -1,0 +1,98 @@
+<lsms-dialog
+  [title]="(data.readOnly ? i18n.t('Permissions', 'Ruhusa') : i18n.t('Assign permissions', 'Gawa ruhusa')) + ' · ' + data.role.name"
+  icon="admin_panel_settings"
+>
+  <div class="toolbar">
+    <lsms-search-bar class="search" [placeholder]="i18n.t('Search permissions…', 'Tafuta ruhusa…')" (search)="search.set($event)" />
+    <label class="only">
+      <mat-checkbox [checked]="onlySelected()" (change)="onlySelected.set($event.checked)" />
+      {{ i18n.t('Only selected', 'Zilizochaguliwa tu') }}
+    </label>
+  </div>
+
+  <div class="summary">
+    <lsms-icon name="checklist" [size]="18" />
+    <span>
+      <strong>{{ selected().size }}</strong> {{ i18n.t('of', 'kati ya') }} {{ total() }} {{ i18n.t('permissions selected', 'ruhusa zimechaguliwa') }}
+    </span>
+    @if (!data.readOnly) {
+      <button type="button" class="link" (click)="selectAllVisible(true)">{{ i18n.t('Select all', 'Chagua zote') }}</button>
+      <button type="button" class="link" (click)="selectAllVisible(false)">{{ i18n.t('Clear', 'Futa') }}</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <lsms-skeleton variant="list" [rows]="6" />
+  } @else if (error()) {
+    <div class="error">
+      <lsms-icon name="error" />
+      <span>{{ error() }}</span>
+      <button lsmsButton size="sm" icon="refresh" (click)="load()">{{ i18n.t('Retry', 'Jaribu tena') }}</button>
+    </div>
+  } @else {
+    <div class="modules">
+      @for (m of visible(); track m.module) {
+        <section class="module" [class.open]="isExpanded(m.module)">
+          <header class="m-head">
+            <mat-checkbox
+              [checked]="moduleState(m) === 'all'"
+              [indeterminate]="moduleState(m) === 'some'"
+              [disabled]="!!data.readOnly"
+              (change)="toggleAll(m, $event.checked)"
+              [attr.aria-label]="humanizeModule(m.module)"
+            />
+            <button type="button" class="m-title" (click)="toggleExpanded(m.module)">
+              <span class="name">{{ humanizeModule(m.module) }}</span>
+              <span class="count" [class.full]="moduleState(m) === 'all'">{{ countSelected(m) }}/{{ sizeOf(m) }}</span>
+              <lsms-icon [name]="isExpanded(m.module) ? 'expand_less' : 'expand_more'" [size]="20" />
+            </button>
+          </header>
+          @if (isExpanded(m.module)) {
+            <div class="groups">
+              @for (g of m.permissionGroups; track g.group) {
+                <div class="group">
+                  <div class="g-head">
+                    <mat-checkbox
+                      [checked]="moduleState(g) === 'all'"
+                      [indeterminate]="moduleState(g) === 'some'"
+                      [disabled]="!!data.readOnly"
+                      (change)="toggleAll(g, $event.checked)"
+                    />
+                    <lsms-icon name="folder" [size]="16" />
+                    <span>{{ humanizeModule(g.group) }}</span>
+                    <small>{{ countSelected(g) }}/{{ g.permissions.length }}</small>
+                  </div>
+                  <div class="perms">
+                    @for (p of g.permissions; track p.uid) {
+                      <label class="perm" [class.on]="selected().has(p.uid)">
+                        <mat-checkbox [checked]="selected().has(p.uid)" [disabled]="!!data.readOnly" (change)="toggle(p.uid)" />
+                        <span class="p-txt">
+                          <strong>{{ humanizePermission(p.name) }}</strong>
+                          <code>{{ p.name }}</code>
+                          @if (p.description) {
+                            <small>{{ p.description }}</small>
+                          }
+                        </span>
+                      </label>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      } @empty {
+        <p class="empty">{{ i18n.t('No permissions match your search.', 'Hakuna ruhusa zinazolingana na utafutaji.') }}</p>
+      }
+    </div>
+  }
+
+  <ng-container dialogActions>
+    <button lsmsButton="secondary" (click)="ref.close()">{{ data.readOnly ? i18n.t('Close', 'Funga') : i18n.t('Cancel', 'Ghairi') }}</button>
+    @if (!data.readOnly) {
+      <button lsmsButton icon="save" [loading]="saving()" [disabled]="!changed() || loading()" (click)="save()">
+        {{ i18n.t('Save permissions', 'Hifadhi ruhusa') }}
+      </button>
+    }
+  </ng-container>
+</lsms-dialog>

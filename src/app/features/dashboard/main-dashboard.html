@@ -1,0 +1,302 @@
+<div class="page">
+  <!-- ── 1. Welcome + quick actions ── -->
+  <section class="welcome">
+    <div class="hello">
+      <p class="date"><lsms-icon name="calendar_today" [size]="15" />{{ today() }}</p>
+      <h1>{{ greeting() }}, <span>{{ firstName() }}</span> 👋</h1>
+      <div class="chips">
+        <span class="chip role"><lsms-icon name="verified_user" [size]="14" [filled]="true" />{{ auth.primaryRole() }}</span>
+        @if (auth.activeBranch(); as b) {
+          <span class="chip"><lsms-icon name="storefront" [size]="14" />{{ b.branchName }}</span>
+        }
+        <span class="chip"><lsms-icon name="apps" [size]="14" />{{ counts()['ALL'].open }}/{{ counts()['ALL'].total }} {{ i18n.t('modules', 'moduli') }}</span>
+      </div>
+    </div>
+    @if (quickActions().length) {
+      <div class="actions">
+        @for (a of quickActions(); track a.route) {
+          @if (a.primary) {
+            <a mat-flat-button [routerLink]="a.route" class="qa primary"><lsms-icon [name]="a.icon" [size]="18" />{{ a.label }}</a>
+          } @else {
+            <a mat-stroked-button [routerLink]="a.route" class="qa"><lsms-icon [name]="a.icon" [size]="18" />{{ a.label }}</a>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ── 2. Needs attention (close = hide for today · auto-hides after a reminder) ── -->
+  @if (hasAlerts()) {
+    <section class="alerts" aria-live="polite">
+      @if (showAlert('recon')) {
+        @if (alerts.reconApprovals(); as r) {
+          <div class="alert" animate.leave="alert-out" [style.--alert-seconds.s]="alertSeconds">
+            <a class="a-main" matRipple routerLink="/reconciliation" [queryParams]="{ tab: 'approval' }">
+              <span class="a-ic"><lsms-icon name="fact_check" [size]="20" /></span>
+              <span class="a-txt">
+                <strong>{{ i18n.t(r.count + ' reconciliations awaiting your approval', 'Ulinganisho ' + r.count + ' unasubiri idhini yako') }}</strong>
+                @if (r.oldestDate) {
+                  <small>{{ i18n.t('Oldest', 'Ya zamani zaidi') }}: {{ r.oldestDate }}</small>
+                }
+              </span>
+              <span class="a-cta">{{ i18n.t('Review', 'Kagua') }}<lsms-icon name="arrow_forward" [size]="16" /></span>
+            </a>
+            <button
+              type="button"
+              class="a-close"
+              [matTooltip]="i18n.t('Hide for today', 'Ficha kwa leo')"
+              [attr.aria-label]="i18n.t('Hide for today', 'Ficha kwa leo')"
+              (click)="closeAlert('recon')"
+            >
+              <lsms-icon name="close" [size]="18" />
+            </button>
+            <span class="a-timer" aria-hidden="true" (animationend)="autoHide('recon')"></span>
+          </div>
+        }
+      }
+      @if (showAlert('liability')) {
+        @if (alerts.liabilities(); as l) {
+          <div class="alert" animate.leave="alert-out" [style.--alert-seconds.s]="alertSeconds">
+            <a class="a-main" matRipple routerLink="/counting" [queryParams]="{ tab: 'my-liabilities' }">
+              <span class="a-ic"><lsms-icon name="account_balance_wallet" [size]="20" /></span>
+              <span class="a-txt">
+                <strong>{{ i18n.t(l.count + ' shortage liabilities awaiting your decision', 'Madeni ' + l.count + ' ya uhaba yanasubiri uamuzi wako') }}</strong>
+                <small>{{ i18n.t('Total', 'Jumla') }}: {{ money(l.balance) }}</small>
+              </span>
+              <span class="a-cta">{{ i18n.t('Open', 'Fungua') }}<lsms-icon name="arrow_forward" [size]="16" /></span>
+            </a>
+            <button
+              type="button"
+              class="a-close"
+              [matTooltip]="i18n.t('Hide for today', 'Ficha kwa leo')"
+              [attr.aria-label]="i18n.t('Hide for today', 'Ficha kwa leo')"
+              (click)="closeAlert('liability')"
+            >
+              <lsms-icon name="close" [size]="18" />
+            </button>
+            <span class="a-timer" aria-hidden="true" (animationend)="autoHide('liability')"></span>
+          </div>
+        }
+      }
+      @if (showAlert('debt')) {
+          <div class="alert" animate.leave="alert-out" [style.--alert-seconds.s]="alertSeconds">
+            <a class="a-main" matRipple routerLink="/sales" [queryParams]="{ panel: 'debt-adjustments' }">
+              <span class="a-ic"><lsms-icon name="gavel" [size]="20" /></span>
+              <span class="a-txt">
+                <strong>{{ i18n.t(alertCounts().debt + ' debt adjustments awaiting approval', 'Marekebisho ' + alertCounts().debt + ' ya deni yanasubiri idhini') }}</strong>
+              </span>
+              <span class="a-cta">{{ i18n.t('Review', 'Kagua') }}<lsms-icon name="arrow_forward" [size]="16" /></span>
+            </a>
+            <button
+              type="button"
+              class="a-close"
+              [matTooltip]="i18n.t('Hide for today', 'Ficha kwa leo')"
+              [attr.aria-label]="i18n.t('Hide for today', 'Ficha kwa leo')"
+              (click)="closeAlert('debt')"
+            >
+              <lsms-icon name="close" [size]="18" />
+            </button>
+            <span class="a-timer" aria-hidden="true" (animationend)="autoHide('debt')"></span>
+          </div>
+      }
+    </section>
+  }
+
+  <!-- ── 3. KPI strip ── -->
+  @if (showOverview()) {
+    <section class="kpis">
+      @if (kpi.canSeeSales()) {
+        <article class="kpi" style="--accent: var(--c-primary)">
+          <header><span class="k-ic"><lsms-icon name="point_of_sale" [size]="20" /></span>{{ i18n.t("Today's sales", 'Mauzo ya leo') }}</header>
+          @if (kpi.today(); as t) {
+            <strong class="value">{{ money(t.totalRevenue) }}</strong>
+            <footer>
+              <span>{{ t.totalSalesCount }} {{ i18n.t('sales', 'mauzo') }}</span>
+              @if (kpi.revenueChange(); as ch) {
+                <span class="trend" [class.down]="ch < 0">
+                  <lsms-icon [name]="ch < 0 ? 'trending_down' : 'trending_up'" [size]="14" />{{ ch > 0 ? '+' : '' }}{{ ch.toFixed(1) }}%
+                </span>
+              } @else {
+                <span class="muted">{{ i18n.t('vs yesterday', 'dhidi ya jana') }}: {{ compact(kpi.yesterday()?.totalRevenue) }}</span>
+              }
+            </footer>
+          } @else {
+            <lsms-skeleton variant="card" [height]="48" />
+          }
+        </article>
+
+        <article class="kpi" style="--accent: var(--c-success)">
+          <header><span class="k-ic"><lsms-icon name="payments" [size]="20" /></span>{{ i18n.t('Collected today', 'Makusanyo ya leo') }}</header>
+          @if (kpi.today(); as t) {
+            <strong class="value">{{ money(t.totalPaid) }}</strong>
+            <footer>
+              <span class="bar"><i [style.width.%]="t.totalRevenue ? (t.totalPaid / t.totalRevenue) * 100 : 0"></i></span>
+              <span>{{ t.totalRevenue ? ((t.totalPaid / t.totalRevenue) * 100).toFixed(0) : 0 }}% {{ i18n.t('paid', 'imelipwa') }}</span>
+            </footer>
+          } @else {
+            <lsms-skeleton variant="card" [height]="48" />
+          }
+        </article>
+
+        <article class="kpi" style="--accent: var(--c-error)" [class.urgent]="(kpi.today()?.allTimeOutstandingAmount ?? 0) > 0">
+          <header><span class="k-ic"><lsms-icon name="account_balance_wallet" [size]="20" /></span>{{ i18n.t('Outstanding debts', 'Madeni yanayodaiwa') }}</header>
+          @if (kpi.today(); as t) {
+            <strong class="value">{{ money(t.allTimeOutstandingAmount) }}</strong>
+            <footer>
+              <span>{{ t.allTimePendingSalesCount }} {{ i18n.t('unpaid sales', 'mauzo hayajalipwa') }}</span>
+              <a routerLink="/customers" class="link">{{ i18n.t('View', 'Ona') }}</a>
+            </footer>
+          } @else {
+            <lsms-skeleton variant="card" [height]="48" />
+          }
+        </article>
+      }
+      @if (kpi.canSeeStock()) {
+        <article class="kpi" style="--accent: var(--c-warning)" [class.urgent]="(kpi.stock()?.outOfStockAlerts ?? 0) > 0">
+          <header><span class="k-ic"><lsms-icon name="inventory" [size]="20" /></span>{{ i18n.t('Stock alerts', 'Tahadhari za stock') }}</header>
+          @if (kpi.stock(); as s) {
+            <strong class="value">{{ s.lowStockAlerts }} <small>{{ i18n.t('low', 'chini') }}</small></strong>
+            <footer>
+              <span class="danger">{{ s.outOfStockAlerts }} {{ i18n.t('out of stock', 'zimeisha') }}</span>
+              <a routerLink="/store" class="link">{{ i18n.t('View', 'Ona') }}</a>
+            </footer>
+          } @else {
+            <lsms-skeleton variant="card" [height]="48" />
+          }
+        </article>
+      }
+    </section>
+
+    <!-- ── 4. Today: hourly sales + stock health ── -->
+    <section class="today">
+      @if (kpi.canSeeSales()) {
+        <article class="panel chart">
+          <header class="p-head">
+            <div>
+              <h2>{{ i18n.t('Sales by hour', 'Mauzo kwa saa') }}</h2>
+              <p>
+                {{ i18n.t('Today vs yesterday', 'Leo dhidi ya jana') }}
+                @if (peakHour()) {
+                  · {{ i18n.t('peak', 'kilele') }} {{ peakHour() }}
+                }
+              </p>
+            </div>
+            <div class="legend">
+              <span><i class="dot today"></i>{{ i18n.t('Today', 'Leo') }} <b>{{ compact(kpi.today()?.totalRevenue) }}</b></span>
+              <span><i class="dot"></i>{{ i18n.t('Yesterday', 'Jana') }} <b>{{ compact(kpi.yesterday()?.totalRevenue) }}</b></span>
+            </div>
+          </header>
+          <div class="chart-body">
+            @if (kpi.today(); as t) {
+              <lsms-comparison-bars
+                [primary]="t.hourlyRevenue"
+                [secondary]="kpi.yesterday()?.hourlyRevenue ?? []"
+                [labels]="hours"
+                [labelEvery]="3"
+              />
+              @if (!t.totalRevenue && !kpi.yesterday()?.totalRevenue) {
+                <p class="empty-note">{{ i18n.t('No sales recorded today or yesterday yet.', 'Hakuna mauzo yaliyorekodiwa leo wala jana.') }}</p>
+              }
+            } @else {
+              <lsms-skeleton variant="card" [height]="180" />
+            }
+          </div>
+        </article>
+      }
+      @if (kpi.canSeeStock()) {
+        <article class="panel health">
+          <header class="p-head">
+            <div>
+              <h2>{{ i18n.t('Stock health', 'Afya ya stock') }}</h2>
+              <p>{{ stockHealth()?.total ?? '—' }} {{ i18n.t('products tracked', 'bidhaa zinafuatiliwa') }}</p>
+            </div>
+            @if (stockHealth(); as h) {
+              <span class="status" [attr.data-status]="h.status">{{ h.status }}</span>
+            }
+          </header>
+          @if (stockHealth(); as h) {
+            <div class="stack">
+              <i class="ok" [style.width.%]="h.okPct"></i><i class="low" [style.width.%]="h.lowPct"></i><i class="out" [style.width.%]="h.outPct"></i>
+            </div>
+            <ul class="breakdown">
+              <li><i class="ok"></i>{{ i18n.t('Healthy', 'Salama') }}<b>{{ h.ok }}</b></li>
+              <li><i class="low"></i>{{ i18n.t('Low stock', 'Stock ndogo') }}<b>{{ h.low }}</b></li>
+              <li><i class="out"></i>{{ i18n.t('Out of stock', 'Zimeisha') }}<b>{{ h.out }}</b></li>
+            </ul>
+            <div class="inv-value">
+              <span>{{ i18n.t('Inventory value', 'Thamani ya mali') }}</span>
+              <strong>{{ money(kpi.stock()?.totalInventoryValue) }}</strong>
+            </div>
+          } @else {
+            <lsms-skeleton variant="list" [rows]="3" />
+          }
+        </article>
+      }
+    </section>
+  }
+
+  <!-- ── 5. Frequently used ── -->
+  @if (usage.frequent().length) {
+    <section class="block">
+      <header class="b-head"><h2><lsms-icon name="bolt" [size]="18" />{{ i18n.t('Frequently used', 'Unazotumia mara kwa mara') }}</h2></header>
+      <div class="freq">
+        @for (m of usage.frequent(); track m.id) {
+          <button type="button" class="freq-item" matRipple [style.--accent]="m.color" (click)="openModule(m)">
+            <span class="f-ic"><lsms-icon [name]="m.icon" [size]="20" /></span>
+            <span>{{ m.short[i18n.lang()] }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── 6. Module launcher ── -->
+  <section class="block">
+    <header class="b-head">
+      <h2><lsms-icon name="apps" [size]="18" />{{ i18n.t('All modules', 'Moduli zote') }}</h2>
+      <mat-chip-listbox
+        class="filters"
+        [value]="filter()"
+        (change)="setFilter($event.value)"
+        [attr.aria-label]="i18n.t('Filter modules', 'Chuja moduli')"
+      >
+        <mat-chip-option value="ALL" [selectable]="filter() !== 'ALL'">
+          {{ i18n.t('All', 'Zote') }} <span class="cnt">{{ counts()['ALL'].open }}</span>
+        </mat-chip-option>
+        @for (c of categories; track c) {
+          <mat-chip-option [value]="c" [selectable]="filter() !== c">
+            {{ categoryLabels[c][i18n.lang()] }} <span class="cnt">{{ counts()[c]?.open ?? 0 }}/{{ counts()[c]?.total ?? 0 }}</span>
+          </mat-chip-option>
+        }
+      </mat-chip-listbox>
+    </header>
+
+    <div class="grid">
+      @for (t of visibleTiles(); track t.module.id; let i = $index) {
+        <button
+          type="button"
+          class="tile"
+          matRipple
+          [matRippleDisabled]="t.locked"
+          [class.locked]="t.locked"
+          [style.--accent]="t.module.color"
+          [style.animation-delay.ms]="i * 25"
+          [matTooltip]="t.locked ? i18n.t('No access — contact your administrator', 'Huna ruhusa — wasiliana na msimamizi') : ''"
+          [attr.aria-disabled]="t.locked || null"
+          (click)="openModule(t)"
+        >
+          <span class="t-ic"><lsms-icon [name]="t.module.icon" [size]="22" /></span>
+          <span class="t-body">
+            <strong>{{ t.module.short[i18n.lang()] }}</strong>
+            <small>{{ t.module.description[i18n.lang()] }}</small>
+          </span>
+          @if (t.locked) {
+            <span class="t-lock"><lsms-icon name="lock" [size]="14" [filled]="true" /></span>
+          } @else {
+            <lsms-icon class="t-go" name="arrow_forward" [size]="18" />
+          }
+        </button>
+      }
+    </div>
+  </section>
+</div>

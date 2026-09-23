@@ -1,0 +1,174 @@
+@use 'typography' as t;
+
+:host {
+  --accent: var(--c-primary);
+  --frame: var(--c-primary);
+
+  position: relative;
+  display: flex;
+  height: 100px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--c-surface), var(--c-metric-gradient-end));
+  border: 1px solid color-mix(in srgb, var(--frame) 12%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--frame) 12%, transparent);
+}
+:host-context([data-theme='dark']) {
+  border-color: color-mix(in srgb, var(--frame) 18%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--frame) 25%, transparent);
+}
+:host(.urgent) {
+  --frame: var(--accent);
+}
+:host(.compact) {
+  height: 80px;
+}
+:host(.clickable) {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 56px;
+  height: 4px;
+  border-top-left-radius: 16px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 14%, transparent),
+    color-mix(in srgb, var(--accent) 5%, transparent)
+  );
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 12px;
+  gap: 2px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.label {
+  @include t.metric-label;
+  @include t.ellipsis;
+  flex: 1;
+  color: var(--c-text-2);
+}
+.urgent-icon {
+  color: var(--accent);
+}
+.value {
+  @include t.metric-value;
+  @include t.ellipsis;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.subtitle {
+  @include t.metric-caption;
+  @include t.ellipsis;
+  color: var(--c-text);
+}
+
+// Breakdown mode: Mapato | Reja reja | Jumla
+.breakdown {
+  display: flex;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  &.main {
+    flex: 5;
+  }
+  &.end {
+    flex: 4;
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+.divider {
+  width: 1px;
+  height: 36px;
+  margin: 0 8px;
+  background: color-mix(in srgb, var(--c-border) 35%, transparent);
+}
+.sub-label {
+  @include t.metric-caption-compact;
+  @include t.ellipsis;
+  color: var(--c-text-2);
+}
+.sub-value {
+  @include t.metric-caption;
+  @include t.ellipsis;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+// Compact (< 110px wide)
+.compact-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+  text-align: center;
+}
+.value-compact {
+  @include t.metric-value-compact;
+  @include t.ellipsis;
+  max-width: 100%;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.sub-compact,
+.label-compact {
+  @include t.metric-caption-compact;
+  @include t.ellipsis;
+  max-width: 100%;
+}
+.sub-compact {
+  color: var(--c-text);
+}
+.label-compact {
+  @include t.metric-label-compact;
+  color: var(--c-text-2);
+}

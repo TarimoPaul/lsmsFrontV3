@@ -1,0 +1,482 @@
+@use 'typography' as t;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--c-text);
+
+  // Auth-specific field look (Flutter login fields): taller, rounder, slate.
+  --field-height: 52px;
+  --field-radius: 12px;
+  --field-padding-x: 16px;
+  --field-fill: #f8fafc;
+  --field-border: #e2e8f0;
+  --field-focus-ring: 3px;
+  --field-focus-alpha: 18%;
+}
+:host-context([data-theme='dark']) {
+  --field-fill: rgb(34 39 46 / 0.6);
+  --field-border: rgb(255 255 255 / 0.12);
+}
+
+// ── Top controls ────────────────────────────────────────────────────────────
+.top-controls {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lang-pill,
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--c-border);
+  background: rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.06);
+  cursor: pointer;
+  border-radius: 100px;
+}
+:host-context([data-theme='dark']) .lang-pill,
+:host-context([data-theme='dark']) .theme-btn {
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.12);
+}
+.theme-btn {
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  color: var(--c-text-2);
+}
+.lang-pill {
+  padding: 3px;
+  span {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--c-text-2);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &.on {
+      background: var(--c-primary);
+      color: var(--c-on-primary);
+    }
+  }
+}
+
+// ── Stage ───────────────────────────────────────────────────────────────────
+.stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 48px 32px;
+}
+
+// Desktop composition: hero 840px + login card 400px hanging 20% outside.
+$hero-w: 840px;
+$card-w: 400px;
+$outside: 80px;
+
+.composition {
+  position: relative;
+  width: $hero-w + $outside;
+  display: flex;
+  align-items: center;
+  animation: fade-in 0.8s ease-out both;
+}
+.hero-card {
+  width: $hero-w;
+  min-height: 640px;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 22px 48px -10px rgb(27 58 87 / 0.24);
+  animation: slide-from-left 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) 0.1s both;
+  > * {
+    flex: 1;
+  }
+}
+:host-context([data-theme='dark']) .hero-card {
+  box-shadow: 0 22px 48px -10px rgb(0 0 0 / 0.45);
+}
+.floating-card {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: $card-w;
+  translate: 0 -50%;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--c-card);
+  box-shadow:
+    0 24px 50px -6px rgb(0 0 0 / 0.2),
+    0 12px 60px color-mix(in srgb, var(--c-primary) 12%, transparent);
+  animation: slide-from-right 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) 0.2s both;
+}
+:host-context([data-theme='dark']) .floating-card {
+  box-shadow: 0 24px 50px -6px rgb(0 0 0 / 0.5);
+}
+.login-panel {
+  padding: 34px 32px;
+  background: #fff;
+}
+:host-context([data-theme='dark']) .login-panel,
+:host-context([data-theme='dark']) .form-panel-large,
+:host-context([data-theme='dark']) .mobile-card {
+  background: var(--c-card);
+}
+.form-panel-large {
+  position: relative;
+  background: #fff;
+}
+.form-panel-inner {
+  // Right padding clears the floating card that overlaps the hero.
+  padding: 52px ($card-w - $outside + 28px) 48px 56px;
+  max-width: 100%;
+}
+.accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-secondary) 55%, var(--c-primary));
+}
+
+// ── Mobile ──────────────────────────────────────────────────────────────────
+.mobile {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 28px;
+  animation: fade-in 0.6s ease-out both;
+}
+.compact-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  strong {
+    display: block;
+    font-size: 1.375rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+  }
+  span {
+    font-size: 0.75rem;
+    color: color-mix(in srgb, var(--c-secondary) 75%, transparent);
+    font-weight: 600;
+  }
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--c-primary) 30%, transparent);
+}
+.mobile-card {
+  padding: 30px 24px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid #edf1f5;
+  box-shadow: 0 24px 50px -6px rgb(0 0 0 / 0.16);
+}
+:host-context([data-theme='dark']) .mobile-card {
+  border-color: rgb(255 255 255 / 0.08);
+}
+.mobile-foot {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: var(--c-text-2);
+  opacity: 0.8;
+}
+
+// ── Form internals ──────────────────────────────────────────────────────────
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.form-head {
+  text-align: center;
+  margin-bottom: 20px;
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.2;
+    color: #0f172a;
+  }
+  p {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+  &.with-back {
+    text-align: center;
+  }
+}
+:host-context([data-theme='dark']) .form-head {
+  h1 {
+    color: #fff;
+  }
+  p {
+    color: rgb(255 255 255 / 0.55);
+  }
+}
+.head-icon {
+  display: inline-flex;
+  padding: 12px;
+  margin: 4px 0 12px;
+  border-radius: 16px;
+  color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+}
+.back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--c-primary);
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--c-error);
+  background: color-mix(in srgb, var(--c-error) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-error) 35%, transparent);
+  animation: shake 0.35s ease-in-out;
+  &.notice {
+    color: var(--c-info);
+    background: color-mix(in srgb, var(--c-info) 8%, transparent);
+    border-color: color-mix(in srgb, var(--c-info) 30%, transparent);
+    animation: none;
+  }
+}
+
+.caps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 6px 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--c-warning);
+}
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 0 22px;
+}
+.remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4a5568;
+  input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--c-primary);
+    cursor: pointer;
+  }
+}
+:host-context([data-theme='dark']) .remember {
+  color: rgb(255 255 255 / 0.65);
+}
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--c-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  &:hover {
+    text-decoration: underline;
+  }
+  &.swap {
+    align-self: flex-start;
+    margin: -4px 0 4px;
+  }
+}
+
+.cta {
+  --btn-bg: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
+  border-radius: 12px;
+  margin-top: 8px;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--c-primary) 35%, transparent);
+  &:disabled {
+    box-shadow: none;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+  }
+}
+:host-context([data-theme='dark']) .divider::before,
+:host-context([data-theme='dark']) .divider::after {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.outline-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 56px;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--c-secondary);
+  @include t.button;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  lsms-icon {
+    color: var(--c-primary);
+  }
+  &:hover {
+    border-color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 5%, transparent);
+  }
+}
+:host-context([data-theme='dark']) .outline-cta {
+  border-color: rgb(255 255 255 / 0.15);
+  color: rgb(255 255 255 / 0.85);
+}
+
+.secure-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 22px;
+  font-size: 0.66rem;
+  font-weight: 500;
+  color: rgb(148 163 184 / 0.8);
+}
+
+.checklist {
+  list-style: none;
+  margin: -4px 0 10px;
+  padding: 0 2px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #64748b;
+    lsms-icon {
+      color: #cbd5e1;
+    }
+    &.ok,
+    &.ok lsms-icon {
+      color: var(--c-success);
+    }
+  }
+}
+.inline-link {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+.approval-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--c-text-2);
+}
+
+// ── Motion ──────────────────────────────────────────────────────────────────
+:host ::ng-deep .panel-in {
+  animation: panel-in 0.3s ease-out both;
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+}
+@keyframes slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(12%);
+  }
+}
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  :host ::ng-deep .panel-in {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,58 @@
+<div class="nav">
+  <button type="button" class="month-btn" [attr.aria-expanded]="showYears()" (click)="showYears.set(!showYears())">
+    <span>{{ monthLabel() }}</span>
+    <lsms-icon [name]="showYears() ? 'arrow_drop_up' : 'arrow_drop_down'" />
+  </button>
+  <button
+    lsmsIconButton="chevron_left"
+    [disabled]="!canPrev()"
+    [attr.aria-label]="i18n.t('Previous month', 'Mwezi uliopita')"
+    [title]="i18n.t('Previous month', 'Mwezi uliopita')"
+    (click)="prevMonth()"
+  ></button>
+  <button
+    lsmsIconButton="chevron_right"
+    [disabled]="!canNext()"
+    [attr.aria-label]="i18n.t('Next month', 'Mwezi unaofuata')"
+    [title]="i18n.t('Next month', 'Mwezi unaofuata')"
+    (click)="nextMonth()"
+  ></button>
+</div>
+
+<div class="panel">
+  @if (showYears()) {
+    <div class="years">
+      @for (y of years(); track y) {
+        <button type="button" class="year" [class.on]="y === visibleMonth().getFullYear()" (click)="pickYear(y)">
+          {{ y }}
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="weekdays">
+      @for (w of weekdays(); track w) {
+        <span>{{ w }}</span>
+      }
+    </div>
+    <div class="grid" role="grid">
+      @for (b of leadingBlanks(); track $index) {
+        <span></span>
+      }
+      @for (c of days(); track c.day) {
+        <button
+          type="button"
+          class="day"
+          role="gridcell"
+          [class.in-range]="c.inRange"
+          [class.edge]="c.edge && c.selectable"
+          [class.today]="c.today"
+          [disabled]="!c.selectable"
+          [attr.aria-selected]="c.inRange"
+          (click)="pickDay(c)"
+        >
+          {{ c.day }}
+        </button>
+      }
+    </div>
+  }
+</div>

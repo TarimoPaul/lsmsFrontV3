@@ -1,0 +1,116 @@
+<div class="left">
+  @if (showMenuButton()) {
+    <button type="button" class="icon-btn" matRipple [attr.aria-label]="i18n.t('Open menu', 'Fungua menyu')" (click)="menu.emit()">
+      <lsms-icon name="menu" [size]="22" />
+    </button>
+  }
+  <div class="titles">
+    <nav class="crumbs" [attr.aria-label]="i18n.t('Breadcrumb', 'Njia')">
+      @if (!isHome()) {
+        <a routerLink="/dashboard">{{ i18n.t('Home', 'Nyumbani') }}</a>
+        <lsms-icon name="chevron_right" [size]="14" />
+      }
+      <span aria-current="page">{{ title() }}</span>
+    </nav>
+    @if (subtitle()) {
+      <p>{{ subtitle() }}</p>
+    }
+  </div>
+</div>
+
+<button type="button" class="search" matRipple (click)="search.emit()" [attr.aria-label]="i18n.t('Search modules', 'Tafuta moduli')">
+  <lsms-icon name="search" [size]="19" />
+  <span class="ph">{{ i18n.t('Search modules, pages…', 'Tafuta moduli, kurasa…') }}</span>
+  <kbd>{{ isMac ? '⌘' : 'Ctrl' }}&nbsp;K</kbd>
+</button>
+
+<div class="right">
+  @if (auth.branches().length > 1) {
+    <button type="button" class="branch" matRipple [matTooltip]="i18n.t('Switch branch', 'Badili tawi')" (click)="switchBranch.emit()">
+      <lsms-icon name="storefront" [size]="17" />
+      <span>{{ auth.activeBranch()?.branchName ?? i18n.t('Branch', 'Tawi') }}</span>
+      <lsms-icon name="unfold_more" [size]="16" />
+    </button>
+  }
+
+  <div class="cluster" role="toolbar" [attr.aria-label]="i18n.t('Quick settings', 'Mipangilio ya haraka')">
+    <button type="button" class="icon-btn hide-sm" matRipple [matTooltip]="i18n.t('Refresh', 'Onyesha upya')" [attr.aria-label]="i18n.t('Refresh', 'Onyesha upya')" (click)="refresh.emit()">
+      <lsms-icon name="refresh" [size]="20" />
+    </button>
+    <a
+      class="icon-btn"
+      matRipple
+      routerLink="/account/notifications"
+      [matTooltip]="i18n.t('Notifications', 'Arifa')"
+      [attr.aria-label]="i18n.t('Notifications', 'Arifa') + (notifications.unread() ? ' (' + notifications.unread() + ')' : '')"
+      [matBadge]="notifications.unread() > 99 ? '99+' : notifications.unread()"
+      [matBadgeHidden]="!notifications.unread()"
+      matBadgeSize="small"
+      matBadgeColor="warn"
+      matBadgeOverlap="true"
+    >
+      <lsms-icon name="notifications" [size]="20" [filled]="notifications.unread() > 0" />
+    </a>
+    <button
+      type="button"
+      class="icon-btn hide-sm"
+      matRipple
+      [matTooltip]="theme.isDarkMode() ? i18n.t('Light mode', 'Mwanga') : i18n.t('Dark mode', 'Giza')"
+      [attr.aria-label]="i18n.t('Toggle theme', 'Badili mandhari')"
+      (click)="theme.toggleTheme()"
+    >
+      <lsms-icon [name]="theme.isDarkMode() ? 'light_mode' : 'dark_mode'" [size]="20" />
+    </button>
+    <button type="button" class="lang hide-sm" matRipple [matTooltip]="i18n.t('Change language', 'Badili lugha')" (click)="i18n.toggleLanguage()">
+      {{ i18n.lang().toUpperCase() }}
+    </button>
+  </div>
+
+  <button type="button" class="user" matRipple [matMenuTriggerFor]="userMenu" [attr.aria-label]="i18n.t('Account menu', 'Menyu ya akaunti')">
+    <span class="avatar">
+      @if (auth.user()?.profileImageUrl; as img) {
+        <img [src]="img" alt="" />
+      } @else {
+        {{ initials() }}
+      }
+      <i class="online"></i>
+    </span>
+    <span class="who">
+      <strong>{{ auth.displayName() }}</strong>
+      <small>{{ auth.primaryRole() }}</small>
+    </span>
+    <lsms-icon name="expand_more" [size]="18" class="chev" />
+  </button>
+</div>
+
+<mat-menu #userMenu="matMenu" xPosition="before" class="user-menu">
+  <div class="menu-head">
+    <span class="avatar lg">
+      @if (auth.user()?.profileImageUrl; as img) {
+        <img [src]="img" alt="" />
+      } @else {
+        {{ initials() }}
+      }
+    </span>
+    <div>
+      <strong>{{ auth.displayName() }}</strong>
+      <span>{{ auth.user()?.email }}</span>
+      <em>{{ auth.primaryRole() }}@if (auth.activeBranch(); as b) { · {{ b.branchName }} }</em>
+    </div>
+  </div>
+  <mat-divider />
+  <a mat-menu-item routerLink="/account/profile"><lsms-icon name="person" [size]="20" />{{ i18n.t('My profile', 'Wasifu wangu') }}</a>
+  <a mat-menu-item routerLink="/account/settings"><lsms-icon name="tune" [size]="20" />{{ i18n.t('Settings', 'Mipangilio') }}</a>
+  <a mat-menu-item routerLink="/account/security"><lsms-icon name="lock" [size]="20" />{{ i18n.t('Security', 'Usalama') }}</a>
+  <button mat-menu-item class="show-sm" (click)="theme.toggleTheme()">
+    <lsms-icon [name]="theme.isDarkMode() ? 'light_mode' : 'dark_mode'" [size]="20" />
+    {{ theme.isDarkMode() ? i18n.t('Light mode', 'Mwanga') : i18n.t('Dark mode', 'Giza') }}
+  </button>
+  <button mat-menu-item class="show-sm" (click)="i18n.toggleLanguage()">
+    <lsms-icon name="translate" [size]="20" />{{ i18n.isSwahili() ? 'English' : 'Kiswahili' }}
+  </button>
+  <mat-divider />
+  <button mat-menu-item class="danger" (click)="logout.emit()">
+    <lsms-icon name="logout" [size]="20" />{{ i18n.t('Sign out', 'Toka') }}
+  </button>
+</mat-menu>

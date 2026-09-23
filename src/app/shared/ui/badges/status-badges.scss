@@ -1,0 +1,76 @@
+@use 'typography' as t;
+
+// Shared look for payment / return / liability badges:
+// tinted fill (12%), coloured border (35%), coloured icon + label.
+:host {
+  --badge: var(--c-text-2);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  color: var(--badge);
+  background: color-mix(in srgb, var(--badge) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--badge) 35%, transparent);
+  @include t.badge-label;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+:host(.compact) {
+  padding: 3px 6px;
+  @include t.badge-label-compact;
+}
+:host(.squared) {
+  border-radius: 8px;
+  border-width: 1.2px;
+  padding: 4px 7px;
+}
+:host(.squared.compact) {
+  padding: 3px 5px;
+}
+:host(.empty) {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+:host([data-status='paid']) {
+  --badge: var(--c-success);
+}
+:host([data-status='partial']) {
+  --badge: var(--c-warning);
+}
+:host([data-status='unpaid']) {
+  --badge: var(--c-error);
+}
+
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.pct {
+  @include t.badge-label-compact;
+}
+.track {
+  display: block;
+  width: 64px;
+  height: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--badge) 18%, transparent);
+}
+:host(.compact) .track {
+  width: 52px;
+}
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--badge);
+}
+.placeholder {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--c-text-2);
+}

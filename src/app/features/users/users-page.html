@@ -1,0 +1,149 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('User Management', 'Usimamizi wa Watumiaji')"
+    [subtitle]="i18n.t('Manage user accounts, roles, and permissions', 'Simamia akaunti za watumiaji, majukumu na ruhusa')"
+    icon="group"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <button *lsmsCan="'USER_CREATE'" lsmsButton icon="person_add" size="sm" (click)="openForm()">
+      {{ i18n.t('Add user', 'Ongeza mtumiaji') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Total users', 'Watumiaji wote')"
+      [value]="(stats() ? stats()!.total - stats()!.terminated : users().length) + ''"
+      [subtitle]="stats()?.terminated ? stats()!.terminated + ' ' + i18n.t('deleted', 'wamefutwa') : undefined"
+      icon="group"
+      color="var(--c-primary)"
+    />
+    <lsms-metric-card [title]="i18n.t('Active', 'Hai')" [value]="(stats()?.active ?? '—') + ''" icon="check_circle" color="var(--c-success)" />
+    <lsms-metric-card
+      [title]="i18n.t('Pending approval', 'Wanasubiri idhini')"
+      [value]="(stats()?.pending ?? '—') + ''"
+      icon="hourglass_top"
+      color="var(--c-warning)"
+      [urgent]="(stats()?.pending ?? 0) > 0"
+      [clickable]="(stats()?.pending ?? 0) > 0"
+      (tap)="filterPending()"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Inactive / locked', 'Wamezimwa / wamefungwa')"
+      [value]="((stats()?.inactive ?? 0) + (stats()?.locked ?? 0)) + ''"
+      icon="pause_circle"
+      color="var(--c-text-2)"
+    />
+  </lsms-metrics-grid>
+
+  @if (roleDistribution().length) {
+    <section class="dist">
+      <span class="dist-title"><lsms-icon name="donut_small" [size]="16" />{{ i18n.t('Users per role', 'Watumiaji kwa jukumu') }}</span>
+      <div class="dist-bar">
+        @for (r of roleDistribution(); track r.name) {
+          <i [style.flex-grow]="r.count" [style.background]="r.color" [title]="r.name + ': ' + r.count"></i>
+        }
+      </div>
+      <div class="dist-legend">
+        @for (r of roleDistribution(); track r.name) {
+          <span><i [style.background]="r.color"></i>{{ r.name }} <b>{{ r.count }}</b></span>
+        }
+      </div>
+    </section>
+  }
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name, email or phone…', 'Tafuta jina, barua pepe au simu…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="statusOptions()" [(selected)]="status" />
+      @if (roleOptions().length) {
+        <lsms-select-field
+          class="role-filter"
+          [dense]="true"
+          prefixIcon="badge"
+          [options]="roleOptions()"
+          [emptyLabel]="i18n.t('All roles', 'Majukumu yote')"
+          [ariaLabel]="i18n.t('Filter by role', 'Chuja kwa jukumu')"
+          [value]="roleUid()"
+          (valueChange)="roleUid.set($event)"
+        />
+      }
+    </lsms-filter-panel>
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load users', 'Imeshindikana kupakia watumiaji')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="i18n.t('Users', 'Watumiaji')"
+        [items]="users()"
+        [rowId]="rowId"
+        [loading]="loading()"
+        [showRowNumbers]="true"
+        [mobileTitle]="nameOf"
+        [mobileColumns]="['roles', 'status', 'phone', 'actions']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="i18n.t('No users found', 'Hakuna watumiaji')"
+        [emptyMessage]="search() || status() !== 'ALL' || roleUid() ? i18n.t('Try adjusting your search or filters.', 'Jaribu kubadili utafutaji au vichujio.') : undefined"
+        emptyIcon="person_search"
+        (rowClick)="openDetails($event)"
+      >
+        <ng-template lsmsColumn="user" [label]="i18n.t('User', 'Mtumiaji')" [sortBy]="nameOf" let-row>
+          <span class="user-cell">
+            <span class="avatar" [class.self]="isSelf(row)">{{ initials(row) }}</span>
+            <span class="uc-txt">
+              <strong>
+                {{ fullName(row) }}
+                @if (isSelf(row)) {
+                  <em>{{ i18n.t('You', 'Wewe') }}</em>
+                }
+              </strong>
+              <small>{{ row.email }}</small>
+            </span>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="phone" [label]="i18n.t('Phone', 'Simu')" let-row>
+          <span class="muted">{{ row.phoneNumber || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="roles" [label]="i18n.t('Roles', 'Majukumu')" let-row>
+          <span class="roles">
+            @for (r of row.roleNames.slice(0, 2); track r) {
+              <span class="role" [style.--role]="roleColor(r)">{{ r }}</span>
+            } @empty {
+              <span class="muted">{{ i18n.t('None', 'Hakuna') }}</span>
+            }
+            @if (row.roleNames.length > 2) {
+              <span class="role more" [title]="row.roleNames.slice(2).join(', ')">+{{ row.roleNames.length - 2 }}</span>
+            }
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" [sortBy]="statusOf" let-row>
+          <span class="status" [style.--st]="statusMeta[row.status].color">
+            <lsms-icon [name]="statusMeta[row.status].icon" [size]="13" [filled]="true" />
+            {{ i18n.isSwahili() ? statusMeta[row.status].sw : statusMeta[row.status].en }}
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="lastLogin" [label]="i18n.t('Last sign-in', 'Aliingia mwisho')" [sortBy]="lastLoginOf" let-row>
+          <span class="muted">{{ relative(row.lastLoginAt) }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="created" [label]="i18n.t('Joined', 'Alijiunga')" [sortBy]="createdOf" [hidden]="true" let-row>
+          <span class="muted">{{ relative(row.createdAt) }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="actions" let-row>
+          @if (row.status === 'PENDING' && auth.hasPermission('USER_APPROVE')) {
+            <button lsmsButton="success" size="sm" class="approve" (click)="approve(row)">
+              {{ i18n.t('Approve', 'Idhinisha') }}
+            </button>
+          }
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    }
+  </div>
+</div>

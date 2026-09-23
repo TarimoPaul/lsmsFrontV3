@@ -1,1 +1,46 @@
-/* You can add global styles to this file, and also import other style files */
+// Global stylesheet. Vendor CSS (Material Symbols, CDK overlay, Tailwind) is
+// loaded via angular.json "styles" so it lands before these rules.
+@use '@angular/material' as mat;
+@use 'tokens';
+@use 'base';
+
+// ─── Angular Material 3 theme, re-pointed at the LSMS brand tokens ──────────
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: 'PlusJakartaSans',
+      density: 0,
+    )
+  );
+
+  // Brand overrides: Material components follow the active LSMS palette
+  // (light / eye-comfort / dark) instead of the stock azure scheme.
+  --mat-sys-primary: var(--c-primary);
+  --mat-sys-on-primary: var(--c-on-primary);
+  --mat-sys-primary-container: var(--c-primary-container);
+  --mat-sys-surface: var(--c-surface);
+  --mat-sys-surface-container: var(--c-elevated);
+  --mat-sys-surface-container-low: var(--c-surface);
+  --mat-sys-surface-container-high: var(--c-elevated);
+  --mat-sys-on-surface: var(--c-text);
+  --mat-sys-on-surface-variant: var(--c-text-2);
+  --mat-sys-outline: var(--c-border);
+  --mat-sys-outline-variant: var(--c-divider);
+  --mat-sys-error: var(--c-error);
+  --mat-sys-corner-medium: 12px;
+}
+
+// Material overlays (menus, tooltips) match our elevated surfaces.
+.mat-mdc-menu-panel {
+  --mat-menu-container-shape: 12px;
+  border: 1px solid var(--c-border);
+}
+.mat-mdc-tooltip {
+  --mat-tooltip-container-color: #1e293b;
+  --mat-tooltip-supporting-text-color: #fff;
+  --mat-tooltip-supporting-text-size: 12px;
+}

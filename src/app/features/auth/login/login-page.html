@@ -1,0 +1,236 @@
+<app-auth-background />
+
+<!-- Top-right controls: language pill (Flutter) + theme toggle (v3) -->
+<div class="top-controls">
+  <button
+    type="button"
+    class="theme-btn"
+    [matTooltip]="i18n.t('Toggle theme', 'Badili mandhari')"
+    [attr.aria-label]="i18n.t('Toggle theme', 'Badili mandhari')"
+    (click)="theme.toggleTheme()"
+  >
+    <lsms-icon [name]="theme.isDarkMode() ? 'light_mode' : 'dark_mode'" [size]="18" />
+  </button>
+  <button type="button" class="lang-pill" [attr.aria-label]="i18n.t('Change language', 'Badili lugha')" (click)="i18n.toggleLanguage()">
+    <span [class.on]="i18n.isSwahili()">SW</span>
+    <span [class.on]="!i18n.isSwahili()">EN</span>
+  </button>
+</div>
+
+<main class="stage">
+  @if (wide()) {
+    <!-- ── Floating composition (desktop / tablet) ── -->
+    <div class="composition">
+      <section class="hero-card">
+        @if (activeView() === 'login') {
+          <app-brand-panel animate.enter="panel-in" size="large" />
+        } @else {
+          <div class="form-panel-large" animate.enter="panel-in">
+            <div class="accent-bar"></div>
+            <div class="form-panel-inner">
+              <ng-container *ngTemplateOutlet="activeView() === 'register' ? registerTpl : forgotTpl" />
+            </div>
+          </div>
+        }
+      </section>
+      <section class="floating-card">
+        @if (activeView() === 'login') {
+          <div class="login-panel" animate.enter="panel-in">
+            <ng-container *ngTemplateOutlet="loginTpl" />
+          </div>
+        } @else {
+          <app-brand-panel animate.enter="panel-in" size="mini" />
+        }
+      </section>
+    </div>
+  } @else {
+    <!-- ── Mobile / narrow ── -->
+    <div class="mobile">
+      <div class="compact-brand">
+        <span class="brand-mark"><img src="/icons/Finallogo.png" alt="" width="26" height="26" /></span>
+        <div>
+          <strong>ELIKOM</strong>
+          <span>Sales &amp; Management System</span>
+        </div>
+      </div>
+      <section class="mobile-card">
+        @switch (activeView()) {
+          @case ('login') {
+            <div animate.enter="panel-in"><ng-container *ngTemplateOutlet="loginTpl" /></div>
+          }
+          @case ('register') {
+            <div animate.enter="panel-in"><ng-container *ngTemplateOutlet="registerTpl" /></div>
+          }
+          @case ('forgot') {
+            <div animate.enter="panel-in"><ng-container *ngTemplateOutlet="forgotTpl" /></div>
+          }
+        }
+      </section>
+      <p class="mobile-foot">© Elikom Group Company Limited · v{{ version }}</p>
+    </div>
+  }
+</main>
+
+<!-- ═══════════════════════════ Login form ═══════════════════════════ -->
+<ng-template #loginTpl>
+  <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="login()" (keyup)="onKey($event)" (keydown)="onKey($event)" novalidate>
+    <header class="form-head">
+      <h1>
+        @if (returningName(); as name) {
+          {{ i18n.t('Welcome, ' + name, 'Karibu, ' + name) }}
+        } @else {
+          {{ i18n.t('Welcome', 'Karibu') }}
+        }
+      </h1>
+      <p>
+        {{
+          returningName()
+            ? i18n.t('Enter your password to continue.', 'Weka neno la siri ili kuendelea.')
+            : i18n.t('Sign in to continue to your dashboard.', 'Ingia kuendelea kwenye dashibodi yako.')
+        }}
+      </p>
+    </header>
+
+    @if (error(); as code) {
+      <div class="banner" [class.notice]="isNotice(code)" role="alert">
+        <lsms-icon [name]="isNotice(code) ? 'schedule' : 'error'" [size]="18" />
+        <span>{{ errorText(code) }}</span>
+      </div>
+    }
+
+    @if (!returningName()) {
+      <lsms-text-field
+        formControlName="email"
+        type="email"
+        [label]="i18n.t('Email Address', 'Barua Pepe')"
+        prefixIcon="mail"
+        placeholder="name@company.com"
+        autocomplete="username"
+        [autofocus]="true"
+      />
+    }
+    <lsms-text-field
+      #passwordField
+      formControlName="password"
+      type="password"
+      [label]="i18n.t('Password', 'Nenosiri')"
+      autocomplete="current-password"
+      [autofocus]="!!returningName()"
+    />
+    @if (capsLock()) {
+      <p class="caps"><lsms-icon name="keyboard_capslock" [size]="15" />{{ i18n.t('Caps Lock is on', 'Caps Lock imewashwa') }}</p>
+    }
+    @if (returningName()) {
+      <button type="button" class="link-btn swap" (click)="useAnotherAccount()">
+        <lsms-icon name="swap_horiz" [size]="16" />{{ i18n.t('Use another account', 'Tumia akaunti nyingine') }}
+      </button>
+    }
+
+    <div class="actions-row">
+      <label class="remember">
+        <input type="checkbox" formControlName="rememberMe" />
+        <span>{{ i18n.t('Remember me', 'Nikumbuke') }}</span>
+      </label>
+      <button type="button" class="link-btn" (click)="switchView('forgot')">
+        {{ i18n.t('Forgot Password?', 'Umesahau nenosiri?') }}
+      </button>
+    </div>
+
+    <button
+      lsmsButton
+      type="submit"
+      size="lg"
+      class="cta"
+      trailingIcon="arrow_forward"
+      [fullWidth]="true"
+      [loading]="busy()"
+      [disabled]="!canSubmitLogin()"
+    >
+      {{ busy() ? i18n.t('Signing in…', 'Inaingia…') : i18n.t('Sign In', 'Ingia') }}
+    </button>
+
+    <div class="divider"><span>{{ i18n.t('OR', 'AU') }}</span></div>
+
+    <button type="button" class="outline-cta" (click)="switchView('register')">
+      <lsms-icon name="person_add" [size]="20" />
+      {{ i18n.t('Create Account', 'Fungua Akaunti') }}
+    </button>
+
+    <p class="secure-foot">
+      <lsms-icon name="lock" [size]="11" [filled]="true" />
+      {{ i18n.t('Secure · Encrypted · Protected', 'Salama · Imefichwa · Imelindwa') }}
+    </p>
+  </form>
+</ng-template>
+
+<!-- ═══════════════════════════ Register form ═══════════════════════════ -->
+<ng-template #registerTpl>
+  <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="register()" (keyup)="onKey($event)" novalidate>
+    <header class="form-head with-back">
+      <button type="button" class="back" (click)="switchView('login')">
+        <lsms-icon name="arrow_back" [size]="18" />{{ i18n.t('Back', 'Rudi') }}
+      </button>
+      <h1>{{ i18n.t('Create account', 'Fungua akaunti') }}</h1>
+      <p>{{ i18n.t('Set up your ELIKOM account in a minute.', 'Fungua akaunti yako ya ELIKOM kwa dakika moja.') }}</p>
+    </header>
+
+    <lsms-text-field formControlName="name" [label]="i18n.t('Full Name', 'Jina Kamili')" prefixIcon="person" autocomplete="name" [autofocus]="true" />
+    <lsms-text-field formControlName="email" type="email" [label]="i18n.t('Email Address', 'Barua Pepe')" prefixIcon="mail" autocomplete="email" />
+    <lsms-text-field formControlName="password" type="password" [label]="i18n.t('Password', 'Nenosiri')" autocomplete="new-password" />
+    @if (capsLock()) {
+      <p class="caps"><lsms-icon name="keyboard_capslock" [size]="15" />{{ i18n.t('Caps Lock is on', 'Caps Lock imewashwa') }}</p>
+    }
+    @if (registerForm.controls.password.value) {
+      <ul class="checklist">
+        @for (r of passwordChecklist(); track r.key) {
+          <li [class.ok]="r.ok">
+            <lsms-icon [name]="r.ok ? 'check_circle' : 'radio_button_unchecked'" [size]="14" [filled]="r.ok" />
+            {{ i18n.isSwahili() ? r.sw : r.en }}
+          </li>
+        }
+      </ul>
+    }
+    <lsms-text-field
+      formControlName="confirmPassword"
+      type="password"
+      [label]="i18n.t('Confirm Password', 'Thibitisha Nenosiri')"
+      autocomplete="new-password"
+    />
+
+    <button lsmsButton type="submit" size="lg" class="cta" icon="person_add" [fullWidth]="true" [loading]="busy()">
+      {{ i18n.t('Create Account', 'Fungua Akaunti') }}
+    </button>
+    <p class="inline-link">
+      {{ i18n.t('Already have an account?', 'Una akaunti tayari?') }}
+      <button type="button" class="link-btn" (click)="switchView('login')">{{ i18n.t('Sign in', 'Ingia') }}</button>
+    </p>
+    <p class="approval-note">
+      <lsms-icon name="info" [size]="14" />
+      {{ i18n.t('New accounts need administrator approval before first sign-in.', 'Akaunti mpya zinahitaji idhini ya msimamizi kabla ya kuingia.') }}
+    </p>
+  </form>
+</ng-template>
+
+<!-- ═══════════════════════════ Forgot password ═══════════════════════════ -->
+<ng-template #forgotTpl>
+  <form class="auth-form" [formGroup]="forgotForm" (ngSubmit)="forgot()" novalidate>
+    <header class="form-head with-back">
+      <button type="button" class="back" (click)="switchView('login')">
+        <lsms-icon name="arrow_back" [size]="18" />{{ i18n.t('Back', 'Rudi') }}
+      </button>
+      <span class="head-icon"><lsms-icon name="lock_reset" [size]="28" /></span>
+      <h1>{{ i18n.t('Reset password', 'Weka upya nenosiri') }}</h1>
+      <p>{{ i18n.t("Enter your email and we'll send reset instructions.", 'Weka barua pepe yako nasi tutakutumia maelekezo.') }}</p>
+    </header>
+
+    <lsms-text-field formControlName="email" type="email" [label]="i18n.t('Email Address', 'Barua Pepe')" prefixIcon="mail" autocomplete="email" [autofocus]="true" />
+
+    <button lsmsButton type="submit" size="lg" class="cta" icon="send" [fullWidth]="true" [loading]="busy()">
+      {{ i18n.t('Send Reset Instructions', 'Tuma Maelekezo') }}
+    </button>
+    <p class="inline-link">
+      {{ i18n.t('Remembered it?', 'Umelikumbuka?') }}
+      <button type="button" class="link-btn" (click)="switchView('login')">{{ i18n.t('Back to sign in', 'Rudi kuingia') }}</button>
+    </p>
+  </form>
+</ng-template>

@@ -1,0 +1,331 @@
+@use 'typography' as t;
+
+// 64px bar, three zones: [crumbs/title] [search] [actions + user].
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 520px) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  padding: 0 32px;
+  background: color-mix(in srgb, var(--c-surface) 88%, transparent);
+  backdrop-filter: saturate(1.5) blur(14px);
+  border-bottom: 1px solid var(--c-border);
+}
+@media (max-width: 1199px) {
+  :host {
+    padding: 0 24px;
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.titles {
+  min-width: 0;
+}
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  a {
+    color: var(--c-text-2);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    &:hover {
+      color: var(--c-primary);
+    }
+  }
+  lsms-icon {
+    color: var(--c-text-disabled);
+  }
+  span {
+    @include t.ellipsis;
+  }
+}
+.titles p {
+  @include t.ellipsis;
+  margin-top: 1px;
+  font-size: 0.74rem;
+  color: var(--c-text-2);
+}
+
+.search {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 40px;
+  padding: 0 8px 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg);
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  &:hover {
+    border-color: color-mix(in srgb, var(--c-primary) 50%, var(--c-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+  .ph {
+    flex: 1;
+    text-align: left;
+    font-size: 0.86rem;
+    @include t.ellipsis;
+  }
+  kbd {
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--c-border);
+    background: var(--c-surface);
+    font: 600 0.68rem var(--font-family);
+    box-shadow: 0 1px 0 var(--c-border);
+  }
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cluster {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+}
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 0;
+  background: transparent;
+  color: var(--c-text-2);
+  cursor: pointer;
+  text-decoration: none;
+  overflow: visible;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  &:hover {
+    background: var(--c-hover);
+    color: var(--c-primary);
+  }
+}
+.lang {
+  position: relative;
+  overflow: hidden;
+  height: 36px;
+  min-width: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--c-text);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  &:hover {
+    background: var(--c-hover);
+    color: var(--c-primary);
+  }
+}
+
+.branch {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--c-primary) 25%, transparent);
+  background: color-mix(in srgb, var(--c-primary) 7%, transparent);
+  color: var(--c-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  span {
+    @include t.ellipsis;
+  }
+}
+
+.user {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 8px 0 4px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--c-text);
+  cursor: pointer;
+  &:hover {
+    background: var(--c-hover);
+  }
+}
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  &.lg {
+    width: 44px;
+    height: 44px;
+    font-size: 0.9rem;
+  }
+}
+.online {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-success);
+  border: 2px solid var(--c-surface);
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 160px;
+  line-height: 1.2;
+  strong {
+    @include t.ellipsis;
+    max-width: 100%;
+    font-size: 0.84rem;
+  }
+  small {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--c-primary);
+  }
+}
+.chev {
+  color: var(--c-text-2);
+}
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: 1100px) {
+  :host {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+  .search {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+    .ph,
+    kbd {
+      display: none;
+    }
+  }
+}
+@media (max-width: 767px) {
+  :host {
+    padding: 0 8px 0 4px;
+    gap: 6px;
+  }
+  .hide-sm,
+  .who,
+  .chev,
+  .branch span,
+  .titles p {
+    display: none;
+  }
+  .cluster {
+    border: 0;
+    padding: 0;
+    background: none;
+  }
+  .user {
+    padding: 0 2px;
+  }
+  .crumbs a,
+  .crumbs lsms-icon {
+    display: none;
+  }
+}
+
+// ── User menu (projected into the overlay) ──────────────────────────────────
+.menu-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  min-width: 260px;
+  div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  strong {
+    font-size: 0.92rem;
+  }
+  div > span {
+    font-size: 0.76rem;
+    color: var(--c-text-2);
+  }
+  em {
+    margin-top: 2px;
+    font-style: normal;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--c-primary);
+  }
+}
+[mat-menu-item] lsms-icon {
+  margin-right: 12px;
+  color: var(--c-text-2);
+}
+.danger,
+.danger lsms-icon {
+  color: var(--c-error) !important;
+}
+.show-sm {
+  display: none !important;
+}
+@media (max-width: 767px) {
+  .show-sm {
+    display: flex !important;
+  }
+}

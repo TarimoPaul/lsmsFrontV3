@@ -1,0 +1,130 @@
+@use 'tokens' as *;
+@use 'typography' as t;
+
+:host {
+  --btn-bg: var(--c-primary);
+  --btn-fg: var(--c-on-primary);
+  --btn-border: transparent;
+  --btn-shadow: var(--shadow-sm);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  min-width: 64px;
+  height: $button-height;
+  padding: 0 $space-lg;
+  border: 1.5px solid var(--btn-border);
+  border-radius: $radius-md;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  @include t.button;
+  transition:
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  // Interaction overlay (hover 8% / focus 12% / pressed 16% of foreground)
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--btn-fg);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+  }
+  &:hover::after {
+    opacity: 0.08;
+  }
+  &:focus-visible::after {
+    opacity: 0.12;
+  }
+  &:active::after {
+    opacity: 0.16;
+  }
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+    &::after {
+      opacity: 0;
+    }
+  }
+}
+
+.label {
+  @include t.ellipsis;
+  min-width: 0;
+}
+
+// ── Sizes ────────────────────────────────────────────────────────────────────
+:host(.s-sm) {
+  height: $button-height-sm;
+  padding: 0 $space-md;
+  @include t.button-sm;
+}
+:host(.s-lg) {
+  height: $button-height-lg;
+  @include t.button-lg;
+}
+:host(.full) {
+  display: flex;
+  width: 100%;
+}
+:host(.loading) {
+  pointer-events: none;
+}
+
+// ── Variants ────────────────────────────────────────────────────────────────
+:host(.v-danger) {
+  --btn-bg: var(--c-error);
+  --btn-fg: #fff;
+}
+:host(.v-success) {
+  --btn-bg: var(--c-success);
+  --btn-fg: #fff;
+}
+:host(.v-secondary) {
+  --btn-bg: transparent;
+  --btn-fg: var(--c-primary);
+  --btn-border: var(--c-primary);
+  --btn-shadow: none;
+  &:hover {
+    box-shadow: none;
+  }
+}
+:host(.v-tonal) {
+  --btn-bg: color-mix(in srgb, var(--c-primary) 12%, transparent);
+  --btn-fg: var(--c-primary);
+  --btn-border: color-mix(in srgb, var(--c-primary) 30%, transparent);
+  --btn-shadow: none;
+}
+:host(.v-tonal.active) {
+  --btn-bg: var(--c-primary);
+  --btn-fg: var(--c-on-primary);
+  --btn-border: transparent;
+  --btn-shadow: var(--shadow-sm);
+}
+:host(.v-text) {
+  --btn-bg: transparent;
+  --btn-fg: var(--c-primary);
+  --btn-shadow: none;
+  min-width: 0;
+  padding: 0 $space-sm;
+  &:hover {
+    box-shadow: none;
+  }
+}

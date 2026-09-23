@@ -1,0 +1,37 @@
+// Shared UI — the Angular port of Flutter `lib/shared/`.
+// Import from here in feature modules: `import { Button, DataTable } from '@shared/ui';`
+
+export * from './icon/icon';
+export * from './button/button';
+export * from './button/icon-button';
+export * from './card/card';
+export * from './metric-card/metric-card';
+export * from './metric-card/metrics-grid';
+export * from './dashboard/dashboard-card';
+export * from './dashboard/dashboard-kpi';
+export * from './dashboard/dashboard-charts';
+export * from './badges/status-badges';
+export * from './segmented-filter-bar/segmented-filter-bar';
+export * from './page/page-header';
+export * from './page/empty-state';
+export * from './page/filter-panel';
+export * from './search-bar/search-bar';
+export * from './action-menu/action-menu';
+export * from './export-toolbar/export-toolbar';
+export * from './approval-action-bar/approval-action-bar';
+export * from './form-field/text-field';
+export * from './form-field/select-field';
+export * from './form-field/branch-selector';
+export * from './date/calendar';
+export * from './date/date-picker-dialog';
+export * from './date/date-range-selector';
+export * from './date/date-field';
+export * from './dialog/dialog-shell';
+export * from './dialog/confirm-dialog';
+export * from './dialog/dialog.service';
+export * from './toast/toast.service';
+export * from './toast/toast-host';
+export * from './loading/spinner';
+export * from './loading/loaders';
+export * from './table/table-column';
+export * from './table/data-table';

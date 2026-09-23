@@ -1,0 +1,228 @@
+// Global base styles: fonts, reset, body, utility typography classes.
+
+@use 'tokens' as *;
+@use 'typography' as t;
+
+// Plus Jakarta Sans — bundled locally (offline-safe for POS, no FOUT).
+$weights: (
+  300: 'Light',
+  400: 'Regular',
+  500: 'Medium',
+  600: 'SemiBold',
+  700: 'Bold',
+  800: 'ExtraBold',
+);
+@each $weight, $name in $weights {
+  @font-face {
+    font-family: 'PlusJakartaSans';
+    src: url('/fonts/PlusJakartaSans-#{$name}.ttf') format('truetype');
+    font-weight: $weight;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(16px * var(--text-scale));
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  @include t.body;
+  color: var(--c-text);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--c-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--c-primary) 25%, transparent);
+}
+
+// Thin scrollbars (web/desktop)
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border) transparent;
+}
+
+// Typography utility classes — mirror AppTypography names.
+.t-h1 {
+  @include t.h1;
+}
+.t-h2 {
+  @include t.h2;
+}
+.t-dashboard-title {
+  @include t.dashboard-title;
+}
+.t-h3 {
+  @include t.h3;
+}
+.t-h4 {
+  @include t.h4;
+}
+.t-body-lg {
+  @include t.body-lg;
+}
+.t-body {
+  @include t.body;
+}
+.t-body-sm {
+  @include t.body-sm;
+  color: var(--c-text-2);
+}
+.t-caption {
+  @include t.caption;
+  color: var(--c-text-2);
+}
+.t-strong {
+  font-weight: 700;
+}
+.t-muted {
+  color: var(--c-text-2);
+}
+.t-success {
+  color: var(--c-success);
+}
+.t-warning {
+  color: var(--c-warning);
+}
+.t-error {
+  color: var(--c-error);
+}
+.t-ellipsis {
+  @include t.ellipsis;
+}
+
+// Screen-reader only
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+// CDK overlay backdrop tint used by dialogs.
+.lsms-dialog-backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+// ─── Overlay surfaces (rendered by CDK outside component hosts) ─────────────
+.lsms-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 4px 0;
+  border-radius: $radius-md;
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.lsms-menu-item {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  width: 100%;
+  padding: 10px $space-md;
+  border: 0;
+  background: none;
+  color: var(--c-text);
+  text-align: left;
+  @include t.body;
+  cursor: pointer;
+
+  .lsms-icon {
+    color: var(--c-text-2);
+  }
+  &:hover,
+  &:focus {
+    background: var(--c-hover);
+    outline: none;
+  }
+  &.destructive,
+  &.destructive .lsms-icon {
+    color: var(--c-error);
+  }
+  &[aria-disabled='true'] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.lsms-popover {
+  border-radius: $radius-lg;
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+// Dialog panel (CDK Dialog) — Flutter dialogs: surface bg, 15px radius.
+.lsms-dialog-panel {
+  max-height: inherit;
+}
+.lsms-dialog-panel .cdk-dialog-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: inherit;
+  overflow: auto;
+  border-radius: 15px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.25);
+  outline: none;
+  animation: lsms-dialog-in 0.18s ease-out;
+}
+@keyframes lsms-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}

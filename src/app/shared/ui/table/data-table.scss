@@ -1,0 +1,268 @@
+@use 'typography' as t;
+
+:host {
+  --tint: color-mix(in srgb, var(--c-primary) 5%, var(--c-surface));
+  --line: color-mix(in srgb, var(--c-border) 60%, transparent);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 12px;
+  min-height: 44px;
+  background: var(--tint);
+  border-bottom: 1px solid var(--line);
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  @include t.body;
+  @include t.ellipsis;
+  font-weight: 600;
+  color: var(--c-primary);
+}
+.meta {
+  @include t.body-sm;
+  font-weight: 500;
+  color: var(--c-text-2);
+  white-space: nowrap;
+}
+.meta.wide {
+  font-weight: 400;
+}
+@container (max-width: 499px) {
+  .meta.wide {
+    display: none;
+  }
+}
+.col-btn {
+  display: inline-flex;
+  padding: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--c-text-2);
+  cursor: pointer;
+  &:hover {
+    background: var(--c-hover);
+    color: var(--c-primary);
+  }
+}
+.col-menu input {
+  accent-color: var(--c-primary);
+  width: 16px;
+  height: 16px;
+}
+
+// ── Scroll area ─────────────────────────────────────────────────────────────
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+// ── Desktop table ───────────────────────────────────────────────────────────
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 36px;
+  padding: 0 8px;
+  background: var(--tint);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+  @include t.table-header;
+  color: var(--c-text);
+  &.sortable {
+    cursor: pointer;
+    user-select: none;
+    &:hover {
+      color: var(--c-primary);
+    }
+  }
+}
+.th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  &.end {
+    flex-direction: row-reverse;
+  }
+}
+.sort-icon {
+  color: var(--c-text-2);
+  &.active {
+    color: var(--c-primary);
+  }
+}
+td {
+  height: 44px;
+  padding: 6px 8px;
+  border-bottom: 0.5px solid var(--line);
+  @include t.table-cell;
+  color: var(--c-text);
+  vertical-align: middle;
+}
+tbody tr {
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+  &:hover {
+    background: var(--c-hover);
+  }
+  &.selected {
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+  &:last-child td {
+    border-bottom: 0;
+  }
+}
+.num-col {
+  width: 60px;
+  text-align: center;
+}
+.check-col {
+  width: 44px;
+  text-align: center;
+}
+input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--c-primary);
+  cursor: pointer;
+}
+
+.row-no {
+  display: inline-block;
+  min-width: 28px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--c-primary) 15%, transparent),
+    color-mix(in srgb, var(--c-primary) 8%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--c-primary) 25%, transparent);
+  color: var(--c-primary);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+// ── Mobile cards ────────────────────────────────────────────────────────────
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+.card {
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: var(--c-surface);
+  border: 0.5px solid var(--c-border);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  &.selected {
+    border-color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface));
+  }
+}
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  .row-no {
+    font-size: 0.6875rem;
+  }
+}
+.card-title {
+  flex: 3;
+  min-width: 0;
+  @include t.body;
+  @include t.ellipsis;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.compact-cell {
+  flex: 2;
+  min-width: 0;
+  overflow: hidden;
+  @include t.body-sm;
+}
+.card-body {
+  margin-top: 6px;
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--c-border) 40%, transparent);
+}
+.field {
+  padding: 4px 0;
+}
+.field-label {
+  display: block;
+  @include t.metric-caption-compact;
+  letter-spacing: 0.2px;
+  color: var(--c-text-2);
+  margin-bottom: 2px;
+}
+.field-value {
+  @include t.body;
+  color: var(--c-text);
+}
+
+// ── Pagination ──────────────────────────────────────────────────────────────
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--line);
+}
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--c-primary);
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+  cursor: pointer;
+  &:disabled {
+    background: transparent;
+    border-color: var(--c-border);
+    color: var(--c-text-2);
+    cursor: default;
+  }
+}
+.size {
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 0.75rem;
+  cursor: pointer;
+}

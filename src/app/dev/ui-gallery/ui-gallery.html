@@ -1,0 +1,283 @@
+<header class="topbar">
+  <img src="/icons/Finallogo.png" alt="" width="32" height="32" />
+  <div class="brand">
+    <strong>LSMS v3 — Shared UI</strong>
+    <span>Angular port of Flutter <code>lib/shared/</code></span>
+  </div>
+  <div class="toggles">
+    <button lsmsButton="tonal" size="sm" [active]="!theme.isDarkMode() && theme.eyeComfortMode()" (click)="theme.setTheme(false); theme.eyeComfortMode.set(true)">Comfort</button>
+    <button lsmsButton="tonal" size="sm" [active]="!theme.isDarkMode() && !theme.eyeComfortMode()" (click)="theme.setTheme(false); theme.eyeComfortMode.set(false)">Light</button>
+    <button lsmsButton="tonal" size="sm" [active]="theme.isDarkMode()" (click)="theme.setTheme(true)">Dark</button>
+    <button lsmsButton="secondary" size="sm" icon="translate" (click)="i18n.toggleLanguage()">{{ i18n.lang().toUpperCase() }}</button>
+    <button lsmsIconButton="text_decrease" aria-label="Smaller text" (click)="theme.decreaseTextSize()"></button>
+    <button lsmsIconButton="text_increase" aria-label="Larger text" (click)="theme.increaseTextSize()"></button>
+  </div>
+</header>
+
+<main class="page">
+  <!-- Buttons -->
+  <section>
+    <h2 class="t-h4">Buttons <small>CustomButton</small></h2>
+    <div class="row">
+      <button lsmsButton icon="add">Primary</button>
+      <button lsmsButton="secondary" icon="refresh">Secondary</button>
+      <button lsmsButton="tonal" icon="filter_alt">Tonal</button>
+      <button lsmsButton="tonal" [active]="true">Tonal active</button>
+      <button lsmsButton="danger" icon="delete">Danger</button>
+      <button lsmsButton="success" icon="check">Success</button>
+      <button lsmsButton="text">Text</button>
+      <button lsmsButton [loading]="true">Saving</button>
+      <button lsmsButton disabled>Disabled</button>
+    </div>
+    <div class="row">
+      <button lsmsButton size="sm">Small</button>
+      <button lsmsButton>Medium</button>
+      <button lsmsButton size="lg">Large</button>
+      <button lsmsIconButton="edit" aria-label="Edit"></button>
+      <button lsmsIconButton="delete" color="var(--c-error)" aria-label="Delete"></button>
+    </div>
+  </section>
+
+  <!-- Page chrome -->
+  <section>
+    <h2 class="t-h4">Page header, filters, export <small>SharedPageHeader · SharedFilterPanel · SegmentedFilterBar</small></h2>
+    <lsms-card [padding]="0">
+      <lsms-page-header title="Mauzo" subtitle="Orodha ya mauzo yote" icon="trending_up" [refreshable]="true" (refresh)="toast.info('Refresh')">
+        <lsms-export-toolbar [formats]="['pdf', 'csv']" (export)="toast.info('Export ' + $event)" />
+        <button lsmsButton size="sm" icon="add">New Sale</button>
+      </lsms-page-header>
+      <lsms-filter-panel searchPlaceholder="Tafuta mauzo…" (search)="searchTerm.set($event)">
+        <lsms-segmented-filter-bar filterSegments [options]="filterOptions" [(selected)]="filter" />
+        <lsms-date-range-selector [range]="range()" (rangeChange)="range.set($event)" />
+        <lsms-branch-selector [branches]="branches" [selectedUid]="branchUid()" (selectedUidChange)="branchUid.set($event)" />
+      </lsms-filter-panel>
+      <p class="t-caption pad">search="{{ searchTerm() }}" · filter={{ filter() }} · branch={{ branchUid() ?? 'all' }}</p>
+    </lsms-card>
+  </section>
+
+  <!-- Metric cards -->
+  <section>
+    <h2 class="t-h4">Metric cards <small>MetricCard · MetricsGrid</small></h2>
+    <lsms-metrics-grid>
+      <lsms-metric-card title="Mauzo ya Leo" [value]="1250000 | money" subtitle="Mauzo 42" icon="point_of_sale" color="var(--c-primary)" />
+      <lsms-metric-card title="Makusanyo" [value]="980000 | money" subtitle="Cash + M-Pesa" icon="payments" color="var(--c-success)" />
+      <lsms-metric-card title="Madeni" [value]="270000 | money" subtitle="Wateja 7" icon="account_balance_wallet" color="var(--c-error)" [urgent]="true" />
+      <lsms-metric-card
+        title="Mapato"
+        [value]="58500 | money: { symbol: false }"
+        icon="trending_up"
+        color="var(--c-purple)"
+        [breakdown]="[{ label: 'Reja reja', value: '5,500' }, { label: 'Jumla', value: '53,000' }]"
+      />
+    </lsms-metrics-grid>
+  </section>
+
+  <!-- Dashboard cards -->
+  <section>
+    <h2 class="t-h4">Dashboard <small>DashboardKpiRow · DashboardTodaySection</small></h2>
+    <lsms-dashboard-kpi-row>
+      <lsms-dashboard-kpi-card icon="payments" title="Today's Sales" [value]="1250000 | money" subtitle="42 sales" [hero]="true">
+        <lsms-kpi-trend kpiTrend label="+12% vs jana" direction="up" />
+      </lsms-dashboard-kpi-card>
+      <lsms-dashboard-kpi-card icon="savings" title="Collection" [value]="980000 | money" accentColor="var(--c-success)">
+        <lsms-kpi-trend kpiTrend label="-3%" direction="down" />
+      </lsms-dashboard-kpi-card>
+      <lsms-dashboard-kpi-card icon="account_balance_wallet" title="Outstanding" [value]="270000 | money" valueColor="var(--c-error)">
+        <lsms-kpi-trend kpiTrend label="7 customers" direction="warning" />
+      </lsms-dashboard-kpi-card>
+      <lsms-dashboard-kpi-card icon="pending_actions" title="Pending Orders" value="5">
+        <lsms-kpi-trend kpiTrend label="no change" direction="neutral" />
+      </lsms-dashboard-kpi-card>
+    </lsms-dashboard-kpi-row>
+    <div class="gap"></div>
+    <lsms-dashboard-today-section>
+      <lsms-dashboard-revenue-card
+        todayRevenue
+        todayLabel="Leo"
+        yesterdayLabel="Jana"
+        [todayValueText]="1250000 | money"
+        [yesterdayValueText]="1068000 | money"
+        changeText="17.0%"
+        [todaySeries]="today"
+        [yesterdaySeries]="yesterday"
+        [barLabels]="hours"
+      />
+      <lsms-dashboard-peak-card
+        todayPeak
+        windowText="11 AM – 1 PM"
+        subtitleText="~8% of orders in the busiest hour"
+        [series]="today"
+        salesCountText="42 sales"
+        [revenueText]="1250000 | money: { compact: true }"
+      />
+    </lsms-dashboard-today-section>
+  </section>
+
+  <!-- Badges -->
+  <section>
+    <h2 class="t-h4">Badges <small>PaymentStatusBadge · ReturnStatusBadge · LiabilityStatusBadge · StatusChip</small></h2>
+    <div class="row">
+      <lsms-payment-status-badge [paid]="5000" [total]="5000" />
+      <lsms-payment-status-badge [paid]="1650" [total]="5000" />
+      <lsms-payment-status-badge [paid]="0" [total]="5000" />
+      <lsms-payment-status-badge [paid]="1650" [total]="5000" [compact]="true" />
+    </div>
+    <div class="row">
+      <lsms-return-status-badge state="pending" />
+      <lsms-return-status-badge state="approved" />
+      <lsms-return-status-badge state="rejected" />
+      <lsms-return-status-badge state="completed" />
+      <lsms-return-status-badge state="none" />
+      <lsms-liability-status-badge status="OPEN" />
+      <lsms-liability-status-badge status="PARTIALLY_PAID" />
+      <lsms-liability-status-badge status="SETTLED" />
+      <lsms-liability-status-badge status="WAIVED" />
+    </div>
+    <div class="row">
+      @for (s of ['paid', 'pending', 'due', 'active', 'inactive', 'lowStock', 'outOfStock', 'returned', 'partial']; track s) {
+        <lsms-status-chip [status]="$any(s)" />
+      }
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section>
+    <h2 class="t-h4">Data table <small>SharedTable</small></h2>
+    <div class="row">
+      <button lsmsButton="secondary" size="sm" (click)="tableLoadingDemo()">Show loading</button>
+      <span class="t-caption">{{ selected().length }} selected</span>
+    </div>
+    <lsms-data-table
+      class="demo-table"
+      title="Bidhaa"
+      [items]="rows"
+      [rowId]="rowId"
+      [loading]="tableLoading()"
+      [showRowNumbers]="true"
+      [bulkSelection]="true"
+      [mobileTitle]="nameOf"
+      [mobileColumns]="['category', 'status', 'stock', 'actions']"
+      [mobileCompactColumns]="['price']"
+      [actionsInlineWithTitle]="true"
+      [pageSize]="10"
+      (selectionChange)="selected.set($event)"
+      (rowClick)="toast.info($event.name)"
+    >
+      <ng-template lsmsColumn="name" label="Jina" [sortBy]="nameOf" let-row>{{ row.name }}</ng-template>
+      <ng-template lsmsColumn="category" label="Kundi" let-row>{{ row.category }}</ng-template>
+      <ng-template lsmsColumn="price" label="Bei" align="end" [sortBy]="priceOf" let-row>{{ row.price | money }}</ng-template>
+      <ng-template lsmsColumn="status" label="Malipo" let-row>
+        <lsms-payment-status-badge [paid]="row.paid" [total]="row.price" [compact]="true" />
+      </ng-template>
+      <ng-template lsmsColumn="stock" label="Stoku" align="end" [sortBy]="stockOf" let-row>
+        @if (row.stock === 0) {
+          <lsms-status-chip status="outOfStock" />
+        } @else if (row.stock < 10) {
+          <lsms-status-chip status="lowStock" [label]="row.stock + ''" />
+        } @else {
+          {{ row.stock }}
+        }
+      </ng-template>
+      <ng-template lsmsColumn="uid" label="UID" [hidden]="true" let-row>{{ row.uid }}</ng-template>
+      <ng-template lsmsColumn="actions" let-row><lsms-action-menu [actions]="rowActions(row)" /></ng-template>
+    </lsms-data-table>
+  </section>
+
+  <!-- Forms -->
+  <section>
+    <h2 class="t-h4">Form fields <small>CustomTextField · UniversalDatePicker · validators</small></h2>
+    <lsms-card>
+      <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()">
+        <lsms-text-field label="Product name" formControlName="name" prefixIcon="inventory_2" [required]="true" [clearable]="true" />
+        <lsms-text-field label="Price" type="currency" formControlName="price" [required]="true" hint="Selling price per unit" />
+        <lsms-text-field label="Phone" type="tel" formControlName="phone" prefixIcon="phone" placeholder="07xx xxx xxx" />
+        <lsms-text-field label="Email" type="email" formControlName="email" prefixIcon="mail" />
+        <lsms-text-field label="Password" type="password" formControlName="password" [required]="true" />
+        <lsms-select-field label="Category" formControlName="category" [options]="categoryOptions" emptyLabel="Select…" [required]="true" />
+        <lsms-date-field label="Sale date" formControlName="date" [required]="true" [showToday]="true" [clearable]="true" />
+        <lsms-text-field class="span-2" label="Notes" type="textarea" formControlName="notes" [maxLength]="250" />
+        <div class="span-2 row end">
+          <button lsmsButton="secondary" type="button" (click)="form.reset()">Reset</button>
+          <button lsmsButton type="submit" icon="save">Save</button>
+        </div>
+      </form>
+    </lsms-card>
+  </section>
+
+  <!-- Cards -->
+  <section>
+    <h2 class="t-h4">Cards <small>CustomCards</small></h2>
+    <div class="grid-3">
+      <lsms-card title="Standard" icon="receipt_long">Standard card content.</lsms-card>
+      <lsms-card variant="success" title="Imefanikiwa">Payment recorded.</lsms-card>
+      <lsms-card variant="warning" title="Tahadhari">Stock is running low.</lsms-card>
+      <lsms-card variant="error" title="Hitilafu">Reconciliation mismatch.</lsms-card>
+      <lsms-card variant="info" title="Taarifa">Backdating is enabled.</lsms-card>
+      <lsms-card variant="outlined">Outlined card.</lsms-card>
+    </div>
+  </section>
+
+  <!-- Dialogs & toasts -->
+  <section>
+    <h2 class="t-h4">Dialogs & toasts <small>CustomDialogs · CustomSnackbars</small></h2>
+    <div class="row">
+      <button lsmsButton="secondary" size="sm" (click)="confirmDemo()">Confirm</button>
+      <button lsmsButton="secondary" size="sm" (click)="confirmDelete(rows[0])">Delete</button>
+      <button lsmsButton="secondary" size="sm" (click)="errorDemo()">Error dialog</button>
+      <button lsmsButton="secondary" size="sm" (click)="successDemo()">Success dialog</button>
+    </div>
+    <div class="row">
+      <button lsmsButton="success" size="sm" (click)="toast.success('Mauzo yamehifadhiwa')">Toast success</button>
+      <button lsmsButton="danger" size="sm" (click)="toast.error('Imeshindikana kuhifadhi')">Toast error</button>
+      <button lsmsButton="tonal" size="sm" (click)="toast.info('Taarifa mpya')">Toast info</button>
+      <button lsmsButton="tonal" size="sm" (click)="toast.warning('Stoku ni ndogo')">Toast warning</button>
+      <button lsmsButton="tonal" size="sm" (click)="loadingDemo()">Toast loading</button>
+      <button lsmsButton="tonal" size="sm" (click)="progressDemo()">Toast progress</button>
+    </div>
+  </section>
+
+  <!-- Approval + loading + empty -->
+  <section>
+    <h2 class="t-h4">Approval, loading, empty <small>SharedApprovalActionBar · LoadingIndicators · SharedEmptyState</small></h2>
+    <div class="row">
+      <lsms-approval-action-bar
+        [stage]="stage()"
+        [canSubmit]="true"
+        [canReview]="true"
+        [canApprove]="true"
+        (submit)="stage.set('submitted')"
+        (review)="stage.set('reviewed')"
+        (approve)="stage.set('approved')"
+        (reject)="stage.set('rejected')"
+      />
+      <span class="t-caption">stage: {{ stage() }}</span>
+      <button lsmsButton="text" size="sm" (click)="stage.set('draft')">reset</button>
+    </div>
+    <div class="grid-3">
+      <lsms-card><lsms-spinner [centered]="true" message="Inapakia…" /></lsms-card>
+      <lsms-card>
+        <lsms-linear-progress />
+        <div class="gap"></div>
+        <lsms-linear-progress [value]="0.6" />
+        <lsms-skeleton variant="list" [rows]="2" />
+      </lsms-card>
+      <lsms-loading-overlay [loading]="overlayLoading()" style="border-radius: 8px">
+        <lsms-card>
+          <p>Content under an overlay.</p>
+          <button lsmsButton size="sm" (click)="overlayDemo()">Show overlay</button>
+        </lsms-card>
+      </lsms-loading-overlay>
+    </div>
+    <lsms-card>
+      <lsms-empty-state
+        title="Hakuna mauzo bado"
+        message="Anza kwa kuongeza mauzo mapya."
+        icon="receipt_long"
+        actionLabel="Ongeza mauzo"
+        secondaryActionLabel="Onyesha upya"
+        (action)="toast.info('add')"
+        (secondaryAction)="toast.info('refresh')"
+      />
+    </lsms-card>
+  </section>
+</main>

@@ -1,0 +1,709 @@
+@use 'typography' as t;
+
+// Full-width page with a consistent gutter that lines up with the toolbar.
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 32px 40px;
+}
+@media (max-width: 1199px) {
+  .page {
+    padding: 20px 24px 32px;
+  }
+}
+@media (max-width: 767px) {
+  .page {
+    padding: 16px 14px 28px;
+    gap: 18px;
+  }
+}
+
+// Shared surface for cards/panels.
+%surface {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.04);
+}
+
+// ── 1. Welcome ──────────────────────────────────────────────────────────────
+.welcome {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  animation: rise 0.4s ease-out both;
+}
+.date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-text-2);
+}
+.hello h1 {
+  margin-top: 6px;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.2;
+  span {
+    color: var(--c-primary);
+  }
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 100px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--c-text-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  &.role {
+    color: var(--c-primary);
+    border-color: color-mix(in srgb, var(--c-primary) 30%, transparent);
+    background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface));
+    letter-spacing: 0.4px;
+  }
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.qa {
+  --mdc-outlined-button-container-shape: 10px;
+  --mdc-filled-button-container-shape: 10px;
+  --mat-button-outlined-container-shape: 10px;
+  --mat-button-filled-container-shape: 10px;
+  height: 40px;
+  font-weight: 600;
+  lsms-icon {
+    margin-right: 6px;
+  }
+}
+
+// ── 2. Alerts ───────────────────────────────────────────────────────────────
+.alerts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 10px;
+}
+.alert {
+  --alert-seconds: 15s;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+  color: var(--c-text);
+  background: color-mix(in srgb, var(--c-warning) 8%, var(--c-surface));
+  border: 1px solid color-mix(in srgb, var(--c-warning) 30%, transparent);
+  transition: box-shadow 0.15s ease;
+  animation: rise 0.35s ease-out both;
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+  // Pause the reminder countdown while the user is reading / interacting.
+  &:hover .a-timer,
+  &:focus-within .a-timer {
+    animation-play-state: paused;
+  }
+}
+.a-main {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px 12px 14px;
+  color: inherit;
+  text-decoration: none;
+}
+.a-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  &:hover {
+    background: color-mix(in srgb, var(--c-warning) 15%, transparent);
+    color: var(--c-text);
+  }
+}
+// Countdown line: shrinks to zero, then (animationend) hides the reminder.
+.a-timer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  transform-origin: left center;
+  background: color-mix(in srgb, var(--c-warning) 60%, transparent);
+  animation: alert-countdown var(--alert-seconds) linear forwards;
+}
+@keyframes alert-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+:host ::ng-deep .alert-out {
+  animation: alert-fade 0.28s ease-in forwards;
+}
+@keyframes alert-fade {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+.a-ic {
+  display: inline-flex;
+  padding: 8px;
+  border-radius: 10px;
+  color: var(--c-warning);
+  background: color-mix(in srgb, var(--c-warning) 15%, transparent);
+}
+.a-txt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  strong {
+    font-size: 0.87rem;
+    font-weight: 600;
+  }
+  small {
+    font-size: 0.75rem;
+    color: var(--c-text-2);
+  }
+}
+.a-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--c-warning);
+  white-space: nowrap;
+}
+
+// ── 3. KPI strip ────────────────────────────────────────────────────────────
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.kpi {
+  @extend %surface;
+  --accent: var(--c-primary);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  overflow: hidden;
+  animation: rise 0.45s ease-out both;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0.85;
+  }
+  &.urgent {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--c-border));
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+  }
+  .value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    small {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--c-text-2);
+    }
+  }
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--c-text-2);
+  }
+}
+.k-ic {
+  display: inline-flex;
+  padding: 7px;
+  border-radius: 10px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 700;
+  color: var(--c-success);
+  background: color-mix(in srgb, var(--c-success) 12%, transparent);
+  &.down {
+    color: var(--c-error);
+    background: color-mix(in srgb, var(--c-error) 12%, transparent);
+  }
+}
+.bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c-success) 15%, transparent);
+  i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--c-success);
+  }
+}
+.link {
+  font-weight: 700;
+  color: var(--c-primary);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.danger {
+  color: var(--c-error);
+  font-weight: 600;
+}
+.muted {
+  color: var(--c-text-2);
+}
+
+// ── 4. Today panels ─────────────────────────────────────────────────────────
+.today {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  gap: 16px;
+  &:has(> :only-child) {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1100px) {
+  .today {
+    grid-template-columns: 1fr;
+  }
+}
+.panel {
+  @extend %surface;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px;
+  min-height: 300px;
+  animation: rise 0.5s ease-out both;
+}
+.p-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  h2 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  p {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    color: var(--c-text-2);
+  }
+}
+.legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--c-text-2);
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  b {
+    color: var(--c-text);
+  }
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--c-border);
+  &.today {
+    background: var(--c-primary);
+  }
+}
+.chart-body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 200px;
+  // Tint the shared comparison bars with the brand colour.
+  ::ng-deep .main {
+    background: linear-gradient(
+      180deg,
+      var(--c-primary),
+      color-mix(in srgb, var(--c-primary) 35%, transparent)
+    ) !important;
+  }
+}
+.empty-note {
+  position: absolute;
+  inset: 0 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--c-text-2);
+}
+.status {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--c-success);
+  background: color-mix(in srgb, var(--c-success) 12%, transparent);
+  &[data-status='WARNING'],
+  &[data-status='FAIR'] {
+    color: var(--c-warning);
+    background: color-mix(in srgb, var(--c-warning) 12%, transparent);
+  }
+  &[data-status='CRITICAL'],
+  &[data-status='POOR'] {
+    color: var(--c-error);
+    background: color-mix(in srgb, var(--c-error) 12%, transparent);
+  }
+}
+.stack {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 2px;
+  background: var(--c-surface-variant);
+  i {
+    display: block;
+    height: 100%;
+    min-width: 2px;
+  }
+}
+.ok {
+  background: var(--c-success);
+}
+.low {
+  background: var(--c-warning);
+}
+.out {
+  background: var(--c-error);
+}
+.breakdown {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    i {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+    b {
+      margin-left: auto;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+.inv-value {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px dashed var(--c-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8rem;
+  color: var(--c-text-2);
+  strong {
+    font-size: 1.05rem;
+    color: var(--c-text);
+  }
+}
+
+// ── 5 & 6. Blocks ───────────────────────────────────────────────────────────
+.b-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    lsms-icon {
+      color: var(--c-primary);
+    }
+  }
+}
+.freq {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.freq-item {
+  --accent: var(--c-primary);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 16px 0 8px;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-weight: 600;
+  font-size: 0.87rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+}
+.f-ic {
+  display: inline-flex;
+  padding: 7px;
+  border-radius: 9px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+// Material chips → our pill look.
+.filters {
+  --mdc-chip-container-shape-radius: 100px;
+  --mat-chip-container-shape-radius: 100px;
+  --mdc-chip-outline-color: var(--c-border);
+  --mat-chip-outline-color: var(--c-border);
+  --mdc-chip-elevated-selected-container-color: var(--c-primary);
+  --mat-chip-elevated-selected-container-color: var(--c-primary);
+  --mdc-chip-selected-label-text-color: var(--c-on-primary);
+  --mat-chip-selected-label-text-color: var(--c-on-primary);
+  --mdc-chip-with-icon-selected-icon-color: var(--c-on-primary);
+  --mat-chip-with-icon-selected-icon-color: var(--c-on-primary);
+  --mat-chip-selected-trailing-icon-color: var(--c-on-primary);
+  --mdc-chip-label-text-weight: 600;
+  --mat-chip-label-text-weight: 600;
+  .cnt {
+    margin-left: 6px;
+    font-size: 0.72em;
+    opacity: 0.75;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+.tile {
+  --accent: var(--c-primary);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 84px;
+  padding: 0 16px;
+  border-radius: 14px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--c-text);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  animation: rise 0.4s ease-out both;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+  &:hover:not(.locked) {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--accent) 45%, transparent);
+    .t-go {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .t-ic {
+      background: var(--accent);
+      color: #fff;
+    }
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  &.locked {
+    cursor: not-allowed;
+    background: var(--c-bg);
+    .t-ic {
+      filter: grayscale(1);
+      opacity: 0.55;
+    }
+    .t-body {
+      opacity: 0.55;
+    }
+  }
+}
+.t-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.t-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  strong {
+    @include t.ellipsis;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+  small {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--c-text-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+.t-go {
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.t-lock {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 8px;
+  color: var(--c-text-2);
+  background: var(--c-surface-variant);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .kpi,
+  .panel,
+  .welcome {
+    animation: none;
+  }
+}
+
+// Phones: two KPI columns, tighter cards.
+@media (max-width: 767px) {
+  .kpis {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .kpi {
+    padding: 14px;
+    gap: 8px;
+    header {
+      font-size: 0.74rem;
+    }
+    .value {
+      font-size: 1.15rem;
+    }
+    footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      font-size: 0.7rem;
+    }
+  }
+  .hello h1 {
+    font-size: 1.4rem;
+  }
+  .qa {
+    flex: 1 1 calc(50% - 8px);
+  }
+}

@@ -1,0 +1,205 @@
+@if (showHeader()) {
+  <div class="header">
+    <span class="title">{{ title() }}</span>
+    @if (enableColumnSelection() && !isMobile() && pickableColumns().length > 1) {
+      <button
+        type="button"
+        class="col-btn"
+        cdkOverlayOrigin
+        #colOrigin="cdkOverlayOrigin"
+        [attr.aria-expanded]="columnMenuOpen()"
+        [attr.aria-label]="i18n.t('Select columns', 'Chagua safu')"
+        [title]="i18n.t('Select columns', 'Chagua safu')"
+        (click)="columnMenuOpen.set(!columnMenuOpen())"
+      >
+        <lsms-icon name="view_column" [size]="20" />
+      </button>
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="colOrigin"
+        [cdkConnectedOverlayOpen]="columnMenuOpen()"
+        (overlayOutsideClick)="columnMenuOpen.set(false)"
+        (detach)="columnMenuOpen.set(false)"
+      >
+        <div class="lsms-menu col-menu" role="group">
+          @for (c of pickableColumns(); track c.id()) {
+            <label class="lsms-menu-item">
+              <input type="checkbox" [checked]="isColumnVisible(c.id())" (change)="toggleColumn(c.id())" />
+              {{ c.label() || c.id() }}
+            </label>
+          }
+        </div>
+      </ng-template>
+    }
+    <span class="meta">{{ i18n.t('Page', 'Ukurasa') }} {{ page() + 1 }} {{ i18n.t('of', 'kati ya') }} {{ totalPages() }}</span>
+    <span class="meta wide">
+      {{ i18n.t('Showing', 'Inaonyesha') }} {{ sorted().length ? startIndex() + 1 : 0 }}-{{ endIndex() }}
+      {{ i18n.t('of', 'kati ya') }} {{ sorted().length }}
+    </span>
+  </div>
+}
+
+<div class="scroll">
+  @if (loading()) {
+    <lsms-skeleton [variant]="isMobile() ? 'list' : 'table'" [rows]="6" />
+  } @else if (!items().length) {
+    <lsms-empty-state
+      [compact]="true"
+      [icon]="emptyIcon()"
+      [title]="emptyTitle() ?? i18n.t('No ' + title().toLowerCase() + ' found', 'Hakuna ' + title().toLowerCase())"
+      [message]="emptyMessage()"
+      iconColor="var(--c-text-2)"
+    />
+  } @else if (isMobile()) {
+    <div class="cards">
+      @for (row of pageItems(); track rowId()(row); let i = $index) {
+        @if (mobileCard(); as mc) {
+          <ng-container *ngTemplateOutlet="mc.template; context: { $implicit: row, row: row, index: startIndex() + i }" />
+        } @else {
+          <article class="card" [class.selected]="isSelected(row)" (click)="rowClick.emit(row)">
+            <div class="card-title-row">
+              @if (showRowNumbers()) {
+                <span class="row-no">#{{ startIndex() + i + 1 }}</span>
+              }
+              @if (bulkSelection()) {
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(row)"
+                  [attr.aria-label]="i18n.t('Select row', 'Chagua')"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleRow(row)"
+                />
+              }
+              <span class="card-title">{{ rowTitle(row, i) }}</span>
+              @for (c of mobileCompact(); track c.id()) {
+                <span class="compact-cell">
+                  <ng-container *ngTemplateOutlet="c.template; context: { $implicit: row, row: row, index: startIndex() + i }" />
+                </span>
+              }
+              @if (inlineActions(); as ac) {
+                <span (click)="$event.stopPropagation()">
+                  <ng-container *ngTemplateOutlet="ac.template; context: { $implicit: row, row: row, index: startIndex() + i }" />
+                </span>
+              }
+            </div>
+            @if (mobileBody().length) {
+              <div class="card-body">
+                @for (c of mobileBody(); track c.id()) {
+                  <div class="field">
+                    <span class="field-label">{{ c.label() || c.id() }}</span>
+                    <div class="field-value" (click)="c.id() === 'actions' && $event.stopPropagation()">
+                      <ng-container *ngTemplateOutlet="c.template; context: { $implicit: row, row: row, index: startIndex() + i }" />
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </article>
+        }
+      }
+    </div>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          @if (showRowNumbers()) {
+            <th class="num-col">{{ rowNumberLabel() }}</th>
+          }
+          @if (bulkSelection()) {
+            <th class="check-col">
+              <input
+                type="checkbox"
+                [checked]="allPageSelected()"
+                [indeterminate]="somePageSelected()"
+                [attr.aria-label]="i18n.t('Select all', 'Chagua zote')"
+                (change)="toggleAll()"
+              />
+            </th>
+          }
+          @for (c of visibleColumns(); track c.id()) {
+            <th
+              [style.text-align]="c.align()"
+              [style.width]="c.width()"
+              [class.sortable]="!!c.sortBy()"
+              [attr.aria-sort]="sortColumn() === c.id() ? (sortDirection() === 'asc' ? 'ascending' : 'descending') : null"
+              (click)="sort(c)"
+            >
+              <span class="th-inner" [class.end]="c.align() === 'end'">
+                {{ c.label() }}
+                @if (c.sortBy()) {
+                  <lsms-icon
+                    class="sort-icon"
+                    [class.active]="sortColumn() === c.id()"
+                    [name]="sortColumn() === c.id() ? (sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'"
+                    [size]="14"
+                  />
+                }
+              </span>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of pageItems(); track rowId()(row); let i = $index) {
+          <tr [class.selected]="isSelected(row)" (click)="rowClick.emit(row)">
+            @if (showRowNumbers()) {
+              <td class="num-col"><span class="row-no">{{ startIndex() + i + 1 }}</span></td>
+            }
+            @if (bulkSelection()) {
+              <td class="check-col" (click)="$event.stopPropagation()">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(row)"
+                  [attr.aria-label]="i18n.t('Select row', 'Chagua')"
+                  (change)="toggleRow(row)"
+                />
+              </td>
+            }
+            @for (c of visibleColumns(); track c.id()) {
+              <td [style.text-align]="c.align()" (click)="c.id() === 'actions' && $event.stopPropagation()">
+                <ng-container *ngTemplateOutlet="c.template; context: { $implicit: row, row: row, index: startIndex() + i }" />
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (showPagination() && items().length && !loading()) {
+  <div class="pager">
+    <button
+      type="button"
+      class="page-btn"
+      [disabled]="page() === 0"
+      [attr.aria-label]="i18n.t('Previous', 'Iliyotangulia')"
+      [title]="i18n.t('Previous', 'Iliyotangulia')"
+      (click)="prevPage()"
+    >
+      <lsms-icon name="keyboard_arrow_left" [size]="16" />
+    </button>
+    <select
+      class="size"
+      [attr.aria-label]="i18n.t('Rows per page', 'Safu kwa ukurasa')"
+      (change)="setPageSize(+$any($event.target).value)"
+    >
+      @for (s of pageSizes; track s) {
+        <option [value]="s" [selected]="s === perPage()">{{ s }}</option>
+      }
+    </select>
+    @if (totalPages() > 1) {
+      <span class="meta">{{ page() + 1 }}/{{ totalPages() }}</span>
+    }
+    <button
+      type="button"
+      class="page-btn"
+      [disabled]="page() >= totalPages() - 1"
+      [attr.aria-label]="i18n.t('Next', 'Inayofuata')"
+      [title]="i18n.t('Next', 'Inayofuata')"
+      (click)="nextPage()"
+    >
+      <lsms-icon name="keyboard_arrow_right" [size]="16" />
+    </button>
+  </div>
+}
