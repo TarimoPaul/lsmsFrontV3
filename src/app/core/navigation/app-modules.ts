@@ -47,6 +47,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Monitor sales performance and analytics',
       sw: 'Uchanganuzi wa mauzo, ripoti, na usimamizi wa miamala',
     },
+    ready: true,
   },
   {
     id: 'purchases',
@@ -60,6 +61,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Track purchase orders and suppliers',
       sw: 'Usimamizi wa amri za ununuzi na ufuatiliaji wa wazalishaji',
     },
+    ready: true,
   },
   {
     id: 'suppliers',
@@ -70,6 +72,7 @@ export const APP_MODULES: AppModule[] = [
     title: { en: 'Suppliers', sw: 'Wasambazaji' },
     short: { en: 'Suppliers', sw: 'Wasambazaji' },
     description: { en: 'Supplier accounts, payments and statements', sw: 'Akaunti za wasambazaji, malipo na taarifa' },
+    ready: true,
   },
   {
     id: 'reconciliation',
@@ -80,6 +83,7 @@ export const APP_MODULES: AppModule[] = [
     title: { en: 'Reconciliation', sw: 'Ulinganisho wa Hesabu' },
     short: { en: 'Reconciliation', sw: 'Ulinganisho' },
     description: { en: 'Daily cash, bank and mobile-money reconciliation', sw: 'Ulinganisho wa kila siku wa taslimu, benki na pesa za simu' },
+    ready: true,
   },
   // ── INVENTORY ──
   {
@@ -94,6 +98,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Manage product catalog and inventory',
       sw: 'Usimamizi wa katalogi ya bidhaa na ufuatiliaji wa hesabu',
     },
+    ready: true,
   },
   {
     id: 'store-management',
@@ -107,6 +112,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Complete inventory and stock control',
       sw: 'Usimamizi wa kina wa hisa na vichupo vya uongozaji',
     },
+    ready: true,
   },
   {
     id: 'counting',
@@ -133,6 +139,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Organize products with categories',
       sw: 'Panga bidhaa kwa kategoria na makategoria ndogo',
     },
+    ready: true,
   },
   // ── MANAGEMENT ──
   {
@@ -147,6 +154,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Handle customer data and relationships',
       sw: 'Usimamizi wa wateja na muundo wa shirika',
     },
+    ready: true,
   },
   {
     id: 'users',
@@ -174,6 +182,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Manage branches, locations, and branch operations',
       sw: 'Simamia matawi, maeneo, na operesheni za matawi',
     },
+    ready: true,
   },
   // ── FINANCE ──
   {
@@ -268,6 +277,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Manage units and measurements',
       sw: 'Simamia aina za kipimo za bidhaa na mipangilio ya ufungaji',
     },
+    ready: true,
   },
 ];
 

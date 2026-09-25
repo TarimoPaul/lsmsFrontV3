@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, firstValueFrom, timeout } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ApiEnvelope, ApiError, ApiResult } from './api.types';
+import { ApiEnvelope, ApiError, ApiResult, PageResult } from './api.types';
 
 export type QueryParams = Record<string, string | number | boolean | null | undefined>;
 
@@ -64,6 +64,59 @@ export class ApiService {
 
   putResult<T>(path: string, body: unknown = {}, opts: RequestOptions = {}): Promise<ApiResult<T>> {
     return this.unwrap(this.http.put<ApiEnvelope<T>>(this.url(path), body, this.httpOpts(opts)), opts);
+  }
+
+  deleteResult<T>(path: string, opts: RequestOptions = {}): Promise<ApiResult<T>> {
+    return this.unwrap(this.http.delete<ApiEnvelope<T>>(this.url(path), this.httpOpts(opts)), opts);
+  }
+
+  /**
+   * GET a paged list and keep the paging metadata the envelope carries
+   * (`elements/pages/page` or `totalItems/totalPages/currentPage`).
+   * `page` in `opts.params` is passed through unchanged (endpoints differ on 0/1-based).
+   */
+  async getPage<T>(path: string, opts: RequestOptions = {}): Promise<PageResult<T>> {
+    let env: ApiEnvelope<T[] | null>;
+    try {
+      env = await firstValueFrom(
+        this.http.get<ApiEnvelope<T[] | null>>(this.url(path), this.httpOpts(opts)).pipe(timeout(opts.timeoutMs ?? 30_000)),
+      );
+    } catch (e) {
+      throw ApiError.from(e);
+    }
+    if (env && typeof env === 'object' && 'status' in env && env.status !== 'Success') {
+      throw new ApiError(env.message || 'Request failed', 200, env.errorCode ?? null, env.warnings ?? []);
+    }
+    const items = (Array.isArray(env) ? env : env?.data) ?? [];
+    const total = env?.elements ?? env?.totalItems ?? items.length;
+    const pages = env?.pages ?? env?.totalPages ?? 1;
+    const page = env?.page ?? (env?.currentPage !== undefined ? env.currentPage + 1 : 1);
+    return { items, total, pages: Math.max(1, pages), page };
+  }
+
+  /**
+   * GET returning the raw envelope even when `status` is not "Success"
+   * (e.g. "Warning" answers that still carry useful `data`). HTTP errors throw.
+   */
+  async getEnvelope<T>(path: string, opts: RequestOptions = {}): Promise<ApiEnvelope<T>> {
+    try {
+      return await firstValueFrom(
+        this.http.get<ApiEnvelope<T>>(this.url(path), this.httpOpts(opts)).pipe(timeout(opts.timeoutMs ?? 30_000)),
+      );
+    } catch (e) {
+      throw ApiError.from(e);
+    }
+  }
+
+  /** POST returning the raw envelope even when `status` is "Warning" / "Error" (partial bulk results). HTTP errors throw. */
+  async postEnvelope<T>(path: string, body: unknown = {}, opts: RequestOptions = {}): Promise<ApiEnvelope<T>> {
+    try {
+      return await firstValueFrom(
+        this.http.post<ApiEnvelope<T>>(this.url(path), body, this.httpOpts(opts)).pipe(timeout(opts.timeoutMs ?? 30_000)),
+      );
+    } catch (e) {
+      throw ApiError.from(e);
+    }
   }
 
   /** Download a binary (exports / PDFs). */

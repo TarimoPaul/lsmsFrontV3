@@ -34,7 +34,7 @@ let nextId = 0;
  *   <lsms-text-field label="Notes" type="textarea" [rows]="3" [maxLength]="250" formControlName="notes" />
  *
  * `currency` emits a number (or null) and shows thousands separators on blur
- * with a "TZS" prefix. `number` emits a number (or null).
+ * with a "TZS" suffix (currency goes last, like Money.format). `number` emits a number (or null).
  */
 @Component({
   selector: 'lsms-text-field',
@@ -73,6 +73,8 @@ export class TextField implements ControlValueAccessor {
   readonly align = input<'start' | 'end'>('start');
   readonly autofocus = input(false);
 
+  /** Standalone (non-form) usage: emits the parsed value on every change. */
+  readonly valueChange = output<string>();
   readonly enter = output<void>();
   readonly blurred = output<void>();
 
@@ -100,7 +102,10 @@ export class TextField implements ControlValueAccessor {
     this.type() === 'currency' || this.type() === 'number' ? 'decimal' : null,
   );
   protected readonly effectivePrefixText = computed(
-    () => this.prefixText() ?? (this.type() === 'currency' ? Money.currencyCode : undefined),
+    () => this.prefixText(),
+  );
+  protected readonly effectiveSuffixText = computed(
+    () => this.suffixText() ?? (this.type() === 'currency' ? Money.currencyCode : undefined),
   );
   protected readonly effectivePrefixIcon = computed(
     () => this.prefixIcon() ?? (this.type() === 'password' ? 'lock' : undefined),
@@ -163,6 +168,7 @@ export class TextField implements ControlValueAccessor {
   protected onInput(raw: string): void {
     this.text.set(raw);
     this.onChange(this.toModel(raw));
+    this.valueChange.emit(raw);
   }
 
   protected onBlur(): void {
@@ -180,6 +186,7 @@ export class TextField implements ControlValueAccessor {
   protected clear(): void {
     this.text.set('');
     this.onChange(this.toModel(''));
+    this.valueChange.emit('');
   }
 
   private toModel(raw: string): unknown {

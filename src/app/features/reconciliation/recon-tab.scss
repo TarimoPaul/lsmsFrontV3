@@ -1,0 +1,220 @@
+// Shared look for the reconciliation tabs.
+@use 'typography' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  &:empty {
+    display: none;
+  }
+  > div {
+    --tc: var(--c-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-left: 3px solid var(--tc);
+  }
+  small {
+    font-size: 0.72rem;
+    color: var(--c-text-2);
+  }
+  b {
+    font-size: 0.98rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--tc);
+  }
+}
+.add {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.86rem;
+    font-weight: 800;
+    lsms-icon {
+      color: var(--c-primary);
+    }
+  }
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    border-radius: 100px;
+    border: 1px solid var(--c-border);
+    background: var(--c-bg);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--c-text);
+    cursor: pointer;
+    lsms-icon {
+      color: var(--c-text-2);
+    }
+    &.on {
+      color: #fff;
+      background: var(--c-primary);
+      border-color: var(--c-primary);
+      lsms-icon {
+        color: #fff;
+      }
+    }
+  }
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+  }
+  .wide {
+    grid-column: 1 / -1;
+  }
+  input,
+  select,
+  textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 0.86rem;
+    background: var(--c-input-fill, var(--c-bg));
+    color: var(--c-text);
+    outline: none;
+    &:focus {
+      border-color: var(--c-primary);
+    }
+  }
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.locked {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: var(--c-text-2);
+  background: var(--c-surface);
+  border: 1px dashed var(--c-border);
+}
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--c-border);
+    &:first-child {
+      border-top: 0;
+    }
+  }
+  .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+  .t {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    b {
+      font-size: 0.86rem;
+      @include t.ellipsis;
+    }
+    small {
+      font-size: 0.72rem;
+      color: var(--c-text-2);
+      @include t.ellipsis;
+    }
+  }
+  .amt {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .ok {
+    display: inline-flex;
+    color: var(--c-success);
+  }
+  .rm {
+    display: inline-flex;
+    padding: 4px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--c-text-2);
+    cursor: pointer;
+    &:hover {
+      color: var(--c-error);
+      background: color-mix(in srgb, var(--c-error) 8%, transparent);
+    }
+  }
+}
+.tag {
+  --tc: var(--c-primary);
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--tc);
+  background: color-mix(in srgb, var(--tc) 12%, transparent);
+}
+.empty {
+  padding: 24px;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--c-text-2);
+  border-radius: 16px;
+  background: var(--c-surface);
+  border: 1px dashed var(--c-border);
+}

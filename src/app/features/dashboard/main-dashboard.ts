@@ -59,7 +59,7 @@ export class MainDashboard {
   protected readonly categories = CATEGORY_ORDER;
   protected readonly categoryLabels = CATEGORY_LABELS;
   protected readonly money = (n: number | null | undefined) => Money.format(n ?? 0);
-  protected readonly compact = (n: number | null | undefined) => Money.compact(n ?? 0);
+  protected readonly compact = (n: number | null | undefined) => Money.format(n ?? 0, { decimals: 0 });
 
   protected readonly greeting = computed(() => {
     const h = new Date().getHours();

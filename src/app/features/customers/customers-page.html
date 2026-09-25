@@ -1,0 +1,152 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Customers', 'Wateja')"
+    [subtitle]="i18n.t('Customer records, debts and buying history', 'Taarifa za wateja, madeni na historia ya ununuzi')"
+    icon="groups"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    @if (canMerge()) {
+      <button lsmsButton="secondary" icon="merge_type" size="sm" (click)="openMerge()">{{ i18n.t('Merge', 'Unganisha') }}</button>
+    }
+    <button *lsmsCan="'CUSTOMER_WRITE'" lsmsButton icon="person_add" size="sm" (click)="openForm()">
+      {{ i18n.t('Add customer', 'Ongeza mteja') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Customers', 'Wateja')"
+      [value]="loading() ? '—' : stats().total + ''"
+      [subtitle]="i18n.t(stats().withSales + ' have bought', stats().withSales + ' wamenunua')"
+      icon="groups"
+      color="var(--c-primary)"
+      [clickable]="filter() !== 'ALL'"
+      (tap)="filter.set('ALL')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Owed to us', 'Madeni ya wateja')"
+      [value]="loading() ? '—' : (stats().owed | money: { decimals: 0 })"
+      [subtitle]="i18n.t(stats().owing + ' customers owe', 'Wateja ' + stats().owing + ' wanadaiwa')"
+      icon="account_balance_wallet"
+      color="var(--c-error)"
+      [urgent]="stats().owed > 0"
+      [clickable]="stats().owing > 0"
+      (tap)="filter.set('OWING')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Lifetime sales', 'Mauzo yote')"
+      [value]="loading() ? '—' : (stats().revenue | money: { decimals: 0 })"
+      [subtitle]="stats().top ? i18n.t('Top: ', 'Mkubwa: ') + stats().top!.name : undefined"
+      icon="payments"
+      color="var(--c-success)"
+      [clickable]="true"
+      (tap)="filter.set('TOP')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('No purchases yet', 'Hawajanunua bado')"
+      [value]="loading() ? '—' : stats().noSales + ''"
+      [subtitle]="stats().newCount ? i18n.t(stats().newCount + ' new this month', 'Wapya ' + stats().newCount + ' mwezi huu') : undefined"
+      icon="person_search"
+      color="var(--c-info)"
+      [clickable]="stats().noSales > 0"
+      (tap)="filter.set('NO_SALES')"
+    />
+  </lsms-metrics-grid>
+
+  @if (canCredit()) {
+    <lsms-segmented-filter-bar class="views" [options]="viewOptions()" [(selected)]="view" />
+  }
+
+  <div class="table-card">
+    @if (view() === 'settlements') {
+      @defer {
+        <app-settlements-panel />
+      }
+    } @else {
+      <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name, phone or email…', 'Tafuta jina, simu au barua pepe…')" (search)="search.set($event)">
+        <lsms-segmented-filter-bar filterSegments [options]="filterOptions()" [(selected)]="filter" />
+      </lsms-filter-panel>
+
+      @if (selected().length) {
+        <div class="bulk">
+          <span class="bulk-count"><lsms-icon name="check_circle" [size]="18" [filled]="true" />{{ selected().length }} {{ i18n.t('selected', 'wamechaguliwa') }}</span>
+          <span class="bulk-actions">
+            <button lsmsButton="secondary" size="sm" icon="grid_on" (click)="export('csv')">{{ i18n.t('Export', 'Hamisha') }}</button>
+            @if (canDelete()) {
+              <button lsmsButton="danger" size="sm" icon="delete" (click)="bulkDelete()">{{ i18n.t('Delete', 'Futa') }}</button>
+            }
+            <button lsmsButton="text" size="sm" (click)="clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+          </span>
+        </div>
+      }
+
+      @if (error()) {
+        <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load customers', 'Imeshindikana kupakia wateja')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="refresh()" />
+      } @else {
+        <lsms-data-table
+          [title]="filter() === 'TOP' ? i18n.t('Top 20 by spending', 'Wanunuzi 20 wakubwa') : i18n.t('Customers', 'Wateja')"
+          [items]="rows()"
+          [rowId]="rowId"
+          [loading]="loading()"
+
+          [bulkSelection]="canDelete()"
+          (selectionChange)="selected.set($event)"
+          [defaultSortColumn]="filter() === 'TOP' ? undefined : 'name'"
+          [mobileTitle]="nameOf"
+          [mobileColumns]="['owed', 'phone', 'sales', 'actions']"
+          [mobileCompactColumns]="['owed']"
+          [actionsInlineWithTitle]="true"
+          [emptyTitle]="i18n.t('No matching customers', 'Hakuna wateja wanaolingana')"
+          [emptyMessage]="i18n.t('Try other words or clear the filter.', 'Jaribu maneno mengine au futa kichujio.')"
+          emptyIcon="person_search"
+          (rowClick)="openDetails($event)"
+        >
+          <ng-template lsmsColumn="name" [label]="i18n.t('Customer', 'Mteja')" [sortBy]="nameOf" [locked]="true" let-row>
+            <span class="cust">
+              <span class="avatar">{{ initials(row.name) }}</span>
+              <span class="txt">
+                <strong>{{ row.name }}</strong>
+                @if (row.customerType !== 'REGULAR') {
+                  <small class="type" [style.--t]="types[row.customerType].color">{{ i18n.isSwahili() ? types[row.customerType].sw : types[row.customerType].en }}</small>
+                }
+              </span>
+            </span>
+          </ng-template>
+          <ng-template lsmsColumn="phone" [label]="i18n.t('Phone', 'Simu')" let-row>
+            @if (row.phoneNumber) {
+              <a class="phone" [href]="'tel:' + row.phoneNumber" (click)="$event.stopPropagation()">{{ row.phoneNumber }}</a>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </ng-template>
+          <ng-template lsmsColumn="sales" [label]="i18n.t('Sales', 'Mauzo')" [sortBy]="salesOf" align="end" let-row>
+            <span class="num">{{ row.salesCount }}</span>
+          </ng-template>
+          <ng-template lsmsColumn="spent" [label]="i18n.t('Total spent', 'Jumla ya manunuzi')" [sortBy]="spentOf" width="200px" let-row>
+            <span class="count-cell">
+              <b>{{ row.totalSpent | money: { decimals: 0, symbol: false } }}</b>
+              <span class="track"><i [style.width.%]="(row.totalSpent / maxSpent()) * 100"></i></span>
+            </span>
+          </ng-template>
+          <ng-template lsmsColumn="owed" [label]="i18n.t('Owes', 'Deni')" [sortBy]="owedOf" align="end" let-row>
+            @if (row.outstandingBalance > 0) {
+              <span class="owed">{{ row.outstandingBalance | money }}</span>
+            } @else if (row.salesCount > 0) {
+              <span class="paid"><lsms-icon name="task_alt" [size]="14" />{{ i18n.t('Paid up', 'Amelipa') }}</span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </ng-template>
+          <ng-template lsmsColumn="since" [label]="i18n.t('Since', 'Tangu')" [sortBy]="sinceOf" [hidden]="true" let-row>
+            <span class="muted">{{ row.createdAt?.slice(0, 10) || '—' }}</span>
+          </ng-template>
+          <ng-template lsmsColumn="actions" let-row>
+            <lsms-action-menu [actions]="actions(row)" />
+          </ng-template>
+        </lsms-data-table>
+      }
+    }
+  </div>
+</div>

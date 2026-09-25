@@ -1,0 +1,179 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Purchases', 'Manunuzi')"
+    [subtitle]="i18n.t('Stock bought from suppliers — approve, receive and track what you owe', 'Mzigo ulionunuliwa — idhinisha, pokea na fuatilia madeni')"
+    icon="shopping_cart"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    <button *lsmsCan="'PURCHASE_WRITE'" lsmsButton="secondary" icon="replay" size="sm" class="rp" (click)="repurchase()">
+      {{ i18n.t('Repurchase', 'Nunua tena') }}
+      @if (repurchaseCart.count()) {
+        <span class="badge">{{ repurchaseCart.count() }}</span>
+      }
+    </button>
+    <button *lsmsCan="'PURCHASE_WRITE'" lsmsButton icon="add_shopping_cart" size="sm" (click)="openForm()">
+      {{ i18n.t('New purchase', 'Manunuzi mapya') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Spent', 'Matumizi') + ' · ' + periodLabel()"
+      [value]="stats().spend === null ? '—' : (stats().spend! | money: { decimals: 0 })"
+      [subtitle]="i18n.t(stats().spendCount + ' purchases', 'Manunuzi ' + stats().spendCount)"
+      icon="payments"
+      color="var(--c-primary)"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Waiting for approval', 'Yanasubiri idhini')"
+      [value]="stats().pending + ''"
+      [subtitle]="stats().pending ? i18n.t('Tap to review', 'Bofya kukagua') : i18n.t('Nothing waiting', 'Hakuna yanayosubiri')"
+      icon="hourglass_top"
+      color="var(--c-warning)"
+      [urgent]="stats().pending > 0"
+      [clickable]="stats().pending > 0"
+      (tap)="showQueue('PENDING')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Approved, not received', 'Yameidhinishwa, hayajapokelewa')"
+      [value]="stats().approved + ''"
+      icon="local_shipping"
+      color="var(--c-info)"
+      [clickable]="stats().approved > 0"
+      (tap)="showQueue('APPROVED')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Owed to suppliers', 'Deni kwa wasambazaji')"
+      [value]="stats().owedToSuppliers === null ? '—' : (stats().owedToSuppliers! | money: { decimals: 0 })"
+      [subtitle]="stats().owing ? i18n.t(stats().owing + ' suppliers', 'Wasambazaji ' + stats().owing) : undefined"
+      icon="account_balance_wallet"
+      color="var(--c-error)"
+    />
+  </lsms-metrics-grid>
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search product, supplier or reference…', 'Tafuta bidhaa, msambazaji au kumbukumbu…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="options()" [(selected)]="filter" />
+      <div class="period">
+        <button type="button" class="latest" [class.on]="!range()" (click)="setRange(null)">
+          <lsms-icon name="schedule" [size]="16" />{{ i18n.t('Latest', 'Karibuni') }}
+        </button>
+        <lsms-date-range-selector [class.on]="!!range()" [range]="range() ?? defaultRange" (rangeChange)="setRange($event)" />
+      </div>
+    </lsms-filter-panel>
+
+    @if (bulk().open.length && (canApprove() || canReceive() || canCancel())) {
+      <div class="bulk">
+        <span class="bulk-count">
+          <lsms-icon name="check_circle" [size]="18" [filled]="true" />{{ selected().length }} {{ i18n.t('selected', 'yamechaguliwa') }}
+          @if (bulk().closed) {
+            <small>· {{ i18n.t(bulk().closed + ' received / cancelled skipped', bulk().closed + ' yaliyopokelewa / kufutwa yanarukwa') }}</small>
+          }
+        </span>
+        <span class="bulk-actions">
+          @if (canApprove() && bulk().pending.length) {
+            <button lsmsButton size="sm" icon="verified" (click)="runBulk('approve')">{{ i18n.t('Approve', 'Idhinisha') }} ({{ bulk().pending.length }})</button>
+            @if (canReceive()) {
+              <button lsmsButton="secondary" size="sm" icon="done_all" (click)="runBulk('approve-receive')">{{ i18n.t('Approve & receive', 'Idhinisha na pokea') }} ({{ bulk().pending.length }})</button>
+            }
+          }
+          @if (canReceive() && bulk().approved.length) {
+            <button lsmsButton size="sm" icon="inventory" (click)="runBulk('receive')">{{ i18n.t('Mark received', 'Pokea') }} ({{ bulk().approved.length }})</button>
+          }
+          @if (canCancel()) {
+            <button lsmsButton="danger" size="sm" icon="block" (click)="runBulk('cancel')">{{ i18n.t('Cancel', 'Futa') }} ({{ bulk().open.length }})</button>
+          }
+          <button lsmsButton="text" size="sm" (click)="clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+        </span>
+      </div>
+    } @else if (selected().length) {
+      <div class="bulk">
+        <span class="bulk-count"><lsms-icon name="info" [size]="18" />{{ i18n.t('Only pending or approved purchases can be approved, received or cancelled.', 'Ni manunuzi yanayosubiri au yaliyoidhinishwa tu yanayoweza kuidhinishwa, kupokelewa au kufutwa.') }}</span>
+        <span class="bulk-actions"><button lsmsButton="text" size="sm" (click)="clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button></span>
+      </div>
+    }
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load purchases', 'Imeshindikana kupakia manunuzi')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="range() ? i18n.t('Purchases', 'Manunuzi') + ' · ' + periodLabel() : i18n.t('Latest purchases', 'Manunuzi ya karibuni')"
+        [items]="rows()"
+        [rowId]="rowId"
+        [bulkSelection]="canBulk()"
+        (selectionChange)="selected.set($event)"
+        [loading]="loading() && !items().length"
+        [showPagination]="false"
+        defaultSortColumn="date"
+        defaultSortDirection="desc"
+        [mobileTitle]="nameOf"
+        [mobileColumns]="['total', 'status', 'date', 'supplier', 'actions']"
+        [mobileCompactColumns]="['total']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="items().length ? i18n.t('No matching purchases', 'Hakuna manunuzi yanayolingana') : i18n.t('No purchases in this period', 'Hakuna manunuzi katika kipindi hiki')"
+        [emptyMessage]="items().length ? i18n.t('Try other words or clear the filter.', 'Jaribu maneno mengine au futa kichujio.') : undefined"
+        emptyIcon="shopping_cart"
+        (rowClick)="openDetails($event.uid, $event)"
+      >
+        <ng-template lsmsColumn="date" [label]="i18n.t('Date', 'Tarehe')" [sortBy]="dateOf" let-row>
+          <span class="cell-stack when">
+            <b>{{ date(row.purchaseDate) | date: 'dd MMM yyyy' }}</b>
+            <small>{{ date(row.purchaseDate) | date: 'HH:mm' }}</small>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="product" [label]="i18n.t('Product', 'Bidhaa')" [sortBy]="nameOf" [locked]="true" let-row>
+          <span class="cell-stack"><strong>{{ row.productName }}</strong><small>{{ row.categoryName || '' }}</small></span>
+        </ng-template>
+        <ng-template lsmsColumn="supplier" [label]="i18n.t('Supplier', 'Msambazaji')" [sortBy]="supOf" let-row>
+          <span [class.muted]="!row.supplierName">{{ row.supplierName || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="qty" [label]="i18n.t('Quantity', 'Idadi')" let-row>
+          <span class="cell-stack qty">
+            <b>{{ row.quantityDisplay || row.quantity }}</b>
+            @if (row.totalPieces && row.purchaseType !== 'INDIVIDUAL_PIECES') {
+              <small>{{ row.totalPieces }} {{ i18n.t('pcs', 'vip') }}</small>
+            }
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="cpp" [label]="i18n.t('Cost / piece', 'Gharama / kipande')" [sortBy]="cppOf" align="end" let-row>
+          <span class="num">{{ row.costPerPiece === null ? '—' : (row.costPerPiece | money: { symbol: false }) }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="total" [label]="i18n.t('Total', 'Jumla')" [sortBy]="totalOf" align="end" let-row>
+          <span class="num strong" [class.void]="row.status === 'CANCELLED'">{{ row.totalCost | money }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" let-row>
+          @let st = status(row);
+          <span class="status" [style.--st]="st.color"><lsms-icon [name]="st.icon" [size]="13" />{{ i18n.isSwahili() ? st.sw : st.en }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="ref" [label]="i18n.t('Reference', 'Kumbukumbu')" [hidden]="true" let-row>
+          <span class="muted small">{{ row.reference || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+      @if (!range()) {
+        <div class="more">
+          <span class="hint">
+            <lsms-icon name="info" [size]="14" />
+            @if (total() !== null) {
+              {{ i18n.t('Showing the ' + items().length + ' most recent of ' + total() + ' purchases. Pick a period to see older ones.', 'Yanaonyeshwa manunuzi ' + items().length + ' ya karibuni kati ya ' + total() + '. Chagua kipindi kuona ya zamani.') }}
+            }
+          </span>
+          @if (page() + 1 < pages()) {
+            <button lsmsButton="secondary" size="sm" icon="expand_more" [loading]="loading()" (click)="loadMore()">{{ i18n.t('Load older', 'Pakia ya zamani') }}</button>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

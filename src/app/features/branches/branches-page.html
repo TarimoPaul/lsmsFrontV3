@@ -1,0 +1,94 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Branch Management', 'Usimamizi wa Matawi')"
+    [subtitle]="i18n.t('Shops, locations and opening hours', 'Maduka, maeneo na saa za kazi')"
+    icon="business"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <button *lsmsCan="'BRANCH_WRITE'" lsmsButton icon="add_business" size="sm" (click)="openForm()">
+      {{ i18n.t('Add branch', 'Ongeza tawi') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card [title]="i18n.t('Branches', 'Matawi')" [value]="loading() ? '—' : stats().total + ''" icon="business" color="var(--c-primary)" [clickable]="filter() !== 'ALL'" (tap)="filter.set('ALL')" />
+    <lsms-metric-card [title]="i18n.t('Active', 'Yanayotumika')" [value]="loading() ? '—' : stats().active + ''" icon="check_circle" color="var(--c-success)" [clickable]="true" (tap)="filter.set('ACTIVE')" />
+    <lsms-metric-card
+      [title]="i18n.t('Suspended', 'Yaliyosimamishwa')"
+      [value]="loading() ? '—' : stats().suspended + ''"
+      icon="pause_circle"
+      color="var(--c-warning)"
+      [urgent]="stats().suspended > 0"
+      [clickable]="stats().suspended > 0"
+      (tap)="filter.set('SUSPENDED')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Working in', 'Unafanya kazi')"
+      [value]="auth.activeBranch()?.branchName ?? '—'"
+      [subtitle]="i18n.t(stats().mine + ' branch(es) you can use', 'Matawi ' + stats().mine + ' unayoweza kutumia')"
+      icon="person_pin_circle"
+      color="var(--c-info)"
+    />
+  </lsms-metrics-grid>
+
+  <div class="panel">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name, code, city or phone…', 'Tafuta jina, msimbo, mji au simu…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="options()" [(selected)]="filter" />
+    </lsms-filter-panel>
+
+    @if (error()) {
+      <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load branches', 'Imeshindikana kupakia matawi')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="refresh()" />
+    } @else if (loading()) {
+      <div class="grid"><lsms-skeleton variant="card" /><lsms-skeleton variant="card" /></div>
+    } @else if (!rows().length) {
+      <lsms-empty-state icon="business" [title]="branches().length ? i18n.t('No matching branches', 'Hakuna matawi yanayolingana') : i18n.t('No branches yet', 'Hakuna matawi bado')" />
+    } @else {
+      <div class="grid">
+        @for (b of rows(); track b.uid) {
+          @let st = statusMeta[b.status];
+          <article class="card" [class.current]="isCurrent(b)" [class.off]="b.status !== 'ACTIVE'">
+            <header>
+              <span class="ic"><lsms-icon [name]="b.isMainBranch ? 'domain' : 'storefront'" [size]="22" /></span>
+              <span class="ttl">
+                <strong>{{ b.branchName }}</strong>
+                <span class="tags">
+                  @if (b.isMainBranch) {
+                    <span class="tag main"><lsms-icon name="star" [size]="12" [filled]="true" />{{ i18n.t('Main', 'Kuu') }}</span>
+                  }
+                  @if (isCurrent(b)) {
+                    <span class="tag cur"><lsms-icon name="my_location" [size]="12" />{{ i18n.t('You are here', 'Upo hapa') }}</span>
+                  }
+                  @if (b.branchCode) {
+                    <span class="tag code">{{ b.branchCode }}</span>
+                  }
+                </span>
+              </span>
+              <lsms-action-menu [actions]="actions(b)" />
+            </header>
+            <span class="status" [style.--st]="st.color"><lsms-icon [name]="st.icon" [size]="13" [filled]="true" />{{ i18n.isSwahili() ? st.sw : st.en }}</span>
+            @if (b.description) {
+              <p class="desc">{{ b.description }}</p>
+            }
+            <ul class="facts">
+              <li [class.none]="!location(b)"><lsms-icon name="location_on" [size]="15" />{{ location(b) || i18n.t('No address yet', 'Hakuna anwani bado') }}</li>
+              @if (b.phoneNumber || b.email) {
+                <li><lsms-icon name="call" [size]="15" />{{ b.phoneNumber }}{{ b.phoneNumber && b.email ? ' · ' : '' }}{{ b.email }}</li>
+              }
+              @if (b.openingTime || b.closingTime || b.operatingDays) {
+                <li>
+                  <lsms-icon name="schedule" [size]="15" />
+                  @if (b.openingTime || b.closingTime) { {{ b.openingTime || '?' }}–{{ b.closingTime || '?' }} }
+                  @if (daysLabel(b)) { <small>{{ daysLabel(b) }}</small> }
+                </li>
+              }
+              @if (b.taxId) {
+                <li><lsms-icon name="badge" [size]="15" />TIN {{ b.taxId }}</li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</div>

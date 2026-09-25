@@ -1,0 +1,119 @@
+@use 'typography' as t;
+@use 'list-page';
+
+@include list-page.base;
+
+// ── Products per category ───────────────────────────────────────────────────
+.mix {
+  padding: 14px 18px 12px;
+  border-radius: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    small {
+      font-size: 0.72rem;
+      color: var(--c-text-2);
+    }
+  }
+}
+.mix-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--c-text-2);
+  lsms-icon {
+    color: var(--c-primary);
+  }
+}
+.bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2px 28px;
+}
+.bar {
+  --cat: var(--c-primary);
+  display: grid;
+  grid-template-columns: minmax(80px, 34%) 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--cat) 8%, transparent);
+    outline: none;
+  }
+}
+.bl {
+  @include t.ellipsis;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.bv {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 64px;
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+  b {
+    font-size: 0.82rem;
+  }
+  small {
+    width: 30px;
+    font-size: 0.7rem;
+    color: var(--c-text-2);
+    text-align: right;
+  }
+}
+@media (max-width: 767px) {
+  .mix header small {
+    display: none;
+  }
+  .bars {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cat-cell {
+  --cat: var(--c-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  strong {
+    @include t.ellipsis;
+  }
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--cat);
+  background: color-mix(in srgb, var(--cat) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cat) 25%, transparent);
+}
+// Bars take the category colour.
+.bar,
+.count-cell {
+  --bar: var(--cat);
+}

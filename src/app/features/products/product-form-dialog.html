@@ -1,0 +1,149 @@
+<lsms-dialog
+  [title]="editing ? i18n.t('Edit product', 'Hariri bidhaa') : data.duplicate ? i18n.t('Duplicate product', 'Nakili bidhaa') : i18n.t('New product', 'Bidhaa mpya')"
+  [icon]="editing ? 'edit' : data.duplicate ? 'content_copy' : 'add_box'"
+>
+  <form id="product-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <!-- Live preview of how the product will appear in sales -->
+    <div class="preview" [class.dup]="duplicate()">
+      <lsms-icon [name]="duplicate() ? 'error' : 'sell'" [size]="20" />
+      <span class="pv-txt">
+        <small>{{ i18n.t('Shown in sales as', 'Itaonekana kwenye mauzo kama') }}</small>
+        <strong>{{ displayName() || i18n.t('Product name', 'Jina la bidhaa') }}</strong>
+      </span>
+      @if (duplicate()) {
+        <em>{{ i18n.t('Already exists with this measure', 'Tayari ipo kwa kipimo hiki') }}</em>
+      }
+    </div>
+
+    <section class="sec">
+      <h4><lsms-icon name="info" [size]="16" />{{ i18n.t('Basic information', 'Taarifa za msingi') }}</h4>
+      <div class="grid">
+        <lsms-text-field
+          class="span2"
+          formControlName="productName"
+          [label]="i18n.t('Product name', 'Jina la bidhaa')"
+          prefixIcon="inventory_2"
+          [placeholder]="i18n.t('e.g. Kilimanjaro Lager', 'mf. Kilimanjaro Lager')"
+          [required]="true"
+          [maxLength]="100"
+          [autofocus]="!editing"
+        />
+        <lsms-select-field
+          formControlName="categoryUid"
+          [label]="i18n.t('Category', 'Kategoria')"
+          prefixIcon="category"
+          [required]="true"
+          [options]="categoryOptions()"
+          [emptyLabel]="i18n.t('Choose a category', 'Chagua kategoria')"
+        />
+        <lsms-select-field
+          formControlName="measureUid"
+          [label]="i18n.t('Measure / unit', 'Kipimo')"
+          prefixIcon="straighten"
+          [options]="measureOptions()"
+          [emptyLabel]="i18n.t('No measure', 'Bila kipimo')"
+          [hint]="i18n.t('Added to the name, e.g. 500ML', 'Huongezwa kwenye jina, mf. 500ML')"
+        />
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-head">
+        <h4><lsms-icon name="payments" [size]="16" />{{ i18n.t('Selling prices', 'Bei za kuuza') }}</h4>
+        <small>{{ i18n.t('Set the prices you sell at — any tier works on its own.', 'Weka bei unazouzia — ngazi yoyote inajitosheleza.') }}</small>
+      </div>
+
+      <div class="tiers">
+        @for (t of tiers; track t.key) {
+          @let r = rateFor(t);
+          <div class="tier" [style.--tier]="t.color" [class.on]="r">
+            <div class="tier-head">
+              <span class="dot"></span>
+              <strong>{{ i18n.isSwahili() ? t.sw : t.en }}</strong>
+              @if (r && r.savingPct > 0) {
+                <span class="save">−{{ r.savingPct }}%</span>
+              }
+            </div>
+            <div class="tier-fields" [class.single]="!t.qty">
+              <lsms-text-field
+                [formControlName]="t.price"
+                type="currency"
+                [label]="i18n.t('Price', 'Bei')"
+                [dense]="true"
+                placeholder="0"
+              />
+              @if (t.qty) {
+                <lsms-text-field
+                  [formControlName]="t.qty"
+                  type="number"
+                  [label]="i18n.t('Pieces', 'Vipande')"
+                  [dense]="true"
+                  placeholder="0"
+                />
+              }
+            </div>
+            <div class="rate">
+              @if (r) {
+                {{ r.perPiece | money }} <span>{{ i18n.t('per piece', 'kwa kipande') }}</span>
+              } @else {
+                <span>{{ t.qty ? i18n.t('Price + pieces', 'Bei + vipande') : i18n.t('Single piece', 'Kipande kimoja') }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (showBase()) {
+        <div class="base" [class.missing]="needsBase()">
+          <span class="base-ic"><lsms-icon name="deployed_code" [size]="20" /></span>
+          <span class="base-txt">
+            <strong>{{ i18n.t('Base package', 'Paketi ya msingi') }} @if (hasPackage()) {<span class="req">*</span>}</strong>
+            <small>{{ i18n.t('Pieces in one full package (carton / crate)', 'Vipande kwenye paketi nzima moja (katoni / kreti)') }} · {{ baseHint() }}</small>
+            @if (canSuggest()) {
+              <button type="button" class="fill" (click)="applySuggestions()">
+                <lsms-icon name="auto_fix_high" [size]="14" />{{ i18n.t('Fill quarter / half', 'Jaza robo / nusu') }}
+                @if (suggestions(); as s) {
+                  <span class="sugg">{{ s.quarter ?? '–' }} / {{ s.half ?? '–' }} / {{ s.whole ?? '–' }}</span>
+                }
+              </button>
+            }
+          </span>
+          <lsms-text-field
+            class="base-input"
+            formControlName="piecesPerPackage"
+            type="number"
+            [dense]="true"
+            [placeholder]="i18n.t('e.g. 24', 'mf. 24')"
+            [suffixText]="i18n.t('pcs', 'vip')"
+          />
+        </div>
+      }
+
+      @if (issues().length && (submitted() || hasAnyPrice())) {
+        <ul class="issues" role="alert">
+          @for (i of issues(); track i) {
+            <li><lsms-icon name="error" [size]="15" [filled]="true" />{{ i }}</li>
+          }
+        </ul>
+      } @else if (hasAnyPrice()) {
+        <p class="ok"><lsms-icon name="check_circle" [size]="16" [filled]="true" />{{ i18n.t('Pricing looks good — ready to sell.', 'Bei ziko sawa — tayari kuuzwa.') }}</p>
+      }
+
+      <lsms-text-field
+        formControlName="priceDescription"
+        type="textarea"
+        [rows]="2"
+        [label]="i18n.t('Price note', 'Maelezo ya bei')"
+        [maxLength]="255"
+        [placeholder]="i18n.t('Optional, e.g. promo price until month end', 'Si lazima, mf. bei ya ofa hadi mwisho wa mwezi')"
+      />
+    </section>
+  </form>
+
+  <ng-container dialogActions>
+    <button lsmsButton="secondary" type="button" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
+    <button lsmsButton type="submit" form="product-form" icon="save" [loading]="busy()" [disabled]="!canSave()">
+      {{ editing ? i18n.t('Save changes', 'Hifadhi mabadiliko') : i18n.t('Add product', 'Ongeza bidhaa') }}
+    </button>
+  </ng-container>
+</lsms-dialog>

@@ -1,0 +1,350 @@
+@use 'typography' as t;
+@use 'cart-panel';
+
+:host {
+  display: block;
+}
+@include cart-panel.base;
+
+.bench {
+  grid-template-columns: minmax(0, 1fr) 440px;
+}
+.recon-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: var(--c-text);
+  background: color-mix(in srgb, var(--c-info) 8%, var(--c-surface));
+  border: 1px solid color-mix(in srgb, var(--c-info) 25%, var(--c-border));
+  lsms-icon {
+    color: var(--c-info);
+  }
+  span {
+    flex: 1;
+  }
+  a {
+    font-weight: 600;
+    color: var(--c-primary);
+  }
+}
+.stock-seg button small {
+  margin-left: 2px;
+  opacity: 0.75;
+}
+
+// ── Product rows ────────────────────────────────────────────────────────────
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+}
+.item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 150px 110px 150px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  & + & {
+    border-top: 1px solid var(--c-border);
+  }
+  &:hover {
+    background: var(--c-hover);
+  }
+  &.in-cart {
+    background: color-mix(in srgb, var(--c-success) 5%, var(--c-surface));
+  }
+  .nm {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    // Same as table names (styles/_table-cells.scss).
+    strong {
+      font-size: 0.86rem;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      @include t.ellipsis;
+    }
+    small {
+      font-size: 0.7rem;
+      color: var(--c-text-2);
+      @include t.ellipsis;
+    }
+  }
+  .stock {
+    --hc: var(--c-success);
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--hc);
+    background: color-mix(in srgb, var(--hc) 11%, transparent);
+  }
+  .cost {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    small {
+      font-size: 0.7rem;
+      color: var(--c-text-2);
+    }
+    b {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+  .act {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .added,
+  .wait {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .added {
+    color: var(--c-success);
+    background: color-mix(in srgb, var(--c-success) 10%, transparent);
+  }
+  .wait {
+    --st: var(--c-warning);
+    color: var(--st);
+    background: color-mix(in srgb, var(--st) 10%, transparent);
+    border-color: color-mix(in srgb, var(--st) 30%, transparent);
+  }
+}
+.more {
+  align-self: center;
+}
+
+// ── Cart lines ──────────────────────────────────────────────────────────────
+.lines li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.l2,
+.l3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.l2 {
+  justify-content: space-between;
+}
+.unit {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 9px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  button {
+    padding: 3px 9px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    font: inherit;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+    cursor: pointer;
+    &.on {
+      color: #fff;
+      background: var(--c-primary);
+    }
+  }
+}
+.stepper input {
+  width: 46px;
+}
+.money {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  small {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+  }
+  input {
+    width: 100%;
+    padding: 6px 9px;
+    border: 1px solid var(--c-border);
+    border-radius: 9px;
+    background: var(--c-surface);
+    font: inherit;
+    font-size: 0.84rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--c-text);
+    outline: none;
+    &:focus {
+      border-color: var(--c-primary);
+    }
+  }
+  &.total input {
+    font-weight: 600;
+  }
+}
+.x-sign {
+  align-self: flex-end;
+  padding-bottom: 7px;
+  color: var(--c-text-2);
+}
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 0.7rem;
+  color: var(--c-text-2);
+  &:empty {
+    display: none;
+  }
+  .chg {
+    font-weight: 700;
+    color: var(--c-success);
+    &.up {
+      color: var(--c-error);
+    }
+  }
+  .bad {
+    font-weight: 700;
+    color: var(--c-error);
+  }
+}
+.warn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--c-error);
+}
+
+// ── Checkout ────────────────────────────────────────────────────────────────
+.checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--c-border);
+  background: color-mix(in srgb, var(--c-primary) 3%, var(--c-surface));
+}
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  small {
+    font-size: 0.7rem;
+    color: var(--c-text-2);
+  }
+  textarea {
+    resize: vertical;
+    padding: 6px 10px;
+    border: 1px solid var(--c-border);
+    border-radius: 9px;
+    background: var(--c-surface);
+    font: inherit;
+    font-size: 0.82rem;
+    color: var(--c-text);
+    outline: none;
+    &:focus {
+      border-color: var(--c-primary);
+    }
+  }
+}
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px dashed var(--c-border);
+  span {
+    font-weight: 700;
+  }
+  small {
+    font-weight: 500;
+    color: var(--c-text-2);
+  }
+  b {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-primary);
+  }
+}
+.blocker {
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--c-warning);
+}
+.send {
+  min-height: 46px;
+  font-size: 0.95rem;
+}
+.after {
+  font-size: 0.7rem;
+  text-align: center;
+  color: var(--c-text-2);
+}
+
+@media (max-width: 1000px) {
+  .bench {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .item {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'sn nm act'
+      'sn stock cost';
+    gap: 6px 10px;
+    .sn {
+      grid-area: sn;
+      align-self: start;
+    }
+    .nm {
+      grid-area: nm;
+    }
+    .stock {
+      grid-area: stock;
+    }
+    .cost {
+      grid-area: cost;
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+    .act {
+      grid-area: act;
+    }
+  }
+}

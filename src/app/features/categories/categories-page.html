@@ -1,0 +1,148 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Category Management', 'Usimamizi wa Kategoria')"
+    [subtitle]="i18n.t('Organize products with categories', 'Panga bidhaa kwa kategoria')"
+    icon="category"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    <button *lsmsCan="'CATEGORY_WRITE'" lsmsButton icon="add" size="sm" (click)="openForm()">
+      {{ i18n.t('Add category', 'Ongeza kategoria') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Total categories', 'Kategoria zote')"
+      [value]="loading() && !categories().length ? '—' : stats().total + ''"
+      icon="category"
+      color="var(--c-primary)"
+      [clickable]="filter() !== 'ALL'"
+      (tap)="showFilter('ALL')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Products categorised', 'Bidhaa zilizopangwa')"
+      [value]="stats().categorised === null ? '—' : stats().categorised + ''"
+      [subtitle]="stats().categorised === null ? i18n.t('Needs product access', 'Inahitaji ruhusa ya bidhaa') : undefined"
+      icon="inventory_2"
+      color="var(--c-success)"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Empty categories', 'Kategoria tupu')"
+      [value]="stats().empty === null ? '—' : stats().empty + ''"
+      [subtitle]="stats().empty ? i18n.t('No products yet', 'Hazina bidhaa bado') : undefined"
+      icon="inbox"
+      color="var(--c-warning)"
+      [clickable]="!!stats().empty"
+      (tap)="showFilter('EMPTY')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Missing description', 'Bila maelezo')"
+      [value]="stats().noDescription + ''"
+      icon="notes"
+      color="var(--c-info)"
+      [clickable]="stats().noDescription > 0"
+      (tap)="showFilter('NO_DESCRIPTION')"
+    />
+  </lsms-metrics-grid>
+
+  @if (mix().length) {
+    <section class="mix">
+      <header>
+        <span class="mix-title"><lsms-icon name="bar_chart" [size]="16" />{{ i18n.t('Products per category', 'Bidhaa kwa kategoria') }}</span>
+        <small>{{ i18n.t('Click a category to see its products', 'Bofya kategoria kuona bidhaa zake') }}</small>
+      </header>
+      <div class="bars">
+        @for (m of mix(); track m.category.uid) {
+          <button type="button" class="bar" [style.--cat]="m.color" (click)="openDetails(m.category)" [title]="m.category.categoryName + ': ' + m.count">
+            <span class="bl">{{ m.category.categoryName }}</span>
+            <span class="track"><i [style.width.%]="(m.count / maxCount()) * 100"></i></span>
+            <span class="bv"><b>{{ m.count }}</b><small>{{ m.pct }}%</small></span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name or description…', 'Tafuta jina au maelezo…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="filterOptions()" [(selected)]="filter" />
+    </lsms-filter-panel>
+
+    @if (selected().length) {
+      <div class="bulk" role="region" [attr.aria-label]="i18n.t('Bulk actions', 'Vitendo vya pamoja')">
+        <span class="bulk-count"><lsms-icon name="check_circle" [size]="18" [filled]="true" />{{ selected().length }} {{ i18n.t('selected', 'zimechaguliwa') }}</span>
+        <span class="bulk-actions">
+          <button lsmsButton="secondary" size="sm" icon="grid_on" (click)="export('csv')">{{ i18n.t('Export', 'Hamisha') }}</button>
+          @if (canDelete()) {
+            <button lsmsButton="danger" size="sm" icon="delete" [loading]="busy()" (click)="bulkDelete()">{{ i18n.t('Delete', 'Futa') }}</button>
+          }
+          <button lsmsButton="text" size="sm" (click)="clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+        </span>
+      </div>
+    }
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load categories', 'Imeshindikana kupakia kategoria')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else if (!loading() && !categories().length) {
+      <lsms-empty-state
+        icon="category"
+        [title]="i18n.t('No categories yet', 'Hakuna kategoria bado')"
+        [message]="i18n.t('Create categories to group your products, e.g. Beer, Soda, Spirits.', 'Unda kategoria kupanga bidhaa zako, mf. Bia, Soda, Pombe kali.')"
+        [actionLabel]="canCreate() ? i18n.t('Add category', 'Ongeza kategoria') : undefined"
+        (action)="openForm()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="i18n.t('Categories', 'Kategoria')"
+        [items]="rows()"
+        [rowId]="rowId"
+        [loading]="loading()"
+
+        [bulkSelection]="true"
+        (selectionChange)="selected.set($event)"
+        defaultSortColumn="name"
+        [mobileTitle]="nameOf"
+        [mobileColumns]="['products', 'description', 'actions']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="i18n.t('No matching categories', 'Hakuna kategoria zinazolingana')"
+        [emptyMessage]="i18n.t('Try other words or clear the filter.', 'Jaribu maneno mengine au futa kichujio.')"
+        emptyIcon="search_off"
+        (rowClick)="openDetails($event)"
+      >
+        <ng-template lsmsColumn="name" [label]="i18n.t('Category', 'Kategoria')" [sortBy]="nameOf" [locked]="true" let-row>
+          <span class="cat-cell" [style.--cat]="color(row.categoryName)">
+            <span class="badge">{{ initials(row.categoryName) }}</span>
+            <strong>{{ row.categoryName }}</strong>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="description" [label]="i18n.t('Description', 'Maelezo')" [sortBy]="descriptionOf" let-row>
+          @if (row.description) {
+            <span class="desc" [title]="row.description">{{ row.description }}</span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        @if (products() !== null) {
+          <ng-template lsmsColumn="products" [label]="i18n.t('Products', 'Bidhaa')" [sortBy]="countOf" width="200px" let-row>
+            <span class="count-cell" [class.zero]="!productCount(row)" [style.--cat]="color(row.categoryName)">
+              <b>{{ productCount(row) }}</b>
+              <span class="track"><i [style.width.%]="((productCount(row) ?? 0) / maxCount()) * 100"></i></span>
+            </span>
+          </ng-template>
+        }
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    }
+  </div>
+</div>

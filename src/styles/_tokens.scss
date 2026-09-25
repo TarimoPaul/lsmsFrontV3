@@ -81,39 +81,49 @@ $sidebar-expanded: 280px;
   --c-accent: #f1e4d1; // Bone
   --c-accent-on: #3b7597;
 
+  // Flutter's sky-blue page (#EEF4FB) with OFF-WHITE surfaces — never pure
+  // #FFF on large areas (glare over long shifts). Borders are a blue-grey
+  // strong enough (1.42:1) that off-white cards still separate from the blue.
   --c-bg: #eef4fb;
-  --c-surface: #ffffff;
+  --c-surface: #f9fbfd;
   --c-surface-variant: #ebf3fe;
-  --c-card: #ffffff;
-  --c-elevated: #ffffff;
-  --c-input-fill: #f8fbff;
-  --c-sidebar: #1e293b;
+  --c-card: #f9fbfd;
+  --c-elevated: #fcfdfe;
+  --c-input-fill: #f5f8fc;
+  // App frame (sidebar + gutter around the content panel): a softer, less
+  // saturated steel blue than Flutter's navy — easier next to the light page.
+  --c-sidebar: #294760;
+  --c-sidebar-bg: linear-gradient(180deg, #2e4e68 0%, #294760 45%, #243f56 100%);
+  --c-sidebar-accent: #7cc4e4;
 
   --c-text: #2d3748;
   --c-text-2: #4a5568;
   --c-text-disabled: #bdbdbd;
 
-  --c-border: #e2e8f0;
-  --c-divider: #e0e0e0;
-  --c-hover: rgb(59 117 151 / 0.06);
+  --c-border: #c9d5e3;
+  --c-divider: #dce5ef;
+  --c-hover: rgb(59 117 151 / 0.07);
 
   --c-success: #2e7d32;
-  --c-warning: #e67e22;
+  --c-warning: #b45309; // readable as text (4.8:1); was #e67e22 (2.9:1)
   --c-error: #d32f2f;
   --c-info: #2b3f8e;
   --c-purple: #9c27b0;
   --c-teal: #009688;
 
   --c-shadow: 26 26 26; // rgb triplet for rgba() use
-  --c-metric-gradient-end: #f7faff;
+  --c-metric-gradient-end: #f3f7fc;
 }
 
-// Eye-comfort light variant (Flutter default: eyeComfortMode = true)
+// Eye-comfort light variant (default ON) — Flutter lightThemeEyeComfort:
+// the same blue page, with warm off-white (#FAFAF7) cards, panels and inputs.
 :root[data-theme='light'][data-comfort='on'],
 :root:not([data-theme])[data-comfort='on'] {
-  --c-bg: #f5f5f0;
+  --c-surface: #fafaf7;
   --c-card: #fafaf7;
-  --c-input-fill: #fafaf7;
+  --c-elevated: #fcfcfa;
+  --c-input-fill: #f7f7f3;
+  --c-metric-gradient-end: #f4f6f8;
 }
 
 :root[data-theme='dark'] {
@@ -134,7 +144,9 @@ $sidebar-expanded: 280px;
   --c-card: #21262d;
   --c-elevated: #2d333b;
   --c-input-fill: rgb(34 39 46 / 0.5);
-  --c-sidebar: #161b22;
+  --c-sidebar: #0a0e13;
+  --c-sidebar-bg: linear-gradient(180deg, #0f1a24 0%, #0b1118 50%, #080c11 100%);
+  --c-sidebar-accent: #96d4d4;
 
   --c-text: #e6edf3;
   --c-text-2: #b1bac4;

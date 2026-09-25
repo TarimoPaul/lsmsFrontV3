@@ -1,0 +1,209 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Sales', 'Mauzo')"
+    [subtitle]="i18n.t('Sales, payments and debts', 'Mauzo, malipo na madeni')"
+    icon="point_of_sale"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    @if (canDelete()) {
+      <button lsmsButton="secondary" size="sm" icon="delete_history" (click)="openDeleted()">{{ i18n.t('Deleted', 'Yaliyofutwa') }}</button>
+    }
+    @if (canWrite()) {
+      <a lsmsButton icon="add_shopping_cart" size="sm" routerLink="/sales/new">{{ i18n.t('New sale', 'Uza') }}</a>
+    }
+  </lsms-page-header>
+
+  @if (views().length > 1) {
+    <lsms-segmented-filter-bar class="views" [options]="views()" [(selected)]="view" [scrollable]="false" />
+  }
+
+  @if (view() === 'debts') {
+    @defer {
+      <app-debt-approvals-panel (changed)="refresh()" />
+    } @placeholder {
+      <div class="ph"></div>
+    }
+  } @else if (view() === 'returns') {
+    @defer {
+      <app-returns-panel (changed)="refresh()" />
+    } @placeholder {
+      <div class="ph"></div>
+    }
+  } @else {
+  <div class="periods">
+    <lsms-segmented-filter-bar [options]="periods()" [selected]="period()" (selectedChange)="setPeriod($event)" />
+    <lsms-date-range-selector [class.on]="period() === 'custom'" [range]="custom()" (rangeChange)="setCustom($event)" />
+    <span class="day-nav">
+      <button type="button" class="nav" (click)="step(-1)" [title]="stepLabel(-1)" [attr.aria-label]="stepLabel(-1)">
+        <lsms-icon name="chevron_left" [size]="20" />
+      </button>
+      <span class="showing"><lsms-icon name="calendar_today" [size]="14" />{{ periodLabel() }}</span>
+      <button type="button" class="nav" (click)="step(1)" [disabled]="!canStepNext()" [title]="stepLabel(1)" [attr.aria-label]="stepLabel(1)">
+        <lsms-icon name="chevron_right" [size]="20" />
+      </button>
+    </span>
+  </div>
+
+  @if (view() === 'profit') {
+    @if (loading() && !sales().length) {
+      <div class="ph"></div>
+    } @else {
+      @defer {
+        <app-profit-panel [sales]="sales()" />
+      } @placeholder {
+        <div class="ph"></div>
+      }
+    }
+  } @else {
+
+  @let k = kpi();
+  <lsms-dashboard-kpi-row>
+    <lsms-dashboard-kpi-card
+      icon="shopping_cart"
+      [title]="i18n.t('Sales', 'Mauzo')"
+      [value]="loading() && !sales().length ? '—' : k.count + ''"
+      [subtitle]="k.revenue | money: { decimals: 0 }"
+      accentColor="var(--c-primary)"
+      [hero]="true"
+    />
+    <lsms-dashboard-kpi-card
+      icon="paid"
+      [title]="i18n.t('Collected', 'Makusanyo')"
+      [value]="k.paid | money: { decimals: 0 }"
+      [subtitle]="k.discount > 0 ? i18n.t('Discounts ', 'Punguzo ') + (k.discount | money: { decimals: 0 }) : undefined"
+      accentColor="var(--c-success)"
+      [clickable]="true"
+      (tap)="showStatus('PAID')"
+    />
+    <lsms-dashboard-kpi-card
+      icon="account_balance_wallet"
+      [title]="i18n.t('Outstanding', 'Madeni')"
+      [value]="(k.allTimeOutstanding ?? k.windowOutstanding) | money: { decimals: 0 }"
+      [subtitle]="k.allTimeOutstanding !== null ? periodLabel() + ' ' + (k.windowOutstanding | money: { decimals: 0 }) + ' · ' + i18n.t(k.allTimePending + ' owing (all time)', 'madeni ' + k.allTimePending + ' (yote)') : i18n.t('In this period', 'Katika kipindi hiki')"
+      [valueColor]="(k.allTimeOutstanding ?? k.windowOutstanding) > 0 ? 'var(--c-error)' : undefined"
+      accentColor="var(--c-error)"
+      [clickable]="true"
+      (tap)="showStatus('OWING')"
+    />
+    <lsms-dashboard-kpi-card
+      icon="schedule"
+      [title]="i18n.t('Owing sales', 'Mauzo yenye deni')"
+      [value]="k.pending + ''"
+      [subtitle]="i18n.t(k.completed + ' paid in full', k.completed + ' yamelipwa yote')"
+      accentColor="var(--c-warning)"
+      [clickable]="k.pending > 0"
+      (tap)="showStatus('OWING')"
+    />
+  </lsms-dashboard-kpi-row>
+
+  @if (k.count > 0) {
+    <lsms-dashboard-today-section [desktopHeight]="300">
+      <lsms-dashboard-revenue-card
+        todayRevenue
+        [title]="i18n.t('Revenue by hour', 'Mapato kwa saa')"
+        [todayLabel]="periodLabel()"
+        [todayValueText]="k.revenue | money"
+        [todaySeries]="k.hourlyRevenue"
+        [barLabels]="hours"
+        accentColor="var(--c-primary)"
+      />
+      <lsms-dashboard-peak-card
+        todayPeak
+        [title]="i18n.t('Peak hours', 'Saa za kilele')"
+        [windowText]="k.peak.label"
+        [subtitleText]="i18n.t('~' + k.peak.pct + '% of sales in the busiest hour', '~' + k.peak.pct + '% ya mauzo saa yenye shughuli zaidi')"
+        [series]="k.hourlyOrders"
+        [salesCountText]="i18n.t(k.peak.total + ' sales', 'Mauzo ' + k.peak.total)"
+        [revenueText]="k.revenue | money: { decimals: 0 }"
+        accentColor="var(--c-info)"
+      />
+    </lsms-dashboard-today-section>
+  }
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search receipt, customer, product or seller…', 'Tafuta risiti, mteja, bidhaa au muuzaji…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="statusOptions()" [(selected)]="status" />
+    </lsms-filter-panel>
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load sales', 'Imeshindikana kupakia mauzo')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="i18n.t('Sales', 'Mauzo') + ' · ' + periodLabel()"
+        [items]="rows()"
+        [rowId]="rowId"
+        [loading]="loading()"
+
+        [pageSize]="25"
+        defaultSortColumn="date"
+        defaultSortDirection="desc"
+        [mobileTitle]="titleOf"
+        [mobileColumns]="['total', 'payment', 'date', 'items', 'actions']"
+        [mobileCompactColumns]="['total']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="sales().length ? i18n.t('No matching sales', 'Hakuna mauzo yanayolingana') : i18n.t('No sales in this period', 'Hakuna mauzo katika kipindi hiki')"
+        [emptyMessage]="sales().length ? i18n.t('Try other words or clear the filter.', 'Jaribu maneno mengine au futa kichujio.') : i18n.t('Pick another period above.', 'Chagua kipindi kingine juu.')"
+        emptyIcon="point_of_sale"
+        (rowClick)="openDetails($event)"
+      >
+        <ng-template lsmsColumn="date" [label]="i18n.t('Time', 'Muda')" [sortBy]="dateOf" let-row>
+          <span class="cell-stack when">
+            <b>{{ date(row.saleDate) | date: 'HH:mm' }}</b>
+            <small>{{ date(row.saleDate) | date: 'dd MMM' }}</small>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="receipt" [label]="i18n.t('Receipt', 'Risiti')" let-row>
+          <span class="rcp" [title]="row.receiptNumber">{{ short(row.receiptNumber) }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="customer" [label]="i18n.t('Customer', 'Mteja')" [sortBy]="customerOf" let-row>
+          @if (row.customerName) {
+            <span class="cell-stack cust"><strong>{{ row.customerName }}</strong>@if (row.customerPhone) { <small>{{ row.customerPhone }}</small> }</span>
+          } @else {
+            <span class="muted">{{ i18n.t('Walk-in', 'Kawaida') }}</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="items" [label]="i18n.t('Items', 'Bidhaa')" [locked]="true" let-row>
+          <span class="items">
+            <span class="n-items">{{ row.lines.length }}</span>
+            <span class="names">{{ itemsText(row) }}</span>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="total" [label]="i18n.t('Total', 'Jumla')" [sortBy]="totalOf" align="end" let-row>
+          <span class="num strong">{{ row.total | money }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="payment" [label]="i18n.t('Payment', 'Malipo')" [sortBy]="balanceOf" let-row>
+          <span class="pay">
+            <lsms-payment-status-badge [paid]="row.paid" [total]="row.total" [compact]="true" />
+            @if (row.balance > 0) {
+              <small class="owe">{{ i18n.t('Owes', 'Deni') }} {{ row.balance | money: { symbol: false } }}</small>
+            } @else {
+              <small>{{ methodText(row) }}</small>
+            }
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="seller" [label]="i18n.t('Seller', 'Muuzaji')" let-row>
+          <span class="muted">{{ row.seller || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="flags" label="" let-row>
+          @if (row.hasReturn) {
+            <span class="status" style="--st: var(--c-warning)" [title]="i18n.t('Has a return', 'Ina marejesho')"><lsms-icon name="assignment_return" [size]="13" /></span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    }
+  </div>
+  }
+  }
+</div>

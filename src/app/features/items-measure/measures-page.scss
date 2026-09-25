@@ -1,0 +1,42 @@
+@use 'list-page';
+
+@include list-page.base;
+
+.measure {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.unit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 58px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 9px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--c-info);
+  background: color-mix(in srgb, var(--c-info) 11%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-info) 25%, transparent);
+}
+// Cell typography comes from the shared styles/_table-cells.scss.
+.pkg {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.abbr {
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+}
+.count-cell {
+  --bar: var(--c-info);
+}

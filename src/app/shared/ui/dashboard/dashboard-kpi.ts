@@ -43,7 +43,7 @@ import { DashboardCard } from './dashboard-card';
     .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .value { @include t.h3; @include t.ellipsis; color: var(--c-text); }
     .value.hero { font-size: 1.375rem; }
-    .subtitle { @include t.caption; @include t.ellipsis; margin-top: 4px; color: var(--c-text-2); }
+    .subtitle { @include t.caption; margin-top: 4px; color: var(--c-text-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .trend:not(:empty) { margin-top: 8px; }
   `,
 })

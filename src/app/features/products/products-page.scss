@@ -1,0 +1,77 @@
+@use 'typography' as t;
+@use 'list-page';
+
+@include list-page.base;
+
+.selects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  lsms-select-field {
+    min-width: 190px;
+  }
+}
+@media (max-width: 767px) {
+  .selects,
+  .selects lsms-select-field {
+    width: 100%;
+  }
+}
+
+// Product cell: category-coloured initials tile + name, then measure · pack size.
+.prod {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+.tile {
+  --cat: var(--c-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--cat);
+  background: color-mix(in srgb, var(--cat) 12%, var(--c-surface));
+  border: 1px solid color-mix(in srgb, var(--cat) 22%, transparent);
+}
+.unit {
+  flex-shrink: 0;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--c-info);
+  background: color-mix(in srgb, var(--c-info) 9%, transparent);
+  &.none {
+    color: var(--c-text-2);
+    background: color-mix(in srgb, var(--c-text-2) 9%, transparent);
+    font-weight: 500;
+  }
+}
+.price {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  small {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--c-text-2);
+  }
+}

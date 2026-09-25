@@ -1,0 +1,534 @@
+<div class="bench">
+  <!-- ── Products ─────────────────────────────────────────────────────── -->
+  <section class="products">
+    <header class="bar">
+      <a
+        class="back"
+        routerLink="/sales"
+        [attr.aria-label]="i18n.t('Back to sales', 'Rudi kwenye mauzo')"
+        ><lsms-icon name="arrow_back" [size]="20"
+      /></a>
+      <div class="ttl">
+        <h1>{{ i18n.t('New sale', 'Mauzo mapya') }}</h1>
+        <small>{{
+          i18n.t(
+            products().length + ' products available',
+            'Bidhaa ' + products().length + ' zinapatikana'
+          )
+        }}</small>
+      </div>
+      <lsms-search-bar
+        class="search"
+        [placeholder]="i18n.t('Search product…', 'Tafuta bidhaa…')"
+        [debounce]="150"
+        [autofocus]="true"
+        (search)="search.set($event); limit.set(60)"
+      />
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="reload()"
+        [attr.aria-label]="i18n.t('Refresh stock', 'Onyesha stock upya')"
+        [title]="i18n.t('Refresh stock', 'Onyesha stock upya')"
+      >
+        <lsms-icon name="refresh" [size]="20" />
+      </button>
+    </header>
+
+    <div class="chips" role="toolbar">
+      <div class="stock-seg">
+        <button type="button" [class.on]="stockFilter() === 'in'" (click)="stockFilter.set('in')">
+          {{ i18n.t('In stock', 'Zilizopo') }}
+        </button>
+        <button type="button" [class.on]="stockFilter() === 'low'" (click)="stockFilter.set('low')">
+          {{ i18n.t('Low', 'Chache') }}
+        </button>
+        <button type="button" [class.on]="stockFilter() === 'all'" (click)="stockFilter.set('all')">
+          {{ i18n.t('All', 'Zote') }}
+        </button>
+      </div>
+      <span class="sep"></span>
+      <button type="button" class="chip" [class.on]="!category()" (click)="category.set(null)">
+        {{ i18n.t('All categories', 'Makundi yote') }}
+      </button>
+      @for (c of categories(); track c[0]) {
+        <button
+          type="button"
+          class="chip"
+          [class.on]="category() === c[0]"
+          (click)="category.set(category() === c[0] ? null : c[0])"
+        >
+          {{ c[0] }} <small>{{ c[1] }}</small>
+        </button>
+      }
+    </div>
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load products', 'Imeshindikana kupakia bidhaa')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="reload()"
+      />
+    } @else if (loading()) {
+      <lsms-skeleton variant="list" [rows]="8" />
+    } @else if (!filtered().length) {
+      <lsms-empty-state
+        icon="search_off"
+        [title]="i18n.t('No products match', 'Hakuna bidhaa zinazolingana')"
+        [message]="
+          stockFilter() !== 'all'
+            ? i18n.t(
+                'Try “All” to include products out of stock.',
+                'Jaribu “Zote” kuona hata zisizo na stock.'
+              )
+            : undefined
+        "
+      />
+    } @else {
+      <div class="board" role="list">
+        <div class="board-head" aria-hidden="true">
+          <span class="c-no">#</span>
+          <span class="c-prod">{{ i18n.t('Product', 'Bidhaa') }}</span>
+          <span class="c-stock">{{ i18n.t('In stock', 'Stock') }}</span>
+          @for (t of typeOrder; track t) {
+            <span class="c-price" [style.--pc]="types[t].color"><i></i>{{ typeLabel(t) }}</span>
+          }
+        </div>
+        @for (p of shown(); track p.uid; let i = $index) {
+          @let stockLeft = left(p);
+          <article
+            class="item"
+            role="listitem"
+            [class.out]="stockLeft <= 0"
+            [class.low]="stockLeft > 0 && stockLeft <= 5"
+            [class.picked]="reservedOf(p) > 0"
+          >
+            <span class="c-no">{{ i + 1 }}</span>
+            <div class="c-prod">
+              <span class="tile" [style.--cat]="tileColor(p)" aria-hidden="true">{{
+                initials(p)
+              }}</span>
+              <span class="name">
+                <strong [title]="p.name">{{ p.name }}</strong>
+                <small
+                  >{{ p.category || '—' }}
+                  @if (p.piecesPerPackage && p.piecesPerPackage > 1) {
+                    · {{ p.piecesPerPackage }} {{ i18n.t('pcs', 'vip') }}/{{
+                      p.abbreviation || i18n.t('pkg', 'pkt')
+                    }}
+                  }
+                </small>
+              </span>
+            </div>
+            <span class="c-stock">
+              <span
+                class="stock"
+                [title]="i18n.t('Left after the cart', 'Zilizobaki baada ya kapu')"
+                >{{ stockLeft <= 0 ? i18n.t('Out', 'Imeisha') : stockText(p) }}</span
+              >
+              @if (reservedOf(p) > 0) {
+                <small class="held"
+                  >{{ reservedOf(p) }} {{ i18n.t('in cart', 'kwenye kapu') }}</small
+                >
+              }
+            </span>
+            <div class="prices">
+              @if (p.options.length) {
+                @for (t of typeOrder; track t) {
+                  @let o = option(p, t);
+                  @if (o) {
+                    @let n = inCart(p, t);
+                    <button
+                      type="button"
+                      class="price"
+                      [class.in]="n > 0"
+                      [style.--pc]="types[t].color"
+                      [disabled]="stockLeft < o.pieces"
+                      (click)="add(p, t, o.pieces)"
+                      [title]="typeLabel(t) + ' · ' + o.pieces + ' ' + i18n.t('pcs', 'vip')"
+                      [attr.aria-label]="
+                        i18n.t('Add', 'Ongeza') + ' ' + p.name + ' — ' + typeLabel(t)
+                      "
+                    >
+                      <small class="lbl">{{ typeLabel(t) }}</small>
+                      <b>{{ o.price | money: { symbol: false } }}</b>
+                      @if (o.pieces > 1) {
+                        <small class="pcs">{{ o.pieces }} {{ i18n.t('pcs', 'vip') }}</small>
+                      }
+                      @if (n) {
+                        <i class="badge">×{{ n }}</i>
+                      } @else {
+                        <lsms-icon class="plus" name="add" [size]="14" />
+                      }
+                    </button>
+                  } @else {
+                    <span class="price none" aria-hidden="true">—</span>
+                  }
+                }
+              } @else {
+                <p class="noprice">
+                  <lsms-icon name="sell" [size]="14" />{{
+                    i18n.t('No selling price set', 'Hakuna bei ya kuuza')
+                  }}
+                </p>
+              }
+            </div>
+          </article>
+        }
+      </div>
+      @if (shown().length < filtered().length) {
+        <button
+          lsmsButton="text"
+          size="sm"
+          icon="expand_more"
+          class="more"
+          (click)="limit.set(limit() + 60)"
+        >
+          {{ i18n.t('Show more', 'Onyesha zaidi') }} ({{ shown().length }} /
+          {{ filtered().length }})
+        </button>
+      }
+    }
+  </section>
+
+  <!-- ── Cart ─────────────────────────────────────────────────────────── -->
+  <aside class="cart" [class.open]="cartOpen()">
+    <header class="cart-head">
+      <h2>
+        <lsms-icon name="shopping_cart" [size]="20" />{{ i18n.t('Cart', 'Kapu') }}
+        <span class="count">{{ cart.count() }}</span>
+      </h2>
+      @if (cart.count()) {
+        <button type="button" class="clear" style="color: var(--c-primary)" (click)="holdCart()" [title]="i18n.t('Hold this order and serve the next customer', 'Hifadhi oda hii umhudumie mteja mwingine')">
+          <lsms-icon name="pause_circle" [size]="18" />{{ i18n.t('Hold', 'Hifadhi') }}
+        </button>
+        <button type="button" class="clear" (click)="clearCart()">
+          <lsms-icon name="delete_sweep" [size]="18" />{{ i18n.t('Clear', 'Futa') }}
+        </button>
+      }
+      <button
+        type="button"
+        class="close-m"
+        (click)="cartOpen.set(false)"
+        [attr.aria-label]="i18n.t('Close cart', 'Funga kapu')"
+      >
+        <lsms-icon name="close" [size]="20" />
+      </button>
+    </header>
+
+    <div class="cart-body">
+      @if (drafts.count()) {
+        <app-held-orders [drafts]="drafts.list()" [now]="drafts.now()" (resume)="resumeDraft($event)" (discard)="discardDraft($event)" />
+      }
+      @if (missingDays().length && saleDate() === today) {
+        <button type="button" class="miss-banner" (click)="showMissing('review')">
+          <lsms-icon name="event_busy" [size]="20" />
+          <span class="tx">
+            <b>{{ i18n.t(missingDays().length + ' recent day(s) without sales', 'Siku ' + missingDays().length + ' zilizopita hazina mauzo') }}</b>
+            <small>{{ i18n.t('Open the calendar', 'Fungua kalenda') }}</small>
+          </span>
+          <lsms-icon name="calendar_month" [size]="18" />
+        </button>
+      }
+      <!-- Customer -->
+      <div class="cust" [class.lsms-attention]="customerAttention()">
+        @if (!newCustomer()) {
+          <lsms-combobox
+            [label]="i18n.t('Customer', 'Mteja')"
+            prefixIcon="person"
+            [dense]="true"
+            [clearable]="true"
+            [placeholder]="i18n.t('Walk-in customer', 'Mteja wa kawaida')"
+            [options]="customerOptions()"
+            [value]="cart.customer()?.uid ?? null"
+            (valueChange)="pickCustomer($event)"
+          />
+        } @else {
+          <div class="new-cust">
+            <lsms-text-field
+              [dense]="true"
+              [label]="i18n.t('New customer name', 'Jina la mteja mpya')"
+              prefixIcon="person_add"
+              [required]="true"
+              (valueChange)="newName.set($event)"
+            />
+            <lsms-text-field
+              [dense]="true"
+              [label]="i18n.t('Phone', 'Simu')"
+              type="tel"
+              prefixIcon="call"
+              (valueChange)="newPhone.set($event)"
+            />
+          </div>
+        }
+        <button type="button" class="link" (click)="toggleNewCustomer()">
+          <lsms-icon [name]="newCustomer() ? 'person_search' : 'person_add'" [size]="15" />{{
+            newCustomer()
+              ? i18n.t('Pick an existing customer', 'Chagua mteja aliyepo')
+              : i18n.t('New customer', 'Mteja mpya')
+          }}
+        </button>
+        @if (selectedCustomer(); as c) {
+          @if (c.outstandingBalance > 0) {
+            <p class="debt">
+              <lsms-icon name="warning" [size]="14" />{{
+                i18n.t('Already owes', 'Tayari anadaiwa')
+              }}
+              <b>{{ c.outstandingBalance | money }}</b>
+              @if (c.creditLimit) {
+                · {{ i18n.t('limit', 'ukomo') }} {{ c.creditLimit | money: { decimals: 0 } }}
+              }
+            </p>
+          }
+        }
+      </div>
+
+      <!-- Lines -->
+      @if (!cart.count()) {
+        <div class="empty">
+          <lsms-icon name="add_shopping_cart" [size]="40" />
+          <b>{{ i18n.t('The cart is empty', 'Kapu ni tupu') }}</b>
+          <small>{{
+            i18n.t('Tap a price on a product to add it.', 'Gusa bei ya bidhaa kuiongeza.')
+          }}</small>
+        </div>
+      } @else {
+        <ul class="lines">
+          @for (l of cart.lines(); track l.key) {
+            <li [class.err]="!!l.error">
+              <div class="l1">
+                <span class="nm">
+                  <strong>{{ l.name }}</strong>
+                  <small
+                    ><span class="tp" [style.--pc]="types[l.saleType].color">{{
+                      typeLabel(l.saleType)
+                    }}</span>
+                    {{ l.qty * l.unitPieces }} {{ i18n.t('pcs', 'vip') }}</small
+                  >
+                </span>
+                <button
+                  type="button"
+                  class="x"
+                  (click)="cart.remove(l.key)"
+                  [attr.aria-label]="i18n.t('Remove', 'Ondoa')"
+                >
+                  <lsms-icon name="close" [size]="16" />
+                </button>
+              </div>
+              <div class="l2">
+                <span class="stepper">
+                  <button
+                    type="button"
+                    (click)="inc(l, -1)"
+                    [attr.aria-label]="i18n.t('Less', 'Punguza')"
+                  >
+                    <lsms-icon name="remove" [size]="16" />
+                  </button>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    [value]="l.qty"
+                    (change)="typeQty(l, $any($event.target).value)"
+                    [attr.aria-label]="i18n.t('Quantity', 'Idadi')"
+                  />
+                  <button
+                    type="button"
+                    (click)="inc(l, 1)"
+                    [attr.aria-label]="i18n.t('More', 'Ongeza')"
+                  >
+                    <lsms-icon name="add" [size]="16" />
+                  </button>
+                </span>
+                <span class="x-sign">×</span>
+                @if (editingPrice() === l.key) {
+                  <input
+                    class="price-in"
+                    type="text"
+                    inputmode="numeric"
+                    [value]="l.unitPrice"
+                    (blur)="setPrice(l, $any($event.target).value)"
+                    (keydown.enter)="setPrice(l, $any($event.target).value)"
+                    (keydown.escape)="editingPrice.set(null)"
+                    autofocus
+                  />
+                } @else {
+                  <button
+                    type="button"
+                    class="price-btn"
+                    [class.custom]="l.unitPrice !== l.defaultPrice"
+                    (click)="editingPrice.set(l.key)"
+                    [title]="i18n.t('Change price', 'Badilisha bei')"
+                  >
+                    {{ l.unitPrice | money: { symbol: false }
+                    }}<lsms-icon name="edit" [size]="12" />
+                  </button>
+                }
+                <b class="sub">{{ l.qty * l.unitPrice | money: { symbol: false } }}</b>
+              </div>
+              @if (l.unitPrice !== l.defaultPrice) {
+                <small class="note"
+                  >{{ i18n.t('Normal price', 'Bei ya kawaida') }}
+                  {{ l.defaultPrice | money: { symbol: false } }} ·
+                  <button type="button" (click)="cart.setPrice(l.key, l.defaultPrice)">
+                    {{ i18n.t('reset', 'rudisha') }}
+                  </button></small
+                >
+              }
+              @if (minPrice(l) !== null && l.unitPrice < minPrice(l)!) {
+                <small class="warn"
+                  ><lsms-icon name="error" [size]="13" />{{
+                    i18n.t('Below cost', 'Chini ya gharama')
+                  }}
+                  ({{ minPrice(l)! | money: { symbol: false } }})</small
+                >
+              }
+              @if (l.error) {
+                <small class="warn"
+                  ><lsms-icon name="inventory_2" [size]="13" />{{ l.error }}</small
+                >
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Totals & payment -->
+    <footer class="checkout">
+      <div class="row">
+        <span
+          >{{ i18n.t('Subtotal', 'Jumla ndogo') }}
+          <small>· {{ cart.pieces() }} {{ i18n.t('pcs', 'vip') }}</small></span
+        >
+        <b>{{ cart.subtotal() | money }}</b>
+      </div>
+      @if (canDiscount()) {
+        <div class="row">
+          <label for="pos-discount">{{ i18n.t('Discount', 'Punguzo') }}</label>
+          <input
+            id="pos-discount"
+            class="mini"
+            type="text"
+            inputmode="numeric"
+            [value]="cart.discount() || ''"
+            placeholder="0"
+            (change)="setDiscount($any($event.target).value)"
+          />
+        </div>
+      }
+      @if (maxBackdate() > 0) {
+        <div class="row">
+          <label for="pos-date">{{ i18n.t('Sale date', 'Tarehe ya mauzo') }}</label>
+          <input
+            id="pos-date"
+            class="mini date"
+            type="date"
+            [min]="minDate()"
+            [max]="today"
+            [value]="saleDate()"
+            (change)="saleDate.set($any($event.target).value || today)"
+          />
+        </div>
+        @if (saleDate() !== today) {
+          <p class="backdate">
+            <lsms-icon name="history" [size]="14" />{{
+              i18n.t('Recording a past sale', 'Unarekodi mauzo ya nyuma')
+            }}
+          </p>
+        }
+      }
+      <div class="total">
+        <span>{{ i18n.t('Total', 'Jumla') }}</span>
+        <b>{{ cart.total() | money }}</b>
+      </div>
+
+      <div
+        class="methods"
+        role="radiogroup"
+        [attr.aria-label]="i18n.t('Payment method', 'Njia ya malipo')"
+      >
+        @for (m of methods(); track m) {
+          <button
+            type="button"
+            role="radio"
+            [attr.aria-checked]="method() === m"
+            [class.on]="method() === m"
+            [class.credit]="m === 'CREDIT'"
+            (click)="pickMethod(m)"
+          >
+            <lsms-icon [name]="methodIcon(m)" [size]="14" />{{ methodName(m) }}
+          </button>
+        }
+        @if (allMethods().length > methods().length || moreMethods()) {
+          <button type="button" class="more-m" (click)="moreMethods.set(!moreMethods())">
+            <lsms-icon [name]="moreMethods() ? 'expand_less' : 'expand_more'" [size]="14" />{{
+              moreMethods() ? i18n.t('Less', 'Punguza') : i18n.t('More', 'Zaidi')
+            }}
+          </button>
+        }
+      </div>
+
+      @if (method() !== 'CREDIT') {
+        <div class="row">
+          <label for="pos-received">{{ i18n.t('Received', 'Amepokea') }}</label>
+          <input
+            id="pos-received"
+            class="mini"
+            type="text"
+            inputmode="numeric"
+            [value]="received() ?? ''"
+            [placeholder]="
+              (cart.total() | money: { symbol: false }) + ' (' + i18n.t('exact', 'kamili') + ')'
+            "
+            (input)="setReceived($any($event.target).value)"
+          />
+        </div>
+      }
+      @if (change() > 0) {
+        <p class="state ok">
+          <lsms-icon name="savings" [size]="16" />{{ i18n.t('Change to give', 'Chenji') }}
+          <b>{{ change() | money }}</b>
+        </p>
+      } @else if (owed() > 0.01) {
+        <p class="state due">
+          <lsms-icon name="account_balance_wallet" [size]="16" />{{
+            i18n.t('Customer will owe', 'Mteja atadaiwa')
+          }}
+          <b>{{ owed() | money }}</b>
+        </p>
+      }
+
+      @if (blocker(); as b) {
+        <p class="blocker">{{ b }}</p>
+      }
+      <button
+        lsmsButton="success"
+        class="pay"
+        icon="task_alt"
+        [fullWidth]="true"
+        [loading]="busy()"
+        [disabled]="!!blocker()"
+        (click)="checkout()"
+      >
+        {{ i18n.t('Complete sale', 'Kamilisha mauzo') }} · {{ cart.total() | money }}
+      </button>
+    </footer>
+  </aside>
+
+  <!-- Phone: sticky cart bar -->
+  @if (!cartOpen()) {
+    <button type="button" class="cart-bar" (click)="cartOpen.set(true)">
+      <span class="ic"
+        ><lsms-icon name="shopping_cart" [size]="20" />
+        @if (cart.count()) {
+          <i>{{ cart.count() }}</i>
+        }
+      </span>
+      <span>{{ i18n.t('View cart', 'Angalia kapu') }}@if (drafts.count()) { · {{ i18n.t(drafts.count() + ' held', drafts.count() + ' zimehifadhiwa') }} }</span>
+      <b>{{ cart.total() | money }}</b>
+    </button>
+  }
+</div>

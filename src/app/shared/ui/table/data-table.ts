@@ -75,7 +75,7 @@ export class DataTable<T> {
   readonly selectionChange = output<T[]>();
 
   // Row numbers
-  readonly showRowNumbers = input(false);
+  readonly showRowNumbers = input(true);
   readonly rowNumberLabel = input('S/No');
 
   // Mobile
@@ -106,6 +106,12 @@ export class DataTable<T> {
     () => new Set(this.columns().filter((c) => c.hidden()).map((c) => c.id())),
   );
   protected readonly visibleColumns = computed(() => this.columns().filter((c) => !this.hiddenIds().has(c.id())));
+  /** A left-aligned column right after a right-aligned (numeric) one gets extra room so they don't touch. */
+  protected afterEnd(i: number): boolean {
+    const cols = this.visibleColumns();
+    return i > 0 && cols[i - 1].align() === 'end' && cols[i].align() !== 'end';
+  }
+
   protected readonly pickableColumns = computed(() => this.columns().filter((c) => !c.locked() && c.id() !== 'actions'));
   protected readonly columnMenuOpen = signal(false);
 
@@ -165,6 +171,22 @@ export class DataTable<T> {
   protected readonly pageItems = computed(() =>
     this.showPagination() ? this.sorted().slice(this.startIndex(), this.endIndex()) : this.sorted(),
   );
+
+  /** Page buttons: first, last and the current ±1, with gaps as null (e.g. 1 … 4 5 6 … 9). */
+  protected readonly pageNumbers = computed<(number | null)[]>(() => {
+    const n = this.totalPages();
+    const cur = this.page();
+    const keep = new Set([0, n - 1, cur - 1, cur, cur + 1].filter((p) => p >= 0 && p < n));
+    const out: (number | null)[] = [];
+    [...keep].sort((a, b) => a - b).forEach((p, i, arr) => {
+      if (i && p - arr[i - 1] > 1) out.push(null);
+      out.push(p);
+    });
+    return out;
+  });
+  protected goTo(p: number): void {
+    this.page.set(Math.min(Math.max(0, p), this.totalPages() - 1));
+  }
 
   protected prevPage(): void {
     if (this.page() > 0) this.page.update((p) => p - 1);

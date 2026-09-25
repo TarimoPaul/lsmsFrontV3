@@ -1,0 +1,194 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Product Management', 'Usimamizi wa Bidhaa')"
+    [subtitle]="i18n.t('Catalogue, pricing tiers and measures', 'Orodha ya bidhaa, bei na vipimo')"
+    icon="inventory_2"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    <button *lsmsCan="'PRODUCT_WRITE'" lsmsButton icon="add" size="sm" (click)="openForm()">
+      {{ i18n.t('Add product', 'Ongeza bidhaa') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Products', 'Bidhaa')"
+      [value]="loading() ? '—' : stats().total + ''"
+      [subtitle]="loading() ? undefined : i18n.t(stats().categories + ' categories', 'Kategoria ' + stats().categories)"
+      icon="inventory_2"
+      color="var(--c-primary)"
+      [clickable]="filtered()"
+      (tap)="clearFilters()"
+    />
+    <lsms-metric-card
+      [title]="healthMeta.READY[i18n.lang()]"
+      [value]="loading() ? '—' : stats().ready + ''"
+      [subtitle]="loading() ? undefined : i18n.t(stats().packaged + ' sold in packages', 'Zinauzwa kwa paketi ' + stats().packaged)"
+      icon="storefront"
+      color="var(--c-success)"
+      [clickable]="stats().ready > 0"
+      (tap)="health.set('READY')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Need pricing', 'Zinahitaji bei')"
+      [value]="loading() ? '—' : stats().issues + stats().noPrice + ''"
+      [subtitle]="loading() ? undefined : i18n.t(stats().issues + ' with issues · ' + stats().noPrice + ' unpriced', 'Zenye tatizo ' + stats().issues + ' · bila bei ' + stats().noPrice)"
+      icon="price_change"
+      color="var(--c-warning)"
+      [urgent]="stats().issues + stats().noPrice > 0"
+      [clickable]="stats().issues + stats().noPrice > 0"
+      (tap)="health.set(stats().issues ? 'ISSUES' : 'NO_PRICE')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Missing measure', 'Bila kipimo')"
+      [value]="loading() ? '—' : stats().noMeasure + ''"
+      [subtitle]="stats().noMeasure ? i18n.t('Add a unit, e.g. 500ML', 'Ongeza kipimo, mf. 500ML') : undefined"
+      icon="straighten"
+      color="var(--c-info)"
+      [clickable]="stats().noMeasure > 0"
+      (tap)="health.set('NO_MEASURE')"
+    />
+  </lsms-metrics-grid>
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search product, category or note…', 'Tafuta bidhaa, kategoria au maelezo…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="healthOptions()" [(selected)]="health" />
+      <div class="selects">
+        @if (categoryOptions().length) {
+          <lsms-select-field
+            [dense]="true"
+            prefixIcon="category"
+            [options]="categoryOptions()"
+            [emptyLabel]="i18n.t('All categories', 'Kategoria zote')"
+            [ariaLabel]="i18n.t('Filter by category', 'Chuja kwa kategoria')"
+            [value]="categoryUid()"
+            (valueChange)="categoryUid.set($event)"
+          />
+        }
+        @if (measureOptions().length) {
+          <lsms-select-field
+            [dense]="true"
+            prefixIcon="straighten"
+            [options]="measureOptions()"
+            [emptyLabel]="i18n.t('All measures', 'Vipimo vyote')"
+            [ariaLabel]="i18n.t('Filter by measure', 'Chuja kwa kipimo')"
+            [value]="measureUid()"
+            (valueChange)="measureUid.set($event)"
+          />
+        }
+      </div>
+    </lsms-filter-panel>
+
+    @if (selected().length) {
+      <div class="bulk" role="region" [attr.aria-label]="i18n.t('Bulk actions', 'Vitendo vya pamoja')">
+        <span class="bulk-count"><lsms-icon name="check_circle" [size]="18" [filled]="true" />{{ selected().length }} {{ i18n.t('selected', 'zimechaguliwa') }}</span>
+        <span class="bulk-actions">
+          <button lsmsButton="secondary" size="sm" icon="grid_on" (click)="export('csv')">{{ i18n.t('Export', 'Hamisha') }}</button>
+          @if (canDelete()) {
+            <button lsmsButton="danger" size="sm" icon="delete" [loading]="busy()" (click)="bulkDelete()">{{ i18n.t('Delete', 'Futa') }}</button>
+          }
+          <button lsmsButton="text" size="sm" (click)="clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+        </span>
+      </div>
+    }
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load products', 'Imeshindikana kupakia bidhaa')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else if (!loading() && !products().length) {
+      <lsms-empty-state
+        icon="inventory_2"
+        [title]="i18n.t('No products yet', 'Hakuna bidhaa bado')"
+        [message]="i18n.t('Add your first product with its prices to start selling.', 'Ongeza bidhaa yako ya kwanza pamoja na bei zake ili uanze kuuza.')"
+        [actionLabel]="canCreate() ? i18n.t('Add product', 'Ongeza bidhaa') : undefined"
+        (action)="openForm()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="i18n.t('Product catalogue', 'Orodha ya bidhaa')"
+        [items]="rows()"
+        [rowId]="rowId"
+        [loading]="loading()"
+
+        [bulkSelection]="canDelete()"
+        (selectionChange)="selected.set($event)"
+        defaultSortColumn="name"
+        [mobileTitle]="nameOf"
+        [mobileColumns]="['piece', 'category', 'health', 'actions']"
+        [mobileCompactColumns]="['piece']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="i18n.t('No matching products', 'Hakuna bidhaa zinazolingana')"
+        [emptyMessage]="i18n.t('Try other words or clear the filters.', 'Jaribu maneno mengine au futa vichujio.')"
+        emptyIcon="search_off"
+        (rowClick)="openDetails($event)"
+      >
+        <ng-template lsmsColumn="name" [label]="i18n.t('Product', 'Bidhaa')" [sortBy]="nameOf" [locked]="true" let-row>
+          <span class="prod">
+            <span class="tile" [style.--cat]="tileColor(row)" aria-hidden="true">{{ initials(row) }}</span>
+            <span class="cell-stack">
+              <strong [title]="row.displayName">{{ row.productName }}</strong>
+              <small>
+                @for (m of row.measures.slice(0, 1); track m.uid) {
+                  <span class="unit">{{ m.unitType || m.packageType }}</span>
+                } @empty {
+                  <span class="unit none">{{ i18n.t('no measure', 'bila kipimo') }}</span>
+                }
+                @if (row.piecesPerPackage && row.piecesPerPackage > 1) {
+                  <span class="ppp">· {{ i18n.t(row.piecesPerPackage + ' pcs / pkg', 'vip ' + row.piecesPerPackage + ' / pkt') }}</span>
+                }
+              </small>
+            </span>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="category" [label]="i18n.t('Category', 'Kategoria')" [sortBy]="categoryOf" let-row>
+          <span class="muted">{{ row.categoryName || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="piece" [label]="tiers[0].short[i18n.lang()]" [sortBy]="sortPiece" align="end" let-row>
+          @if (row.pieceSalePrice !== null) {
+            <span class="price">{{ row.pieceSalePrice | money: { symbol: false } }}</span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="quarter" [label]="tiers[1].short[i18n.lang()]" [sortBy]="sortQuarter" align="end" let-row>
+          @if (row.quarterSalePrice !== null) {
+            <span class="price">{{ row.quarterSalePrice | money: { symbol: false } }}<small>{{ row.quarterPackageQuantity ?? '?' }} {{ i18n.t('pcs', 'vip') }}</small></span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="half" [label]="tiers[2].short[i18n.lang()]" [sortBy]="sortHalf" align="end" let-row>
+          @if (row.halfSalePrice !== null) {
+            <span class="price">{{ row.halfSalePrice | money: { symbol: false } }}<small>{{ row.halfPackageQuantity ?? '?' }} {{ i18n.t('pcs', 'vip') }}</small></span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="whole" [label]="tiers[3].short[i18n.lang()]" [sortBy]="sortWhole" align="end" let-row>
+          @if (row.wholeSalePrice !== null) {
+            <span class="price">{{ row.wholeSalePrice | money: { symbol: false } }}<small>{{ row.wholePackageQuantity ?? '?' }} {{ i18n.t('pcs', 'vip') }}</small></span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="health" [label]="i18n.t('Status', 'Hali')" [sortBy]="healthOf" let-row>
+          @let h = healthMeta[healthOfRow(row)];
+          <span class="status" [style.--st]="h.color">
+            <lsms-icon [name]="h.icon" [size]="13" [filled]="true" />{{ h[i18n.lang()] }}
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    }
+  </div>
+</div>

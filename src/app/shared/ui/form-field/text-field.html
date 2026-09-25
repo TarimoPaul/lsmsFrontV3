@@ -53,8 +53,8 @@
     />
   }
 
-  @if (suffixText()) {
-    <span class="affix-text">{{ suffixText() }}</span>
+  @if (effectiveSuffixText()) {
+    <span class="affix-text">{{ effectiveSuffixText() }}</span>
   }
   @if (clearable() && text() && !disabled() && !readonly()) {
     <button type="button" class="affix-btn" [attr.aria-label]="i18n.t('Clear', 'Futa')" (click)="clear()">

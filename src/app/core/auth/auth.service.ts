@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 import { ApiService } from '../api/api.service';
 import { ApiError } from '../api/api.types';
+import { clearAllCaches } from '../data/cached-resource';
 import { CrudAction, buildModuleAccess, canAccessSection, mapSectionToModule } from './access-resolver';
 import {
   AuthSession,
@@ -136,6 +137,8 @@ export class AuthService {
       expiresAt: resolveExpiry(info['expiration'] as string | number | undefined, token),
       activeBranchUid: (info['branchUid'] as string) ?? branchUid,
     });
+    // Cached lists may be branch-scoped (stock, sales) — start clean.
+    clearAllCaches();
     this._pendingBranch.set(false);
     this.activate();
   }
@@ -367,6 +370,7 @@ export class AuthService {
 
   private clearLocal(): void {
     clearTimeout(this.refreshTimer);
+    clearAllCaches();
     this._session.set(null);
     this._pendingBranch.set(false);
     sessionStore.clear();

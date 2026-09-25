@@ -1,0 +1,110 @@
+@use 'typography' as t;
+@use 'list-page';
+
+@include list-page.base;
+
+.periods {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  lsms-segmented-filter-bar {
+    min-width: 0;
+  }
+}
+lsms-date-range-selector.on ::ng-deep .trigger {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface));
+}
+// ‹ period › — step a day / week / month back or forward.
+.day-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  .nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--c-border);
+    background: var(--c-surface);
+    color: var(--c-text);
+    cursor: pointer;
+    &:hover:not(:disabled) {
+      border-color: var(--c-primary);
+      color: var(--c-primary);
+    }
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+  }
+  .showing {
+    min-width: 96px;
+    justify-content: center;
+  }
+}
+.showing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-text-2);
+}
+// Cell typography comes from the shared styles/_table-cells.scss.
+.pay {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.when b {
+  font-variant-numeric: tabular-nums;
+}
+.rcp {
+  font-family: ui-monospace, monospace;
+  font-size: 0.76rem;
+  color: var(--c-text-2);
+  white-space: nowrap;
+}
+.items {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 340px;
+}
+.n-items {
+  flex-shrink: 0;
+  min-width: 24px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+}
+.names {
+  @include t.ellipsis;
+}
+.pay {
+  align-items: flex-start;
+  gap: 2px;
+  .owe {
+    color: var(--c-error);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+.views {
+  display: block;
+  max-width: 360px;
+}
+.ph {
+  min-height: 60vh;
+}

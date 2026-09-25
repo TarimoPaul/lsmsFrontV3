@@ -9,6 +9,7 @@ const MESSAGES: Record<string, Record<AppLanguage, string>> = {
     en: 'Invalid phone number (use 0xxx... or +255xxx...)',
   },
   numeric: { sw: '{field} lazima iwe namba', en: '{field} must be a number' },
+  integer: { sw: '{field} lazima iwe namba kamili', en: '{field} must be a whole number' },
   positive: { sw: '{field} lazima iwe chanya (> 0)', en: '{field} must be positive (> 0)' },
   minValue: { sw: '{field} lazima iwe angalau {min}', en: '{field} must be at least {min}' },
   maxValue: { sw: '{field} lazima isije zaidi ya {max}', en: '{field} cannot exceed {max}' },

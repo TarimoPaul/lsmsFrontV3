@@ -1,0 +1,130 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Store', 'Stoo')"
+    [subtitle]="i18n.t('Stock levels, movements and slow-moving items', 'Kiwango cha mzigo, mabadiliko na bidhaa zisizouzika')"
+    icon="warehouse"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Stock value', 'Thamani ya mzigo')"
+      [value]="loading() ? '—' : (stats().value | money: { decimals: 0 })"
+      [subtitle]="loading() ? undefined : i18n.t('Sells for ', 'Unauzika kwa ') + (stats().retail | money: { decimals: 0 })"
+      icon="account_balance_wallet"
+      color="var(--c-primary)"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Products in stock', 'Bidhaa zilizopo')"
+      [value]="loading() ? '—' : stats().inStock + ' / ' + stats().products"
+      [subtitle]="loading() ? undefined : stats().pieces.toLocaleString() + ' ' + i18n.t('pieces', 'vipande')"
+      icon="inventory"
+      color="var(--c-success)"
+      [clickable]="filter() !== 'ALL'"
+      (tap)="filter.set('ALL')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Running low', 'Zinakaribia kuisha')"
+      [value]="loading() ? '—' : stats().low + ''"
+      [subtitle]="i18n.t('≤ ' + threshold() + ' pieces', '≤ vipande ' + threshold())"
+      icon="warning"
+      color="var(--c-warning)"
+      [urgent]="stats().low > 0"
+      [clickable]="stats().low > 0"
+      (tap)="view.set('inventory'); filter.set('LOW')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Out of stock', 'Zimeisha')"
+      [value]="loading() ? '—' : stats().out + ''"
+      [subtitle]="stats().negative ? i18n.t(stats().negative + ' below zero', stats().negative + ' chini ya sifuri') : undefined"
+      icon="remove_shopping_cart"
+      color="var(--c-error)"
+      [urgent]="stats().out > 0"
+      [clickable]="stats().out > 0"
+      (tap)="view.set('inventory'); filter.set('OUT')"
+    />
+  </lsms-metrics-grid>
+
+  <lsms-segmented-filter-bar class="views" [options]="viewOptions()" [(selected)]="view" />
+
+  <div class="table-card">
+    @switch (view()) {
+      @case ('movements') {
+        @defer {
+          <app-movements-panel />
+        }
+      }
+      @case ('insights') {
+        @defer {
+          <app-insights-panel (open)="openHistoryByUid($event)" />
+        }
+      }
+      @default {
+        <lsms-filter-panel [searchPlaceholder]="i18n.t('Search product or category…', 'Tafuta bidhaa au kategoria…')" (search)="search.set($event)">
+          <lsms-segmented-filter-bar filterSegments [options]="filterOptions()" [(selected)]="filter" />
+          <div class="tools">
+            @if (categoryOptions().length) {
+              <lsms-select-field [dense]="true" prefixIcon="category" [options]="categoryOptions()" [emptyLabel]="i18n.t('All categories', 'Kategoria zote')" [ariaLabel]="i18n.t('Category', 'Kategoria')" [value]="categoryUid()" (valueChange)="categoryUid.set($event)" />
+            }
+            <span class="thr" role="group" [attr.aria-label]="i18n.t('Low stock level', 'Kiwango cha mzigo mdogo')">
+              <lsms-icon name="tune" [size]="15" />{{ i18n.t('Low at', 'Chache ni') }}
+              @for (t of thresholds; track t) {
+                <button type="button" [class.on]="threshold() === t" (click)="threshold.set(t)">≤{{ t }}</button>
+              }
+            </span>
+          </div>
+        </lsms-filter-panel>
+
+        @if (error()) {
+          <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load stock', 'Imeshindikana kupakia mzigo')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="refresh()" />
+        } @else {
+          <lsms-data-table
+            [title]="i18n.t('Stock on hand', 'Mzigo uliopo')"
+            [items]="rows()"
+            [rowId]="rowId"
+            [loading]="loading()"
+
+            defaultSortColumn="product"
+            [mobileTitle]="nameOf"
+            [mobileColumns]="['stock', 'status', 'value', 'actions']"
+            [mobileCompactColumns]="['stock']"
+            [actionsInlineWithTitle]="true"
+            [emptyTitle]="i18n.t('No matching products', 'Hakuna bidhaa zinazolingana')"
+            emptyIcon="inventory_2"
+            (rowClick)="openHistory($event)"
+          >
+            <ng-template lsmsColumn="product" [label]="i18n.t('Product', 'Bidhaa')" [sortBy]="nameOf" [locked]="true" let-row>
+              <span class="prod"><strong>{{ row.productName }}</strong><small>{{ row.category || '' }}</small></span>
+            </ng-template>
+            <ng-template lsmsColumn="stock" [label]="i18n.t('In stock', 'Uliopo')" [sortBy]="stockOf" align="end" let-row>
+              <span class="stock" [class.neg]="row.currentStock < 0"><b>{{ row.currentStock }}</b><small>{{ stockLabel(row) }}</small></span>
+            </ng-template>
+            <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" [sortBy]="healthOf" let-row>
+              @let h = health[healthMap().get(row.uid) ?? 'OK'];
+              <span class="status" [style.--st]="h.color"><lsms-icon [name]="h.icon" [size]="13" [filled]="true" />{{ i18n.isSwahili() ? h.sw : h.en }}</span>
+            </ng-template>
+            <ng-template lsmsColumn="cost" [label]="i18n.t('Avg cost', 'Gharama')" align="end" [hidden]="true" let-row>
+              <span class="num">{{ row.averageCostPrice !== null ? (row.averageCostPrice | money: { symbol: false }) : '—' }}</span>
+            </ng-template>
+            <ng-template lsmsColumn="value" [label]="i18n.t('Value', 'Thamani')" [sortBy]="valueOf" align="end" let-row>
+              <span class="num strong">{{ value(row) | money: { symbol: false } }}</span>
+            </ng-template>
+            <ng-template lsmsColumn="last" [label]="i18n.t('Last movement', 'Mabadiliko ya mwisho')" [sortBy]="lastOf" let-row>
+              @if (lastMove(row); as m) {
+                <span class="last">{{ m.label }} <small>{{ m.when }}</small></span>
+              } @else {
+                <span class="muted">—</span>
+              }
+            </ng-template>
+            <ng-template lsmsColumn="actions" let-row>
+              <lsms-action-menu [actions]="actions(row)" />
+            </ng-template>
+          </lsms-data-table>
+        }
+      }
+    }
+  </div>
+</div>

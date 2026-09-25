@@ -90,6 +90,19 @@ export function toIsoDate(d: Date): string {
 }
 
 /** Chip label for a range: single day or "5 Sep – 12 Sep 2026". */
+/** Local wall-clock `YYYY-MM-DDTHH:mm:ss` for Spring `LocalDateTime` fields (no timezone shift). */
+export function toLocalDateTime(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${toIsoDate(d)}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
+/** Parse a backend date/time (`2026-06-22T09:05:59.626`, `2026-08-20 09:17:41` or `2026-07-22`) as local time. */
+export function parseLocal(v: string | null | undefined): Date | null {
+  if (!v) return null;
+  const d = new Date(v.length === 10 ? `${v}T00:00:00` : v.replace(' ', 'T'));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 export function formatRangeLabel(range: DateRange): string {
   const sameDay =
     isSameDay(range.start, range.end) || isSameDay(range.start, addDays(range.end, -1));

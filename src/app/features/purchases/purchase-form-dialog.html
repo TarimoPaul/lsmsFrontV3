@@ -1,0 +1,132 @@
+<lsms-dialog
+  [title]="editing ? i18n.t('Edit purchase', 'Hariri manunuzi') : i18n.t('New purchase', 'Manunuzi mapya')"
+  [icon]="editing ? 'edit' : 'add_shopping_cart'"
+>
+  <form id="purchase-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <lsms-combobox
+      formControlName="productUid"
+      [label]="i18n.t('Product', 'Bidhaa')"
+      prefixIcon="inventory_2"
+      [placeholder]="i18n.t('Type to search products…', 'Andika kutafuta bidhaa…')"
+      [options]="productOptions()"
+      [required]="true"
+      [clearable]="!editing"
+      (valueChange)="onProduct($event)"
+    />
+
+    @if (checking()) {
+      <p class="note info"><lsms-icon name="hourglass_top" [size]="16" />{{ i18n.t('Checking this product…', 'Inakagua bidhaa hii…') }}</p>
+    } @else if (eligibility()?.status === 'HAS_HISTORY') {
+      <div class="note repeat">
+        <lsms-icon name="replay" [size]="20" />
+        <span>
+          <b>{{ i18n.t('This product was bought before — use Repurchase', 'Bidhaa hii imeshawahi kununuliwa — tumia Repurchase') }}</b>
+          <small>{{ i18n.t('New purchase is only for a first purchase. Repurchase fills in the last quantity, cost and supplier so you can compare prices.', 'Manunuzi mapya ni kwa mara ya kwanza tu. Repurchase inajaza idadi, bei na msambazaji wa mwisho ili ulinganishe bei.') }}</small>
+        </span>
+        <button type="button" lsmsButton size="sm" icon="replay" (click)="goRepurchase()">{{ i18n.t('Go to Repurchase', 'Nenda Repurchase') }}</button>
+      </div>
+    } @else if (blocked()) {
+      <div class="note error">
+        <lsms-icon name="block" [size]="18" [filled]="true" />
+        <span>
+          <b>{{ eligibility()!.status === 'HAS_PENDING' ? i18n.t('A purchase of this product is waiting for approval', 'Kuna manunuzi ya bidhaa hii yanayosubiri idhini') : i18n.t('A purchase of this product is approved but not received yet', 'Kuna manunuzi ya bidhaa hii yaliyoidhinishwa ambayo hayajapokelewa') }}</b>
+          <small>{{ eligibility()!.status === 'HAS_PENDING' ? i18n.t('Approve or cancel it first.', 'Idhinisha au futa hayo kwanza.') : i18n.t('Receive or cancel it first.', 'Pokea au futa hayo kwanza.') }}</small>
+        </span>
+        <button type="button" lsmsButton="secondary" size="sm" (click)="openExisting()">{{ i18n.t('Open it', 'Yafungue') }}</button>
+      </div>
+    } @else if (eligibility()?.status === 'ELIGIBLE') {
+      <p class="note ok"><lsms-icon name="new_releases" [size]="16" />{{ i18n.t('First purchase of this product', 'Manunuzi ya kwanza ya bidhaa hii') }}</p>
+    }
+
+    <fieldset [disabled]="blocked()">
+      <div class="seg-row">
+        <div class="seg" role="radiogroup" [attr.aria-label]="i18n.t('Buying in', 'Unanunua kwa')">
+          @if (perPackage() && perPackage()! > 1) {
+            <button type="button" role="radio" [class.on]="usePackages()" [attr.aria-checked]="usePackages()" (click)="setType('WHOLE_PACKAGE')">
+              <lsms-icon name="deployed_code" [size]="16" />{{ i18n.t('Packages', 'Paketi') }} <small>×{{ perPackage() }}</small>
+            </button>
+          }
+          <button type="button" role="radio" [class.on]="!usePackages()" [attr.aria-checked]="!usePackages()" (click)="setType('INDIVIDUAL_PIECES')">
+            <lsms-icon name="numbers" [size]="16" />{{ i18n.t('Pieces', 'Vipande') }}
+          </button>
+        </div>
+        <div class="seg" role="radiogroup" [attr.aria-label]="i18n.t('Price entered as', 'Bei imeingizwa kama')">
+          <button type="button" role="radio" [class.on]="value().priceInputMode === 'PER_PIECE'" (click)="setMode('PER_PIECE')">{{ usePackages() ? i18n.t('Price per package', 'Bei kwa paketi') : i18n.t('Price per piece', 'Bei kwa kipande') }}</button>
+          <button type="button" role="radio" [class.on]="value().priceInputMode === 'TOTAL_AMOUNT'" (click)="setMode('TOTAL_AMOUNT')">{{ i18n.t('Total paid', 'Jumla') }}</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <lsms-text-field formControlName="quantity" type="number" [label]="i18n.t('Quantity', 'Idadi') + ' (' + unitLabel() + ')'" prefixIcon="production_quantity_limits" [required]="true" />
+        <lsms-text-field
+          formControlName="purchasePrice"
+          type="currency"
+          [label]="value().priceInputMode === 'TOTAL_AMOUNT' ? i18n.t('Total cost', 'Gharama yote') : usePackages() ? i18n.t('Cost per package', 'Gharama kwa paketi') : i18n.t('Cost per piece', 'Gharama kwa kipande')"
+          [required]="true"
+        />
+      </div>
+
+      @if (calc().total > 0) {
+        <div class="summary">
+          <div><small>{{ i18n.t('Total', 'Jumla') }}</small><b>{{ calc().total | money }}</b></div>
+          <div><small>{{ i18n.t('Adds to stock', 'Inaongeza mzigo') }}</small><b>{{ calc().pieces }} {{ i18n.t('pcs', 'vip') }}</b></div>
+          <div>
+            <small>{{ i18n.t('Cost per piece', 'Gharama kwa kipande') }}</small>
+            <b>{{ calc().costPerPiece | money }}</b>
+          </div>
+          @if (calc().margin !== null) {
+            <div [class.bad]="calc().margin! <= 0">
+              <small>{{ i18n.t('Margin at', 'Faida kwa bei ya') }} {{ calc().sell | money: { symbol: false } }}</small>
+              <b>{{ calc().margin }}%</b>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="grid">
+        <lsms-combobox
+          formControlName="supplierName"
+          [label]="i18n.t('Supplier', 'Msambazaji')"
+          prefixIcon="local_shipping"
+          [placeholder]="i18n.t('Choose supplier', 'Chagua msambazaji')"
+          [options]="supplierOptions()"
+          [hint]="value().supplierName ? i18n.t('Due in ' + dueDays() + ' days if on credit', 'Inadaiwa baada ya siku ' + dueDays() + ' kama ni mkopo') : undefined"
+        />
+        @if (canPayNow()) {
+          <div>
+            <lsms-text-field formControlName="amountPaid" type="currency" [label]="i18n.t('Paid now', 'Umelipa sasa')" [hint]="calc().owed > 0 ? i18n.t('Owed to supplier: ', 'Deni kwa msambazaji: ') + (calc().owed | money) : undefined" />
+            <div class="quick">
+              <button type="button" (click)="payAll(true)">{{ i18n.t('Paid in full', 'Imelipwa yote') }}</button>
+              <button type="button" (click)="payAll(false)">{{ i18n.t('On credit', 'Mkopo') }}</button>
+            </div>
+          </div>
+        } @else {
+          <p class="note info pay-note">
+            <lsms-icon name="account_balance_wallet" [size]="16" />
+            <span>{{ i18n.t('Record payments to the supplier from Suppliers → Statement & payments.', 'Rekodi malipo kwa msambazaji kupitia Wasambazaji → Taarifa na malipo.') }}</span>
+          </p>
+        }
+      </div>
+
+      <button type="button" class="more" (click)="showMore.set(!showMore())" [attr.aria-expanded]="showMore()">
+        <lsms-icon [name]="showMore() ? 'expand_less' : 'expand_more'" [size]="18" />{{ i18n.t('Discount, stock alerts and notes', 'Punguzo, tahadhari za mzigo na maelezo') }}
+      </button>
+      @if (showMore()) {
+        <div class="grid">
+          <lsms-text-field formControlName="discountPercentage" type="number" [label]="i18n.t('Discount %', 'Punguzo %')" suffixText="%" />
+          <lsms-text-field formControlName="discountAmount" type="currency" [label]="i18n.t('Discount amount', 'Kiasi cha punguzo')" />
+          <lsms-text-field formControlName="minimumStockLevel" type="number" [label]="i18n.t('Minimum stock', 'Kiwango cha chini')" [hint]="i18n.t('Warn when stock falls to this', 'Tahadharisha mzigo ukifika hapa')" />
+          <lsms-text-field formControlName="reorderPoint" type="number" [label]="i18n.t('Re-order at', 'Agiza tena ikifika')" />
+          <lsms-text-field class="span2" formControlName="purchaseNotes" type="textarea" [rows]="2" [label]="i18n.t('Notes', 'Maelezo')" [maxLength]="500" />
+        </div>
+      }
+    </fieldset>
+  </form>
+
+  <ng-container dialogActions>
+    <button lsmsButton="secondary" type="button" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
+    <button lsmsButton type="submit" form="purchase-form" icon="save" [loading]="busy()" [disabled]="!canSave()">
+      {{ editing ? i18n.t('Save changes', 'Hifadhi mabadiliko') : i18n.t('Save purchase', 'Hifadhi manunuzi') }}
+    </button>
+  </ng-container>
+</lsms-dialog>

@@ -7,10 +7,24 @@ export interface ApiEnvelope<T> {
   message?: string | null;
   warnings?: string[] | null;
   errorCode?: string | null;
-  // Paged endpoints may add these.
+  // Paged endpoints may add these (`ResponseList` style)…
   totalPages?: number;
   currentPage?: number;
   totalItems?: number;
+  // …or these (`ResponsePage` style, 1-based page).
+  elements?: number;
+  pages?: number;
+  page?: number;
+}
+
+/** One page from a paged endpoint (`ResponsePage` / `ResponseList` with paging fields). */
+export interface PageResult<T> {
+  items: T[];
+  /** Total number of records across all pages. */
+  total: number;
+  /** 1-based current page. */
+  page: number;
+  pages: number;
 }
 
 export interface ApiResult<T> {

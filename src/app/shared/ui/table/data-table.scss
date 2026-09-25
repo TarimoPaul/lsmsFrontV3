@@ -3,6 +3,11 @@
 :host {
   --tint: color-mix(in srgb, var(--c-primary) 5%, var(--c-surface));
   --line: color-mix(in srgb, var(--c-border) 60%, transparent);
+  // Table body tones: header band, faint zebra, hover and selection.
+  --th-bg: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface));
+  --zebra: color-mix(in srgb, var(--c-primary) 2.5%, var(--c-surface));
+  --row-hover: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface));
+  --row-selected: color-mix(in srgb, var(--c-primary) 11%, var(--c-surface));
 
   display: flex;
   flex-direction: column;
@@ -83,14 +88,17 @@ th {
   position: sticky;
   top: 0;
   z-index: 1;
-  height: 36px;
-  padding: 0 8px;
-  background: var(--tint);
-  border-bottom: 1px solid var(--line);
+  height: 42px;
+  padding: 0 14px;
+  background: var(--th-bg);
+  border-bottom: 1px solid var(--c-border);
   text-align: left;
   white-space: nowrap;
   @include t.table-header;
-  color: var(--c-text);
+  // A touch heavier / darker than the cells so headings stand apart from the data.
+  font-weight: 700;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--c-text) 72%, var(--c-text-2));
   &.sortable {
     cursor: pointer;
     user-select: none;
@@ -114,57 +122,104 @@ th {
   }
 }
 td {
-  height: 44px;
-  padding: 6px 8px;
-  border-bottom: 0.5px solid var(--line);
+  height: 52px;
+  padding: 8px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-border) 55%, transparent);
   @include t.table-cell;
   color: var(--c-text);
   vertical-align: middle;
 }
+th.after-end,
+td.after-end {
+  padding-left: 32px;
+}
+th.actions-col,
+td.actions-col {
+  width: 72px;
+}
+th.actions-col .th-inner {
+  justify-content: center;
+}
+th:first-child,
+td:first-child {
+  padding-left: 18px;
+}
 tbody tr {
   cursor: pointer;
-  transition: background-color 0.1s ease;
+  transition: background-color 0.12s ease;
+  // Faint zebra keeps the eye on the right row across wide product lists.
+  &:nth-child(even) {
+    background: var(--zebra);
+  }
   &:hover {
-    background: var(--c-hover);
+    background: var(--row-hover);
   }
   &.selected {
-    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+    background: var(--row-selected);
+    td:first-child {
+      box-shadow: inset 3px 0 0 var(--c-primary);
+    }
   }
   &:last-child td {
     border-bottom: 0;
   }
 }
 .num-col {
-  width: 60px;
-  text-align: center;
+  width: 56px;
+  text-align: left;
 }
 .check-col {
   width: 44px;
   text-align: center;
 }
+// Branded checkbox (select row / select all).
 input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--c-primary);
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  border: 1.5px solid color-mix(in srgb, var(--c-text-2) 55%, var(--c-border));
+  border-radius: 5px;
+  background: var(--c-surface);
   cursor: pointer;
+  vertical-align: middle;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+  &::before {
+    content: '';
+    width: 9px;
+    height: 9px;
+    transform: scale(0);
+    transition: transform 0.12s ease;
+    background: var(--c-on-primary);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  &:checked,
+  &:indeterminate {
+    border-color: var(--c-primary);
+    background: var(--c-primary);
+  }
+  &:checked::before {
+    transform: scale(1);
+  }
+  &:indeterminate::before {
+    transform: scale(1);
+    height: 2px;
+    clip-path: none;
+  }
+  &:hover {
+    border-color: var(--c-primary);
+  }
+  &:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--c-primary) 45%, transparent);
+    outline-offset: 2px;
+  }
 }
 
-.row-no {
-  display: inline-block;
-  min-width: 28px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--c-primary) 15%, transparent),
-    color-mix(in srgb, var(--c-primary) 8%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--c-primary) 25%, transparent);
-  color: var(--c-primary);
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-align: center;
-}
+// Row number chip: global .lsms-row-no (styles/_table-cells.scss).
 
 // ── Mobile cards ────────────────────────────────────────────────────────────
 .cards {
@@ -190,8 +245,8 @@ input[type='checkbox'] {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  .row-no {
-    font-size: 0.6875rem;
+  .lsms-row-no {
+    font-size: 0.7rem;
   }
 }
 .card-title {
@@ -219,8 +274,9 @@ input[type='checkbox'] {
 .field-label {
   display: block;
   @include t.metric-caption-compact;
+  font-weight: 600;
   letter-spacing: 0.2px;
-  color: var(--c-text-2);
+  color: color-mix(in srgb, var(--c-text) 72%, var(--c-text-2));
   margin-bottom: 2px;
 }
 .field-value {
@@ -232,37 +288,86 @@ input[type='checkbox'] {
 .pager {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-top: 1px solid var(--line);
+  gap: 8px 16px;
+  padding: 10px 14px 10px 18px;
+  border-top: 1px solid var(--c-border);
+  background: var(--th-bg);
+  font-size: 0.8rem;
+  color: var(--c-text-2);
+  b {
+    font-weight: 600;
+    color: var(--c-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+.pg-info {
+  margin-right: auto;
+}
+.pg-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pg-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  .gap {
+    min-width: 20px;
+    text-align: center;
+  }
 }
 .page-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  border: 1px solid var(--c-primary);
-  background: var(--c-primary);
-  color: var(--c-on-primary);
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-text);
   cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+  &:hover:not(:disabled):not(.on) {
+    border-color: var(--c-primary);
+    color: var(--c-primary);
+  }
+  &.on {
+    border-color: var(--c-primary);
+    background: var(--c-primary);
+    color: var(--c-on-primary);
+    font-weight: 600;
+  }
   &:disabled {
-    background: transparent;
-    border-color: var(--c-border);
-    color: var(--c-text-2);
+    opacity: 0.45;
     cursor: default;
   }
 }
 .size {
-  height: 28px;
-  padding: 0 6px;
+  height: 32px;
+  padding: 0 8px;
   border: 1px solid var(--c-border);
-  border-radius: 6px;
-  background: var(--c-bg);
+  border-radius: 8px;
+  background: var(--c-surface);
   color: var(--c-text);
-  font-size: 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
   cursor: pointer;
+}
+@container (max-width: 560px) {
+  .pg-info {
+    flex-basis: 100%;
+  }
+  .pg-nav .num:not(.on) {
+    display: none;
+  }
 }

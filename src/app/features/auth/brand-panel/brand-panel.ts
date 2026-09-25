@@ -115,7 +115,7 @@ import { Icon } from '@shared/ui';
       background: rgb(255 255 255 / 0.14); border: 1px solid rgb(255 255 255 / 0.22);
     }
     .wordmark strong { display: block; font-size: 1.375rem; font-weight: 800; letter-spacing: 2px; }
-    .wordmark small { font-size: 0.6rem; font-weight: 600; letter-spacing: 1.6px; color: rgb(255 255 255 / 0.65); }
+    .wordmark small { font-size: 0.7rem; font-weight: 600; letter-spacing: 1.6px; color: rgb(255 255 255 / 0.65); }
 
     .trust {
       display: inline-flex; align-items: center; gap: 9px; margin-top: 56px;

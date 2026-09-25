@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Single source of truth for currency formatting — port of Flutter `Money`.
- * Output is byte-compatible: `TZS 1,234` (whole) / `TZS 1,234.56`.
+ * Amounts are written in full with the currency LAST (system default since
+ * 2026-09-24): `1,234 TZS` (whole) / `1,234.56 TZS`.
  */
 export const Money = {
   currencyCode: 'TZS',
@@ -16,17 +17,17 @@ export const Money = {
       minimumFractionDigits: digits,
       maximumFractionDigits: digits,
     });
-    return symbol ? `${Money.currencyCode} ${formatted}` : formatted;
+    return symbol ? `${formatted} ${Money.currencyCode}` : formatted;
   },
 
-  /** Compact form for tight spaces, e.g. `TZS 1.2M`, `TZS 950K`. */
+  /** Compact form, e.g. `1.2M TZS` — only for chart axes; cards and lists use `format`. */
   compact(amount: number | null | undefined, opts: { symbol?: boolean } = {}): string {
     const value = Number(amount ?? 0) || 0;
     const formatted = new Intl.NumberFormat('en-US', {
       notation: 'compact',
       maximumFractionDigits: 1,
     }).format(value);
-    return opts.symbol === false ? formatted : `${Money.currencyCode} ${formatted}`;
+    return opts.symbol === false ? formatted : `${formatted} ${Money.currencyCode}`;
   },
 
   /** Parse a formatted currency string back to a number; null on failure. */
@@ -40,8 +41,9 @@ export const Money = {
 };
 
 /**
- * `{{ amount | money }}` → `TZS 1,234`
- * `{{ amount | money: { compact: true } }}` → `TZS 1.2K`
+ * `{{ amount | money }}` → `1,234 TZS`
+ * `{{ amount | money: { decimals: 0 } }}` → `360,476 TZS` (cards: whole shillings)
+ * `{{ amount | money: { compact: true } }}` → `1.2K TZS` (chart axes only)
  * `{{ amount | money: { symbol: false, decimals: 2 } }}` → `1,234.00`
  */
 @Pipe({ name: 'money' })

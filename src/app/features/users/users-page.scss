@@ -125,22 +125,20 @@ lsms-page-header {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  // Typography from the shared styles/_table-cells.scss.
   strong {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
   }
   small {
     @include t.ellipsis;
-    font-size: 0.74rem;
-    color: var(--c-text-2);
   }
   em {
     padding: 1px 6px;
     border-radius: 100px;
     font-style: normal;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--c-success);
     background: color-mix(in srgb, var(--c-success) 12%, transparent);
@@ -156,7 +154,7 @@ lsms-page-header {
   padding: 2px 8px;
   border-radius: 100px;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--role);
   background: color-mix(in srgb, var(--role) 11%, transparent);
   border: 1px solid color-mix(in srgb, var(--role) 28%, transparent);
@@ -172,7 +170,7 @@ lsms-page-header {
   padding: 3px 9px;
   border-radius: 100px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--st);
   background: color-mix(in srgb, var(--st) 11%, transparent);
 }

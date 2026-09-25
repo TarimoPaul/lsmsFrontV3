@@ -1,15 +1,15 @@
 @use 'typography' as t;
 
-// 64px bar, three zones: [crumbs/title] [search] [actions + user].
+// 72px bar, three zones: [crumbs/title] [search] [actions + user].
 :host {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 520px) minmax(0, 1fr);
   align-items: center;
   gap: 16px;
-  height: 64px;
+  height: 72px;
   padding: 0 32px;
-  background: color-mix(in srgb, var(--c-surface) 88%, transparent);
-  backdrop-filter: saturate(1.5) blur(14px);
+  // Top strip of the rounded content panel (the panel clips its corners).
+  background: var(--c-surface);
   border-bottom: 1px solid var(--c-border);
 }
 @media (max-width: 1199px) {
@@ -235,7 +235,7 @@
     font-size: 0.84rem;
   }
   small {
-    font-size: 0.66rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     color: var(--c-primary);

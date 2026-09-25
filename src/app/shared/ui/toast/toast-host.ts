@@ -56,7 +56,7 @@ import { ToastService } from './toast.service';
   styles: `
     @use 'typography' as t;
     :host {
-      position: fixed; top: 76px; right: 24px; z-index: 2000; /* below the 64px app bar so toasts never cover its controls */
+      position: fixed; top: 84px; right: 24px; z-index: 2000; /* below the 72px app bar so toasts never cover its controls */
       display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
       pointer-events: none;
     }

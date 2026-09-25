@@ -81,7 +81,8 @@ export class PaymentStatusBadge {
   protected readonly icon = computed(
     () => ({ paid: 'check_circle', partial: 'schedule', unpaid: 'cancel' })[this.resolved().status],
   );
-  protected readonly pctText = computed(() => `${Math.round(this.resolved().percent * 100)}%`);
+  // Floor so a part-paid sale never reads "100%".
+  protected readonly pctText = computed(() => `${Math.min(99, Math.floor(this.resolved().percent * 100))}%`);
 }
 
 // ─── Return status ──────────────────────────────────────────────────────────
@@ -215,7 +216,7 @@ const CHIP_CFG: Record<ChipStatus, { tone: string; en: string; sw: string; icon?
     :host {
       display: inline-flex; align-items: center; gap: 3px;
       padding: 3px 8px; border-radius: 20px;
-      font-size: 0.625rem; font-weight: 500; white-space: nowrap;
+      font-size: 0.7rem; font-weight: 500; white-space: nowrap;
       color: var(--fg); background: var(--bg);
     }
     :host([data-tone='green']) { --bg: #eaf3de; --fg: #27500a; --fg-dark: var(--c-success); }

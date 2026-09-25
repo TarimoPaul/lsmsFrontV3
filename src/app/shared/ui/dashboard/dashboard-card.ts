@@ -121,15 +121,12 @@ export type TrendDirection = 'up' | 'down' | 'neutral' | 'warning';
     :host {
       display: inline-flex; align-items: center; gap: 3px;
       padding: 3px 8px; border-radius: 20px;
-      font-size: 0.6875rem; font-weight: 500; white-space: nowrap;
-      color: #388e3c; background: #e8f5e9;
+      font-size: 0.7rem; font-weight: 500; white-space: nowrap;
+      color: var(--c-success); background: color-mix(in srgb, currentColor 12%, transparent);
     }
-    :host([data-dir='down']) { color: #d32f2f; background: #ffebee; }
-    :host([data-dir='warning']) { color: #ef6c00; background: #fff3e0; }
-    :host([data-dir='neutral']) { color: #757575; background: #f5f5f5; }
-    :host-context([data-theme='dark']) {
-      background: color-mix(in srgb, currentColor 15%, transparent);
-    }
+    :host([data-dir='down']) { color: var(--c-error); }
+    :host([data-dir='warning']) { color: var(--c-warning); }
+    :host([data-dir='neutral']) { color: var(--c-text-2); }
   `,
 })
 export class KpiTrend {

@@ -31,11 +31,11 @@
         </div>
       </ng-template>
     }
-    <span class="meta">{{ i18n.t('Page', 'Ukurasa') }} {{ page() + 1 }} {{ i18n.t('of', 'kati ya') }} {{ totalPages() }}</span>
-    <span class="meta wide">
-      {{ i18n.t('Showing', 'Inaonyesha') }} {{ sorted().length ? startIndex() + 1 : 0 }}-{{ endIndex() }}
-      {{ i18n.t('of', 'kati ya') }} {{ sorted().length }}
-    </span>
+    @if (showPagination()) {
+      <span class="meta">{{ i18n.t('Page', 'Ukurasa') }} {{ page() + 1 }} {{ i18n.t('of', 'kati ya') }} {{ totalPages() }}</span>
+    } @else {
+      <span class="meta">{{ sorted().length }} {{ i18n.t('rows', 'safu') }}</span>
+    }
   </div>
 }
 
@@ -59,7 +59,7 @@
           <article class="card" [class.selected]="isSelected(row)" (click)="rowClick.emit(row)">
             <div class="card-title-row">
               @if (showRowNumbers()) {
-                <span class="row-no">#{{ startIndex() + i + 1 }}</span>
+                <span class="lsms-row-no">#{{ startIndex() + i + 1 }}</span>
               }
               @if (bulkSelection()) {
                 <input
@@ -116,16 +116,18 @@
               />
             </th>
           }
-          @for (c of visibleColumns(); track c.id()) {
+          @for (c of visibleColumns(); track c.id(); let ci = $index) {
             <th
-              [style.text-align]="c.align()"
+              [class.after-end]="afterEnd(ci)"
+              [class.actions-col]="c.id() === 'actions'"
+              [style.text-align]="c.id() === 'actions' ? 'center' : c.align()"
               [style.width]="c.width()"
               [class.sortable]="!!c.sortBy()"
               [attr.aria-sort]="sortColumn() === c.id() ? (sortDirection() === 'asc' ? 'ascending' : 'descending') : null"
               (click)="sort(c)"
             >
               <span class="th-inner" [class.end]="c.align() === 'end'">
-                {{ c.label() }}
+                {{ c.label() || (c.id() === 'actions' ? i18n.t('Actions', 'Vitendo') : '') }}
                 @if (c.sortBy()) {
                   <lsms-icon
                     class="sort-icon"
@@ -143,7 +145,7 @@
         @for (row of pageItems(); track rowId()(row); let i = $index) {
           <tr [class.selected]="isSelected(row)" (click)="rowClick.emit(row)">
             @if (showRowNumbers()) {
-              <td class="num-col"><span class="row-no">{{ startIndex() + i + 1 }}</span></td>
+              <td class="num-col"><span class="lsms-row-no">{{ startIndex() + i + 1 }}</span></td>
             }
             @if (bulkSelection()) {
               <td class="check-col" (click)="$event.stopPropagation()">
@@ -155,8 +157,13 @@
                 />
               </td>
             }
-            @for (c of visibleColumns(); track c.id()) {
-              <td [style.text-align]="c.align()" (click)="c.id() === 'actions' && $event.stopPropagation()">
+            @for (c of visibleColumns(); track c.id(); let ci = $index) {
+              <td
+                [class.after-end]="afterEnd(ci)"
+                [class.actions-col]="c.id() === 'actions'"
+                [style.text-align]="c.id() === 'actions' ? 'center' : c.align()"
+                (click)="c.id() === 'actions' && $event.stopPropagation()"
+              >
                 <ng-container *ngTemplateOutlet="c.template; context: { $implicit: row, row: row, index: startIndex() + i }" />
               </td>
             }
@@ -169,37 +176,31 @@
 
 @if (showPagination() && items().length && !loading()) {
   <div class="pager">
-    <button
-      type="button"
-      class="page-btn"
-      [disabled]="page() === 0"
-      [attr.aria-label]="i18n.t('Previous', 'Iliyotangulia')"
-      [title]="i18n.t('Previous', 'Iliyotangulia')"
-      (click)="prevPage()"
-    >
-      <lsms-icon name="keyboard_arrow_left" [size]="16" />
-    </button>
-    <select
-      class="size"
-      [attr.aria-label]="i18n.t('Rows per page', 'Safu kwa ukurasa')"
-      (change)="setPageSize(+$any($event.target).value)"
-    >
-      @for (s of pageSizes; track s) {
-        <option [value]="s" [selected]="s === perPage()">{{ s }}</option>
+    <span class="pg-info">
+      {{ i18n.t('Showing', 'Inaonyesha') }} <b>{{ sorted().length ? startIndex() + 1 : 0 }}–{{ endIndex() }}</b> {{ i18n.t('of', 'kati ya') }} <b>{{ sorted().length }}</b>
+    </span>
+    <label class="pg-size">
+      <span>{{ i18n.t('Rows', 'Safu') }}</span>
+      <select class="size" [attr.aria-label]="i18n.t('Rows per page', 'Safu kwa ukurasa')" (change)="setPageSize(+$any($event.target).value)">
+        @for (s of pageSizes; track s) {
+          <option [value]="s" [selected]="s === perPage()">{{ s }}</option>
+        }
+      </select>
+    </label>
+    <nav class="pg-nav" [attr.aria-label]="i18n.t('Pages', 'Kurasa')">
+      <button type="button" class="page-btn" [disabled]="page() === 0" [attr.aria-label]="i18n.t('Previous', 'Iliyotangulia')" [title]="i18n.t('Previous', 'Iliyotangulia')" (click)="prevPage()">
+        <lsms-icon name="chevron_left" [size]="18" />
+      </button>
+      @for (n of pageNumbers(); track $index) {
+        @if (n === null) {
+          <span class="gap">…</span>
+        } @else {
+          <button type="button" class="page-btn num" [class.on]="n === page()" [attr.aria-current]="n === page() ? 'page' : null" (click)="goTo(n)">{{ n + 1 }}</button>
+        }
       }
-    </select>
-    @if (totalPages() > 1) {
-      <span class="meta">{{ page() + 1 }}/{{ totalPages() }}</span>
-    }
-    <button
-      type="button"
-      class="page-btn"
-      [disabled]="page() >= totalPages() - 1"
-      [attr.aria-label]="i18n.t('Next', 'Inayofuata')"
-      [title]="i18n.t('Next', 'Inayofuata')"
-      (click)="nextPage()"
-    >
-      <lsms-icon name="keyboard_arrow_right" [size]="16" />
-    </button>
+      <button type="button" class="page-btn" [disabled]="page() >= totalPages() - 1" [attr.aria-label]="i18n.t('Next', 'Inayofuata')" [title]="i18n.t('Next', 'Inayofuata')" (click)="nextPage()">
+        <lsms-icon name="chevron_right" [size]="18" />
+      </button>
+    </nav>
   </div>
 }

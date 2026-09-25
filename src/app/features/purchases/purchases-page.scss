@@ -1,0 +1,79 @@
+@use 'typography' as t;
+@use 'list-page';
+
+@include list-page.base;
+
+.period {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.latest {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-surface);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--c-text-2);
+  cursor: pointer;
+  &.on {
+    color: var(--c-primary);
+    border-color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface));
+  }
+}
+lsms-date-range-selector:not(.on) {
+  opacity: 0.8;
+}
+lsms-date-range-selector.on ::ng-deep .trigger {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface));
+}
+
+// Cell typography comes from the shared styles/_table-cells.scss.
+.when b,
+.qty b {
+  white-space: nowrap;
+}
+.void {
+  text-decoration: line-through;
+  color: var(--c-text-2);
+}
+.small {
+  font-size: 0.72rem;
+}
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--c-border);
+}
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--c-text-2);
+}
+.rp .badge {
+  min-width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+  background: var(--c-success);
+}

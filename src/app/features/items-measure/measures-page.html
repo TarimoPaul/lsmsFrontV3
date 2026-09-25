@@ -1,0 +1,144 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Items Measure', 'Vipimo vya Bidhaa')"
+    [subtitle]="i18n.t('Units and package types used by products', 'Vipimo na aina za vifungashio vya bidhaa')"
+    icon="straighten"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    <button *lsmsCan="'MEASURE_WRITE'" lsmsButton icon="add" size="sm" (click)="openForm()">
+      {{ i18n.t('Add measure', 'Ongeza kipimo') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Measures', 'Vipimo')"
+      [value]="loading() ? '—' : stats().total + ''"
+      [subtitle]="loading() ? undefined : i18n.t(stats().packageTypes + ' package types', 'Aina ' + stats().packageTypes + ' za vifungashio')"
+      icon="straighten"
+      color="var(--c-primary)"
+      [clickable]="usage() !== 'ALL'"
+      (tap)="usage.set('ALL')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('In use', 'Vinatumika')"
+      [value]="stats().used === null ? '—' : stats().used + ''"
+      [subtitle]="stats().used === null ? i18n.t('Needs product access', 'Inahitaji ruhusa ya bidhaa') : undefined"
+      icon="inventory_2"
+      color="var(--c-success)"
+      [clickable]="!!stats().used"
+      (tap)="usage.set('IN_USE')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Unused', 'Havitumiki')"
+      [value]="stats().unused === null ? '—' : stats().unused + ''"
+      [subtitle]="stats().unused ? i18n.t('Safe to delete', 'Vinaweza kufutwa') : undefined"
+      icon="inbox"
+      color="var(--c-warning)"
+      [clickable]="!!stats().unused"
+      (tap)="usage.set('UNUSED')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Products without measure', 'Bidhaa bila kipimo')"
+      [value]="stats().productsWithout === null ? '—' : stats().productsWithout + ''"
+      [subtitle]="stats().productsWithout ? i18n.t('Set it in Products', 'Weka kwenye Bidhaa') : undefined"
+      icon="help"
+      color="var(--c-info)"
+    />
+  </lsms-metrics-grid>
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search unit, package or abbreviation…', 'Tafuta kipimo, kifungashio au kifupisho…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="usageOptions()" [(selected)]="usage" />
+    </lsms-filter-panel>
+
+    @if (selected().length) {
+      <div class="bulk" role="region" [attr.aria-label]="i18n.t('Bulk actions', 'Vitendo vya pamoja')">
+        <span class="bulk-count"><lsms-icon name="check_circle" [size]="18" [filled]="true" />{{ selected().length }} {{ i18n.t('selected', 'vimechaguliwa') }}</span>
+        <span class="bulk-actions">
+          <button lsmsButton="secondary" size="sm" icon="grid_on" (click)="export('csv')">{{ i18n.t('Export', 'Hamisha') }}</button>
+          @if (canDelete()) {
+            <button lsmsButton="danger" size="sm" icon="delete" [loading]="busy()" (click)="bulkDelete()">{{ i18n.t('Delete', 'Futa') }}</button>
+          }
+          <button lsmsButton="text" size="sm" (click)="clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+        </span>
+      </div>
+    }
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load measures', 'Imeshindikana kupakia vipimo')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else if (!loading() && !measures().length) {
+      <lsms-empty-state
+        icon="straighten"
+        [title]="i18n.t('No measures yet', 'Hakuna vipimo bado')"
+        [message]="i18n.t('Add the units you sell in, e.g. Crate · 500ML.', 'Ongeza vipimo unavyouzia, mf. Kreti · 500ML.')"
+        [actionLabel]="canCreate() ? i18n.t('Add measure', 'Ongeza kipimo') : undefined"
+        (action)="openForm()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="i18n.t('Measures', 'Vipimo')"
+        [items]="rows()"
+        [rowId]="rowId"
+        [loading]="loading()"
+
+        [bulkSelection]="canDelete()"
+        (selectionChange)="selected.set($event)"
+        defaultSortColumn="unit"
+        [mobileTitle]="titleOf"
+        [mobileColumns]="['products', 'description', 'actions']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="i18n.t('No matching measures', 'Hakuna vipimo vinavyolingana')"
+        [emptyMessage]="i18n.t('Try other words or clear the filter.', 'Jaribu maneno mengine au futa kichujio.')"
+        emptyIcon="search_off"
+        (rowClick)="openDetails($event)"
+      >
+        <ng-template lsmsColumn="unit" [label]="i18n.t('Measure', 'Kipimo')" [sortBy]="unitOf" [locked]="true" let-row>
+          <span class="measure">
+            <span class="unit">{{ row.unitType || '—' }}</span>
+            <span class="pkg">
+              <strong>{{ row.packageType }}</strong>
+            </span>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="package" [label]="i18n.t('Package type', 'Aina')" [sortBy]="packageOf" [hidden]="true" let-row>
+          {{ row.packageType }}
+        </ng-template>
+        <ng-template lsmsColumn="abbreviation" [label]="i18n.t('Abbreviation', 'Kifupisho')" let-row>
+          @if (row.abbreviation) {
+            <span class="abbr">{{ row.abbreviation }}</span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="description" [label]="i18n.t('Description', 'Maelezo')" let-row>
+          @if (row.description) {
+            <span class="desc" [title]="row.description">{{ row.description }}</span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        @if (products() !== null) {
+          <ng-template lsmsColumn="products" [label]="i18n.t('Products', 'Bidhaa')" [sortBy]="countOf" width="200px" let-row>
+            <span class="count-cell" [class.zero]="!productCount(row)">
+              <b>{{ productCount(row) }}</b>
+              <span class="track"><i [style.width.%]="((productCount(row) ?? 0) / maxCount()) * 100"></i></span>
+            </span>
+          </ng-template>
+        }
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    }
+  </div>
+</div>

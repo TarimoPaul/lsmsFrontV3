@@ -1,0 +1,146 @@
+<div class="wrap">
+  <lsms-page-header
+    [title]="i18n.t('Suppliers', 'Wasambazaji')"
+    [subtitle]="i18n.t('Supplier records, balances and payments', 'Taarifa za wasambazaji, madeni na malipo')"
+    icon="local_shipping"
+    [refreshable]="true"
+    (refresh)="refresh()"
+  >
+    <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    <button *lsmsCan="'SUPPLIER_WRITE'" lsmsButton icon="add" size="sm" (click)="openForm()">
+      {{ i18n.t('Add supplier', 'Ongeza msambazaji') }}
+    </button>
+  </lsms-page-header>
+
+  <lsms-metrics-grid [gap]="12">
+    <lsms-metric-card
+      [title]="i18n.t('Suppliers', 'Wasambazaji')"
+      [value]="loading() ? '—' : stats().total + ''"
+      [subtitle]="stats().noContact ? i18n.t(stats().noContact + ' without contact', stats().noContact + ' bila mawasiliano') : undefined"
+      icon="local_shipping"
+      color="var(--c-primary)"
+      [clickable]="owed() !== 'ALL'"
+      (tap)="owed.set('ALL')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Total we owe', 'Jumla tunayodaiwa')"
+      [value]="loading() ? '—' : (stats().owed | money: { decimals: 0 })"
+      [subtitle]="stats().top ? i18n.t('Largest: ', 'Kubwa zaidi: ') + stats().top!.name : undefined"
+      icon="account_balance_wallet"
+      color="var(--c-error)"
+      [urgent]="stats().owed > 0"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Suppliers we owe', 'Wanaotudai')"
+      [value]="loading() ? '—' : stats().owing + ''"
+      icon="pending_actions"
+      color="var(--c-warning)"
+      [clickable]="stats().owing > 0"
+      (tap)="owed.set('OWING')"
+    />
+    <lsms-metric-card
+      [title]="i18n.t('Over credit limit', 'Juu ya ukomo wa mkopo')"
+      [value]="loading() ? '—' : stats().overLimit + ''"
+      [subtitle]="i18n.t('Set limits when editing', 'Weka ukomo unapohariri')"
+      icon="speed"
+      color="var(--c-info)"
+      [clickable]="stats().overLimit > 0"
+      (tap)="owed.set('OVER_LIMIT')"
+    />
+  </lsms-metrics-grid>
+
+  <div class="table-card">
+    <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name, phone, email or TIN…', 'Tafuta jina, simu, barua pepe au TIN…')" (search)="search.set($event)">
+      <lsms-segmented-filter-bar filterSegments [options]="options()" [(selected)]="owed" />
+    </lsms-filter-panel>
+
+    @if (error()) {
+      <lsms-empty-state
+        icon="error"
+        iconColor="var(--c-error)"
+        [title]="i18n.t('Could not load suppliers', 'Imeshindikana kupakia wasambazaji')"
+        [message]="error()!"
+        [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')"
+        (secondaryAction)="refresh()"
+      />
+    } @else if (!loading() && !suppliers().length) {
+      <lsms-empty-state
+        icon="local_shipping"
+        [title]="i18n.t('No suppliers yet', 'Hakuna wasambazaji bado')"
+        [message]="i18n.t('Add the companies you buy stock from.', 'Ongeza makampuni unayonunua mzigo kwao.')"
+        [actionLabel]="auth.hasPermission('SUPPLIER_WRITE') ? i18n.t('Add supplier', 'Ongeza msambazaji') : undefined"
+        (action)="openForm()"
+      />
+    } @else {
+      <lsms-data-table
+        [title]="i18n.t('Suppliers', 'Wasambazaji')"
+        [items]="rows()"
+        [rowId]="rowId"
+        [loading]="loading()"
+
+        defaultSortColumn="name"
+        [mobileTitle]="nameOf"
+        [mobileColumns]="['owed', 'contact', 'terms', 'actions']"
+        [mobileCompactColumns]="['owed']"
+        [actionsInlineWithTitle]="true"
+        [emptyTitle]="i18n.t('No matching suppliers', 'Hakuna wasambazaji wanaolingana')"
+        [emptyMessage]="i18n.t('Try other words or clear the filter.', 'Jaribu maneno mengine au futa kichujio.')"
+        emptyIcon="search_off"
+        (rowClick)="rowClick($event)"
+      >
+        <ng-template lsmsColumn="name" [label]="i18n.t('Supplier', 'Msambazaji')" [sortBy]="nameOf" [locked]="true" let-row>
+          <span class="sup">
+            <span class="avatar">{{ initials(row.name) }}</span>
+            <span class="txt">
+              <strong>{{ row.name }}</strong>
+              @if (row.address) {
+                <small>{{ row.address }}</small>
+              }
+            </span>
+          </span>
+        </ng-template>
+        <ng-template lsmsColumn="contact" [label]="i18n.t('Contact', 'Mawasiliano')" let-row>
+          @if (row.phone || row.email) {
+            <span class="contact">
+              @if (row.phone) {
+                <a [href]="'tel:' + row.phone" (click)="$event.stopPropagation()"><lsms-icon name="call" [size]="13" />{{ row.phone }}</a>
+              }
+              @if (row.email) {
+                <a [href]="'mailto:' + row.email" (click)="$event.stopPropagation()"><lsms-icon name="mail" [size]="13" />{{ row.email }}</a>
+              }
+            </span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="tin" label="TIN" [hidden]="true" let-row>
+          <span class="muted">{{ row.tin || '—' }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="terms" [label]="i18n.t('Terms', 'Muda')" [sortBy]="termsOf" let-row>
+          <span class="terms">{{ row.paymentTermsDays }} {{ i18n.t('days', 'siku') }}</span>
+        </ng-template>
+        <ng-template lsmsColumn="limit" [label]="i18n.t('Credit limit', 'Ukomo')" [sortBy]="limitOf" width="190px" let-row>
+          @if (row.creditLimit) {
+            @let u = usage(row) ?? 0;
+            <span class="limit" [class.over]="u > 1" [class.near]="u > 0.8 && u <= 1">
+              <small>{{ row.creditLimit | money: { decimals: 0 } }}</small>
+              <span class="track"><i [style.width.%]="u * 100 > 100 ? 100 : u * 100"></i></span>
+            </span>
+          } @else {
+            <span class="muted">—</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="owed" [label]="i18n.t('We owe', 'Deni')" [sortBy]="owedOf" align="end" let-row>
+          @if (row.outstanding > 0) {
+            <span class="owed">{{ row.outstanding | money }}</span>
+          } @else {
+            <span class="settled"><lsms-icon name="task_alt" [size]="14" />{{ i18n.t('Settled', 'Hakuna') }}</span>
+          }
+        </ng-template>
+        <ng-template lsmsColumn="actions" let-row>
+          <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+      </lsms-data-table>
+    }
+  </div>
+</div>

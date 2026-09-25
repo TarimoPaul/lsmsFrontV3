@@ -1,0 +1,151 @@
+<lsms-dialog [title]="i18n.t('Customer', 'Mteja')" icon="person">
+  <section class="head">
+    <span class="avatar">{{ initials }}</span>
+    <div class="who">
+      <h3>{{ c.name }}</h3>
+      <p>
+        <span class="pill" [style.--st]="type.color"><lsms-icon [name]="type.icon" [size]="13" />{{ i18n.isSwahili() ? type.sw : type.en }}</span>
+        @if (c.phoneNumber) {
+          <span><lsms-icon name="call" [size]="14" /><a [href]="'tel:' + c.phoneNumber">{{ c.phoneNumber }}</a></span>
+        }
+        @if (c.email) {
+          <span><lsms-icon name="mail" [size]="14" /><a [href]="'mailto:' + c.email">{{ c.email }}</a></span>
+        }
+        @if (c.createdAt) {
+          <span><lsms-icon name="event" [size]="14" />{{ i18n.t('Since', 'Tangu') }} {{ date(c.createdAt) | date: 'MMM yyyy' }}</span>
+        }
+      </p>
+    </div>
+  </section>
+
+  @if (tabs().length > 1) {
+    <lsms-segmented-filter-bar [options]="tabs()" [(selected)]="tab" />
+  }
+
+  @if (error()) {
+    <p class="err"><lsms-icon name="error" [size]="18" />{{ error() }}</p>
+  }
+
+  @switch (tab()) {
+    @case ('overview') {
+      <div class="kpis">
+        <div><small>{{ i18n.t('Total spent', 'Jumla ya manunuzi') }}</small><b>{{ c.totalSpent | money: { decimals: 0 } }}</b></div>
+        <div><small>{{ i18n.t('Sales', 'Mauzo') }}</small><b>{{ c.salesCount }}</b></div>
+        <div class="owe"><small>{{ i18n.t('Owes', 'Deni') }}</small><b>{{ c.outstandingBalance | money }}</b></div>
+        <div><small>{{ i18n.t('Credit limit', 'Ukomo') }}</small><b>{{ c.creditLimit ? (c.creditLimit | money: { decimals: 0 }) : '—' }}</b></div>
+      </div>
+
+      @if (canAnalytics && c.salesCount > 0) {
+        <section class="block">
+          <h4><lsms-icon name="insights" [size]="15" />{{ i18n.t('Buying behaviour', 'Tabia ya ununuzi') }}</h4>
+          @if (analytics(); as a) {
+            <div class="badges">
+              @if (a.repeatCustomer) {
+                <span class="pill" style="--st: var(--c-success)"><lsms-icon name="repeat" [size]="13" />{{ i18n.t('Repeat customer', 'Mteja wa kudumu') }}</span>
+              }
+              @if (a.atRiskOfChurning) {
+                <span class="pill" style="--st: var(--c-warning)"><lsms-icon name="trending_down" [size]="13" />{{ i18n.t('Not bought recently', 'Hajanunua siku za karibuni') }}</span>
+              }
+            </div>
+            <dl>
+              <dt>{{ i18n.t('Average sale', 'Wastani wa mauzo') }}</dt><dd>{{ a.averageOrderValue | money }}</dd>
+              <dt>{{ i18n.t('Profit earned', 'Faida iliyopatikana') }}</dt><dd>{{ a.totalProfit | money }}</dd>
+              @if (a.purchaseFrequencyDays) {
+                <dt>{{ i18n.t('Buys every', 'Hununua kila') }}</dt><dd>{{ a.purchaseFrequencyDays | number: '1.0-1' }} {{ i18n.t('days', 'siku') }}</dd>
+              }
+              @if (a.lastPurchaseDate) {
+                <dt>{{ i18n.t('Last purchase', 'Alinunua mwisho') }}</dt>
+                <dd>{{ date(a.lastPurchaseDate) | date: 'dd MMM yyyy' }} ({{ a.daysSinceLastPurchase }} {{ i18n.t('days ago', 'siku zilizopita') }})</dd>
+              }
+              <dt>{{ i18n.t('Different products', 'Bidhaa tofauti') }}</dt><dd>{{ a.distinctProductCount }}</dd>
+            </dl>
+            <div class="meter">
+              <div class="track"><i [style.width.%]="a.fullPaymentPercentage"></i></div>
+              <small><span>{{ i18n.t('Sales paid in full', 'Mauzo yaliyolipwa kikamilifu') }}</span><b>{{ a.fullPaymentPercentage | number: '1.0-0' }}%</b></small>
+            </div>
+          } @else {
+            <lsms-skeleton variant="list" [rows]="2" />
+          }
+        </section>
+      }
+
+      <section class="block">
+        <h4><lsms-icon name="badge" [size]="15" />{{ i18n.t('Details', 'Taarifa') }}</h4>
+        <dl>
+          <dt>{{ i18n.t('Address', 'Anwani') }}</dt><dd>{{ c.address || '—' }}</dd>
+          @if (creditUse !== null) {
+            <dt>{{ i18n.t('Credit used', 'Mkopo uliotumika') }}</dt><dd>{{ creditUse * 100 | number: '1.0-0' }}%</dd>
+          }
+        </dl>
+      </section>
+    }
+    @case ('purchases') {
+      @if (purchases(); as list) {
+        @if (list.length) {
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ i18n.t('Date', 'Tarehe') }}</th>
+                  <th>{{ i18n.t('Receipt', 'Risiti') }}</th>
+                  <th class="n">{{ i18n.t('Items', 'Bidhaa') }}</th>
+                  <th class="n">{{ i18n.t('Amount', 'Kiasi') }}</th>
+                  <th class="n">{{ i18n.t('Balance', 'Salio') }}</th>
+                  <th>{{ i18n.t('Status', 'Hali') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of list; track r.saleUid) {
+                  @let st = status(r.paymentStatus);
+                  <tr>
+                    <td class="nowrap">{{ date(r.purchaseDate) | date: 'dd MMM yyyy' }}</td>
+                    <td class="nowrap">{{ r.receiptNumber }}</td>
+                    <td class="n">{{ r.items }}</td>
+                    <td class="n strong">{{ r.totalAmount | money: { symbol: false } }}</td>
+                    <td class="n" [class.debit]="r.outstandingBalance > 0">{{ r.outstandingBalance ? (r.outstandingBalance | money: { symbol: false }) : '—' }}</td>
+                    <td><span class="pill" [style.--st]="st.color">{{ i18n.isSwahili() ? st.sw : st.en }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="muted">{{ i18n.t('No purchases yet.', 'Hakuna manunuzi bado.') }}</p>
+        }
+      } @else {
+        <lsms-skeleton variant="list" [rows]="4" />
+      }
+    }
+    @case ('history') {
+      @if (audit(); as list) {
+        @if (list.length) {
+          <ul class="timeline">
+            @for (a of list; track $index) {
+              <li>
+                <b>{{ a.action }}</b>
+                @if (a.details) {
+                  <span>{{ a.details }}</span>
+                }
+                <small>{{ date(a.timestamp) | date: 'dd MMM yyyy, HH:mm' }} @if (a.performedBy) { · {{ a.performedBy }} }</small>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">{{ i18n.t('No recorded changes yet.', 'Hakuna mabadiliko yaliyorekodiwa bado.') }}</p>
+        }
+      } @else {
+        <lsms-skeleton variant="list" [rows]="3" />
+      }
+    }
+  }
+
+  <ng-container dialogActions>
+    <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Close', 'Funga') }}</button>
+    @if (canStatement && (c.outstandingBalance > 0 || c.salesCount > 0)) {
+      <button lsmsButton="tonal" icon="receipt_long" (click)="ref.close('statement')">{{ i18n.t('Statement', 'Taarifa') }}</button>
+    }
+    @if (canEdit) {
+      <button lsmsButton icon="edit" (click)="ref.close('edit')">{{ i18n.t('Edit', 'Hariri') }}</button>
+    }
+  </ng-container>
+</lsms-dialog>

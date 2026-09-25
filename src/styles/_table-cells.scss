@@ -1,0 +1,59 @@
+// Shared typography for the cells of every <lsms-data-table> — the calm style
+// first tuned on the Products list: 13px regular text, names at 500, a muted
+// 11px second line, tabular numbers. Cell templates are projected from each
+// page, so this lives globally; pages only add layout (never weight / size)
+// and use these helpers instead:
+//
+//   .cell-stack  title + second line      <span class="cell-stack"><strong>…</strong><small>…</small></span>
+//   .num         tabular, no wrap          .num.strong for the key amount of the row
+//   .muted       secondary text colour
+@use 'typography' as t;
+
+lsms-data-table :is(td, .compact-cell, .field-value) {
+  strong,
+  b {
+    font-weight: 500;
+  }
+  // The row's name / title (e.g. product name) — as on the Products list.
+  strong {
+    font-size: 0.86rem;
+    letter-spacing: 0.1px;
+  }
+  small {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--c-text-2);
+  }
+  .cell-stack {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    > strong,
+    > b,
+    > small {
+      @include t.ellipsis;
+    }
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .strong,
+  .num.strong {
+    font-weight: 600;
+  }
+  .muted {
+    color: var(--c-text-2);
+  }
+}
+
+// S/No chip — table row numbers and any hand-built list (e.g. Repurchase).
+.lsms-row-no {
+  display: inline-block;
+  min-width: 22px;
+  color: var(--c-text-2);
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}

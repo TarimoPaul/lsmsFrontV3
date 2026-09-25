@@ -1,0 +1,181 @@
+// Shared building blocks for detail / statement dialogs.
+//
+//   styles: `@use 'detail-dialog'; @include detail-dialog.base;`
+@mixin base {
+  .err {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--c-error);
+  }
+  .muted {
+    color: var(--c-text-2);
+    font-size: 0.85rem;
+  }
+
+  // Titled section card.
+  .block {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--c-bg);
+    border: 1px solid var(--c-border);
+  }
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--c-text-2);
+    lsms-icon {
+      color: var(--c-primary);
+    }
+  }
+  .count {
+    padding: 1px 8px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    letter-spacing: 0;
+    color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+
+  // Summary figures: one highlighted (.big, red; .big.ok, green) + minis.
+  .sum {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+    }
+    small {
+      font-size: 0.72rem;
+      color: var(--c-text-2);
+    }
+    b {
+      font-size: 1rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .big {
+      color: var(--c-error);
+      background: color-mix(in srgb, var(--c-error) 7%, var(--c-bg));
+      border-color: color-mix(in srgb, var(--c-error) 25%, transparent);
+      b {
+        font-size: 1.35rem;
+      }
+      &.ok {
+        color: var(--c-success);
+        background: color-mix(in srgb, var(--c-success) 7%, var(--c-bg));
+        border-color: color-mix(in srgb, var(--c-success) 25%, transparent);
+      }
+    }
+  }
+  @media (max-width: 700px) {
+    .sum {
+      grid-template-columns: 1fr 1fr;
+      .big {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+  .od {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  // Scrollable ledger / history table.
+  .scroll {
+    max-height: 300px;
+    overflow: auto;
+    border-radius: 10px;
+    border: 1px solid var(--c-border);
+    background: var(--c-surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--c-text-2);
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-border);
+  }
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: top;
+  }
+  tr:last-child td {
+    border-bottom: 0;
+  }
+  .n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .nowrap {
+    white-space: nowrap;
+  }
+  .strong {
+    font-weight: 800;
+  }
+  .debit {
+    color: var(--c-error);
+    font-weight: 700;
+  }
+  .credit {
+    color: var(--c-success);
+    font-weight: 700;
+  }
+  .ref {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--c-text-2);
+  }
+  .late {
+    margin-left: 4px;
+    padding: 0 6px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--c-error);
+    background: color-mix(in srgb, var(--c-error) 10%, transparent);
+  }
+  // Pill with a colour set via --st.
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--st, var(--c-text-2));
+    background: color-mix(in srgb, var(--st, var(--c-text-2)) 11%, transparent);
+  }
+}

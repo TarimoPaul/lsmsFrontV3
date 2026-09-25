@@ -1,0 +1,135 @@
+// Shared layout for module list pages (header → KPIs → filter + table card).
+//
+//   @use 'list-page';
+//   @include list-page.base;
+@use 'typography' as t;
+
+@mixin base {
+  .wrap {
+    padding: 12px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  @media (max-width: 767px) {
+    .wrap {
+      padding: 8px 12px 24px;
+    }
+  }
+  lsms-page-header {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .table-card {
+    border-radius: 16px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    box-shadow: 0 1px 2px rgb(16 24 40 / 0.04);
+    overflow: hidden;
+    lsms-data-table {
+      border: 0;
+      border-top: 1px solid var(--c-border);
+      border-radius: 0;
+      max-height: 72vh;
+    }
+  }
+
+  // Bulk-selection action bar shown above the table.
+  .bulk {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 8px 16px;
+    border-top: 1px solid var(--c-border);
+    background: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface));
+    animation: list-bulk-in 0.18s ease-out;
+  }
+  .bulk-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--c-primary);
+  }
+  .bulk-actions {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  @keyframes list-bulk-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  // Pill status chip: set --st to the colour.
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--st);
+    background: color-mix(in srgb, var(--st) 11%, transparent);
+  }
+
+  // Count + proportional bar cell (set --bar to the colour).
+  .count-cell {
+    --bar: var(--c-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    b {
+      min-width: 24px;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .track {
+      flex: 1;
+      max-width: 120px;
+      height: 6px;
+    }
+    &.zero b {
+      color: var(--c-warning);
+    }
+  }
+  .track {
+    height: 8px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--c-text-2) 12%, transparent);
+    overflow: hidden;
+    i {
+      display: block;
+      height: 100%;
+      min-width: 3px;
+      border-radius: 4px;
+      background: var(--bar, var(--c-primary));
+      transition: width 0.4s ease;
+    }
+  }
+
+  .desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 420px;
+    font-size: 0.82rem;
+  }
+  .muted {
+    color: var(--c-text-2);
+  }
+  .ellipsis {
+    @include t.ellipsis;
+  }
+}

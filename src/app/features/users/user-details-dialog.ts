@@ -138,7 +138,7 @@ export type UserDetailsResult = 'edit' | undefined;
     .pg strong { font-size: 0.78rem; text-transform: capitalize; }
     .pg small { margin-left: 6px; color: var(--c-text-2); }
     .pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-    code { padding: 2px 6px; border-radius: 6px; font-size: 0.66rem; background: var(--c-surface); border: 1px solid var(--c-border); }
+    code { padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; background: var(--c-surface); border: 1px solid var(--c-border); }
   `,
 })
 export class UserDetailsDialog {

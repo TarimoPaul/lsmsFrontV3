@@ -39,7 +39,7 @@ export interface SegmentOption<T> {
       </button>
     }
   `,
-  host: { role: 'radiogroup', '[class.wrap]': '!scrollable()' },
+  host: { role: 'radiogroup', '[class.lsms-seg-wrap]': '!scrollable()' },
   styles: `
     :host {
       display: flex;
@@ -48,7 +48,7 @@ export interface SegmentOption<T> {
       scrollbar-width: none;
       padding: 1px;
     }
-    :host(.wrap) { flex-wrap: wrap; overflow: visible; }
+    :host(.lsms-seg-wrap) { flex-wrap: wrap; overflow: visible; }
     :host::-webkit-scrollbar { display: none; }
     .chip {
       display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
@@ -66,7 +66,7 @@ export interface SegmentOption<T> {
     }
     .count {
       padding: 1px 6px; border-radius: 10px;
-      font-size: 0.625rem; font-weight: 700;
+      font-size: 0.7rem; font-weight: 700;
       background: color-mix(in srgb, var(--c-primary) 12%, transparent); color: var(--c-primary);
     }
     .on .count { background: color-mix(in srgb, currentColor 25%, transparent); color: inherit; }

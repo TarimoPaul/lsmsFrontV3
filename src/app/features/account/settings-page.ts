@@ -38,6 +38,13 @@ import { Card, Icon } from '@shared/ui';
         </div>
         <div class="row">
           <div>
+            <strong>{{ i18n.t('Animated background', 'Mandharinyuma yanayosogea') }}</strong>
+            <small>{{ i18n.t('Soft drifting bubbles behind the main dashboard.', 'Viputo laini vinavyoelea nyuma ya dashboard kuu.') }}</small>
+          </div>
+          <mat-slide-toggle [checked]="theme.ambientMotion()" (change)="theme.toggleAmbientMotion()" />
+        </div>
+        <div class="row">
+          <div>
             <strong>{{ i18n.t('Text size', 'Ukubwa wa maandishi') }}</strong>
             <small>{{ (theme.textSizeMultiplier() * 100).toFixed(0) }}%</small>
           </div>
@@ -67,7 +74,7 @@ import { Card, Icon } from '@shared/ui';
     .theme.on { border-color: var(--c-primary); color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, transparent); }
     .swatch { display: inline-flex; width: 28px; height: 18px; border-radius: 5px; overflow: hidden; border: 1px solid var(--c-border); }
     .swatch i { flex: 1; }
-    [data-theme-preview='comfort'] i:first-child { background: #f5f5f0; } [data-theme-preview='comfort'] i:last-child { background: #3b7597; }
+    [data-theme-preview='comfort'] i:first-child { background: #fafaf7; } [data-theme-preview='comfort'] i:last-child { background: #3b7597; }
     [data-theme-preview='light'] i:first-child { background: #eef4fb; } [data-theme-preview='light'] i:last-child { background: #3b7597; }
     [data-theme-preview='dark'] i:first-child { background: #0f1419; } [data-theme-preview='dark'] i:last-child { background: #96d4d4; }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid var(--c-divider); }

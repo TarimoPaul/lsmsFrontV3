@@ -23,6 +23,8 @@ export class ThemeService {
   /** Dark between 18:00 and 06:00. */
   readonly autoNightMode = signal(safeStorage.getBool('auto_night_mode') ?? false);
   readonly textSizeMultiplier = signal(safeStorage.getNumber('text_size_multiplier') ?? 1);
+  /** Soft drifting bubbles behind the main dashboard (as in Flutter main_menu). Module pages never show them. */
+  readonly ambientMotion = signal(safeStorage.getBool('ambient_motion') ?? true);
 
   private readonly systemPrefersDark = signal(this.systemDark?.matches ?? false);
 
@@ -52,6 +54,7 @@ export class ThemeService {
       safeStorage.set('eye_comfort_mode', this.eyeComfortMode());
       safeStorage.set('auto_night_mode', this.autoNightMode());
       safeStorage.set('text_size_multiplier', this.textSizeMultiplier());
+      safeStorage.set('ambient_motion', this.ambientMotion());
     });
   }
 
@@ -73,6 +76,10 @@ export class ThemeService {
 
   toggleEyeComfortMode(): void {
     this.eyeComfortMode.update((v) => !v);
+  }
+
+  toggleAmbientMotion(): void {
+    this.ambientMotion.update((v) => !v);
   }
 
   toggleAutoNightMode(): void {

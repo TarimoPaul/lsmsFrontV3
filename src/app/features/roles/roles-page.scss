@@ -25,9 +25,6 @@ lsms-page-header {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  strong {
-    font-size: 0.85rem;
-  }
 }
 .r-ic {
   display: inline-flex;
@@ -54,7 +51,7 @@ lsms-page-header {
   gap: 4px;
   padding: 3px 10px;
   border-radius: 100px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--c-primary);
   background: color-mix(in srgb, var(--c-primary) 10%, transparent);
   &.zero {

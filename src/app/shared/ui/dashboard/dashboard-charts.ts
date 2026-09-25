@@ -187,7 +187,7 @@ export class DashboardRevenueCard {
       display: flex; justify-content: space-between; gap: 8px;
       margin-top: 8px; padding-top: 8px;
       border-top: 1px solid color-mix(in srgb, var(--c-divider) 50%, transparent);
-      font-size: 0.6875rem; color: var(--c-text-2);
+      font-size: 0.7rem; color: var(--c-text-2);
     }
     .footer span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; @include t.ellipsis; }
   `,

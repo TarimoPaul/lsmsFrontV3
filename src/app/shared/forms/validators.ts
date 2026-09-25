@@ -46,6 +46,17 @@ export const LsmsValidators = {
     };
   },
 
+  /** Whole number, optionally ≥ min (quantities, pieces per package …). */
+  integer(field = 'Field', min?: number): ValidatorFn {
+    return (c) => {
+      if (isEmpty(c.value)) return null;
+      const n = Number(String(c.value).replaceAll(',', ''));
+      if (!Number.isInteger(n)) return { integer: { field } };
+      if (min !== undefined && n < min) return { minValue: { field, min } };
+      return null;
+    };
+  },
+
   positive(field = 'Field'): ValidatorFn {
     return (c) => {
       if (isEmpty(c.value)) return null;

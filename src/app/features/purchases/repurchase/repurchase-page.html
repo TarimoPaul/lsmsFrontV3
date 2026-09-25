@@ -1,0 +1,207 @@
+<div class="bench">
+  <!-- ── Products bought before ───────────────────────────────────────── -->
+  <section class="products">
+    <header class="bar">
+      <a class="back" routerLink="/purchases" [attr.aria-label]="i18n.t('Back to purchases', 'Rudi kwenye manunuzi')"><lsms-icon name="arrow_back" [size]="20" /></a>
+      <div class="ttl">
+        <h1>{{ i18n.t('Repurchase', 'Nunua tena') }}</h1>
+        <small>{{ i18n.t('Products bought before — the last purchase fills the order', 'Bidhaa zilizowahi kununuliwa — manunuzi ya mwisho yanajaza agizo') }}</small>
+      </div>
+      <lsms-search-bar class="search" [placeholder]="i18n.t('Search product or category…', 'Tafuta bidhaa au kundi…')" [debounce]="150" [autofocus]="true" (search)="search.set($event); limit.set(60)" />
+      <button type="button" class="icon-btn" (click)="load(true)" [attr.aria-label]="i18n.t('Refresh', 'Onyesha upya')" [title]="i18n.t('Refresh', 'Onyesha upya')">
+        <lsms-icon name="refresh" [size]="20" />
+      </button>
+    </header>
+
+    @if (recon) {
+      <p class="recon-note">
+        <lsms-icon name="balance" [size]="17" />
+        <span>{{ i18n.t('From the reconciliation of ' + reconDate + ' — after sending you can link this order to that day’s cash.', 'Kutoka upatanisho wa ' + reconDate + ' — ukituma utaweza kuunganisha agizo hili na taslimu ya siku hiyo.') }}</span>
+        <a routerLink="/reconciliation">{{ i18n.t('Back', 'Rudi') }}</a>
+      </p>
+    }
+
+    <div class="chips" role="toolbar">
+      <div class="stock-seg">
+        <button type="button" [class.on]="filter() === 'all'" (click)="setFilter('all')">{{ i18n.t('All', 'Zote') }} <small>{{ counts().all }}</small></button>
+        <button type="button" [class.on]="filter() === 'restock'" (click)="setFilter('restock')">{{ i18n.t('Needs restock', 'Zinahitaji kujaza') }} <small>{{ counts().restock }}</small></button>
+        <button type="button" [class.on]="filter() === 'out'" (click)="setFilter('out')">{{ i18n.t('Out of stock', 'Zimeisha') }} <small>{{ counts().out }}</small></button>
+        <button type="button" [class.on]="filter() === 'in'" (click)="setFilter('in')">{{ i18n.t('In stock', 'Zipo') }} <small>{{ counts().in }}</small></button>
+        @if (counts().waiting) {
+          <button type="button" [class.on]="filter() === 'waiting'" (click)="setFilter('waiting')">{{ i18n.t('Waiting', 'Zinasubiri') }} <small>{{ counts().waiting }}</small></button>
+        }
+      </div>
+      <span class="sep"></span>
+      <button type="button" class="chip" [class.on]="!category()" (click)="category.set(null)">{{ i18n.t('All categories', 'Makundi yote') }}</button>
+      @for (c of categories(); track c[0]) {
+        <button type="button" class="chip" [class.on]="category() === c[0]" (click)="category.set(category() === c[0] ? null : c[0])">{{ c[0] }} <small>{{ c[1] }}</small></button>
+      }
+    </div>
+
+    @if (error()) {
+      <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load products', 'Imeshindikana kupakia bidhaa')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="load(true)" />
+    } @else if (loading()) {
+      <lsms-skeleton variant="list" [rows]="8" />
+    } @else if (!filtered().length) {
+      <lsms-empty-state icon="search_off" [title]="i18n.t('No products match', 'Hakuna bidhaa zinazolingana')" [message]="i18n.t('Try another filter or search word.', 'Jaribu kichujio au neno lingine.')" />
+    } @else {
+      <ul class="list">
+        @for (r of shown(); track r.p.uid; let i = $index) {
+          @let h = health[r.health];
+          @let inCart = cart.uids().has(r.p.uid);
+          <li class="item" [class.in-cart]="inCart" [class.waiting]="!!r.waiting">
+            <span class="sn"><span class="lsms-row-no">{{ i + 1 }}</span></span>
+            <span class="nm">
+              <strong [title]="r.p.name">{{ r.p.name }}</strong>
+              <small>{{ r.p.category || '—' }}@if (r.p.piecesPerPackage && r.p.piecesPerPackage > 1) { · 1 {{ r.p.abbreviation || i18n.t('pkg', 'pkt') }} = {{ r.p.piecesPerPackage }} {{ i18n.t('pcs', 'vip') }} }</small>
+            </span>
+            <span class="stock" [style.--hc]="h.color" [title]="i18n.isSwahili() ? h.sw : h.en"><lsms-icon [name]="h.icon" [size]="13" />{{ stockText(r) }}</span>
+            <span class="cost">
+              <small>{{ i18n.t('Avg cost / pc', 'Wastani / kip') }}</small>
+              <b>{{ r.stock?.averageCostPrice ?? r.p.averageCost ?? 0 | money: { symbol: false } }}</b>
+            </span>
+            <span class="act">
+              @if (r.waiting; as w) {
+                <button type="button" class="wait" [style.--st]="status[w.status].color" (click)="openPurchase(w.uid)" [title]="i18n.t('Finish or cancel it before ordering again', 'Yamalize au yafute kabla ya kuagiza tena')">
+                  <lsms-icon [name]="status[w.status].icon" [size]="14" />{{ i18n.isSwahili() ? status[w.status].sw : status[w.status].en }}
+                </button>
+              } @else if (inCart) {
+                <button type="button" class="added" (click)="cartOpen.set(true)"><lsms-icon name="check_circle" [size]="16" [filled]="true" />{{ i18n.t('In cart', 'Kwenye kapu') }}</button>
+              } @else {
+                <button lsmsButton size="sm" icon="add_shopping_cart" [loading]="isAdding(r.p.uid)" (click)="add(r)">{{ i18n.t('Add', 'Ongeza') }}</button>
+              }
+            </span>
+          </li>
+        }
+      </ul>
+      @if (shown().length < filtered().length) {
+        <button lsmsButton="text" size="sm" icon="expand_more" class="more" (click)="limit.set(limit() + 60)">{{ i18n.t('Show more', 'Onyesha zaidi') }} ({{ shown().length }} / {{ filtered().length }})</button>
+      }
+    }
+  </section>
+
+  <!-- ── Order cart ───────────────────────────────────────────────────── -->
+  <aside class="cart" [class.open]="cartOpen()">
+    <header class="cart-head">
+      <h2><lsms-icon name="shopping_cart_checkout" [size]="20" />{{ i18n.t('Order', 'Agizo') }} <span class="count">{{ cart.count() }}</span></h2>
+      @if (cart.count()) {
+        <button type="button" class="clear" (click)="clearCart()"><lsms-icon name="delete_sweep" [size]="18" />{{ i18n.t('Clear', 'Futa') }}</button>
+      }
+      <button type="button" class="close-m" (click)="cartOpen.set(false)" [attr.aria-label]="i18n.t('Close order', 'Funga agizo')"><lsms-icon name="close" [size]="20" /></button>
+    </header>
+
+    <div class="cart-body">
+      @if (!cart.count()) {
+        <div class="empty">
+          <lsms-icon name="add_shopping_cart" [size]="40" />
+          <b>{{ i18n.t('No products in the order', 'Hakuna bidhaa kwenye agizo') }}</b>
+          <small>{{ i18n.t('Tap “Add” on a product — its last purchase fills quantity, cost and supplier.', 'Bofya “Ongeza” kwenye bidhaa — manunuzi yake ya mwisho yanajaza idadi, bei na msambazaji.') }}</small>
+        </div>
+      } @else {
+        <ul class="lines">
+          @for (l of cart.lines(); track l.productUid) {
+            @let w = waitingFor(l);
+            @let chg = change(l);
+            @let mg = margin(l);
+            <li [class.err]="!!l.error || !!w">
+              <div class="l1">
+                <span class="nm">
+                  <strong [title]="l.name">{{ l.name }}</strong>
+                  <small>{{ linePieces(l) }} {{ i18n.t('pcs', 'vip') }} · {{ costPerPiece(l) | money: { symbol: false } }}/{{ i18n.t('pc', 'kip') }}</small>
+                </span>
+                <button type="button" class="x" (click)="cart.remove(l.productUid)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')"><lsms-icon name="close" [size]="16" /></button>
+              </div>
+
+              <div class="l2">
+                @if (l.piecesPerPackage && l.piecesPerPackage > 1) {
+                  <span class="unit" role="radiogroup" [attr.aria-label]="i18n.t('Buying in', 'Unanunua kwa')">
+                    <button type="button" role="radio" [class.on]="l.purchaseType === 'WHOLE_PACKAGE'" [attr.aria-checked]="l.purchaseType === 'WHOLE_PACKAGE'" (click)="cart.setType(l.productUid, 'WHOLE_PACKAGE')">{{ l.abbreviation || i18n.t('Pkg', 'Pkt') }} ×{{ l.piecesPerPackage }}</button>
+                    <button type="button" role="radio" [class.on]="l.purchaseType === 'INDIVIDUAL_PIECES'" [attr.aria-checked]="l.purchaseType === 'INDIVIDUAL_PIECES'" (click)="cart.setType(l.productUid, 'INDIVIDUAL_PIECES')">{{ i18n.t('Pcs', 'Vip') }}</button>
+                  </span>
+                }
+                <span class="stepper">
+                  <button type="button" (click)="inc(l, -1)" [attr.aria-label]="i18n.t('Less', 'Punguza')"><lsms-icon name="remove" [size]="16" /></button>
+                  <input type="text" inputmode="numeric" [value]="l.quantity" (change)="typeQty(l, $any($event.target))" [attr.aria-label]="i18n.t('Quantity', 'Idadi')" />
+                  <button type="button" (click)="inc(l, 1)" [attr.aria-label]="i18n.t('More', 'Ongeza')"><lsms-icon name="add" [size]="16" /></button>
+                </span>
+              </div>
+
+              <div class="l3">
+                <label class="money">
+                  <small>{{ i18n.t('Cost per', 'Bei kwa') }} {{ unitName(l) }}</small>
+                  <input type="text" inputmode="decimal" [value]="l.unitPrice" (change)="typePrice(l, $any($event.target))" />
+                </label>
+                <span class="x-sign">=</span>
+                <label class="money total">
+                  <small>{{ i18n.t('Line total', 'Jumla') }}</small>
+                  <input type="text" inputmode="decimal" [value]="lineTotal(l)" (change)="typeTotal(l, $any($event.target))" />
+                </label>
+              </div>
+
+              <lsms-combobox
+                class="sup"
+                [dense]="true"
+                prefixIcon="local_shipping"
+                [ariaLabel]="i18n.t('Supplier', 'Msambazaji')"
+                [placeholder]="i18n.t('Supplier', 'Msambazaji')"
+                [options]="supplierOptions()"
+                [value]="l.supplierName"
+                (valueChange)="cart.patch(l.productUid, { supplierName: $event })"
+              />
+
+              <div class="hints">
+                @if (chg !== null) {
+                  <span class="chg" [class.up]="chg > 0">{{ chg > 0 ? '▲' : '▼' }} {{ chg > 0 ? chg : -chg }}% {{ i18n.t('vs last', 'dhidi ya mwisho') }}</span>
+                }
+                @if (l.lastCostPerPiece) {
+                  <span>{{ i18n.t('Last', 'Mwisho') }} {{ (l.purchaseType === 'WHOLE_PACKAGE' ? l.lastCostPerPackage ?? l.lastCostPerPiece * (l.piecesPerPackage || 1) : l.lastCostPerPiece) | money: { symbol: false } }}/{{ unitName(l) }}</span>
+                }
+                @if (mg !== null) {
+                  <span [class.bad]="mg <= 0">{{ i18n.t('Margin', 'Faida') }} {{ mg }}%</span>
+                }
+              </div>
+
+              @if (w) {
+                <small class="warn"><lsms-icon name="block" [size]="13" />{{ i18n.t('A purchase of this product is already ' + (w.status === 'PENDING' ? 'pending' : 'approved') + ' — remove it from the order.', 'Bidhaa hii tayari ina manunuzi ' + (w.status === 'PENDING' ? 'yanayosubiri' : 'yaliyoidhinishwa') + ' — iondoe kwenye agizo.') }}</small>
+              } @else if (l.error) {
+                <small class="warn"><lsms-icon name="error" [size]="13" />{{ l.error }}</small>
+              } @else if (!(l.quantity > 0) || !(l.unitPrice > 0)) {
+                <small class="warn"><lsms-icon name="error" [size]="13" />{{ i18n.t('Enter the quantity and cost', 'Weka idadi na bei') }}</small>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    @if (cart.count()) {
+      <footer class="checkout">
+        <label class="notes">
+          <small>{{ i18n.t('Notes on the order (printed on the invoice)', 'Maelezo ya agizo (yanachapishwa kwenye ankara)') }}</small>
+          <textarea rows="2" maxlength="500" [value]="cart.notes()" (input)="cart.notes.set($any($event.target).value)"></textarea>
+        </label>
+        <div class="total">
+          <span>{{ i18n.t('Total', 'Jumla') }} <small>· {{ cart.count() }} {{ i18n.t('products', 'bidhaa') }}</small></span>
+          <b>{{ cart.total() | money }}</b>
+        </div>
+        @if (blockedInCart()) {
+          <p class="blocker">{{ i18n.t('Remove products that already have a purchase waiting.', 'Ondoa bidhaa ambazo tayari zina manunuzi yanayosubiri.') }}</p>
+        } @else if (cart.invalid()) {
+          <p class="blocker">{{ i18n.t('Every product needs a quantity and a cost.', 'Kila bidhaa inahitaji idadi na bei.') }}</p>
+        }
+        <button lsmsButton class="send" icon="send" [loading]="busy()" [disabled]="!canSubmit()" (click)="submit()">
+          {{ i18n.t('Send order', 'Tuma agizo') }} ({{ cart.count() }})
+        </button>
+        <small class="after">{{ i18n.t('Each product becomes a purchase waiting for approval.', 'Kila bidhaa inakuwa manunuzi yanayosubiri idhini.') }}</small>
+      </footer>
+    }
+  </aside>
+
+  @if (!cartOpen()) {
+    <button type="button" class="cart-bar" (click)="cartOpen.set(true)">
+      <span class="ic"><lsms-icon name="shopping_cart_checkout" [size]="20" />@if (cart.count()) { <i>{{ cart.count() }}</i> }</span>
+      <span>{{ i18n.t('View order', 'Angalia agizo') }}</span>
+      <b>{{ cart.total() | money }}</b>
+    </button>
+  }
+</div>
