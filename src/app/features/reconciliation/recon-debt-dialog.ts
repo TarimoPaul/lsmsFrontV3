@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, ComboOption, Combobox, DialogShell, Icon } from '@shared/ui';
+import { Button, Combobox, ComboOption, DialogShell, Icon, MoneyInput } from '@shared/ui';
 import { MoneyPipe } from '@shared/utils/money';
 import { CustomersService } from '../customers/customers.service';
 import { Product } from '../products/products.models';
@@ -33,7 +33,7 @@ const TIERS: Array<{ type: DebtPriceType; en: string; sw: string; price: (p: Pro
  */
 @Component({
   selector: 'app-recon-debt-dialog',
-  imports: [DialogShell, Button, Icon, Combobox, MoneyPipe],
+  imports: [MoneyInput, DialogShell, Button, Icon, Combobox, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="editing ? i18n.t('Edit debt', 'Hariri deni') : i18n.t('Record a customer debt', 'Rekodi deni la mteja')" [icon]="editing ? 'edit' : 'person_add'">
@@ -119,7 +119,7 @@ const TIERS: Array<{ type: DebtPriceType; en: string; sw: string; price: (p: Pro
         <div class="grid">
           <label>
             <span>{{ i18n.t('Amount owed (TZS)', 'Kiasi anachodaiwa (TZS)') }} *</span>
-            <input type="text" inputmode="numeric" [value]="amountText()" (input)="typeAmount($any($event.target).value)" placeholder="0" />
+            <input lsmsMoneyInput type="text" inputmode="numeric" [value]="amountText()" (input)="typeAmount($any($event.target).value)" placeholder="0" />
           </label>
           @if (!editing) {
             <label>

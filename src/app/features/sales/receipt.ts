@@ -35,10 +35,12 @@ export function printReceipt(sale: Sale, business: BusinessProfile | null, sw: b
     .tot td { font-size: 14px; font-weight: 800; padding-top: 3px; } .bal td { font-weight: 800; }
   </style></head><body>
     <h1>${esc(business?.name ?? 'LSMS')}</h1>
+    ${business?.tagline ? `<div class="c s">${esc(business.tagline)}</div>` : ''}
     ${business?.receiptHeader ? `<div class="c s">${esc(business.receiptHeader)}</div>` : ''}
     ${business?.address ? `<div class="c s">${esc(business.address)}</div>` : ''}
     ${business?.phone ? `<div class="c s">${t('Phone', 'Simu')}: ${esc(business.phone)}</div>` : ''}
     ${business?.taxId ? `<div class="c s">TIN: ${esc(business.taxId)}</div>` : ''}
+    ${business?.vatNumber ? `<div class="c s">VRN: ${esc(business.vatNumber)}</div>` : ''}
     <hr>
     <table class="s">
       <tr><td>${t('Receipt', 'Risiti')}</td><td class="n">${esc(sale.receiptNumber)}</td></tr>

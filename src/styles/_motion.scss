@@ -45,6 +45,70 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   animation: lsms-fade-in 0.22s ease-out backwards;
 }
 
+// ── Staged page intro (user, 2026-09-28 — same feel as the dashboard) ─────────
+// While the shell sets #main.intro (~1.3 s after navigating to another page),
+// the parts of a page come in one after another: header → filters/tabs →
+// KPI cards (one by one; their numbers count up, see CountUpText) → table /
+// panels. Desktop gets a soft blur→clear; phones only fade + rise (cheaper on
+// low-end devices). Pure CSS on at most ~10 elements per page: no JS per
+// element, nothing waits for it, data loads exactly as before. Tabs, filters
+// and refreshes (same path) never replay it. The dashboard has its own intro.
+@keyframes lsms-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes lsms-reveal-blur {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(10px) scale(0.99);
+  }
+}
+// Excluded: the dashboard (own intro) and the two cart benches (POS, Repurchase),
+// whose phone cart bar is position:fixed — a transform on an ancestor would move it.
+//
+// No blink when the intro ends: these parts ALWAYS carry the same animation
+// (name never changes); #main.intro only sets the stagger delay and a longer
+// duration. Removing .intro just changes delay/duration of an animation that
+// already finished — the browser does not replay it. (Switching to another
+// animation name, e.g. the generic fade below, restarts it from opacity 0 =
+// the "blink" seen at ~1.3 s before 2026-09-29.) Content swapped in later
+// (tabs, filters) gets the same entrance, quick and without delay.
+$page: '#main > :not(app-main-dashboard, app-pos-page, app-repurchase-page)';
+// Direct parts of a page (list-page `.wrap`, also inside a wrapper like app-report-frame).
+#{$page} > .wrap > :not(lsms-metrics-grid),
+#{$page} > * > .wrap > :not(lsms-metrics-grid),
+// KPI tiles one by one (the grid itself stays put so nothing is blurred twice).
+#{$page} lsms-metrics-grid > .grid > * {
+  animation: lsms-reveal var(--stage-dur, 0.22s) $ease-out var(--stage, 0ms) backwards;
+}
+@media (min-width: 768px) {
+  #{$page} > .wrap > :not(lsms-metrics-grid),
+  #{$page} > * > .wrap > :not(lsms-metrics-grid),
+  #{$page} lsms-metrics-grid > .grid > * {
+    animation-name: lsms-reveal-blur;
+  }
+}
+// The staged intro itself: only timing changes.
+#main.intro {
+  --stage-dur: 0.5s;
+}
+@for $i from 1 through 6 {
+  #main.intro > * > .wrap > :nth-child(#{$i}),
+  #main.intro > * > * > .wrap > :nth-child(#{$i}) {
+    --stage: #{($i - 1) * 70ms};
+  }
+  #main.intro lsms-metrics-grid > .grid > :nth-child(#{$i}) {
+    --stage: #{120ms + ($i - 1) * 80ms};
+  }
+}
+#main.intro > * > .wrap > :nth-child(n + 7),
+#main.intro > * > * > .wrap > :nth-child(n + 7) {
+  --stage: 420ms;
+}
+
 // Skeletons: invisible for 150ms, then fade in — only slow loads show them.
 lsms-skeleton {
   animation: lsms-fade-in 0.2s ease-out 0.15s backwards !important;
@@ -76,6 +140,8 @@ lsms-skeleton {
   app-root > router-outlet + *,
   #main > * > *,
   #main > * > * > *,
+  #main > * > * > * > *,
+  #main lsms-metrics-grid > .grid > *,
   lsms-skeleton {
     animation: none !important;
   }

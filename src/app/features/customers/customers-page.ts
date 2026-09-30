@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
@@ -28,9 +29,10 @@ import { downloadCsv, printReport } from '@shared/utils/export';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { CUSTOMER_TYPES, Customer, customerInitials } from './customers.models';
 import { CustomersService } from './customers.service';
-import { SettlementsPanel } from './settlements-panel';
+import { DebtPaymentsPanel } from './debt-payments-panel';
+import { UnpaidTotalBar } from './unpaid-total-bar';
 
-type View = 'customers' | 'settlements';
+type View = 'customers' | 'payments';
 type Filter = 'ALL' | 'OWING' | 'PAID_UP' | 'NO_SALES' | 'NEW' | 'TOP';
 
 const DAY = 86_400_000;
@@ -39,7 +41,7 @@ const DAY = 86_400_000;
  * Customer management — port of Flutter `CustomerDashboard` (KPIs, tabs All /
  * Owing / Paid / Recent / Top / No sales, add / edit / delete / merge, details,
  * statement, export). v3 serves every tab from one cached list instead of one
- * request per tab; settlements are a separate server-paged view.
+ * request per tab; debt payments are a separate server-paged view.
  */
 @Component({
   selector: 'app-customers-page',
@@ -58,7 +60,9 @@ const DAY = 86_400_000;
     EmptyState,
     Icon,
     MoneyPipe,
-    SettlementsPanel,
+    DebtPaymentsPanel,
+    UnpaidTotalBar,
+    DatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customers-page.html',
@@ -118,7 +122,7 @@ export class CustomersPage {
 
   protected readonly viewOptions = computed<SegmentOption<View>[]>(() => [
     { value: 'customers', label: this.i18n.t('Customers', 'Wateja'), icon: 'group', count: this.stats().total },
-    { value: 'settlements', label: this.i18n.t('Settled debts', 'Madeni yaliyolipwa'), icon: 'task_alt' },
+    { value: 'payments', label: this.i18n.t('Debt payments', 'Malipo ya madeni'), icon: 'task_alt' },
   ]);
 
   protected readonly filterOptions = computed<SegmentOption<Filter>[]>(() => {
@@ -156,19 +160,38 @@ export class CustomersPage {
       return [c.name, c.phoneNumber ?? '', c.email ?? '', c.address ?? ''].some((x) => x.toLowerCase().includes(q));
     });
     if (f === 'TOP') list = [...list].sort((a, b) => b.totalSpent - a.totalSpent).slice(0, 20);
+    // Like Flutter's Unpaid list: newest unpaid debt first.
+    if (f === 'OWING') list = [...list].sort((a, b) => (this.since(b) ?? '').localeCompare(this.since(a) ?? ''));
     return list;
   });
+  /** "Jumla ya madeni" for the Owing view — the sum of exactly the rows shown (filter + search). */
+  protected readonly owedShown = computed(() => this.rows().reduce((n, c) => n + c.outstandingBalance, 0));
+
+  protected day(v: string | null): Date | null {
+    return parseLocal(v);
+  }
+
+  /** Date of the customer's newest unpaid sale (Owing view only). */
+  protected since(c: Customer): string | null {
+    return this.api.unpaidSince.value()?.get(c.uid) ?? null;
+  }
 
   protected readonly maxSpent = computed(() => Math.max(1, ...this.customers().map((c) => c.totalSpent)));
 
   constructor() {
     void this.refresh(false);
+    // Unpaid dates are only needed by the Owing view — fetch them when it opens.
+    effect(() => {
+      if (this.filter() === 'OWING' && this.canCredit()) this.api.unpaidSince.load().catch(() => undefined);
+    });
   }
 
   protected async refresh(force = true): Promise<void> {
     this.error.set(null);
     try {
+      if (force) this.api.unpaidSince.invalidate();
       await this.api.list.load(force);
+      if (this.filter() === 'OWING' && this.canCredit()) void this.api.unpaidSince.load().catch(() => undefined);
     } catch (e) {
       const err = ApiError.from(e);
       this.error.set(err.isForbidden ? this.i18n.t('You are not allowed to view customers.', 'Huruhusiwi kuona wateja.') : err.message);

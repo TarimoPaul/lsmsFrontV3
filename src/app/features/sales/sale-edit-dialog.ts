@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogShell, Icon, ToastService } from '@shared/ui';
+import { Button, DialogShell, Icon, MoneyInput, ToastService } from '@shared/ui';
 import { addDays, parseLocal, toIsoDate, toLocalDateTime } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
 import { SALE_TYPES, Sale, SaleLine, SaleType } from './sales.models';
@@ -30,7 +30,7 @@ interface EditLine {
  */
 @Component({
   selector: 'app-sale-edit-dialog',
-  imports: [DialogShell, Button, Icon, MoneyPipe],
+  imports: [MoneyInput, DialogShell, Button, Icon, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="i18n.t('Edit sale', 'Hariri mauzo') + ' · ' + data.sale.receiptNumber" icon="edit">
@@ -50,7 +50,7 @@ interface EditLine {
                 <button type="button" (click)="setQty(i, e.qty + 1)" [attr.aria-label]="i18n.t('More', 'Ongeza')"><lsms-icon name="add" [size]="16" /></button>
               </span>
               <span class="x">×</span>
-              <input class="price" type="text" inputmode="numeric" [value]="e.price" (change)="setPrice(i, $any($event.target).value)" [attr.aria-label]="i18n.t('Price', 'Bei')" />
+              <input lsmsMoneyInput class="price" type="text" inputmode="numeric" [value]="e.price" (change)="setPrice(i, $any($event.target).value)" [attr.aria-label]="i18n.t('Price', 'Bei')" />
               <b class="sub">{{ e.qty * e.price | money: { symbol: false } }}</b>
               <button type="button" class="rm" (click)="toggle(i)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')" [title]="i18n.t('Remove', 'Ondoa')"><lsms-icon name="delete" [size]="17" /></button>
             } @else {
@@ -64,7 +64,7 @@ interface EditLine {
       <div class="fields">
         <label>
           <span>{{ i18n.t('Discount', 'Punguzo') }}</span>
-          <input type="text" inputmode="numeric" [value]="discount()" (change)="discount.set(num($any($event.target).value))" />
+          <input lsmsMoneyInput type="text" inputmode="numeric" [value]="discount()" (change)="discount.set(num($any($event.target).value))" />
         </label>
         @if (canBackdate) {
           <label>

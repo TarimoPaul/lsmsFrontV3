@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, output, signal } 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, Icon, Skeleton, ToastService } from '@shared/ui';
+import { Button, Icon, MoneyInput, Skeleton, ToastService } from '@shared/ui';
 import { parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
 import { VarianceReport, VarianceRow } from './recon-extra.models';
@@ -31,7 +31,7 @@ interface CashierGroup {
  */
 @Component({
   selector: 'app-recon-variance-tab',
-  imports: [Button, Icon, Skeleton, MoneyPipe, DatePipe],
+  imports: [MoneyInput, Button, Icon, Skeleton, MoneyPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="top">
@@ -42,7 +42,7 @@ interface CashierGroup {
       </div>
       <label class="thr">
         <span>{{ i18n.t('Material above', 'Muhimu kuanzia') }}</span>
-        <input type="text" inputmode="numeric" [value]="thresholdText()" (input)="thresholdText.set($any($event.target).value)" [disabled]="!canSetThreshold()" />
+        <input lsmsMoneyInput type="text" inputmode="numeric" [value]="thresholdText()" (input)="thresholdText.set($any($event.target).value)" [disabled]="!canSetThreshold()" />
         @if (canSetThreshold()) {
           <button lsmsButton="secondary" size="sm" [loading]="savingThreshold()" [disabled]="!thresholdChanged()" (click)="saveThreshold()">{{ i18n.t('Save', 'Hifadhi') }}</button>
         }

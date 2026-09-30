@@ -1,10 +1,10 @@
-<div class="page">
+<div class="page" [class.intro]="intro()">
   <!-- ── 1. Welcome + quick actions ── -->
   <section class="welcome">
     <div class="hello">
-      <p class="date"><lsms-icon name="calendar_today" [size]="15" />{{ today() }}</p>
-      <h1>{{ greeting() }}, <span>{{ firstName() }}</span> 👋</h1>
-      <div class="chips">
+      <p class="date reveal" style="--d: 0ms"><lsms-icon name="calendar_today" [size]="15" />{{ today() }}</p>
+      <h1 class="reveal" style="--d: 60ms">{{ greeting() }}, <span>{{ firstName() }}</span> 👋</h1>
+      <div class="chips reveal" style="--d: 140ms">
         <span class="chip role"><lsms-icon name="verified_user" [size]="14" [filled]="true" />{{ auth.primaryRole() }}</span>
         @if (auth.activeBranch(); as b) {
           <span class="chip"><lsms-icon name="storefront" [size]="14" />{{ b.branchName }}</span>
@@ -13,7 +13,7 @@
       </div>
     </div>
     @if (quickActions().length) {
-      <div class="actions">
+      <div class="actions reveal" style="--d: 120ms">
         @for (a of quickActions(); track a.route) {
           @if (a.primary) {
             <a mat-flat-button [routerLink]="a.route" class="qa primary"><lsms-icon [name]="a.icon" [size]="18" />{{ a.label }}</a>
@@ -27,7 +27,7 @@
 
   <!-- ── 2. Needs attention (close = hide for today · auto-hides after a reminder) ── -->
   @if (hasAlerts()) {
-    <section class="alerts" aria-live="polite">
+    <section class="alerts reveal" style="--d: 160ms" aria-live="polite">
       @if (showAlert('recon')) {
         @if (alerts.reconApprovals(); as r) {
           <div class="alert" animate.leave="alert-out" [style.--alert-seconds.s]="alertSeconds">
@@ -106,10 +106,10 @@
   @if (showOverview()) {
     <section class="kpis">
       @if (kpi.canSeeSales()) {
-        <article class="kpi" style="--accent: var(--c-primary)">
+        <article class="kpi reveal" style="--accent: var(--c-primary)" [style.--d.ms]="kpiDelay(0)">
           <header><span class="k-ic"><lsms-icon name="point_of_sale" [size]="20" /></span>{{ i18n.t("Today's sales", 'Mauzo ya leo') }}</header>
           @if (kpi.today(); as t) {
-            <strong class="value">{{ money(t.totalRevenue) }}</strong>
+            <strong class="value" [lsmsCountUp]="t.totalRevenue" [countFormat]="money" [countDelay]="countDelay(0)"></strong>
             <footer>
               <span>{{ t.totalSalesCount }} {{ i18n.t('sales', 'mauzo') }}</span>
               @if (kpi.revenueChange(); as ch) {
@@ -125,10 +125,10 @@
           }
         </article>
 
-        <article class="kpi" style="--accent: var(--c-success)">
+        <article class="kpi reveal" style="--accent: var(--c-success)" [style.--d.ms]="kpiDelay(1)">
           <header><span class="k-ic"><lsms-icon name="payments" [size]="20" /></span>{{ i18n.t('Collected today', 'Makusanyo ya leo') }}</header>
           @if (kpi.today(); as t) {
-            <strong class="value">{{ money(t.totalPaid) }}</strong>
+            <strong class="value" [lsmsCountUp]="t.totalPaid" [countFormat]="money" [countDelay]="countDelay(1)"></strong>
             <footer>
               <span class="bar"><i [style.width.%]="t.totalRevenue ? (t.totalPaid / t.totalRevenue) * 100 : 0"></i></span>
               <span>{{ t.totalRevenue ? ((t.totalPaid / t.totalRevenue) * 100).toFixed(0) : 0 }}% {{ i18n.t('paid', 'imelipwa') }}</span>
@@ -138,12 +138,16 @@
           }
         </article>
 
-        <article class="kpi" style="--accent: var(--c-error)" [class.urgent]="(kpi.today()?.allTimeOutstandingAmount ?? 0) > 0">
+        <article class="kpi reveal" style="--accent: var(--c-error)" [style.--d.ms]="kpiDelay(2)" [class.urgent]="(debtTotal() ?? 0) > 0">
           <header><span class="k-ic"><lsms-icon name="account_balance_wallet" [size]="20" /></span>{{ i18n.t('Outstanding debts', 'Madeni yanayodaiwa') }}</header>
-          @if (kpi.today(); as t) {
-            <strong class="value">{{ money(t.allTimeOutstandingAmount) }}</strong>
+          @if (debtTotal() !== null) {
+            <strong class="value" [lsmsCountUp]="debtTotal()" [countFormat]="money" [countDelay]="countDelay(2)"></strong>
             <footer>
-              <span>{{ t.allTimePendingSalesCount }} {{ i18n.t('unpaid sales', 'mauzo hayajalipwa') }}</span>
+              @if (kpi.debts(); as d) {
+                <span>{{ d.customers }} {{ i18n.t('customers owe', 'wateja wanadaiwa') }}</span>
+              } @else {
+                <span>{{ kpi.today()?.allTimePendingSalesCount }} {{ i18n.t('unpaid sales', 'mauzo hayajalipwa') }}</span>
+              }
               <a routerLink="/customers" class="link">{{ i18n.t('View', 'Ona') }}</a>
             </footer>
           } @else {
@@ -152,10 +156,10 @@
         </article>
       }
       @if (kpi.canSeeStock()) {
-        <article class="kpi" style="--accent: var(--c-warning)" [class.urgent]="(kpi.stock()?.outOfStockAlerts ?? 0) > 0">
+        <article class="kpi reveal" style="--accent: var(--c-warning)" [style.--d.ms]="kpiDelay(stockKpiIndex())" [class.urgent]="(kpi.stock()?.outOfStockAlerts ?? 0) > 0">
           <header><span class="k-ic"><lsms-icon name="inventory" [size]="20" /></span>{{ i18n.t('Stock alerts', 'Tahadhari za stock') }}</header>
           @if (kpi.stock(); as s) {
-            <strong class="value">{{ s.lowStockAlerts }} <small>{{ i18n.t('low', 'chini') }}</small></strong>
+            <strong class="value"><span [lsmsCountUp]="s.lowStockAlerts" [countDelay]="countDelay(stockKpiIndex())"></span> <small>{{ i18n.t('low', 'chini') }}</small></strong>
             <footer>
               <span class="danger">{{ s.outOfStockAlerts }} {{ i18n.t('out of stock', 'zimeisha') }}</span>
               <a routerLink="/store" class="link">{{ i18n.t('View', 'Ona') }}</a>
@@ -170,7 +174,7 @@
     <!-- ── 4. Today: hourly sales + stock health ── -->
     <section class="today">
       @if (kpi.canSeeSales()) {
-        <article class="panel chart">
+        <article class="panel chart reveal" style="--d: 560ms">
           <header class="p-head">
             <div>
               <h2>{{ i18n.t('Sales by hour', 'Mauzo kwa saa') }}</h2>
@@ -204,7 +208,7 @@
         </article>
       }
       @if (kpi.canSeeStock()) {
-        <article class="panel health">
+        <article class="panel health reveal" style="--d: 640ms">
           <header class="p-head">
             <div>
               <h2>{{ i18n.t('Stock health', 'Afya ya stock') }}</h2>
@@ -237,7 +241,7 @@
 
   <!-- ── 5. Frequently used ── -->
   @if (usage.frequent().length) {
-    <section class="block">
+    <section class="block reveal" style="--d: 740ms">
       <header class="b-head"><h2><lsms-icon name="bolt" [size]="18" />{{ i18n.t('Frequently used', 'Unazotumia mara kwa mara') }}</h2></header>
       <div class="freq">
         @for (m of usage.frequent(); track m.id) {
@@ -251,7 +255,7 @@
   }
 
   <!-- ── 6. Module launcher ── -->
-  <section class="block">
+  <section class="block reveal" style="--d: 820ms">
     <header class="b-head">
       <h2><lsms-icon name="apps" [size]="18" />{{ i18n.t('All modules', 'Moduli zote') }}</h2>
       <mat-chip-listbox
@@ -280,7 +284,7 @@
           [matRippleDisabled]="t.locked"
           [class.locked]="t.locked"
           [style.--accent]="t.module.color"
-          [style.animation-delay.ms]="i * 25"
+          [style.--d.ms]="tileDelay(i)"
           [matTooltip]="t.locked ? i18n.t('No access — contact your administrator', 'Huna ruhusa — wasiliana na msimamizi') : ''"
           [attr.aria-disabled]="t.locked || null"
           (click)="openModule(t)"

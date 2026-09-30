@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogService, Icon, ToastService } from '@shared/ui';
+import { Button, DialogService, Icon, MoneyInput, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { SAFE_BOX_STATUS, SafeBoxCashierOutstanding, SafeBoxDeposit, SafeBoxOutstandingEntry } from './recon-extra.models';
@@ -23,7 +23,7 @@ import { DepositRequest, SafeBoxService } from './safe-box.service';
  */
 @Component({
   selector: 'app-recon-safebox-tab',
-  imports: [Button, Icon, MoneyPipe, DatePipe],
+  imports: [MoneyInput, Button, Icon, MoneyPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="totals">
@@ -47,7 +47,7 @@ import { DepositRequest, SafeBoxService } from './safe-box.service';
           <div class="grid">
             <label>
               <span>{{ i18n.t('Amount', 'Kiasi') }} *</span>
-              <input type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" placeholder="0" />
+              <input lsmsMoneyInput type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" placeholder="0" />
             </label>
             <label>
               <span>{{ i18n.t('Reference (optional)', 'Kumbukumbu (hiari)') }}</span>

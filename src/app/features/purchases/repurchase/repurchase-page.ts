@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, ComboOption, Combobox, DialogService, EmptyState, Icon, SearchBar, Skeleton, ToastService } from '@shared/ui';
+import { Button, Combobox, ComboOption, DialogService, EmptyState, Icon, MoneyInput, SearchBar, Skeleton, ToastService } from '@shared/ui';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { ReconciliationService } from '../../reconciliation/reconciliation.service';
 import { StoreService } from '../../store/store.service';
@@ -41,7 +41,7 @@ interface Row {
  */
 @Component({
   selector: 'app-repurchase-page',
-  imports: [RouterLink, Button, Icon, SearchBar, Skeleton, EmptyState, Combobox, MoneyPipe],
+  imports: [MoneyInput, RouterLink, Button, Icon, SearchBar, Skeleton, EmptyState, Combobox, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './repurchase-page.html',
   styleUrl: './repurchase-page.scss',

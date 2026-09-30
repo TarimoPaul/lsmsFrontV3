@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
+import { CountUpText } from '../motion/count-up';
 import { DashboardCard } from './dashboard-card';
 
 /**
@@ -10,13 +11,13 @@ import { DashboardCard } from './dashboard-card';
  */
 @Component({
   selector: 'lsms-dashboard-kpi-card',
-  imports: [DashboardCard],
+  imports: [DashboardCard, CountUpText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dashboard-card [icon]="icon()" [title]="title()" [accentColor]="accentColor()">
       <div class="row">
         <div class="main">
-          <span class="value" [class.hero]="hero()" [style.color]="valueColor()">{{ value() }}</span>
+          <span class="value" [class.hero]="hero()" [style.color]="valueColor()" [lsmsCountUpText]="value()"></span>
           @if (subtitle()) {
             <span class="subtitle">{{ subtitle() }}</span>
           }

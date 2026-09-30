@@ -7,6 +7,7 @@ import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
 import { LsmsValidators } from '@shared/forms/validators';
 import { Button, DialogShell, Icon, TextField, ToastService } from '@shared/ui';
+import { MoneyPipe } from '@shared/utils/money';
 import { Supplier, SupplierRequest } from './suppliers.models';
 import { SuppliersService } from './suppliers.service';
 
@@ -20,7 +21,7 @@ const TERMS = [7, 14, 30, 60];
 /** Create / edit a supplier — port of Flutter `_SupplierFormDialog` with validation, duplicate check and term presets. */
 @Component({
   selector: 'app-supplier-form-dialog',
-  imports: [ReactiveFormsModule, DialogShell, TextField, Button, Icon],
+  imports: [ReactiveFormsModule, DialogShell, TextField, Button, Icon, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="data.supplier ? i18n.t('Edit supplier', 'Hariri msambazaji') : i18n.t('New supplier', 'Msambazaji mpya')" [icon]="data.supplier ? 'edit' : 'local_shipping'">
@@ -63,7 +64,7 @@ const TERMS = [7, 14, 30, 60];
           <lsms-text-field class="span2" formControlName="notes" type="textarea" [rows]="2" [label]="i18n.t('Notes', 'Maelezo')" [maxLength]="500" />
         </div>
         @if (data.supplier && data.supplier.outstanding > 0) {
-          <p class="owed"><lsms-icon name="info" [size]="16" />{{ i18n.t('Currently owed', 'Deni la sasa') }}: <b>TZS {{ data.supplier.outstanding.toLocaleString('en-US') }}</b></p>
+          <p class="owed"><lsms-icon name="info" [size]="16" />{{ i18n.t('Currently owed', 'Deni la sasa') }}: <b>{{ data.supplier.outstanding | money }}</b></p>
         }
       </form>
       <ng-container dialogActions>

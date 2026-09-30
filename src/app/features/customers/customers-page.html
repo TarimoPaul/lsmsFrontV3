@@ -60,14 +60,18 @@
   }
 
   <div class="table-card">
-    @if (view() === 'settlements') {
+    @if (view() === 'payments') {
       @defer {
-        <app-settlements-panel />
+        <app-debt-payments-panel />
       }
     } @else {
       <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name, phone or email…', 'Tafuta jina, simu au barua pepe…')" (search)="search.set($event)">
         <lsms-segmented-filter-bar filterSegments [options]="filterOptions()" [(selected)]="filter" />
       </lsms-filter-panel>
+
+      @if (filter() === 'OWING' && !error()) {
+        <app-unpaid-total-bar class="owed-bar" [total]="owedShown()" [count]="rows().length" [search]="search().trim()" [loading]="loading()" />
+      }
 
       @if (selected().length) {
         <div class="bulk">
@@ -86,14 +90,14 @@
         <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load customers', 'Imeshindikana kupakia wateja')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="refresh()" />
       } @else {
         <lsms-data-table
-          [title]="filter() === 'TOP' ? i18n.t('Top 20 by spending', 'Wanunuzi 20 wakubwa') : i18n.t('Customers', 'Wateja')"
+          [title]="filter() === 'TOP' ? i18n.t('Top 20 by spending', 'Wanunuzi 20 wakubwa') : filter() === 'OWING' ? i18n.t('Owing customers · newest debt first', 'Wanaodaiwa · deni jipya kwanza') : i18n.t('Customers', 'Wateja')"
           [items]="rows()"
           [rowId]="rowId"
           [loading]="loading()"
 
           [bulkSelection]="canDelete()"
           (selectionChange)="selected.set($event)"
-          [defaultSortColumn]="filter() === 'TOP' ? undefined : 'name'"
+          [defaultSortColumn]="filter() === 'TOP' || filter() === 'OWING' ? undefined : 'name'"
           [mobileTitle]="nameOf"
           [mobileColumns]="['owed', 'phone', 'sales', 'actions']"
           [mobileCompactColumns]="['owed']"
@@ -133,6 +137,9 @@
           <ng-template lsmsColumn="owed" [label]="i18n.t('Owes', 'Deni')" [sortBy]="owedOf" align="end" let-row>
             @if (row.outstandingBalance > 0) {
               <span class="owed">{{ row.outstandingBalance | money }}</span>
+              @if (filter() === 'OWING' && since(row); as d) {
+                <small class="since">{{ i18n.t('since', 'tangu') }} {{ day(d) | date: 'dd MMM yyyy' }}</small>
+              }
             } @else if (row.salesCount > 0) {
               <span class="paid"><lsms-icon name="task_alt" [size]="14" />{{ i18n.t('Paid up', 'Amelipa') }}</span>
             } @else {

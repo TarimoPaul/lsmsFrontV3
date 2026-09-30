@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogShell, Icon } from '@shared/ui';
+import { Button, DialogShell, Icon, MoneyInput } from '@shared/ui';
 import { MoneyPipe } from '@shared/utils/money';
 import { RECON_BANKS, SafeBoxDeposit, SafeBoxDepositType } from './recon-extra.models';
 import { DepositRequest } from './safe-box.service';
@@ -23,7 +23,7 @@ export interface SafeBoxDepositData {
  */
 @Component({
   selector: 'app-safe-box-deposit-dialog',
-  imports: [DialogShell, Button, Icon, MoneyPipe],
+  imports: [MoneyInput, DialogShell, Button, Icon, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="data.editing ? i18n.t('Edit deposit', 'Hariri deposit') : i18n.t('Submit a deposit', 'Wasilisha deposit')" icon="lock_open">
@@ -32,7 +32,7 @@ export interface SafeBoxDepositData {
       <div class="form">
         <label>
           <span>{{ i18n.t('Amount', 'Kiasi') }} *</span>
-          <input type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" />
+          <input lsmsMoneyInput type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" />
           @if (tooMuch()) {
             <small class="err">{{ i18n.t('More than what is left', 'Kinazidi kilichobaki') }} ({{ data.remaining | money }})</small>
           }

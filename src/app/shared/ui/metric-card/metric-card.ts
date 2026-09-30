@@ -1,16 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
-  afterNextRender,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
-import { Icon } from '../icon/icon';
+import { DashboardCard } from '../dashboard/dashboard-card';
+import { CountUpText } from '../motion/count-up';
 
 export interface MetricBreakdown {
   label: string;
@@ -18,22 +9,21 @@ export interface MetricBreakdown {
 }
 
 /**
- * KPI tile in the app's signature style — port of Flutter `MetricCard`.
- * Soft card with a coloured left band + circular icon, bold value, optional
- * subtitle, and a top-left accent glow. Switches to a centred compact layout
- * when narrower than 110px. `urgent` tints the frame with the accent colour.
+ * KPI tile — one look across the whole app: the Sales KPI tile style
+ * (`lsms-dashboard-kpi-card`): header strip tinted with `color` holding the
+ * icon + title, then a big value and an optional subtitle. `urgent` swaps the
+ * header action for a warning icon, colours the value and rings the tile.
  * `breakdown` renders 1–2 extra columns (e.g. Mapato | Reja reja | Jumla).
  */
 @Component({
   selector: 'lsms-metric-card',
-  imports: [Icon],
+  imports: [DashboardCard, CountUpText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './metric-card.html',
   styleUrl: './metric-card.scss',
   host: {
     '[style.--accent]': 'color()',
     '[class.urgent]': 'urgent()',
-    '[class.compact]': 'compact()',
     '[class.clickable]': 'clickable()',
     '[attr.role]': "clickable() ? 'button' : null",
     '[attr.tabindex]': 'clickable() ? 0 : null',
@@ -52,13 +42,4 @@ export class MetricCard {
   readonly clickable = input(false);
   readonly breakdown = input<MetricBreakdown[] | undefined>(undefined);
   readonly tap = output<void>();
-
-  protected readonly compact = signal(false);
-
-  constructor() {
-    const el = inject(ElementRef<HTMLElement>).nativeElement as HTMLElement;
-    const ro = new ResizeObserver(([entry]) => this.compact.set(entry.contentRect.width < 110));
-    afterNextRender(() => ro.observe(el));
-    inject(DestroyRef).onDestroy(() => ro.disconnect());
-  }
 }

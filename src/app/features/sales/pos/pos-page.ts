@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, ComboOption, Combobox, DialogService, EmptyState, Icon, SearchBar, Skeleton, TextField, ToastService } from '@shared/ui';
+import { Button, Combobox, ComboOption, DialogService, EmptyState, Icon, MoneyInput, SearchBar, Skeleton, TextField, ToastService } from '@shared/ui';
 import { addDays, dayOnly, isSameDay, parseLocal, toIsoDate, toLocalDateTime } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { CustomersService } from '../../customers/customers.service';
@@ -33,7 +33,7 @@ const MISSING_LOOKBACK = 7;
  */
 @Component({
   selector: 'app-pos-page',
-  imports: [RouterLink, Button, Icon, SearchBar, Skeleton, EmptyState, TextField, Combobox, MoneyPipe, HeldOrders],
+  imports: [MoneyInput, RouterLink, Button, Icon, SearchBar, Skeleton, EmptyState, TextField, Combobox, MoneyPipe, HeldOrders],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pos-page.html',
   styleUrl: './pos-page.scss',

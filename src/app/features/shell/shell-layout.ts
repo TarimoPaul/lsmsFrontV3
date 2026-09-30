@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -73,7 +73,7 @@ export interface PageMeta {
             </div>
           }
           <div class="scroll" #scroller>
-            <main class="page" id="main">
+            <main class="page" id="main" [class.intro]="pageIntro()">
               <router-outlet />
             </main>
             <footer class="footer">
@@ -195,7 +195,36 @@ export class ShellLayout {
   );
   protected readonly isHome = computed(() => this.url().startsWith('/dashboard'));
 
+  /**
+   * Staged page intro (styles/_motion.scss, `#main.intro`): set when navigation to
+   * a different page ENDS (same render as the new page)
+   * and dropped ~1.3 s later. Tab / filter changes (same path) never
+   * replay it. CSS only; nothing waits for it, data loads as usual.
+   */
+  protected readonly pageIntro = signal(true);
+  private introTimer: ReturnType<typeof setTimeout> | undefined;
+
   constructor() {
+    const pathOf = (u: string) => u.split('?')[0].split('#')[0];
+    const endIntro = (ms: number) => {
+      clearTimeout(this.introTimer);
+      this.introTimer = setTimeout(() => this.pageIntro.set(false), ms);
+    };
+    endIntro(1400);
+    let lastPath = pathOf(this.router.url);
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((e) => {
+      // Set on NavigationEnd (not Start): the class lands in the same render as the
+      // new page, and the old page is never re-animated while the next one loads.
+      if (e instanceof NavigationEnd) {
+        const path = pathOf(e.urlAfterRedirects);
+        if (path !== lastPath) {
+          lastPath = path;
+          this.pageIntro.set(true);
+          endIntro(1300);
+        }
+      }
+    });
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.introTimer));
     effect(() => safeStorage.set('sidebar_collapsed', this.collapsed()));
     // Count module visits for the dashboard's "Frequently used" row.
     effect(() => {

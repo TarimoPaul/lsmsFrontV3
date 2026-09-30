@@ -7,7 +7,18 @@
  *   printReport({ title: 'Categories', headers, rows, summary: [['Total', '12']] });
  */
 
+import { Money } from './money';
+
 export type Cell = string | number | boolean | null | undefined;
+
+/**
+ * Exported numbers never carry decimals: in this system every fractional number
+ * in a table is money (percentages are passed as text), and money is whole
+ * shillings — 9999.99 exports as 10000.
+ */
+function plain(v: Cell): Cell {
+  return typeof v === 'number' && !Number.isInteger(v) ? Money.round(v) : v;
+}
 
 /** `categories_2026-09-23.csv` */
 export function exportFileName(base: string, ext: string, now = new Date()): string {
@@ -17,7 +28,8 @@ export function exportFileName(base: string, ext: string, now = new Date()): str
 
 /** RFC 4180 CSV with a UTF-8 BOM so Excel opens Swahili/accents correctly. */
 export function toCsv(headers: string[], rows: Cell[][]): string {
-  const esc = (v: Cell) => {
+  const esc = (cell: Cell) => {
+    const v = plain(cell);
     const s = v === null || v === undefined ? '' : String(v);
     return /[",\r\n]/.test(s) || /^\s|\s$/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
   };
@@ -56,7 +68,8 @@ export interface PrintReport {
  * in a hidden iframe, so no PDF library ships in the bundle.
  */
 /** HTML-escape a cell for the print templates. */
-export function escapeHtml(v: Cell): string {
+export function escapeHtml(cell: Cell): string {
+  const v = plain(cell);
   return (v === null || v === undefined ? '' : String(v))
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')

@@ -33,8 +33,9 @@ let nextId = 0;
  *   <lsms-text-field label="Password" type="password" formControlName="password" />
  *   <lsms-text-field label="Notes" type="textarea" [rows]="3" [maxLength]="250" formControlName="notes" />
  *
- * `currency` emits a number (or null) and shows thousands separators on blur
- * with a "TZS" suffix (currency goes last, like Money.format). `number` emits a number (or null).
+ * `currency` emits whole shillings (or null) — decimals are not accepted — with
+ * thousands separators while typing and a "TZS" suffix (currency last, like
+ * Money.format). `number` emits a number (or null).
  */
 @Component({
   selector: 'lsms-text-field',
@@ -99,7 +100,7 @@ export class TextField implements ControlValueAccessor {
     }
   });
   protected readonly inputMode = computed(() =>
-    this.type() === 'currency' || this.type() === 'number' ? 'decimal' : null,
+    this.type() === 'currency' ? 'numeric' : this.type() === 'number' ? 'decimal' : null,
   );
   protected readonly effectivePrefixText = computed(
     () => this.prefixText(),
@@ -165,7 +166,9 @@ export class TextField implements ControlValueAccessor {
     this.disabled.set(isDisabled);
   }
 
-  protected onInput(raw: string): void {
+  protected onInput(raw: string, el?: HTMLInputElement): void {
+    // Currency: thousands separators while typing (10000 → 10,000), caret kept in place.
+    if (this.type() === 'currency' && el) raw = groupInPlace(el, raw);
     this.text.set(raw);
     this.onChange(this.toModel(raw));
     this.valueChange.emit(raw);
@@ -200,4 +203,16 @@ export class TextField implements ControlValueAccessor {
     }
     return raw;
   }
+}
+
+/** Re-groups a money input's text, keeping the caret beside the same digit. */
+function groupInPlace(el: HTMLInputElement, raw: string): string {
+  const grouped = Money.group(raw);
+  if (grouped === raw) return raw;
+  const keep = raw.slice(0, el.selectionStart ?? raw.length).replace(/\D/g, '').length;
+  el.value = grouped;
+  let pos = 0;
+  for (let seen = 0; pos < grouped.length && seen < keep; pos++) if (/\d/.test(grouped[pos])) seen++;
+  el.setSelectionRange(pos, pos);
+  return grouped;
 }

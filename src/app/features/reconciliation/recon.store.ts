@@ -128,7 +128,10 @@ export class ReconStore {
     const c = this.current();
     if (!c) return this.load();
     try {
-      this.current.set(c.editable ? await this.api.refresh(c.uid) : await this.api.byUid(c.uid));
+      // Live sales totals move too when a payment lands, so re-pull them alongside.
+      const [r, summary] = await Promise.all([c.editable ? this.api.refresh(c.uid) : this.api.byUid(c.uid), this.api.autoSummary(this.date())]);
+      this.current.set(r);
+      if (summary) this.summary.set(summary);
     } catch (e) {
       this.toast.error(ApiError.from(e).message);
     }

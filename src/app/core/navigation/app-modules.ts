@@ -126,6 +126,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Blind stock-count sessions and variances',
       sw: 'Zoezi la kuhesabu mali kwa mfumo wa blind count',
     },
+    ready: true,
   },
   {
     id: 'categories',
@@ -197,6 +198,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Complete capital expenditure tracking and asset management',
       sw: 'Mipango ya kifedha, usimamizi wa bajeti, na ufuatiliaji wa matumizi',
     },
+    ready: true,
   },
   {
     id: 'general-ledger',
@@ -210,6 +212,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Double-entry general ledger and financial postings',
       sw: 'Leja kuu ya double-entry na maingizo ya kifedha',
     },
+    ready: true,
   },
   {
     id: 'reports',
@@ -223,6 +226,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Export stock reports, financial data, and analytics',
       sw: 'Ripoti za hisa, takwimu za fedha na uchanganuzi',
     },
+    ready: true,
   },
   // ── ADMINISTRATION ──
   {
@@ -251,6 +255,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Configure business operations and preferences',
       sw: 'Sanidi mipangilio ya jumla ya biashara',
     },
+    ready: true,
   },
   {
     id: 'settings-approvals',
@@ -264,6 +269,7 @@ export const APP_MODULES: AppModule[] = [
       en: 'Review and approve pending system changes',
       sw: 'Simamia na thibitisha mabadiliko ya mipangilio',
     },
+    ready: true,
   },
   {
     id: 'items-measure',

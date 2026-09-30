@@ -129,12 +129,12 @@
               <div class="l3">
                 <label class="money">
                   <small>{{ i18n.t('Cost per', 'Bei kwa') }} {{ unitName(l) }}</small>
-                  <input type="text" inputmode="decimal" [value]="l.unitPrice" (change)="typePrice(l, $any($event.target))" />
+                  <input lsmsMoneyInput type="text" inputmode="decimal" [value]="l.unitPrice" (change)="typePrice(l, $any($event.target))" />
                 </label>
                 <span class="x-sign">=</span>
                 <label class="money total">
                   <small>{{ i18n.t('Line total', 'Jumla') }}</small>
-                  <input type="text" inputmode="decimal" [value]="lineTotal(l)" (change)="typeTotal(l, $any($event.target))" />
+                  <input lsmsMoneyInput type="text" inputmode="decimal" [value]="lineTotal(l)" (change)="typeTotal(l, $any($event.target))" />
                 </label>
               </div>
 

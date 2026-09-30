@@ -15,6 +15,7 @@ import {
   normalizeSnapshot,
   normalizeVarianceReport,
 } from './recon-extra.models';
+import { BusinessSettingsService } from '../business-settings/business-settings.service';
 import { AutoSummary, Recon, VerifyType, normalizeAutoSummary, normalizeRecon } from './reconciliation.models';
 
 const BASE = '/api/v1/reconciliation';
@@ -36,6 +37,7 @@ export interface ReconResult {
 @Injectable({ providedIn: 'root' })
 export class ReconciliationService {
   private readonly api = inject(ApiService);
+  private readonly settings = inject(BusinessSettingsService);
 
   async autoSummary(date: string): Promise<AutoSummary | null> {
     const env = await this.api.getEnvelope<Raw>(`${BASE}/auto-summary/${date}`).catch(() => null);
@@ -153,10 +155,9 @@ export class ReconciliationService {
   async varianceReport(fromDate: string, toDate: string): Promise<VarianceReport> {
     return normalizeVarianceReport((await this.api.get<Raw>(`${BASE}/variance-report`, { params: { fromDate, toDate } })) ?? {});
   }
-  /** Material-variance threshold lives on the main business settings (PUT sends the whole record back). */
+  /** Material-variance threshold lives on the main business settings (the PUT ignores omitted fields). */
   async setVarianceThreshold(value: number): Promise<void> {
-    const main = (await this.api.get<Raw>('/api/v1/business-settings/main')) ?? {};
-    await this.api.put('/api/v1/business-settings/main', { ...main, varianceThreshold: value });
+    await this.settings.update({ varianceThreshold: value });
   }
 
   // ── Workflow ────────────────────────────────────────────────────────────────

@@ -27,6 +27,14 @@ type StatusFilter = '' | 'UNPAID' | 'PARTIAL';
   imports: [Button, Icon, Skeleton, MoneyPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @if (canSeeCustomers()) {
+      <button type="button" class="arbar" (click)="openAr()">
+        <lsms-icon name="groups" [size]="18" />
+        <span>{{ i18n.t('Customers by debt — who owes, who has paid', 'Wateja kwa madeni — wanaodaiwa na waliolipa') }}</span>
+        <b>{{ i18n.t('Open', 'Fungua') }}</b>
+        <lsms-icon name="chevron_right" [size]="18" />
+      </button>
+    }
     <div class="totals">
       @if (store.current(); as r) {
         <div style="--tc: var(--c-warning)"><small>{{ i18n.t('Credit sales today (POS)', 'Madeni ya POS leo') }}</small><b>{{ r.posDebtsTotal | money }}</b></div>
@@ -128,6 +136,10 @@ type StatusFilter = '' | 'UNPAID' | 'PARTIAL';
   `,
   styleUrl: './recon-tab.scss',
   styles: `
+    .arbar { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 12px; padding: 10px 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--c-error) 30%, var(--c-border)); background: color-mix(in srgb, var(--c-error) 6%, var(--c-surface)); font: inherit; font-size: 0.84rem; color: var(--c-error); text-align: left; cursor: pointer; }
+    .arbar:hover { background: color-mix(in srgb, var(--c-error) 10%, var(--c-surface)); }
+    .arbar span { flex: 1; min-width: 0; font-weight: 600; }
+    .arbar b { font-weight: 700; }
     .bar-add { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface)); border: 1px dashed color-mix(in srgb, var(--c-primary) 35%, var(--c-border)); }
     .bar-add span { display: inline-flex; align-items: center; gap: 8px; font-size: 0.84rem; color: var(--c-text-2); }
     .bar-add lsms-icon { color: var(--c-primary); }
@@ -170,6 +182,8 @@ export class ReconDebtsTab {
   private readonly sales = inject(SalesService);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
+
+  protected readonly canSeeCustomers = computed(() => this.auth.hasPermission('CUSTOMER_READ'));
 
   protected readonly statusFilters: Array<{ value: StatusFilter; en: string; sw: string }> = [
     { value: '', en: 'All', sw: 'Yote' },
@@ -301,15 +315,19 @@ export class ReconDebtsTab {
     try {
       const sale = await this.sales.get(d.saleUid);
       const { SalePaymentDialog } = await import('../sales/sale-payment-dialog');
-      if (await this.dialogs.openAsync(SalePaymentDialog, { size: 'sm', data: { sale } })) {
-        void this.load();
-        await this.store.refresh();
-      }
+      // The payment dialog notifies ReconSyncService, which refreshes the open record.
+      if (await this.dialogs.openAsync(SalePaymentDialog, { size: 'sm', data: { sale } })) void this.load();
     } catch (e) {
       this.toast.error(ApiError.from(e).message);
     } finally {
       this.paying.set(null);
     }
+  }
+
+  /** Flutter's Customer-AR bar: customers grouped by debt, without leaving the reconciliation. */
+  protected async openAr(): Promise<void> {
+    const { CustomerArDialog } = await import('../customers/customer-ar-dialog');
+    await this.dialogs.openAsync(CustomerArDialog, { size: 'md' });
   }
 
   private async openDialog(data: ReconDebtDialogData): Promise<RetailDebtRequest | undefined> {

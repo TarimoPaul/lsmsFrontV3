@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
 import { EmptyState, Icon, PageHeader, SegmentOption, SegmentedFilterBar, Skeleton } from '@shared/ui';
@@ -12,6 +12,7 @@ import { ReconPurchasesTab } from './recon-purchases-tab';
 import { ReconSafeBoxTab } from './recon-safebox-tab';
 import { ReconSummaryTab } from './recon-summary-tab';
 import { ReconVarianceTab } from './recon-variance-tab';
+import { ReconSyncService } from './recon-sync.service';
 import { ReconStore } from './recon.store';
 import { RECON_STATUS, pendingVerification } from './reconciliation.models';
 
@@ -204,6 +205,14 @@ export class ReconciliationPage {
     const date = saved && saved <= this.today ? saved : this.today;
     void this.store.load(date);
     void this.store.loadUnclosed();
+
+    // A payment taken elsewhere (Customers, Sales, another browser tab) → re-sync the open record.
+    const sync = inject(ReconSyncService);
+    const seen = sync.version();
+    effect(() => {
+      if (sync.version() === seen) return;
+      untracked(() => void this.store.refresh());
+    });
   }
 
   protected setTab(t: Tab): void {

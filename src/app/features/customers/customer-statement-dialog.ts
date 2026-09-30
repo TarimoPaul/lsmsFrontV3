@@ -199,7 +199,7 @@ export class CustomerStatementDialog {
 
   private async afterChange(): Promise<void> {
     this.changed = true;
-    this.api.list.invalidate();
+    this.api.invalidateBalances();
     await this.load();
   }
 

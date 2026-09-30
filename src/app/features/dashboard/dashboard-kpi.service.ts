@@ -49,10 +49,18 @@ export class DashboardKpiService {
 
   readonly canSeeSales = computed(() => this.auth.hasPermission('SALES_ANALYTICS'));
   readonly canSeeStock = computed(() => this.auth.hasPermission('STORE_READ'));
+  readonly canSeeDebts = computed(() => this.auth.hasPermission('CUSTOMER_CREDIT_VIEW'));
 
   readonly today = signal<SalesSummary | null>(null);
   readonly yesterday = signal<SalesSummary | null>(null);
   readonly stock = signal<StockStats | null>(null);
+  /**
+   * Customer debts from the receivables register (GET /customers/unpaid/total) —
+   * the same figure as GL account 1100 and the AR report. The sales summary's
+   * allTimeOutstandingAmount is built from stale sale-level balances and
+   * disagreed with the books (859,000 vs 1,617,000 on 2026-09-28).
+   */
+  readonly debts = signal<{ total: number; customers: number } | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly loadedAt = signal<Date | null>(null);
@@ -73,6 +81,13 @@ export class DashboardKpiService {
     if (this.canSeeSales()) {
       tasks.push(this.summary(now).then((s) => this.today.set(s)));
       tasks.push(this.summary(addDays(now, -1)).then((s) => this.yesterday.set(s)));
+    }
+    if (this.canSeeDebts()) {
+      tasks.push(
+        this.api
+          .get<{ totalOutstanding: unknown; customerCount: unknown }>('/api/v1/customers/unpaid/total')
+          .then((d) => this.debts.set({ total: Number(d?.totalOutstanding ?? 0) || 0, customers: Number(d?.customerCount ?? 0) || 0 })),
+      );
     }
     if (this.canSeeStock()) {
       tasks.push(

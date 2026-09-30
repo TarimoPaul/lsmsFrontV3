@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogService, Icon, Skeleton, ToastService } from '@shared/ui';
+import { Button, DialogService, Icon, MoneyInput, Skeleton, ToastService } from '@shared/ui';
 import { addDays, parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { PURCHASE_STATUS, Purchase } from '../purchases/purchases.models';
@@ -25,7 +25,7 @@ type Mode = 'manual' | 'existing' | 'repurchase';
  */
 @Component({
   selector: 'app-recon-purchases-tab',
-  imports: [Button, Icon, Skeleton, MoneyPipe, DatePipe],
+  imports: [MoneyInput, Button, Icon, Skeleton, MoneyPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="totals">
@@ -53,7 +53,7 @@ type Mode = 'manual' | 'existing' | 'repurchase';
               </label>
               <label>
                 <span>{{ i18n.t('Amount', 'Kiasi') }} *</span>
-                <input type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" placeholder="0" />
+                <input lsmsMoneyInput type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" placeholder="0" />
               </label>
               <label>
                 <span>{{ i18n.t('What was bought', 'Kilichonunuliwa') }}</span>

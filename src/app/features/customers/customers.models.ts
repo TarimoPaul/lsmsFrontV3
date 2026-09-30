@@ -90,22 +90,52 @@ export interface PurchaseRecord {
   items: number;
 }
 
-/** GET /customers/settlements (`CustomerSettlementDto`). */
-export interface Settlement {
-  customerUid: string | null;
-  customerName: string;
-  customerPhone: string | null;
+/** Where a debt payment stands in reconciliation. */
+export type ReconState = 'NONE' | 'PENDING' | 'APPROVED';
+
+/** GET /customers/debt-payments (`CustomerDebtPaymentDto`) — one debt-payment event. */
+export interface DebtPayment {
+  paymentUid: string;
+  paymentDate: string | null;
+  amount: number;
+  paymentMethod: string | null;
+  receivedByUid: string | null;
+  receivedByName: string | null;
   saleUid: string | null;
   receiptNumber: string | null;
   saleDate: string | null;
-  settledDate: string | null;
+  saleTotal: number;
+  customerUid: string | null;
+  customerName: string;
+  customerPhone: string | null;
+  reconState: ReconState;
+  reconUid: string | null;
+  reconDate: string | null;
+  /** DRAFT · SUBMITTED · REVIEWED · APPROVED · CLOSED · REOPENED */
+  reconStatus: string | null;
+  reconOwnerName: string | null;
+  approvedByName: string | null;
+  approvedAt: string | null;
+  verified: boolean | null;
+}
+
+/** GET /customers/debt-payments/summary — totals over every matching payment. */
+export interface DebtPaymentSummary {
+  count: number;
   totalAmount: number;
-  amountCollected: number;
-  waivedAmount: number;
-  receivedByName: string | null;
-  paymentMethod: string | null;
-  collectionEvents: number;
-  daysToSettle: number | null;
+  approvedAmount: number;
+  pendingAmount: number;
+  notInReconAmount: number;
+  notInReconCount: number;
+  customers: number;
+  receivers: Array<{ uid: string; name: string }>;
+}
+
+export interface DebtPaymentQuery {
+  from: string | null;
+  search: string;
+  receivedBy: string | null;
+  reconState: ReconState | null;
 }
 
 export interface AuditEntry {

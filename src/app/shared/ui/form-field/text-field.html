@@ -46,7 +46,7 @@
       [attr.aria-invalid]="showError()"
       [attr.aria-describedby]="id + '-msg'"
       [style.text-align]="align() === 'end' ? 'right' : null"
-      (input)="onInput($any($event.target).value)"
+      (input)="onInput($any($event.target).value, $any($event.target))"
       (focus)="focused.set(true)"
       (blur)="onBlur()"
       (keydown.enter)="enter.emit()"

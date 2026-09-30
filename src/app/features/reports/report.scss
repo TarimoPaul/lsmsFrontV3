@@ -1,0 +1,40 @@
+// Shared look for report bodies (cards, compact tables, ranked bars).
+:host { display: block; }
+.filters { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; flex: 1; min-width: 0; }
+.card { display: flex; flex-direction: column; padding: 4px 18px 16px; border-radius: 16px; background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: 0 1px 2px rgb(16 24 40 / 0.04); min-width: 0; }
+.card > header { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; min-height: 48px; border-bottom: 1px solid var(--c-border); margin-bottom: 8px; }
+.card h4 { flex: 1; margin: 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--c-text-2); }
+.card > header small { font-size: 0.74rem; color: var(--c-text-2); }
+.card > header a { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--c-primary); text-decoration: none; }
+.card.flush { padding: 0; overflow: hidden; }
+.card.flush > header { padding: 0 18px; margin: 0; }
+.card.flush lsms-data-table { border: 0; border-radius: 0; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+
+.scroll { overflow-x: auto; }
+table.t { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+table.t th { padding: 8px 10px; text-align: left; white-space: nowrap; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: color-mix(in srgb, var(--c-text) 72%, transparent); background: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface)); }
+table.t td { padding: 9px 10px; border-bottom: 1px solid var(--c-border); color: var(--c-text); white-space: nowrap; }
+table.t tfoot td { font-weight: 700; border-top: 2px solid var(--c-border); border-bottom: 0; }
+table.t .n { text-align: right; font-variant-numeric: tabular-nums; }
+table.t .strong { font-weight: 600; }
+table.t tr.quiet td { color: var(--c-text-2); }
+.neg { color: var(--c-error) !important; }
+.muted { color: var(--c-text-2); }
+.pad { padding: 12px 0; margin: 0; font-size: 0.84rem; }
+
+ul.bars { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 0; padding: 0; list-style: none; }
+ul.bars li { display: grid; grid-template-columns: minmax(120px, 1.3fr) 1fr auto; align-items: center; gap: 12px; font-size: 0.82rem; }
+ul.bars .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--c-text); }
+ul.bars .nm small { margin-left: 4px; font-size: 0.7rem; color: var(--c-text-2); }
+ul.bars .track { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--c-text-2) 12%, transparent); overflow: hidden; }
+ul.bars .track i { display: block; height: 100%; border-radius: 4px; background: var(--bar, var(--c-primary)); }
+ul.bars b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); }
+
+.status { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; color: var(--st); background: color-mix(in srgb, var(--st) 11%, transparent); }
+.xcheck { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; padding: 9px 14px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text);
+  background: color-mix(in srgb, var(--c-success) 7%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-success) 25%, transparent); }
+.xcheck lsms-icon { color: var(--c-success); }
+.xcheck.bad { background: color-mix(in srgb, var(--c-warning) 8%, var(--c-surface)); border-color: color-mix(in srgb, var(--c-warning) 30%, transparent); }
+.xcheck.bad lsms-icon { color: var(--c-warning); }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatChipListbox, MatChipOption } from '@angular/material/chips';
 import { MatRipple } from '@angular/material/core';
@@ -9,7 +9,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { APP_MODULES, AppModule, CATEGORY_LABELS, CATEGORY_ORDER, ModuleCategory } from '@core/navigation/app-modules';
 import { ModuleUsageService } from '@core/navigation/module-usage.service';
-import { ComparisonBars, DialogService, Icon, Skeleton } from '@shared/ui';
+import { ComparisonBars, CountUp, DialogService, Icon, Skeleton } from '@shared/ui';
 import { Money } from '@shared/utils/money';
 import { DashboardAlertsService } from './dashboard-alerts.service';
 import { DashboardKpiService } from './dashboard-kpi.service';
@@ -19,6 +19,14 @@ type AlertKey = 'recon' | 'liability' | 'debt';
 
 /** Seconds a dashboard reminder stays before fading out (paused on hover). */
 const ALERT_SECONDS = 15;
+
+/**
+ * Staged intro (user, 2026-09-28 — after a reference video): the important
+ * things appear almost at once (greeting, actions, KPI cards counting up),
+ * then the rest follows in order (charts → frequently used → modules), each
+ * block coming in from a soft blur. Delays in ms; CSS does the rest.
+ */
+const INTRO = { kpiStart: 200, kpiStep: 90, tileStart: 880, tileStep: 35, tileMax: 16, total: 2000 };
 
 interface Tile {
   module: AppModule;
@@ -40,7 +48,7 @@ interface QuickAction {
  */
 @Component({
   selector: 'app-main-dashboard',
-  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars],
+  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars, CountUp],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-dashboard.html',
   styleUrl: './main-dashboard.scss',
@@ -55,6 +63,8 @@ export class MainDashboard {
   private readonly router = inject(Router);
 
   protected readonly filter = signal<Filter>('ALL');
+  /** True during the first ~2 s: later re-renders (filter change, refresh) skip the long delays. */
+  protected readonly intro = signal(true);
   protected readonly alertSeconds = ALERT_SECONDS;
   protected readonly categories = CATEGORY_ORDER;
   protected readonly categoryLabels = CATEGORY_LABELS;
@@ -88,6 +98,22 @@ export class MainDashboard {
     ].filter((a) => this.auth.hasPermission(a.permission)),
   );
 
+  // ── Intro timing ──────────────────────────────────────────────────────────
+  protected readonly stockKpiIndex = computed(() => (this.kpi.canSeeSales() ? 3 : 0));
+
+  protected kpiDelay(i: number): number {
+    return INTRO.kpiStart + i * INTRO.kpiStep;
+  }
+
+  /** The count-up starts as its card finishes appearing (none after the intro). */
+  protected countDelay(i: number): number {
+    return this.intro() ? this.kpiDelay(i) + 150 : 0;
+  }
+
+  protected tileDelay(i: number): number {
+    return this.intro() ? INTRO.tileStart + Math.min(i, INTRO.tileMax) * INTRO.tileStep : Math.min(i, 12) * 20;
+  }
+
   // ── Launcher ──────────────────────────────────────────────────────────────
   private readonly tiles = computed<Tile[]>(() =>
     APP_MODULES.map((module) => ({ module, locked: !this.auth.canAccessSection(module.id) })),
@@ -112,6 +138,13 @@ export class MainDashboard {
 
   // ── KPIs ──────────────────────────────────────────────────────────────────
   protected readonly showOverview = computed(() => this.kpi.canSeeSales() || this.kpi.canSeeStock());
+  /** Receivables register (= GL 1100) when allowed; the sales summary only as a fallback. */
+  protected readonly debtTotal = computed<number | null>(() => {
+    const d = this.kpi.debts();
+    if (d) return d.total;
+    if (this.kpi.canSeeDebts() && this.kpi.loading()) return null; // register still loading
+    return this.kpi.today()?.allTimeOutstandingAmount ?? null;
+  });
   protected readonly hours = Array.from({ length: 24 }, (_, i) => String(i));
   protected readonly peakHour = computed(() => {
     const series = this.kpi.today()?.hourlyRevenue ?? [];
@@ -158,6 +191,11 @@ export class MainDashboard {
   /** Reminder timer finished — hide for this visit only. */
   protected autoHide(key: AlertKey): void {
     this.autoHidden.update((s) => new Set(s).add(key));
+  }
+
+  constructor() {
+    const t = setTimeout(() => this.intro.set(false), INTRO.total);
+    inject(DestroyRef).onDestroy(() => clearTimeout(t));
   }
 
   ngOnInit(): void {

@@ -9,6 +9,7 @@ import { LsmsValidators } from '@shared/forms/validators';
 import { Button, DialogShell, Icon, TextField, ToastService } from '@shared/ui';
 import { MoneyPipe } from '@shared/utils/money';
 import { PAYMENT_METHODS, Sale, methodLabel } from './sales.models';
+import { ReconSyncService } from '../reconciliation/recon-sync.service';
 import { SalesService } from './sales.service';
 
 export interface SalePaymentData {
@@ -96,6 +97,7 @@ export class SalePaymentDialog {
   protected readonly i18n = inject(LanguageService);
   private readonly api = inject(SalesService);
   private readonly toast = inject(ToastService);
+  private readonly reconSync = inject(ReconSyncService);
 
   protected readonly busy = signal(false);
   protected readonly method = signal('CASH');
@@ -138,6 +140,8 @@ export class SalePaymentDialog {
       const v = this.form.getRawValue();
       const sale = await this.api.addPayment(this.data.sale.uid, Number(v.amount), this.method(), v.reference?.trim());
       this.toast.success(this.i18n.t('Payment recorded', 'Malipo yamerekodiwa'));
+      // A previous-day debt becomes a debt collection in today's reconciliation.
+      void this.reconSync.paymentReceived(this.data.sale.saleDate);
       this.ref.close(sale);
     } catch (e) {
       this.toast.error(ApiError.from(e).message);

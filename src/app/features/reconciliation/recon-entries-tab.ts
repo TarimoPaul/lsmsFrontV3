@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogService, Icon, ToastService } from '@shared/ui';
+import { Button, DialogService, Icon, MoneyInput, ToastService } from '@shared/ui';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { ReconStore } from './recon.store';
+import { RECON_BANKS } from './recon-extra.models';
 import { CASH_TYPES, CASH_TYPES_ADDABLE, EXPENSE_TYPES, MOBILE_PROVIDERS } from './reconciliation.models';
 import { ReconciliationService } from './reconciliation.service';
 
@@ -28,7 +29,7 @@ interface Item {
  */
 @Component({
   selector: 'app-recon-entries-tab',
-  imports: [Button, Icon, MoneyPipe],
+  imports: [MoneyInput, Button, Icon, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="totals">
@@ -68,7 +69,7 @@ interface Item {
         <div class="grid">
           <label>
             <span>{{ i18n.t('Amount', 'Kiasi') }} *</span>
-            <input type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" placeholder="0" />
+            <input lsmsMoneyInput type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" placeholder="0" />
           </label>
           @if (kind() === 'expense') {
             <label>
@@ -77,10 +78,22 @@ interface Item {
             </label>
           }
           @if (kind() === 'cash' && isBank()) {
-            <label>
-              <span>{{ i18n.t('Bank', 'Benki') }}</span>
-              <input type="text" maxlength="60" [value]="bank()" (input)="bank.set($any($event.target).value)" placeholder="CRDB, NMB…" />
-            </label>
+            <div class="wide pick" role="radiogroup" [attr.aria-label]="i18n.t('Bank', 'Benki')">
+              <span>{{ i18n.t('Bank', 'Benki') }} *</span>
+              <div class="chips">
+                @for (b of banks; track b) {
+                  <button type="button" role="radio" [attr.aria-checked]="bank() === b" [class.on]="bank() === b" (click)="bank.set(b)">
+                    <lsms-icon [name]="b === 'OTHER' ? 'more_horiz' : 'account_balance'" [size]="14" />{{ b === 'OTHER' ? i18n.t('Other', 'Nyingine') : b }}
+                  </button>
+                }
+              </div>
+            </div>
+            @if (bank() === 'OTHER') {
+              <label>
+                <span>{{ i18n.t('Bank name', 'Jina la benki') }} *</span>
+                <input type="text" maxlength="60" [value]="otherBank()" (input)="otherBank.set($any($event.target).value)" />
+              </label>
+            }
           }
           @if (kind() !== 'cash' || isBank()) {
             <label>
@@ -150,7 +163,11 @@ export class ReconEntriesTab {
   protected readonly type = signal('');
   protected readonly amountText = signal('');
   protected readonly desc = signal('');
+  /** Picked from chips (mobile friendly) — 'OTHER' asks for the name. */
   protected readonly bank = signal('');
+  protected readonly otherBank = signal('');
+  protected readonly banks = RECON_BANKS;
+  private readonly bankName = computed(() => (this.bank() === 'OTHER' ? this.otherBank().trim() : this.bank()));
   protected readonly ref = signal('');
   protected readonly notes = signal('');
 
@@ -160,7 +177,13 @@ export class ReconEntriesTab {
   });
   protected readonly amount = computed(() => Number(this.amountText().replace(/[^\d.]/g, '')) || 0);
   protected readonly isBank = computed(() => !!CASH_TYPES[this.type()]?.bank);
-  protected readonly valid = computed(() => this.amount() > 0 && !!this.type() && (this.kind() !== 'expense' || this.type() !== 'NYINGINE' || this.desc().trim().length >= 2));
+  protected readonly valid = computed(
+    () =>
+      this.amount() > 0 &&
+      !!this.type() &&
+      (this.kind() !== 'expense' || this.type() !== 'NYINGINE' || this.desc().trim().length >= 2) &&
+      (this.kind() !== 'cash' || !this.isBank() || this.bankName().length >= 2),
+  );
 
   protected readonly addTitle = computed(() => {
     const t = (en: string, sw: string) => this.i18n.t(en, sw);
@@ -239,6 +262,7 @@ export class ReconEntriesTab {
     this.amountText.set('');
     this.desc.set('');
     this.bank.set('');
+    this.otherBank.set('');
     this.ref.set('');
     this.notes.set('');
   }
@@ -250,7 +274,7 @@ export class ReconEntriesTab {
     const done = this.i18n.t(`${Money.format(amount)} added`, `${Money.format(amount)} imeongezwa`);
     const res =
       this.kind() === 'cash'
-        ? await this.store.act((uid) => this.api.addCash(uid, { entryType: this.type(), amount, bankName: this.isBank() ? this.bank().trim() || null : null, depositReference: this.isBank() ? this.ref().trim() || null : null, notes }), done)
+        ? await this.store.act((uid) => this.api.addCash(uid, { entryType: this.type(), amount, bankName: this.isBank() ? this.bankName() || null : null, depositReference: this.isBank() ? this.ref().trim() || null : null, notes }), done)
         : this.kind() === 'mobile'
           ? await this.store.act((uid) => this.api.addMobile(uid, { provider: this.type(), amount, transactionReference: this.ref().trim() || null, notes }), done)
           : await this.store.act(

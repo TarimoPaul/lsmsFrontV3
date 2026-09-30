@@ -345,6 +345,7 @@
                 <span class="x-sign">×</span>
                 @if (editingPrice() === l.key) {
                   <input
+                    lsmsMoneyInput
                     class="price-in"
                     type="text"
                     inputmode="numeric"
@@ -409,6 +410,7 @@
         <div class="row">
           <label for="pos-discount">{{ i18n.t('Discount', 'Punguzo') }}</label>
           <input
+                    lsmsMoneyInput
             id="pos-discount"
             class="mini"
             type="text"
@@ -475,6 +477,7 @@
         <div class="row">
           <label for="pos-received">{{ i18n.t('Received', 'Amepokea') }}</label>
           <input
+                    lsmsMoneyInput
             id="pos-received"
             class="mini"
             type="text"
