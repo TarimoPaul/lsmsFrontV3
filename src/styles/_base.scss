@@ -4,6 +4,8 @@
 @use 'typography' as t;
 
 // Plus Jakarta Sans — bundled locally (offline-safe for POS, no FOUT).
+// Relative path so the build bundles + hashes the files into media/ and the URL
+// follows the base href (/v3/); a root-relative /fonts/ would hit the Flutter app.
 $weights: (
   300: 'Light',
   400: 'Regular',
@@ -15,7 +17,7 @@ $weights: (
 @each $weight, $name in $weights {
   @font-face {
     font-family: 'PlusJakartaSans';
-    src: url('/fonts/PlusJakartaSans-#{$name}.ttf') format('truetype');
+    src: url('../../public/fonts/PlusJakartaSans-#{$name}.ttf') format('truetype');
     font-weight: $weight;
     font-style: normal;
     font-display: swap;

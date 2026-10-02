@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
@@ -35,15 +35,29 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
 
     <div class="bar">
       <lsms-search-bar [placeholder]="i18n.t('Search expense…', 'Tafuta gharama…')" (search)="q.set($event)" (cleared)="q.set('')" />
+      <button lsmsButton="secondary" icon="event_repeat" (click)="budgets()">{{ i18n.t('Monthly budgets', 'Bajeti za kila mwezi') }}</button>
       @if (canWrite()) {
         <button lsmsButton="primary" icon="add" (click)="create()">{{ i18n.t('New expense', 'Gharama mpya') }}</button>
       }
     </div>
     <lsms-segmented-filter-bar [options]="filters()" [selected]="filter()" (selectedChange)="filter.set($event)" />
 
+    @if (pendingPicked().length) {
+      <div class="bulkbar">
+        <span><lsms-icon name="checklist" [size]="18" />{{ i18n.t(pendingPicked().length + ' pending selected · ', 'Zinazosubiri ' + pendingPicked().length + ' zimechaguliwa · ') }}<b>{{ pickedTotal() | money: { decimals: 0 } }}</b></span>
+        <span class="acts">
+          <button lsmsButton="success" size="sm" icon="done_all" [loading]="bulkBusy()" (click)="approveSelected()">{{ i18n.t('Approve', 'Idhinisha') }} ({{ pendingPicked().length }})</button>
+          <button lsmsButton="text" size="sm" [disabled]="bulkBusy()" (click)="table()?.clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+        </span>
+      </div>
+    }
+
     <div class="table-card">
       <lsms-data-table
         [title]="i18n.t('Expenses', 'Gharama')"
+        [rowId]="rowId"
+        [bulkSelection]="canApprove()"
+        (selectionChange)="picked.set($event)"
         [items]="rows()"
         [loading]="loading()"
         [pageSize]="25"
@@ -102,6 +116,8 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     .ic { display: inline-flex; padding: 7px; border-radius: 10px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .acts { display: inline-flex; gap: 4px; justify-content: flex-end; }
+    .bulkbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c-success) 35%, var(--c-border)); background: color-mix(in srgb, var(--c-success) 6%, var(--c-surface)); font-size: 0.86rem; }
+    .bulkbar > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
   `,
 })
 export class ExpensesTab {
@@ -114,6 +130,13 @@ export class ExpensesTab {
   protected readonly q = signal('');
   protected readonly filter = signal<Filter>('ALL');
   protected readonly busy = signal<string | null>(null);
+  protected readonly table = viewChild<DataTable<Expenditure>>(DataTable);
+  protected readonly picked = signal<Expenditure[]>([]);
+  protected readonly bulkBusy = signal(false);
+  protected readonly rowId = (e: Expenditure) => e.uid;
+  /** Only PENDING rows can be approved; other selected rows are ignored. */
+  protected readonly pendingPicked = computed(() => this.picked().filter((e) => e.status === 'PENDING'));
+  protected readonly pickedTotal = computed(() => this.pendingPicked().reduce((n, e) => n + e.amount, 0));
   protected readonly loading = this.api.all.initialLoading;
 
   protected readonly canWrite = computed(() => this.auth.hasPermission('CAPITAL_WRITE'));
@@ -174,8 +197,21 @@ export class ExpensesTab {
     const created = await this.dialogs.openAsync<Expenditure>(ExpenseDialog, { size: 'md', disableClose: true });
     if (created) {
       await this.api.all.load(true);
-      this.toast.success(this.i18n.t('Expense saved — waiting for approval', 'Gharama imehifadhiwa — inasubiri idhini'));
+      this.toast.success(
+        created.recurring
+          ? this.i18n.t('Monthly budget started', 'Bajeti ya kila mwezi imeanzishwa')
+          : this.i18n.t('Expense saved — waiting for approval', 'Gharama imehifadhiwa — inasubiri idhini'),
+      );
     }
+  }
+
+  protected async budgets(): Promise<void> {
+    const { RecurringBudgetsDialog } = await import('./capital-dialogs');
+    const changed = await this.dialogs.openAsync<boolean>(RecurringBudgetsDialog, {
+      size: 'md',
+      data: { canEdit: this.auth.hasPermission('CAPITAL_WRITE'), canStop: this.auth.hasPermission('CAPITAL_APPROVE') },
+    });
+    if (changed) await this.api.all.load(true);
   }
 
   protected async approve(e: Expenditure): Promise<void> {
@@ -211,6 +247,44 @@ export class ExpensesTab {
         min: 5,
       },
     });
+  }
+
+  /**
+   * One approve call per expense (the bulk endpoint returns its per-item reasons as one
+   * flattened string), so every refusal — e.g. approving your own entry — is reported by name.
+   */
+  protected async approveSelected(): Promise<void> {
+    const list = this.pendingPicked();
+    const t = (en: string, sw: string) => this.i18n.t(en, sw);
+    const ok = await this.dialogs.confirm({
+      title: t(`Approve ${list.length} expense(s)`, `Idhinisha gharama ${list.length}`),
+      message: `${Money.format(this.pickedTotal())}\n\n${t('Each one is posted to the books (GL).', 'Kila moja itaandikwa kwenye vitabu (GL).')}`,
+      confirmText: t('Approve', 'Idhinisha'),
+      cancelText: t('Cancel', 'Ghairi'),
+    });
+    if (!ok) return;
+    this.bulkBusy.set(true);
+    const failed: string[] = [];
+    for (const e of list) {
+      try {
+        await this.api.approve(e.uid);
+      } catch (err) {
+        failed.push(`${e.description}: ${ApiError.from(err).message}`);
+      }
+    }
+    await this.api.all.load(true).catch(() => undefined);
+    this.table()?.clearSelection();
+    this.bulkBusy.set(false);
+    const done = list.length - failed.length;
+    if (done) this.toast.success(t(`${done} approved and posted`, `${done} zimeidhinishwa na kuandikwa GL`));
+    if (failed.length) {
+      await this.dialogs.confirm({
+        title: t(`${failed.length} not approved`, `${failed.length} hazikuidhinishwa`),
+        message: failed.join('\n'),
+        confirmText: t('OK', 'Sawa'),
+        cancelText: t('Close', 'Funga'),
+      });
+    }
   }
 
   private async run(e: Expenditure, action: () => Promise<unknown>, done: string): Promise<void> {

@@ -69,7 +69,7 @@
   <button type="button" class="user" matRipple [matMenuTriggerFor]="userMenu" [attr.aria-label]="i18n.t('Account menu', 'Menyu ya akaunti')">
     <span class="avatar">
       @if (auth.user()?.profileImageUrl; as img) {
-        <img [src]="img" alt="" />
+        @if (img !== brokenImg()) {<img [src]="img" alt="" (error)="brokenImg.set(img)" />} @else { {{ initials() }} }
       } @else {
         {{ initials() }}
       }
@@ -87,7 +87,7 @@
   <div class="menu-head">
     <span class="avatar lg">
       @if (auth.user()?.profileImageUrl; as img) {
-        <img [src]="img" alt="" />
+        @if (img !== brokenImg()) {<img [src]="img" alt="" (error)="brokenImg.set(img)" />} @else { {{ initials() }} }
       } @else {
         {{ initials() }}
       }

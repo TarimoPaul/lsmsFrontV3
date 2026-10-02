@@ -5,6 +5,7 @@ import { initials } from '@core/auth/auth.models';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { Card, Icon, SearchBar } from '@shared/ui';
+import { ProfileDetails } from './profile-details';
 
 /**
  * My profile — who I am, my roles and the permissions my roles grant,
@@ -12,14 +13,14 @@ import { Card, Icon, SearchBar } from '@shared/ui';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [Card, Icon, SearchBar],
+  imports: [Card, Icon, SearchBar, ProfileDetails],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="wrap">
       <section class="head">
         <span class="avatar">
           @if (auth.user()?.profileImageUrl; as img) {
-            <img [src]="img" alt="" />
+            @if (img !== brokenImg()) {<img [src]="img" alt="" (error)="brokenImg.set(img)" />} @else { {{ userInitials() }} }
           } @else {
             {{ userInitials() }}
           }
@@ -40,6 +41,8 @@ import { Card, Icon, SearchBar } from '@shared/ui';
           </div>
         </div>
       </section>
+
+      <app-profile-details />
 
       <lsms-card [title]="i18n.t('My permissions', 'Ruhusa zangu')" icon="key">
         @if (auth.isRoot()) {
@@ -86,6 +89,8 @@ import { Card, Icon, SearchBar } from '@shared/ui';
   `,
 })
 export class ProfilePage {
+  /** Avatar URL that failed to load — show initials instead of a broken image. */
+  protected readonly brokenImg = signal<string | null>(null);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(LanguageService);
   protected readonly filter = signal('');

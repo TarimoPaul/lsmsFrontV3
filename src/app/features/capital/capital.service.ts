@@ -136,4 +136,51 @@ export class CapitalService {
     this.changed();
     return r;
   }
+
+  // ── Recurring monthly budgets (V121): a template + one approved row per month ──
+
+  async recurringBudgets(): Promise<RecurringBudget[]> {
+    return ((await this.api.get<Raw[] | null>(`${CE}/recurring-monthly`)) ?? []).map(toBudget);
+  }
+
+  /** Stops future months; rows already created stay. CAPITAL_APPROVE. */
+  async stopRecurring(uid: string): Promise<RecurringBudget> {
+    const r = toBudget(await this.api.patch<Raw>(`${CE}/recurring-monthly/${uid}/stop`));
+    this.all.invalidate();
+    return r;
+  }
+
+  /** New amount for the months not yet paid. CAPITAL_WRITE. */
+  async updateRecurringAmount(uid: string, amount: number): Promise<RecurringBudget> {
+    const r = toBudget(await this.api.patch<Raw>(`${CE}/recurring-monthly/${uid}/amount`, {}, { params: { amount } }));
+    this.all.invalidate();
+    return r;
+  }
+}
+
+export interface RecurringBudget {
+  uid: string;
+  description: string;
+  capitalType: string;
+  /** Per month — the template's own `amount` is 0 on purpose. */
+  monthly: number;
+  active: boolean;
+  summary: string | null;
+  monthsCreated: number | null;
+  endDate: string | null;
+  startedOn: string | null;
+}
+
+function toBudget(r: Raw): RecurringBudget {
+  return {
+    uid: String(r['uid'] ?? ''),
+    description: String(r['description'] ?? ''),
+    capitalType: String(r['capitalType'] ?? ''),
+    monthly: n(r['monthlyAllocationAmount'] ?? r['amount']),
+    active: r['recurringActive'] !== false,
+    summary: (r['recurringSummary'] as string) ?? null,
+    monthsCreated: r['materializedMonthsCount'] == null ? null : Number(r['materializedMonthsCount']),
+    endDate: (r['recurringEndDate'] as string) ?? null,
+    startedOn: (r['transactionDate'] as string) ?? null,
+  };
 }

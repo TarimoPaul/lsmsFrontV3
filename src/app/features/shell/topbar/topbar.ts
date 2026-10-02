@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { MatBadge } from '@angular/material/badge';
 import { MatRipple } from '@angular/material/core';
 import { MatDivider } from '@angular/material/divider';
@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { initials } from '@core/auth/auth.models';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { NotificationCountService } from '@core/notifications/notification-count.service';
+import { NotificationCenter } from '@core/notifications/notification-center.service';
 import { ThemeService } from '@core/theme/theme.service';
 import { Icon } from '@shared/ui';
 
@@ -30,7 +30,9 @@ export class Topbar {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(LanguageService);
   protected readonly theme = inject(ThemeService);
-  protected readonly notifications = inject(NotificationCountService);
+  protected readonly notifications = inject(NotificationCenter);
+  /** Avatar URL that failed to load (missing file) — show initials instead of a broken image. */
+  protected readonly brokenImg = signal<string | null>(null);
 
   readonly title = input('');
   readonly subtitle = input<string | undefined>(undefined);

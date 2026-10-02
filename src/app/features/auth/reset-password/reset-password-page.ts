@@ -26,7 +26,7 @@ type State = 'validating' | 'invalid' | 'form' | 'done' | 'network';
     <main class="stage">
       <section class="card">
         <div class="brand">
-          <span class="mark"><img src="/icons/Finallogo.png" alt="" width="24" height="24" /></span>
+          <span class="mark"><img src="icons/Finallogo.png" alt="" width="24" height="24" /></span>
           <strong>ELIKOM</strong>
         </div>
 

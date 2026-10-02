@@ -38,8 +38,54 @@ export interface DebtAdjustment {
   rejectionReason: string | null;
 }
 
+/** One row of GET /api/debt-adjustments/report — a debt reduced WITHOUT money changing hands. */
+export interface DebtAdjustmentRecord {
+  uid: string;
+  date: string | null;
+  customerUid: string | null;
+  customerName: string | null;
+  saleUid: string;
+  receiptNumber: string | null;
+  type: DebtAdjustmentType;
+  amount: number;
+  /** Sale balance left after this adjustment. */
+  resultingOutstanding: number;
+  reason: string;
+  makerName: string | null;
+  checkerName: string | null;
+  status: string;
+  reconciliationUid: string | null;
+}
+
+export interface DebtReportFilter {
+  startDate?: string | null;
+  endDate?: string | null;
+  type?: DebtAdjustmentType | null;
+  status?: string | null;
+  customerUid?: string | null;
+}
+
 type Raw = Record<string, unknown>;
 const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null);
+
+function normalizeRecord(r: Raw): DebtAdjustmentRecord {
+  return {
+    uid: String(r['uid'] ?? ''),
+    date: str(r['date']),
+    customerUid: str(r['customerUid']),
+    customerName: str(r['customerName']),
+    saleUid: String(r['saleUid'] ?? ''),
+    receiptNumber: str(r['saleReceiptNumber']),
+    type: String(r['type'] ?? 'CORRECTION') as DebtAdjustmentType,
+    amount: Number(r['amount'] ?? 0) || 0,
+    resultingOutstanding: Number(r['resultingOutstanding'] ?? 0) || 0,
+    reason: String(r['reason'] ?? ''),
+    makerName: str(r['makerName']),
+    checkerName: str(r['checkerName']),
+    status: String(r['status'] ?? ''),
+    reconciliationUid: str(r['reconciliationUid']),
+  };
+}
 
 function normalize(r: Raw): DebtAdjustment {
   return {
@@ -69,8 +115,8 @@ function normalize(r: Raw): DebtAdjustment {
  * write-offs / waivers / corrections against a sale's balance. WAIVER and
  * WRITE_OFF need DEBT_WRITE_OFF and are approved at once; a CORRECTION
  * (DEBT_ADJUST_CREATE) above 100,000 (20,000 for a full void) waits for a
- * different DEBT_ADJUST_APPROVE holder. All post to the GL. The /report
- * endpoint always fails server-side, so lists come from /pending, /sale, /customer.
+ * different DEBT_ADJUST_APPROVE holder. All post to the GL. /report (fixed
+ * server-side 2026-09-30 — it used to 500 on every call) returns every match, unpaged.
  */
 @Injectable({ providedIn: 'root' })
 export class DebtService {
@@ -99,6 +145,13 @@ export class DebtService {
 
   async bySale(saleUid: string): Promise<DebtAdjustment[]> {
     return ((await this.api.get<Raw[] | null>(`${this.base}/sale/${saleUid}`)) ?? []).map(normalize);
+  }
+
+  /** Unpaged — callers bound it with a date window. Newest first. */
+  async report(f: DebtReportFilter): Promise<DebtAdjustmentRecord[]> {
+    const params: Record<string, string> = {};
+    for (const [k, v] of Object.entries(f)) if (v) params[k] = v;
+    return ((await this.api.get<Raw[] | null>(`${this.base}/report`, { params })) ?? []).map(normalizeRecord);
   }
 
   async byCustomer(customerUid: string): Promise<DebtAdjustment[]> {

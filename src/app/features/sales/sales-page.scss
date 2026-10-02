@@ -108,3 +108,12 @@ lsms-date-range-selector.on ::ng-deep .trigger {
 .ph {
   min-height: 60vh;
 }
+
+.bulkbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 10px; padding: 10px 14px; border-radius: 12px; font-size: 0.86rem;
+  border: 1px solid color-mix(in srgb, var(--c-error) 35%, var(--c-border));
+  background: color-mix(in srgb, var(--c-error) 5%, var(--c-surface));
+  > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
+  .bulk-acts { display: inline-flex; gap: 6px; }
+}

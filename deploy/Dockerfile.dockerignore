@@ -1,0 +1,13 @@
+# Build context is the repo root; keep it small and free of local state.
+.git
+.angular
+.vscode
+.qodo
+node_modules
+dist
+analysis
+migration
+*.md
+.env*
+deploy/*.ps1
+deploy/*.sh

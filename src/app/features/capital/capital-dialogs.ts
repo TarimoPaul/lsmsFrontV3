@@ -8,7 +8,7 @@ import { toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { MoneyAccountPicker } from '../general-ledger/money-account-picker';
 import { ASSET_TYPES, EXPENSE_CATEGORIES, Expenditure, Loan } from './capital.models';
-import { CapitalService } from './capital.service';
+import { CapitalService, RecurringBudget } from './capital.service';
 
 const parse = (t: string) => Money.parse(t) ?? 0;
 const today = () => toIsoDate(new Date());
@@ -41,6 +41,8 @@ const FORM = `
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .chips button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; color: var(--c-text); cursor: pointer; }
   .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
+  label.repeat { flex-direction: row; align-items: center; gap: 8px; font-size: 0.84rem; color: var(--c-text); cursor: pointer; }
+  label.repeat input { width: 16px; height: 16px; padding: 0; }
 `;
 
 // ── New expense ────────────────────────────────────────────────────────────
@@ -59,16 +61,28 @@ const FORM = `
       </div>
       @if (cat(); as c) { <p class="gl">GL {{ c.gl }}@if (c.hint) { · {{ i18n.isSwahili() ? c.hint.sw : c.hint.en }} }</p> }
       <label><span>{{ i18n.t('Description', 'Maelezo') }} <small>({{ i18n.t('at least 5 letters', 'angalau herufi 5') }})</small></span><input type="text" maxlength="300" [value]="desc()" (input)="desc.set($any($event.target).value)" /></label>
+      <label class="repeat"><input type="checkbox" [checked]="repeat()" (change)="repeat.set($any($event.target).checked)" /><span>{{ i18n.t('Repeats every month (salary, rent, bills)', 'Inajirudia kila mwezi (mshahara, pango, bili)') }}</span></label>
       <div class="two">
-        <label><span>{{ i18n.t('Amount', 'Kiasi') }} (TZS)</span><input lsmsMoneyInput type="text" [value]="amount()" (input)="amount.set($any($event.target).value)" /></label>
-        <label><span>{{ i18n.t('Date paid', 'Tarehe ya malipo') }}</span><input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" /></label>
+        <label><span>{{ repeat() ? i18n.t('Amount per month', 'Kiasi kwa mwezi') : i18n.t('Amount', 'Kiasi') }} (TZS)</span><input lsmsMoneyInput type="text" [value]="amount()" (input)="amount.set($any($event.target).value)" /></label>
+        @if (repeat()) {
+          <label><span>{{ i18n.t('First month', 'Mwezi wa kwanza') }}</span><input type="month" [value]="startMonth()" (change)="startMonth.set($any($event.target).value)" /></label>
+        } @else {
+          <label><span>{{ i18n.t('Date paid', 'Tarehe ya malipo') }}</span><input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" /></label>
+        }
       </div>
+      @if (repeat()) {
+        <label><span>{{ i18n.t('Last month', 'Mwezi wa mwisho') }} <small>({{ i18n.t('optional — empty = until you stop it', 'si lazima — tupu = hadi uisimamishe') }})</small></span><input type="month" [min]="startMonth()" [value]="endMonth()" (change)="endMonth.set($any($event.target).value)" /></label>
+      }
       <app-money-account-picker [(value)]="method" />
-      <p class="info"><lsms-icon name="verified_user" [size]="16" />{{ i18n.t('It reaches the books (GL) only when a supervisor approves it — never by the person who recorded it.', 'Inaingia vitabuni (GL) pale msimamizi anapoidhinisha — si aliyeiandika.') }}</p>
+      @if (repeat()) {
+        <p class="info"><lsms-icon name="event_repeat" [size]="16" />{{ i18n.t('One approved expense is created for every month; each reaches the books (GL) on its own month. See and stop it under “Monthly budgets”.', 'Gharama moja iliyoidhinishwa inaundwa kwa kila mwezi; kila moja inaingia vitabuni (GL) kwenye mwezi wake. Iangalie na uisimamishe kwenye “Bajeti za kila mwezi”.') }}</p>
+      } @else {
+        <p class="info"><lsms-icon name="verified_user" [size]="16" />{{ i18n.t('It reaches the books (GL) only when a supervisor approves it — never by the person who recorded it.', 'Inaingia vitabuni (GL) pale msimamizi anapoidhinisha — si aliyeiandika.') }}</p>
+      }
       @if (error()) { <p class="err">{{ error() }}</p> }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ i18n.t('Save for approval', 'Hifadhi isubiri idhini') }}</button>
+        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ repeat() ? i18n.t('Start monthly budget', 'Anzisha bajeti ya kila mwezi') : i18n.t('Save for approval', 'Hifadhi isubiri idhini') }}</button>
       </ng-container>
     </lsms-dialog>
   `,
@@ -88,9 +102,14 @@ export class ExpenseDialog {
   protected readonly method = signal('CASH');
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly repeat = signal(false);
+  protected readonly startMonth = signal(today().slice(0, 7));
+  protected readonly endMonth = signal('');
 
   protected readonly cat = computed(() => this.cats.find((c) => c.type === this.type()));
-  protected readonly valid = computed(() => parse(this.amount()) > 0 && this.desc().trim().length >= 5);
+  protected readonly valid = computed(
+    () => parse(this.amount()) > 0 && this.desc().trim().length >= 5 && (!this.repeat() || (!!this.startMonth() && (!this.endMonth() || this.endMonth() >= this.startMonth()))),
+  );
 
   protected async save(): Promise<void> {
     if (!this.valid()) return;
@@ -98,6 +117,30 @@ export class ExpenseDialog {
     this.error.set(null);
     try {
       const c = this.cat()!;
+      if (this.repeat()) {
+        // V121 path: the backend keeps a template and creates an approved row per month.
+        const [y, m] = this.startMonth().split('-').map(Number);
+        const end = this.endMonth();
+        const last = end ? new Date(Number(end.slice(0, 4)), Number(end.slice(5, 7)), 0).getDate() : 0;
+        this.ref.close(
+          await this.api.create({
+            capitalType: c.type,
+            expenditureType: 'MONTHLY_EXPENSE',
+            expenditureFrequency: 'MONTHLY',
+            amount: parse(this.amount()),
+            monthlyAllocationAmount: parse(this.amount()),
+            description: this.desc().trim(),
+            recurring: true,
+            recurringType: 'MONTHLY_BUDGET',
+            allocatedYear: y,
+            allocatedMonth: m,
+            recurringEndDate: end ? `${end}-${String(last).padStart(2, '0')}T23:59:59` : null,
+            paymentMethod: this.method(),
+            affectsDailyProfit: true,
+          }),
+        );
+        return;
+      }
       const created = await this.api.create({
         capitalType: c.type,
         expenditureType: c.expType,
@@ -428,6 +471,151 @@ export class RepayDialog {
       this.error.set(ApiError.from(e).message);
     } finally {
       this.saving.set(false);
+    }
+  }
+}
+
+// ── Monthly budgets (recurring schedules) ─────────────────────────────────
+
+export interface RecurringBudgetsData {
+  canEdit: boolean;
+  canStop: boolean;
+}
+
+/**
+ * Every standing monthly charge (Flutter `RecurringBudgetsDialog`). Recurrence removed
+ * the monthly re-typing — which was an unwritten monthly re-approval — so this list is
+ * the control that replaces it: see each schedule, re-price it, or stop it.
+ */
+@Component({
+  selector: 'app-recurring-budgets-dialog',
+  imports: [DialogShell, Button, Icon, MoneyInput, MoneyPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <lsms-dialog [title]="i18n.t('Monthly budgets', 'Bajeti za kila mwezi')" icon="event_repeat">
+      @if (loading()) {
+        <p class="muted">{{ i18n.t('Loading…', 'Inapakia…') }}</p>
+      } @else if (error()) {
+        <p class="err">{{ error() }}</p>
+      } @else if (!items().length) {
+        <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('No monthly budget yet. Create one from “New expense” → “Repeats every month”.', 'Hakuna bajeti ya kila mwezi bado. Iunde kwenye “Gharama mpya” → “Inajirudia kila mwezi”.') }}</p>
+      } @else {
+        <p class="total">{{ i18n.t('Active per month', 'Zinazoendelea kwa mwezi') }}: <b>{{ activeTotal() | money: { decimals: 0 } }}</b></p>
+        @for (b of items(); track b.uid) {
+          <div class="row" [class.off]="!b.active">
+            <div class="main">
+              <strong>{{ b.description }}</strong>
+              <small>{{ b.summary || '' }}@if (b.monthsCreated !== null) { · {{ i18n.t(b.monthsCreated + ' month(s) created', 'miezi ' + b.monthsCreated + ' imeundwa') }} }</small>
+            </div>
+            <div class="amt">
+              <b>{{ b.monthly | money: { decimals: 0 } }}</b>
+              <span class="pill" [class.on]="b.active">{{ b.active ? i18n.t('Active', 'Inaendelea') : i18n.t('Stopped', 'Imesimamishwa') }}</span>
+            </div>
+            @if (b.active && editing() !== b.uid && stopping() !== b.uid) {
+              <div class="acts">
+                @if (data.canEdit) { <button lsmsButton="text" size="sm" icon="edit" (click)="edit(b.uid, b.monthly)">{{ i18n.t('Change amount', 'Badilisha kiasi') }}</button> }
+                @if (data.canStop) { <button lsmsButton="text" size="sm" icon="stop_circle" (click)="stopping.set(b.uid)">{{ i18n.t('Stop', 'Simamisha') }}</button> }
+              </div>
+            }
+            @if (editing() === b.uid) {
+              <div class="inline">
+                <input lsmsMoneyInput type="text" [value]="newAmount()" (input)="newAmount.set($any($event.target).value)" [attr.aria-label]="i18n.t('New monthly amount', 'Kiasi kipya cha mwezi')" />
+                <small>{{ i18n.t('Applies to months not yet paid.', 'Inatumika kwa miezi ambayo bado haijalipwa.') }}</small>
+                <button lsmsButton="secondary" size="sm" (click)="editing.set(null)">{{ i18n.t('Cancel', 'Ghairi') }}</button>
+                <button lsmsButton="primary" size="sm" [disabled]="amountOf() <= 0" [loading]="busy()" (click)="saveAmount(b.uid)">{{ i18n.t('Save', 'Hifadhi') }}</button>
+              </div>
+            }
+            @if (stopping() === b.uid) {
+              <div class="inline warn">
+                <small>{{ i18n.t('No new month will be created. Months already created stay.', 'Hakuna mwezi mpya utakaoundwa. Miezi iliyokwisha undwa inabaki.') }}</small>
+                <button lsmsButton="secondary" size="sm" (click)="stopping.set(null)">{{ i18n.t('Cancel', 'Ghairi') }}</button>
+                <button lsmsButton="danger" size="sm" [loading]="busy()" (click)="stop(b.uid)">{{ i18n.t('Stop it', 'Isimamishe') }}</button>
+              </div>
+            }
+          </div>
+        }
+      }
+      <ng-container dialogActions>
+        <button lsmsButton="secondary" (click)="ref.close(changed)">{{ i18n.t('Close', 'Funga') }}</button>
+      </ng-container>
+    </lsms-dialog>
+  `,
+  styles: `
+    ${FORM}
+    .muted { color: var(--c-text-2); }
+    .total { margin: 0 0 10px; font-size: 0.86rem; color: var(--c-text-2); }
+    .row { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; padding: 12px; border: 1px solid var(--c-border); border-radius: 12px; margin-bottom: 8px; }
+    .row.off { opacity: 0.6; }
+    .main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .main small { font-size: 0.74rem; color: var(--c-text-2); }
+    .amt { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .pill { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text) 6%, transparent); }
+    .pill.on { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
+    .acts, .inline { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .inline input { width: 160px; }
+    .inline small { flex: 1; min-width: 160px; font-size: 0.74rem; color: var(--c-text-2); }
+    .inline.warn small { color: var(--c-error); }
+  `,
+})
+export class RecurringBudgetsDialog {
+  protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
+  protected readonly data = inject<RecurringBudgetsData>(DIALOG_DATA);
+  protected readonly i18n = inject(LanguageService);
+  private readonly api = inject(CapitalService);
+
+  protected readonly items = signal<RecurringBudget[]>([]);
+  protected readonly loading = signal(true);
+  protected readonly busy = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly editing = signal<string | null>(null);
+  protected readonly stopping = signal<string | null>(null);
+  protected readonly newAmount = signal('');
+  protected changed = false;
+
+  protected readonly amountOf = computed(() => parse(this.newAmount()));
+  protected readonly activeTotal = computed(() => this.items().filter((b) => b.active).reduce((n, b) => n + b.monthly, 0));
+
+  constructor() {
+    void this.load();
+  }
+
+  private async load(): Promise<void> {
+    try {
+      this.items.set(await this.api.recurringBudgets());
+    } catch (e) {
+      this.error.set(ApiError.from(e).message);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  protected edit(uid: string, amount: number): void {
+    this.newAmount.set(Money.format(amount, { symbol: false }));
+    this.stopping.set(null);
+    this.editing.set(uid);
+  }
+
+  protected async saveAmount(uid: string): Promise<void> {
+    await this.run(() => this.api.updateRecurringAmount(uid, this.amountOf()));
+  }
+
+  protected async stop(uid: string): Promise<void> {
+    await this.run(() => this.api.stopRecurring(uid));
+  }
+
+  private async run(action: () => Promise<RecurringBudget>): Promise<void> {
+    this.busy.set(true);
+    this.error.set(null);
+    try {
+      const updated = await action();
+      this.items.update((l) => l.map((b) => (b.uid === updated.uid ? { ...b, ...updated } : b)));
+      this.changed = true;
+      this.editing.set(null);
+      this.stopping.set(null);
+    } catch (e) {
+      this.error.set(ApiError.from(e).message);
+    } finally {
+      this.busy.set(false);
     }
   }
 }

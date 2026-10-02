@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
@@ -40,6 +40,7 @@ import { DebtApprovalsPanel } from './debt-approvals-panel';
 import { ProfitPanel } from './profit-panel';
 import { ReturnsPanel } from './returns-panel';
 import { SalesService } from './sales.service';
+import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
 
 type Period = 'current' | 'today' | 'week' | 'month' | 'custom';
 type Status = 'ALL' | 'OWING' | 'PAID' | 'RETURNED';
@@ -105,6 +106,10 @@ export class SalesPage {
   protected readonly canWrite = computed(() => this.auth.hasPermission('SALES_WRITE'));
   protected readonly canPay = computed(() => this.auth.hasPermission('PAYMENT_WRITE'));
   protected readonly canDelete = computed(() => this.auth.hasPermission('SALES_DELETE'));
+  protected readonly table = viewChild<DataTable<Sale>>(DataTable);
+  protected readonly picked = signal<Sale[]>([]);
+  protected readonly bulkBusy = signal(false);
+  protected readonly pickedTotal = computed(() => this.picked().reduce((n, s) => n + s.total, 0));
   protected readonly canAnalytics = computed(() => this.auth.hasPermission('SALES_ANALYTICS'));
   protected readonly canReturns = computed(() => this.auth.hasPermission('SALES_RETURN_READ'));
   protected readonly canProfit = computed(() => this.auth.hasPermission('SALES_VIEW_PROFIT'));
@@ -219,6 +224,14 @@ export class SalesPage {
   });
 
   constructor() {
+    // /sales?date=YYYY-MM-DD (e.g. from a sales notification) opens that one day.
+    const day = inject(ActivatedRoute).snapshot.queryParamMap.get('date');
+    const m = day?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+      this.custom.set({ start: dayOnly(d), end: endOfDay(d) });
+      this.period.set('custom');
+    }
     void this.init();
     void this.business.profile.load().catch(() => undefined);
   }
@@ -235,6 +248,49 @@ export class SalesPage {
       }
     }
     await this.refresh();
+  }
+
+  /**
+   * Soft-deletes the selected sales (stock goes back, restorable from "Deleted").
+   * v3 asks for one reason — the audit trail Flutter left empty.
+   */
+  protected async deleteSelected(): Promise<void> {
+    const list = this.picked();
+    const t = (en: string, sw: string) => this.i18n.t(en, sw);
+    const reason = await this.dialogs.openAsync<string, ReasonDialogData>(ReasonDialog, {
+      size: 'sm',
+      data: {
+        title: t(`Delete ${list.length} sale(s)?`, `Futa mauzo ${list.length}?`),
+        message: t(
+          `${Money.format(this.pickedTotal())} leaves sales and their items go back into stock. They can be restored from “Deleted”.`,
+          `${Money.format(this.pickedTotal())} vitaondoka kwenye mauzo na bidhaa zitarudi stoo. Yanaweza kurejeshwa kwenye “Yaliyofutwa”.`,
+        ),
+        label: t('Reason', 'Sababu'),
+        confirm: t('Delete', 'Futa'),
+        danger: true,
+        min: 5,
+      },
+    });
+    if (!reason) return;
+    this.bulkBusy.set(true);
+    try {
+      const res = await this.api.bulkRemove(list.map((s) => s.uid), reason);
+      this.table()?.clearSelection();
+      if (res.deleted) this.toast.success(t(`${res.deleted} sale(s) deleted`, `Mauzo ${res.deleted} yamefutwa`));
+      if (res.failed.length) {
+        await this.dialogs.confirm({
+          title: t(`${res.failed.length} not deleted`, `${res.failed.length} hayakufutwa`),
+          message: res.failed.map((f) => `${f.receipt}: ${f.reason}`).join('\n'),
+          confirmText: t('OK', 'Sawa'),
+          cancelText: t('Close', 'Funga'),
+        });
+      }
+      await this.refresh();
+    } catch (e) {
+      this.toast.error(ApiError.from(e).message);
+    } finally {
+      this.bulkBusy.set(false);
+    }
   }
 
   protected async refresh(): Promise<void> {

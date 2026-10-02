@@ -7,12 +7,14 @@ import { DataTable, EmptyState, Icon, MetricCard, MetricsGrid, SegmentOption, Se
 import { DateRange, parseLocal, rangeForPreset, toIsoDate, toLocalDateTime } from '@shared/utils/date-utils';
 import { Cell, downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
-import { Purchase, PurchaseStatus } from '../purchases/purchases.models';
+import { BusinessService } from '@core/data/business.service';
+import { Purchase, PurchaseStatus, RepurchaseInvoice } from '../purchases/purchases.models';
+import { printInvoice } from '../purchases/repurchase/repurchase-invoice';
 import { PurchasesService } from '../purchases/purchases.service';
 import { SuppliersService } from '../suppliers/suppliers.service';
 import { ReportFrame } from './report-frame';
 
-type View = 'supplier' | 'product' | 'list';
+type View = 'supplier' | 'product' | 'list' | 'invoices';
 
 interface SupplierRow { uid: string; name: string; count: number; received: number; open: number; last: string | null; owed: number | null }
 interface ProductRow { uid: string; name: string; category: string; count: number; pieces: number; cost: number; avgPiece: number | null; lastPiece: number | null; last: string | null }
@@ -83,6 +85,24 @@ const STATUS_META: Record<PurchaseStatus, { en: string; sw: string; color: strin
               </lsms-data-table>
             </section>
           }
+          @case ('invoices') {
+            <section class="card flush">
+              @if (!invoices()) {
+                <lsms-skeleton variant="list" [rows]="5" />
+              } @else {
+                <lsms-data-table [items]="invoices()!" title="invoices" [showHeader]="false" [pageSize]="25" defaultSortColumn="date" defaultSortDirection="desc" [mobileTitle]="invNo" [emptyTitle]="i18n.t('No invoices in this period', 'Hakuna ankara katika kipindi hiki')" (rowClick)="reprint($event)">
+                  <ng-template lsmsColumn="no" [label]="i18n.t('Invoice', 'Ankara')" [sortBy]="invNo" let-row>
+                    <span class="cell-stack"><strong>{{ row.invoiceNumber }}</strong><small>{{ row.buyerName }}</small></span>
+                  </ng-template>
+                  <ng-template lsmsColumn="date" [label]="i18n.t('Date', 'Tarehe')" [sortBy]="invDate" let-row>{{ day(row.createdAt) }}</ng-template>
+                  <ng-template lsmsColumn="items" [label]="i18n.t('Products', 'Bidhaa')" align="end" let-row><span class="num">{{ row.items.length }}</span></ng-template>
+                  <ng-template lsmsColumn="suppliers" [label]="i18n.t('Suppliers', 'Wasambazaji')" let-row><span class="muted">{{ suppliersOf(row) }}</span></ng-template>
+                  <ng-template lsmsColumn="total" [label]="i18n.t('Total', 'Jumla')" align="end" [sortBy]="invTotal" let-row><span class="num strong">{{ m(row.grandTotal) }}</span></ng-template>
+                  <ng-template lsmsColumn="print" label="" align="end" let-row><lsms-icon name="print" [size]="18" class="muted" /></ng-template>
+                </lsms-data-table>
+              }
+            </section>
+          }
           @case ('list') {
             <section class="card flush">
               <lsms-data-table [items]="items()!" title="purchases" [showHeader]="false" [pageSize]="25" defaultSortColumn="date" defaultSortDirection="desc" [mobileTitle]="productOf" [emptyTitle]="i18n.t('No purchases in this period', 'Hakuna manunuzi katika kipindi hiki')">
@@ -122,7 +142,15 @@ export class PurchasesReport {
     { value: 'supplier', label: this.i18n.t('By supplier', 'Kwa msambazaji'), icon: 'local_shipping' },
     { value: 'product', label: this.i18n.t('By product', 'Kwa bidhaa'), icon: 'inventory_2' },
     { value: 'list', label: this.i18n.t('All orders', 'Oda zote'), icon: 'list', count: this.items()?.length },
+    { value: 'invoices', label: this.i18n.t('Invoices', 'Ankara'), icon: 'receipt_long', count: this.invoices()?.length },
   ]);
+
+  /** Saved repurchase invoices (the order sheets) — loaded with the period, reprinted on click. */
+  protected readonly invoices = signal<RepurchaseInvoice[] | null>(null);
+  private readonly business = inject(BusinessService);
+  protected readonly invNo = (r: RepurchaseInvoice) => r.invoiceNumber;
+  protected readonly invDate = (r: RepurchaseInvoice) => r.createdAt;
+  protected readonly invTotal = (r: RepurchaseInvoice) => r.grandTotal;
 
   private readonly live = computed(() => (this.items() ?? []).filter((p) => p.status !== 'CANCELLED'));
   private readonly owedBySupplier = computed(() => {
@@ -212,6 +240,12 @@ export class PurchasesReport {
       .byDateRange(toLocalDateTime(r.start), toLocalDateTime(r.end))
       .then((p) => this.items.set(p))
       .catch((e) => this.error.set(ApiError.from(e).message));
+    this.invoices.set(null);
+    this.api
+      .invoices(toIsoDate(r.start), toIsoDate(r.end))
+      .then((l) => this.invoices.set(l))
+      .catch(() => this.invoices.set([]));
+    void this.business.profile.load().catch(() => undefined);
     if (this.auth.hasPermission('SUPPLIER_READ')) void this.suppliersApi.list.load().catch(() => undefined);
   }
 
@@ -222,6 +256,15 @@ export class PurchasesReport {
   protected day(v: string | null): string {
     const d = parseLocal(v);
     return d ? new Intl.DateTimeFormat(this.i18n.isSwahili() ? 'sw-TZ' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(d) : '—';
+  }
+
+  protected suppliersOf(inv: RepurchaseInvoice): string {
+    const names = [...new Set(inv.items.map((i) => i.supplierName).filter((x): x is string => !!x))];
+    return names.length ? names.join(', ') : '—';
+  }
+
+  protected reprint(inv: RepurchaseInvoice): void {
+    printInvoice(inv, this.business.profile.value(), this.i18n.isSwahili());
   }
 
   protected status(s: PurchaseStatus) {
@@ -244,6 +287,13 @@ export class PurchasesReport {
           headers: [t('Product', 'Bidhaa'), t('Category', 'Kategoria'), t('Orders', 'Oda'), t('Pieces', 'Vipande'), t('Total cost', 'Gharama'), t('Avg. per piece', 'Wastani/kipande'), t('Last price / piece', 'Bei ya mwisho/kipande')],
           rows: [...this.products()].sort((a, b) => b.cost - a.cost).map((r) => [r.name, r.category, r.count, r.pieces, r.cost, r.avgPiece === null ? '' : Math.round(r.avgPiece), r.lastPiece === null ? '' : Math.round(r.lastPiece)]),
           money: [4, 5, 6],
+        };
+      case 'invoices':
+        return {
+          title: t('Saved invoices', 'Ankara zilizohifadhiwa'),
+          headers: [t('Invoice', 'Ankara'), t('Date', 'Tarehe'), t('Buyer', 'Mnunuzi'), t('Products', 'Bidhaa'), t('Suppliers', 'Wasambazaji'), t('Total', 'Jumla')],
+          rows: (this.invoices() ?? []).map((i) => [i.invoiceNumber, i.createdAt.slice(0, 16).replace('T', ' '), i.buyerName, i.items.length, this.suppliersOf(i), i.grandTotal]),
+          money: [5],
         };
       default:
         return {

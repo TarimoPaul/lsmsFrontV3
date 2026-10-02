@@ -31,8 +31,9 @@ import { CUSTOMER_TYPES, Customer, customerInitials } from './customers.models';
 import { CustomersService } from './customers.service';
 import { DebtPaymentsPanel } from './debt-payments-panel';
 import { UnpaidTotalBar } from './unpaid-total-bar';
+import { WaivedDebtsPanel } from './waived-debts-panel';
 
-type View = 'customers' | 'payments';
+type View = 'customers' | 'payments' | 'waived';
 type Filter = 'ALL' | 'OWING' | 'PAID_UP' | 'NO_SALES' | 'NEW' | 'TOP';
 
 const DAY = 86_400_000;
@@ -61,6 +62,7 @@ const DAY = 86_400_000;
     Icon,
     MoneyPipe,
     DebtPaymentsPanel,
+    WaivedDebtsPanel,
     UnpaidTotalBar,
     DatePipe,
   ],
@@ -88,6 +90,8 @@ export class CustomersPage {
   protected readonly canUpdate = computed(() => this.auth.hasPermission('CUSTOMER_UPDATE'));
   protected readonly canDelete = computed(() => this.auth.hasPermission('CUSTOMER_DELETE'));
   protected readonly canCredit = computed(() => this.auth.hasPermission('CUSTOMER_CREDIT_VIEW'));
+  /** Same gate as GET /api/debt-adjustments/report. */
+  protected readonly canWaived = computed(() => ['DEBT_ADJUST_CREATE', 'DEBT_ADJUST_APPROVE', 'DEBT_WRITE_OFF'].some((p) => this.auth.hasPermission(p)));
   protected readonly canMerge = computed(() => this.auth.hasPermission('CUSTOMER_MERGE'));
 
   protected readonly types = CUSTOMER_TYPES;
@@ -122,7 +126,8 @@ export class CustomersPage {
 
   protected readonly viewOptions = computed<SegmentOption<View>[]>(() => [
     { value: 'customers', label: this.i18n.t('Customers', 'Wateja'), icon: 'group', count: this.stats().total },
-    { value: 'payments', label: this.i18n.t('Debt payments', 'Malipo ya madeni'), icon: 'task_alt' },
+    ...(this.canCredit() ? [{ value: 'payments' as View, label: this.i18n.t('Debt payments', 'Malipo ya madeni'), icon: 'task_alt' }] : []),
+    ...(this.canWaived() ? [{ value: 'waived' as View, label: this.i18n.t('Cleared without payment', 'Yaliyofutwa bila malipo'), icon: 'money_off' }] : []),
   ]);
 
   protected readonly filterOptions = computed<SegmentOption<Filter>[]>(() => {

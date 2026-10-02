@@ -137,10 +137,21 @@
         (secondaryAction)="refresh()"
       />
     } @else {
+      @if (picked().length) {
+        <div class="bulkbar">
+          <span><lsms-icon name="checklist" [size]="18" />{{ i18n.t(picked().length + ' selected · ', picked().length + ' zimechaguliwa · ') }}<b>{{ pickedTotal() | money: { decimals: 0 } }}</b></span>
+          <span class="bulk-acts">
+            <button lsmsButton="danger" size="sm" icon="delete" [loading]="bulkBusy()" (click)="deleteSelected()">{{ i18n.t('Delete', 'Futa') }} ({{ picked().length }})</button>
+            <button lsmsButton="text" size="sm" [disabled]="bulkBusy()" (click)="table()?.clearSelection()">{{ i18n.t('Clear', 'Ondoa') }}</button>
+          </span>
+        </div>
+      }
       <lsms-data-table
         [title]="i18n.t('Sales', 'Mauzo') + ' · ' + periodLabel()"
         [items]="rows()"
         [rowId]="rowId"
+        [bulkSelection]="canDelete()"
+        (selectionChange)="picked.set($event)"
         [loading]="loading()"
 
         [pageSize]="25"

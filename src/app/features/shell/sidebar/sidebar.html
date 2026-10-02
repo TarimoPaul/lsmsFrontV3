@@ -1,10 +1,10 @@
 <div class="brand">
   <a class="logo" routerLink="/dashboard" (click)="navigate.emit()" [attr.aria-label]="'ELIKOM ' + i18n.t('Home', 'Nyumbani')">
     @if (collapsed()) {
-      <span class="mark"><img src="/icons/Finallogo.png" alt="" width="30" height="30" /></span>
+      <span class="mark"><img src="icons/Finallogo.png" alt="" width="30" height="30" /></span>
     } @else {
       <!-- Full Elikom logo straight on the sidebar (wordmark recoloured white for the dark background). -->
-      <span class="plate"><img src="/icons/elikom-logo-on-dark.png" alt="ELIKOM" width="96" height="82" /></span>
+      <span class="plate"><img src="icons/elikom-logo-on-dark.png" alt="ELIKOM" width="96" height="82" /></span>
       <small class="tag">Sales &amp; Management System</small>
     }
   </a>

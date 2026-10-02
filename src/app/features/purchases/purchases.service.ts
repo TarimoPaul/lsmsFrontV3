@@ -139,6 +139,33 @@ export class PurchasesService {
     return { created: ((d['successfulPurchases'] as Raw[]) ?? []).map(normalizePurchase), failed };
   }
 
+  /** Saved repurchase invoices whose createdAt falls in [start, end] (ISO dates, inclusive). Newest first. */
+  async invoices(start: string, end: string): Promise<RepurchaseInvoice[]> {
+    const raw = (await this.api.get<Raw[] | null>('/api/v1/invoices', { params: { startDate: start, endDate: end } })) ?? [];
+    const n = (v: unknown) => Number(v ?? 0) || 0;
+    return raw
+      .map((r) => ({
+        invoiceNumber: String(r['invoiceNumber'] ?? ''),
+        createdAt: String(r['createdAt'] ?? ''),
+        buyerName: String(r['buyerName'] ?? ''),
+        notes: (r['notes'] as string | null) ?? null,
+        grandTotal: n(r['grandTotal']),
+        totalDiscount: n(r['totalDiscount']),
+        items: ((r['items'] as Raw[] | null) ?? []).map((i) => ({
+          productUid: String(i['productUid'] ?? ''),
+          productDisplayName: String(i['productDisplayName'] ?? ''),
+          quantity: n(i['quantity']),
+          unitPrice: n(i['unitPrice']),
+          totalValue: n(i['totalValue']),
+          discountAmount: n(i['discountAmount']),
+          finalTotal: n(i['finalTotal']),
+          purchaseTypeLabel: String(i['purchaseTypeLabel'] ?? ''),
+          supplierName: (i['supplierName'] as string | null) ?? null,
+        })),
+      }))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
   /** Idempotent by invoice number — re-sending the same invoice returns the saved one. */
   async saveInvoice(inv: RepurchaseInvoice): Promise<void> {
     await this.api.post('/api/v1/invoices', inv);

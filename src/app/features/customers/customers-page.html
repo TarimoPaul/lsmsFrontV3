@@ -55,7 +55,7 @@
     />
   </lsms-metrics-grid>
 
-  @if (canCredit()) {
+  @if (viewOptions().length > 1) {
     <lsms-segmented-filter-bar class="views" [options]="viewOptions()" [(selected)]="view" />
   }
 
@@ -63,6 +63,10 @@
     @if (view() === 'payments') {
       @defer {
         <app-debt-payments-panel />
+      }
+    } @else if (view() === 'waived') {
+      @defer {
+        <app-waived-debts-panel />
       }
     } @else {
       <lsms-filter-panel [searchPlaceholder]="i18n.t('Search name, phone or email…', 'Tafuta jina, simu au barua pepe…')" (search)="search.set($event)">

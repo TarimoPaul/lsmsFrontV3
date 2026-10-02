@@ -16,7 +16,7 @@ import { Icon } from '@shared/ui';
     <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i>
     <div class="content">
       <div class="wordmark">
-        <span class="mark"><img src="/icons/Finallogo.png" alt="" width="26" height="26" /></span>
+        <span class="mark"><img src="icons/Finallogo.png" alt="" width="26" height="26" /></span>
         <div>
           <strong>ELIKOM</strong>
           <small>SALES &amp; MANAGEMENT SYSTEM</small>

@@ -175,4 +175,11 @@ export class SalesService {
   async remove(uid: string): Promise<void> {
     await this.api.delete(`${BASE}/${uid}`);
   }
+
+  /** Soft-deletes several sales with one reason; each refusal comes back with its own reason. */
+  async bulkRemove(saleUids: string[], deleteReason: string): Promise<{ deleted: number; failed: { receipt: string; reason: string }[] }> {
+    const r = await this.api.post<Raw>(`${BASE}/bulk-delete`, { saleUids, deleteReason });
+    const failed = ((r['failedItems'] as Raw[] | null) ?? []).map((f) => ({ receipt: String(f['receiptNumber'] ?? f['saleUid'] ?? ''), reason: String(f['reason'] ?? '') }));
+    return { deleted: Number(r['successCount'] ?? 0), failed };
+  }
 }

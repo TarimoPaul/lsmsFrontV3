@@ -16,6 +16,8 @@ import { environment } from '../../../environments/environment';
 import { BranchPickerData, BranchPickerDialog } from '../auth/branch-picker/branch-picker-dialog';
 import { CommandPalette } from './command-palette/command-palette';
 import { Sidebar } from './sidebar/sidebar';
+import { DebtBanners } from './debt-banners';
+import { UpdateBanner } from './update-banner';
 import { Topbar } from './topbar/topbar';
 
 export interface PageMeta {
@@ -31,7 +33,7 @@ export interface PageMeta {
  */
 @Component({
   selector: 'app-shell-layout',
-  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar],
+  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, DebtBanners, UpdateBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-sidenav-container class="shell" [hasBackdrop]="!desktop()" [autosize]="true">
@@ -65,6 +67,8 @@ export interface PageMeta {
             (switchBranch)="switchBranch()"
             (logout)="logout()"
           />
+          <app-debt-banners />
+          <app-update-banner />
           @if (theme.ambientMotion() && isHome()) {
             <div class="bubbles" aria-hidden="true">
               @for (b of bubbles; track $index) {
