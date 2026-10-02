@@ -80,7 +80,10 @@ export class NotificationCenter {
 
   private async loadDebtBanners(): Promise<void> {
     const page = await this.list(0, 50, 'DEBT', true);
-    this.debtUnread.set(page.items);
+    // Filtered here as well: a backend older than the `types` / `unreadOnly` params
+    // (≤ 2.2.58) ignores them and answers with every notification, read ones included.
+    const debtTypes = CATEGORY_TYPES.DEBT ?? [];
+    this.debtUnread.set(page.items.filter((n) => !n.isRead && debtTypes.includes(n.type)));
   }
 
   unreadIn(c: NotificationCategory): number {

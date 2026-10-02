@@ -41,7 +41,31 @@ PREV_ENV="$(sed -n "s/^${VAR}=//p" .env | tr -d '\r' | head -n1)"
 say "running now: ${PREV:-<none>}   new: $NEW"
 [ -n "$PREV" ] && echo "$PREV" > "$PREV_FILE"
 
-set_version() { sed -i "s/^${VAR}=.*/${VAR}=$1/" .env; }
+# The ONLY place .env is edited. Every edit: timestamped backup first, replace
+# exactly the FRONTEND_V3_VERSION= line, prove nothing else changed and that
+# compose still parses; otherwise put the backup back and report failure.
+set_version() {
+  local v="$1" bak why=""
+  bak=".env.bak.v3.$(date +%Y%m%d-%H%M%S)-$$-$RANDOM"
+  cp -p .env "$bak" || { say ".env backup failed - .env not touched"; return 1; }
+
+  if   ! sed -i "s/^${VAR}=.*\$/${VAR}=${v}/" .env;                          then why="sed failed"
+  elif [ "$(grep -c "^${VAR}=" .env)" != "1" ];                              then why="expected exactly one ${VAR}= line"
+  elif ! grep -qx "${VAR}=${v}" .env;                                        then why="${VAR} line is not '${v}'"
+  elif ! diff -q <(grep -v "^${VAR}=" "$bak") <(grep -v "^${VAR}=" .env) > /dev/null
+                                                                             then why="another line of .env changed"
+  elif ! docker compose config --quiet < /dev/null;                          then why="docker compose config --quiet failed"
+  fi
+
+  if [ -n "$why" ]; then
+    cp -p "$bak" .env
+    say ".env edit rejected ($why) - .env restored from $bak"
+    return 1
+  fi
+  # Keep the 5 newest backups (they hold secrets: same 600 mode as .env).
+  ls -1t .env.bak.v3.* 2>/dev/null | tail -n +6 | xargs -r rm -f --
+  return 0
+}
 
 # ── health check through the main nginx (same path a browser takes) ─────────
 get()  { curl -sS --max-time 10 -H "Host: $SITE_HOST" "$@"; }
@@ -86,15 +110,14 @@ rollback() {
   say "ROLLING BACK"
   docker compose logs --tail 20 "$SVC" < /dev/null 2>&1 | sed 's/^/[v3]   /' || true
   if [ -n "$PREV" ]; then
-    set_version "$PREV"
-    if docker compose up -d --no-deps "$SVC" < /dev/null && health_check "$PREV"; then
+    if set_version "$PREV" && docker compose up -d --no-deps "$SVC" < /dev/null && health_check "$PREV"; then
       say "ROLLED_BACK to $PREV (healthy)"
     else
       say "ROLLBACK to $PREV did NOT pass the health check - check the server now"
     fi
   else
     # First deploy: nothing to go back to. Flutter and /api are not affected.
-    [ -n "$PREV_ENV" ] && set_version "$PREV_ENV"
+    if [ -n "$PREV_ENV" ]; then set_version "$PREV_ENV" || true; fi
     say "no previous v3 version to roll back to; failed container left in place for inspection"
   fi
 }
@@ -107,7 +130,7 @@ if [ -z "${LSMS_SKIP_PULL:-}" ]; then
 fi
 
 # 2. Switch the tag and recreate only this service.
-set_version "$NEW"
+set_version "$NEW" || die ".env could not be updated safely - it was restored, nothing was changed"
 if ! docker compose up -d --no-deps "$SVC" < /dev/null; then
   rollback
   die "compose up failed"

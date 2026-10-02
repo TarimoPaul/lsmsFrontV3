@@ -35,6 +35,9 @@ Kinachotokea:
 3. **Health check** kupitia nginx kuu (`Host: elikom.co.tz`, `http://localhost`):
    `/v3/` = 200 na ina `<base href="/v3/">`; `main-*.js` = 200 na ni JavaScript;
    `/v3/version.json` ina toleo jipya; deep link `/v3/sales` inarudisha app; `/` bado ni Flutter.
+   Kila badiliko la `.env`: nakala kwanza (`.env.bak.v3.<muda>`, 5 za mwisho zinabaki), mstari wa
+   `FRONTEND_V3_VERSION=` pekee unabadilishwa, kisha `docker compose config --quiet`; ikishindwa,
+   nakala inarudishwa yenyewe na deploy inasimama.
 4. Ikifaulu: `DEPLOY_OK <toleo>`, kisha `.frontend-v3-version` inaandikwa na ku-commit.
    Server inabaki na images mbili tu za V3 (mpya + iliyopita).
 
