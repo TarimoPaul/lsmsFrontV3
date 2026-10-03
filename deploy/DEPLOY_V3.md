@@ -23,8 +23,8 @@ Mahitaji kwenye PC: Docker Desktop imewashwa, `docker login -u chiefmaster` (tok
 .\deploy\deploy-v3.ps1 -Bump none     # toleo lililo kwenye faili, bila kuongeza (deploy ya KWANZA)
 ```
 
-Chaguo nyingine: `-SkipPreflight` (hakuna utegemezi wa backend), `-AllowDirty` (jenga kutoka
-kwenye mabadiliko yasiyo-commit — epuka).
+Chaguo nyingine: `-SkipPreflight` (hakuna utegemezi wa backend). Hakuna njia ya kujenga kutoka
+working tree chafu: faili lolote lililobadilishwa au jipya (isipokuwa `analysis/`) linakataliwa.
 
 Kinachotokea:
 
@@ -34,7 +34,8 @@ Kinachotokea:
    → `docker compose up -d --no-deps frontend-v3`.
 3. **Health check** kupitia nginx kuu (`Host: elikom.co.tz`, `http://localhost`):
    `/v3/` = 200 na ina `<base href="/v3/">`; `main-*.js` = 200 na ni JavaScript;
-   `/v3/version.json` ina toleo jipya; deep link `/v3/sales` inarudisha app; `/` bado ni Flutter.
+   `/v3/version.json` ina toleo jipya; deep link `/v3/sales` inarudisha app; `/` ni 200 au 302 kwenda `/v3/`; Flutter inathibitishwa
+   kwa `/index.html` = 200 (na si app ya V3).
    Kila badiliko la `.env`: nakala kwanza (`.env.bak.v3.<muda>`, 5 za mwisho zinabaki), mstari wa
    `FRONTEND_V3_VERSION=` pekee unabadilishwa, kisha `docker compose config --quiet`; ikishindwa,
    nakala inarudishwa yenyewe na deploy inasimama.

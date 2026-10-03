@@ -99,11 +99,28 @@ health_check() {
   return 1
 }
 
+# GET / : 200, or a 302 to /v3/ (prod sends the site root to V3). The Location may be the
+# relative "/v3/" or the same host made absolute by nginx (absolute_redirect).
+root_ok() {
+  local hdr c loc
+  hdr="$(curl -s -o /dev/null -D - --max-time 10 -H "Host: $SITE_HOST" "$BASE/" 2>/dev/null || true)"
+  c="$(awk 'NR==1 {print $2}' <<<"$hdr" || true)"
+  loc="$(grep -i '^location:' <<<"$hdr" | head -n1 | cut -d' ' -f2- | tr -d '\r' || true)"
+  case "$c" in
+    200) return 0 ;;
+    302) case "$loc" in "/v3/"|"http://$SITE_HOST/v3/"|"https://$SITE_HOST/v3/") return 0 ;; esac
+         say "GET / returned 302 to '$loc' (want /v3/)"; return 1 ;;
+    *)   say "GET / returned '$c' (want 200, or 302 to /v3/)"; return 1 ;;
+  esac
+}
+
+# Flutter is checked on /index.html (served whatever / redirects to): 200 and not the V3 app.
 flutter_ok() {
-  local root
-  [ "$(code "$BASE/")" = "200" ] || return 1
-  root="$(get "$BASE/")" || return 1
-  ! grep -q '<base href="/v3/">' <<<"$root"
+  local html
+  root_ok || return 1
+  [ "$(code "$BASE/index.html")" = "200" ] || { say "GET /index.html (Flutter) is not 200"; return 1; }
+  html="$(get "$BASE/index.html")" || return 1
+  ! grep -q '<base href="/v3/">' <<<"$html" || { say "/index.html serves the V3 app, not Flutter"; return 1; }
 }
 
 rollback() {
@@ -143,7 +160,7 @@ if ! health_check "$NEW"; then
 fi
 if ! flutter_ok; then
   rollback
-  die "Flutter at / is not answering as before"
+  die "Flutter (/index.html) or the site root (/ -> 200 or 302 /v3/) is not answering as expected"
 fi
 
 # 4. Keep the new + previous image only (this repository only - no global prune).

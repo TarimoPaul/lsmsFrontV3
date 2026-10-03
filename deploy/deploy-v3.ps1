@@ -14,8 +14,6 @@
 param(
     [ValidateSet('patch', 'minor', 'major', 'none')]
     [string]$Bump = 'patch',
-    # Build from a working tree with uncommitted changes (not recommended).
-    [switch]$AllowDirty,
     # Frontend-only change with no backend coupling? -SkipPreflight.
     [switch]$SkipPreflight
 )
@@ -35,6 +33,21 @@ function Fail([string]$m) { Write-Host "`n[FAILED] $m" -ForegroundColor Red; exi
 function Invoke-Checked([string]$What, [scriptblock]$Cmd) {
     & $Cmd
     if ($LASTEXITCODE -ne 0) { Fail "$What (exit $LASTEXITCODE)" }
+}
+# Refuse ANY modified, staged, deleted or untracked path in the repo (only analysis/ is allowed).
+# No flag skips it. Runs git against $RepoRoot explicitly (not the caller's cwd) and forces
+# untracked files to be listed, whatever the user's git config says.
+function Assert-CleanTree([string]$Root) {
+    $ErrorActionPreference = 'Continue'   # git may print CRLF warnings on stderr; they are not errors
+    # Refresh stat info first, so a file whose content is unchanged (e.g. only touched, or CRLF/LF
+    # normalisation) never reads 'modified' on one run and clean on the next: same answer every run.
+    git -C $Root update-index -q --refresh | Out-Null
+    $lines = @(git -C $Root -c core.quotepath=false status --porcelain=v1 --untracked-files=all --ignore-submodules=none)
+    if ($LASTEXITCODE -ne 0) { Fail "git status imeshindwa kwenye $Root (exit $LASTEXITCODE)." }
+    $bad = @($lines | Where-Object { $_ -and ($_.Substring(3).Trim('"') -notmatch '^analysis/') })
+    if ($bad.Count) {
+        Fail ("Working tree si safi ($($bad.Count)) - commit au ondoa kwanza (analysis/ peke yake inaruhusiwa):`n    " + ($bad -join "`n    "))
+    }
 }
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
@@ -68,12 +81,7 @@ try {
     $newVersion = "$major.$minor.$patch"
     $image = "${ImageName}:${newVersion}"
 
-    $dirty = git status --porcelain
-    if ($LASTEXITCODE -ne 0) { Fail "git status imeshindwa" }
-    if ($dirty -and -not $AllowDirty) {
-        Fail "Working tree ina mabadiliko yasiyo-commit. Commit kwanza, au tumia -AllowDirty kwa makusudi."
-    }
-    if ($dirty) { Write-Host "[!] -AllowDirty: image itajengwa kutoka kwenye mabadiliko yasiyo-commit." -ForegroundColor DarkYellow }
+    Assert-CleanTree $RepoRoot
 
     Invoke-Checked "Docker haipatikani - washa Docker Desktop" { docker version --format '{{.Server.Version}}' | Out-Null }
     Invoke-Checked "SSH kwenda '$SshHost' imeshindwa (jaribu: ssh $SshHost)" { ssh -o BatchMode=yes -o ConnectTimeout=15 $SshHost "true" }
@@ -99,6 +107,7 @@ try {
     if (-not $pushed) { Fail "docker push imeshindwa. Umeingia Docker Hub? (docker login -u chiefmaster, kwa token ya PUSH). Server haijaguswa." }
 
     # -- REMOTE DEPLOY ----------------------------------------
+    Assert-CleanTree $RepoRoot   # again: nothing may have changed while building
     # LF-only copy without BOM (CRLF / BOM break bash).
     $body = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'remote-deploy-v3.sh')) -replace "`r", ''
     $tempScript = [System.IO.Path]::GetTempFileName()
