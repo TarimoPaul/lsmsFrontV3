@@ -21,6 +21,8 @@ interface CheckItem {
   label: string;
   amount: number;
   verified: boolean;
+  /** Debt unpaid on this day but paid in full since — the day's deduction still stands. */
+  paidLater?: boolean;
 }
 
 const ZERO_CASH_PRESETS = [
@@ -85,7 +87,10 @@ const ZERO_CASH_PRESETS = [
           <ul class="items">
             @for (c of checks(); track c.type + c.uid) {
               <li>
-                <span class="t"><b>{{ c.label }}</b><small>{{ c.type }}</small></span>
+                <span class="t">
+                  <b>{{ c.label }}</b>
+                  <small>{{ c.type }}@if (c.paidLater) { <span class="later" [title]="i18n.t('Still counted as owed on this day; the customer has paid since.', 'Bado linahesabiwa kama deni siku hii; mteja amelipa baadaye.')">{{ i18n.t('Paid later', 'Imelipwa baadaye') }}</span> }</small>
+                </span>
                 <b class="amt">{{ c.amount | money }}</b>
                 <button type="button" class="vbtn" [class.on]="c.verified" [disabled]="store.saving()" (click)="toggle(c)">
                   <lsms-icon [name]="c.verified ? 'check_circle' : 'radio_button_unchecked'" [size]="18" [filled]="c.verified" />{{ c.verified ? i18n.t('Verified', 'Imethibitishwa') : i18n.t('Verify', 'Thibitisha') }}
@@ -230,6 +235,7 @@ const ZERO_CASH_PRESETS = [
   `,
   styleUrl: './recon-tab.scss',
   styles: `
+    .later { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 600; cursor: help; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 12%, transparent); }
     .count { margin-left: auto; padding: 1px 8px; border-radius: 100px; font-size: 0.72rem; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .vbtn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.76rem; font-weight: 700; color: var(--c-text-2); cursor: pointer; }
     .vbtn.on { color: var(--c-success); border-color: color-mix(in srgb, var(--c-success) 45%, transparent); background: color-mix(in srgb, var(--c-success) 8%, var(--c-surface)); }
@@ -459,7 +465,7 @@ function buildChecks(r: Recon | null, sw: boolean): CheckItem[] {
   for (const e of r.cashEntries) out.push({ type: 'CASH', uid: e.uid, label: CASH_TYPES[e.type] ? (sw ? CASH_TYPES[e.type].sw : CASH_TYPES[e.type].en) : e.type, amount: e.amount, verified: e.verified });
   for (const e of r.mobileEntries) out.push({ type: 'MOBILE', uid: e.uid, label: e.provider, amount: e.amount, verified: e.verified });
   for (const e of r.collections) out.push({ type: 'COLLECTION', uid: e.uid, label: e.customerName ?? e.receipt ?? '—', amount: e.amount, verified: e.verified });
-  for (const d of r.debts.filter((x) => !x.isPaid)) out.push({ type: 'DEBT', uid: d.uid, label: d.customerName ?? '—', amount: d.amount, verified: d.verified });
+  for (const d of r.debts.filter((x) => !x.isPaid)) out.push({ type: 'DEBT', uid: d.uid, label: d.customerName ?? '—', amount: d.amount, verified: d.verified, paidLater: d.settledAfterDay });
   for (const e of r.expenses) out.push({ type: 'EXPENSE', uid: e.uid, label: e.description || (EXPENSE_TYPES[e.type] ? (sw ? EXPENSE_TYPES[e.type].sw : EXPENSE_TYPES[e.type].en) : e.type), amount: e.amount, verified: e.verified });
   for (const p of r.purchases) out.push({ type: 'PURCHASE', uid: p.uid, label: p.description || p.supplier || '—', amount: p.amount, verified: p.verified });
   return out;

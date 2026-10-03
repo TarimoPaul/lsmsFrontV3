@@ -1,5 +1,8 @@
 # LSMS V3 — Uchambuzi wa data kwa ajili ya "auto-ordering"
 
+> ⚠️ **SAHIHISHO 2026-10-03:** namba za madeni (Q1, na "Matokeo muhimu" #2) zilipimwa kwa `SUM(payments.outstanding_balance)`, ambayo inahesabu tena madeni yaliyolipwa baadaye. Namba sahihi (kwa `sales.outstanding_balance` = ripoti ya AR) ziko kwenye **`v3_debt_recount.md`**: madeni ni 1,646,000 (si 1.90M), walk-in ni 88% (si 92%), ongezeko la walk-in kwa siku 90 ni +1.09M (si +1.38M), na madeni ya siku 60+ ni 39.6%.
+
+
 **Tarehe ya uchambuzi:** 2026-09-30
 **Chanzo cha data:** backup ya prod `prod_Lsms_20260930_1026_before_gl.dump` (imechukuliwa 2026-09-30 saa 10:26). Ilirudishwa kwenye container ya muda ya Postgres 17 kwenye kompyuta hii. **Hakuna query iliyoendeshwa kwenye production.**
 **Usalama:** kila session ilianza na `default_transaction_read_only = on` na `statement_timeout = '30s'`. Read-only ilithibitishwa kwa vitendo, kwa sababu hata `CREATE TEMP VIEW` ilikataliwa. Hakuna INSERT, UPDATE, DELETE au DDL iliyofanyika.

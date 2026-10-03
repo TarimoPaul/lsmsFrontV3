@@ -13,6 +13,7 @@ const reportGuard =
 export const REPORTS_ROUTES: Routes = [
   { path: '', loadComponent: () => import('./reports-hub').then((c) => c.ReportsHub) },
   { path: 'financial', canActivate: [reportGuard('financial')], loadComponent: () => import('./financial-report').then((c) => c.FinancialReport) },
+  { path: 'profit', canActivate: [reportGuard('profit')], loadComponent: () => import('./profit-report').then((c) => c.ProfitReport) },
   { path: 'sales', canActivate: [reportGuard('sales')], loadComponent: () => import('./sales-report').then((c) => c.SalesReport) },
   { path: 'inventory', canActivate: [reportGuard('inventory')], loadComponent: () => import('./inventory-report').then((c) => c.InventoryReport) },
   { path: 'purchases', canActivate: [reportGuard('purchases')], loadComponent: () => import('./purchases-report').then((c) => c.PurchasesReport) },

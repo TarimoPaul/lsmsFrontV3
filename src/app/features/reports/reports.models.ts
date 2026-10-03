@@ -5,7 +5,7 @@
  * from. Flutter's server reports that no longer work (daily-sales, cashier,
  * deleted-debts, inventory/*) are computed from those sources instead.
  */
-export type ReportId = 'financial' | 'sales' | 'inventory' | 'purchases' | 'receivables' | 'expenses' | 'deleted-debts';
+export type ReportId = 'financial' | 'profit' | 'sales' | 'inventory' | 'purchases' | 'receivables' | 'expenses' | 'deleted-debts';
 
 type Label = { en: string; sw: string };
 
@@ -36,6 +36,21 @@ export const REPORTS: ReportDef[] = [
       { en: 'Financial position', sw: 'Hali ya fedha' },
       { en: 'Expenses by account', sw: 'Gharama kwa akaunti' },
       { en: 'GL vs registers', sw: 'GL dhidi ya rejista' },
+    ],
+  },
+  {
+    id: 'profit',
+    icon: 'savings',
+    color: 'var(--c-success)',
+    title: { en: 'Daily profit & cash', sw: 'Faida ya kila siku' },
+    description: { en: 'Net profit per day, profit already collected, money with debtors and operating cash flow', sw: 'Faida halisi kwa siku, faida iliyokusanywa, pesa iliyokwama kwa wadeni na mtiririko wa pesa' },
+    source: { en: 'Sales, recon, expenses, stock', sw: 'Mauzo, recon, gharama, stoki' },
+    permissions: ['SALES_ANALYTICS'],
+    topics: [
+      { en: 'Net by day', sw: 'Faida kwa siku' },
+      { en: 'Collected profit', sw: 'Faida iliyokusanywa' },
+      { en: 'Money with debtors', sw: 'Pesa kwa wadeni' },
+      { en: 'Cash flow', sw: 'Mtiririko wa pesa' },
     ],
   },
   {
@@ -187,3 +202,80 @@ export interface DeletedDebt {
   /** "System" / unknown actor — the deletion cannot be traced to a person. */
   untraced: boolean;
 }
+
+// ── Daily profit & cash (/api/reports/daily-pnl) ──
+
+export interface PnlDay {
+  date: string;
+  revenue: number;
+  cogs: number;
+  grossProfit: number;
+  dailyExpenses: number;
+  monthlyExpenses: number;
+  depreciation: number;
+  /** Posted stock loss at cost (negative = net surplus). */
+  stockLoss: number;
+  netProfit: number;
+  debtIssuedPos: number;
+  debtIssuedWalkIn: number;
+  debtCollected: number;
+  debtAdjusted: number;
+  /** Of this day's debts, what is still unpaid now. */
+  stillOwed: number;
+  stillOwedWalkIn: number;
+  marginInStillOwed: number;
+  marginInStillOwedEstimated: number;
+  collectedProfit: number;
+}
+
+export interface PnlTotals extends Omit<PnlDay, 'date'> {
+  days: number;
+  grossMarginPct: number;
+  arOpening: number;
+  arClosing: number;
+  arClosingWalkIn: number;
+  arNow: number;
+  stockOpening: number;
+  stockClosing: number;
+  stockChange: number;
+  operatingCashFlow: number;
+}
+
+export interface PnlMonth {
+  month: string;
+  revenue: number;
+  grossProfit: number;
+  grossMarginPct: number;
+  monthlyExpenses: number;
+  depreciation: number;
+  daysInMonth: number;
+}
+
+export interface PnlMonthlyItem {
+  month: string;
+  description: string;
+  amount: number;
+  allYear: boolean;
+}
+
+export interface PnlWarning {
+  code: string;
+  count: number;
+  amount: number | null;
+  message: string;
+}
+
+export interface DailyPnl {
+  from: string;
+  to: string;
+  asOf: string;
+  walkInMarginEstimated: boolean;
+  days: PnlDay[];
+  totals: PnlTotals;
+  months: PnlMonth[];
+  monthlyItems: PnlMonthlyItem[];
+  warnings: PnlWarning[];
+}
+
+/** The backend refuses longer periods. */
+export const DAILY_PNL_MAX_DAYS = 93;

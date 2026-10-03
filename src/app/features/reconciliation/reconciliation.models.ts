@@ -92,7 +92,10 @@ export interface ReconDebt extends Verified {
   customerPhone: string | null;
   amount: number;
   description: string | null;
+  /** Settled as of THIS reconciliation's day (frozen; drives the day's deductions). */
   isPaid: boolean;
+  /** Unpaid on this day but fully paid since ("Imelipwa baadaye") — information only. */
+  settledAfterDay: boolean;
   saleUid: string | null;
   dueDate: string | null;
   origin: string | null;
@@ -279,6 +282,7 @@ export function normalizeRecon(r: Raw): Recon {
       amount: num(e['amount']),
       description: str(e['description']),
       isPaid: e['isPaid'] === true || e['paid'] === true,
+      settledAfterDay: e['settledAfterDay'] === true,
       saleUid: str(e['saleUid']),
       dueDate: str(e['dueDate']),
       origin: str(e['referenceType']),
