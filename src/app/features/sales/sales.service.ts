@@ -51,7 +51,8 @@ export class SalesService {
   }
 
   async byCustomer(customerUid: string): Promise<Sale[]> {
-    const rows = await this.api.get<Raw[] | null>(`${BASE}/customer/${customerUid}`);
+    // Paged server-side (default 50, max 100), newest first, POS sales only.
+    const rows = await this.api.get<Raw[] | null>(`${BASE}/customer/${customerUid}`, { params: { size: 100 } });
     return (rows ?? []).map(normalizeSale).sort((a, b) => (b.saleDate ?? '').localeCompare(a.saleDate ?? ''));
   }
 

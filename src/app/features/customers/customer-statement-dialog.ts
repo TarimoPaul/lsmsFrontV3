@@ -184,9 +184,8 @@ export class CustomerStatementDialog {
   }
 
   private async load(): Promise<void> {
-    const unpaid = this.auth.hasPermission('SALES_READ')
-      ? this.salesApi.byCustomer(this.data.customer.uid).then((l) => this.unpaid.set(l.filter((x) => x.balance > 0))).catch(() => undefined)
-      : Promise.resolve();
+    const canRead = this.auth.hasPermission('SALES_READ');
+    const listed = canRead ? this.salesApi.byCustomer(this.data.customer.uid).catch(() => [] as Sale[]) : Promise.resolve([] as Sale[]);
     try {
       this.st.set(await this.api.statement(this.data.customer.uid));
     } catch (e) {
@@ -194,7 +193,37 @@ export class CustomerStatementDialog {
     } finally {
       this.loading.set(false);
     }
-    await unpaid;
+    if (!canRead) return;
+    const sales = await listed;
+    this.unpaid.set(sales.filter((x) => x.balance > 0));
+    this.unpaid.set(await this.withUnlistedDebts(sales));
+  }
+
+  /**
+   * `/sales/customer/{uid}` lists POS sales only (newest 100), so walk-in debts
+   * recorded in reconciliation never come back from it — and those are most of
+   * the real debts. The statement's invoices name every sale, so the ones the
+   * list missed are fetched one by one, but only while the statement still owes
+   * more than the listed sales explain.
+   */
+  private async withUnlistedDebts(listed: Sale[]): Promise<Sale[]> {
+    const unpaid = listed.filter((x) => x.balance > 0);
+    const st = this.st();
+    if (!st) return unpaid;
+    let gap = st.outstandingBalance - unpaid.reduce((n, x) => n + x.balance, 0);
+    if (gap < 1) return unpaid;
+    const known = new Set(listed.map((x) => x.uid));
+    const missing = [...new Set(st.entries.filter((e) => e.type === 'INVOICE' && e.saleUid && !known.has(e.saleUid)).map((e) => e.saleUid as string))].reverse();
+    const extra: Sale[] = [];
+    for (let i = 0; i < missing.length && gap >= 1; i += 8) {
+      const batch = await Promise.all(missing.slice(i, i + 8).map((uid) => this.salesApi.get(uid).catch(() => null)));
+      for (const sale of batch) {
+        if (!sale || sale.balance <= 0) continue;
+        extra.push(sale);
+        gap -= sale.balance;
+      }
+    }
+    return [...unpaid, ...extra].sort((a, b) => (b.saleDate ?? '').localeCompare(a.saleDate ?? ''));
   }
 
   private async afterChange(): Promise<void> {
