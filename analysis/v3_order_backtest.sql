@@ -66,6 +66,8 @@ group by 1 order by 1;
 select d.product_uid, s.sale_date::date dt,
        sum(d.piece_quantity) filter (where s.created_at::date = s.sale_date::date
                                        and extract(hour from s.created_at) < 13) pcs_pre13,
+       sum(d.piece_quantity) filter (where s.created_at::date = s.sale_date::date
+                                       and extract(hour from s.created_at) < 12) pcs_pre12,
        sum(d.piece_quantity) filter (where s.created_at::date = s.sale_date::date) pcs_timed,
        sum(d.piece_quantity) pcs_all
 from sales_details d join sales s on s.uid=d.sale_uid

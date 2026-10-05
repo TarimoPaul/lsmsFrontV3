@@ -15,10 +15,10 @@
 | 1 | Takawedo ndiye msambazaji mkuu | orodha moja; soda zinatengwa (wakala) |
 | 2 | Orodha (banner + notification + "Shiriki"); prefill ya manunuzi ni awamu ijayo | hakuna rekodi ya manunuzi inayotengenezwa |
 | 3 | Mfuko unaobeba salio, kikomo 1M; recon iliyowasilishwa yenye alama "haijaidhinishwa"; hesabu usiku | `budget=pool`, `pool_cap=1M`; jaribio la usiku (sehemu 3) |
-| 4 | Soda zinaletwa na wakala kwa ratiba | daraja B linaagizwa kwa mzunguko (sehemu 5) |
+| 4 | Soda: wakala anaitwa; lead time saa chache hadi kesho; hakuna kiwango cha chini | reorder point kwa lead time ya siku 1 (sehemu 5) |
 | 5 | KUPIMA → daraja C | A = bidhaa 14, B = soda 2, C = 80 |
 | 6 | Daraja A: cover 2, z 0.5 | ndiyo usanidi mkuu |
-| 7 | Mzigo saa 7 mchana; mauzo mengi saa 8 mchana hadi 12 jioni | asilimia ya kabla ya saa 7 imepimwa kutoka data (sehemu 4) |
+| 7 | Mzigo saa 7 mchana; mauzo mengi saa 8 mchana hadi 12 jioni. **Imesahihishwa 05/10:** mnaondoka kununua saa 4 asubuhi (10:00), mzigo unafika ~12:00 (saa 6 mchana) | asilimia ya kabla ya saa 7 na ya kabla ya 12:00 zimepimwa kutoka data (sehemu 4); ya 12:00 ndiyo inayotumika sasa |
 
 ---
 
@@ -80,7 +80,18 @@ Pendekezo la usiku linatumia `hesabu ya asubuhi ya jana + manunuzi ya jana − m
 
 **Hitimisho:** kwa bia, kuhesabu usiku hakubadilishi matokeo. Kwa soda stock ya usiku inatofautiana na hesabu ya asubuhi kwa wastani wa vipande ~80, kwa hiyo soda zisubiri hesabu.
 
-**Pendekezo la mtiririko:**
+**Toleo la usiku kutoka stock ya mfumo (uamuzi wa mtiririko wa mwisho).** Nimelinganisha pia pendekezo linalotumia stock ya mfumo (ile ambayo hesabu ya asubuhi inalinganishwa nayo) na lile la hesabu halisi:
+
+| Daraja A (siku-bidhaa 756) | Stock ya mfumo dhidi ya hesabu ya asubuhi |
+|---|---|
+| Kreti zilezile | 730 (97%) |
+| Mfumo unapendekeza zaidi / pungufu | 9 / 17 |
+| Tofauti ya wastani ya stock | vipande 1.5 kwa bidhaa (kubwa zaidi: CASTLE LITE 6.4) |
+| Siku za upungufu kama toleo la usiku lisingesasishwa | 12 (la asubuhi: 11) |
+
+Kwa bia kuu stock ya mfumo sasa iko karibu sana na hesabu, kwa hiyo "toleo la usiku" linaaminika. **Tahadhari moja:** mauzo 100 kati ya 619 (16%) yaliingizwa siku iliyofuata, na mengine hadi saa 5:58 usiku. Saa 00:00 mauzo hayo bado hayamo kwenye stock ya mfumo, kwa hiyo toleo la usiku litaagiza pungufu siku hizo hadi lisasishwe. Kipimo hiki kimetumia stock ya mfumo ya asubuhi (baada ya mauzo hayo kuingizwa), kwa hiyo 97% ni kiwango cha juu.
+
+**Pendekezo la mtiririko (la awali; mtiririko wa mwisho uko sehemu 7.1):**
 1. Usiku baada ya kufunga: mfumo unahesabu pendekezo (stock iliyokadiriwa + recon ya leo).
 2. Asubuhi: hesabu ikiidhinishwa, mistari ambayo hesabu inatofautiana na makadirio inahesabiwa upya na kuwekewa alama "imebadilika baada ya hesabu".
 3. Mmiliki anarekebisha na kuidhinisha orodha kabla ya kwenda kununua.
@@ -104,6 +115,15 @@ Pendekezo la usiku linatumia `hesabu ya asubuhi ya jana + manunuzi ya jana − m
 | Jumapili | 107 | 3,979 | 2.7% | 5.1% |
 | **Zote** | **1,219** | **24,676** | **4.9%** | **11.0%** |
 
+**Kabla ya saa 12:00 (saa 6 mchana), daraja A:**
+
+| Siku | Jtt | Jnn | Jtn | Alh | Ijm | Jms | Jpl | **Zote** |
+|---|---|---|---|---|---|---|---|---|
+| Vipande vilivyoingizwa kabla ya 12:00 | 37 | 106 | 130 | 166 | 38 | 54 | 107 | **638** |
+| Asilimia ya vyenye muda | 1.1% | 3.4% | 4.1% | 4.7% | 0.9% | 1.5% | 2.7% | **2.6%** |
+
+Backtest kwa asilimia hii (A 2 / z 0.5, mfuko 1M): siku za stockout 53, mauzo yaliyopotea 1.08M (bila hiyo: 27 na 1.03M). Hasara ya ziada ni ~5%.
+
 **Tahadhari muhimu: hii ni kiwango cha chini, si asilimia halisi.** Duka linaingiza mauzo ~10 kwa siku kwa mkupuo (wastani 108,000 kwa "sale", mistari 4.3). 63% ya thamani inaingizwa kati ya saa 2 na saa 5 usiku, wakati wewe unasema mauzo mengi ni saa 8 mchana hadi 12 jioni. Kwa hiyo `created_at` ni muda wa kuingiza, si muda wa kuuza. Kilichoingizwa kabla ya saa 7 kiliuzwa kabla ya saa 7 kwa hakika; kilichoingizwa baadaye kinaweza kuwa na mauzo ya asubuhi ndani yake. Data haiwezi kutoa namba bora zaidi hadi mauzo yaingizwe wakati yanapofanyika.
 
 **Athari kwenye backtest (A 2 / z 0.5, mfuko 1M):**
@@ -120,22 +140,53 @@ Siku za stockout zinakaribia mara mbili, lakini mauzo yaliyopotea yanaongezeka k
 
 ---
 
-## 5. Soda (wakala kwa ratiba)
+## 5. Soda: wakala anaitwa, lead time inabadilika
 
-Data ya siku 60: Pepsi ilinunuliwa mara 11 (nafasi ya siku 1–9, mara nyingi Jumanne), Coca mara 8 (nafasi ya siku 3–9). Ratiba halisi haionekani wazi kwenye data.
+Umesema wakala huleta mara nyingi ndani ya saa chache, wakati mwingine hadi kesho, na hakuna kiwango cha chini cha oda. Kwa hiyo soda hazifuati ratiba; zinafuata **reorder point**.
 
-| Usanidi wa soda | Stockout soda | Stock ya soda | Stockout A |
-|---|---|---|---|
-| Halisi | 0 | 257,292 | 32 |
-| Kila siku, cover 3 (haiwezekani kwa wakala) | 0 | 198,498 | 27 |
-| Kila siku 6, cover 7, mfuko 1M | 6 | 261,756 | **37** |
-| Kila siku 6, cover 7, mfuko 1.5M | 6 | 261,756 | 24 |
-| Kila siku 6, cover 8, mfuko 1.5M | 3 | 320,897 | 25 |
-| Kila siku 6, cover 9, mfuko 1.5M | 2 | 378,753 | 25 |
+### 5.1 Sera tatu zilizolinganishwa
+- **(a) Kuita ikiisha:** wakala anapigiwa simu pale rafu inapokuwa tupu.
+- **(b) Reorder point kwa lead time ya saa 6:** kila asubuhi, kama stock ≤ mahitaji ya siku 1.25 + akiba, wakala anaitwa.
+- **(c) Reorder point kwa lead time ya siku 1:** kila asubuhi, kama stock ≤ mahitaji ya siku 2 + akiba, wakala anaitwa.
 
-- Soda zikiagizwa kwa mafungu, siku ya wakala oda ni kubwa (250–450k) na inakula mfuko wa 1M; bia zinakatwa na stockout za A zinapanda kutoka 27 hadi 37.
-- Mfuko wa 1.5M unaondoa tatizo hilo.
-- Kwa soda, `cover_days` = siku za mzunguko wa wakala + 2.
+```
+reorder_point = velocity × factors × (1 + lead_time) + z × σ × √(1 + lead_time)
+```
+"1 +" ni kwa sababu stock inaangaliwa mara moja kwa siku. Kiasi cha oda = median ya mafungu yaliyonunuliwa nyuma: Pepsi kreti 20 (mafungu 17, kreti 4–30), Coca kreti 15 (mafungu 12, kreti 10–20). Hakuna kiwango cha chini.
+
+Kila sera imejaribiwa kwa lead time halisi ya saa 6 na ya siku 1, kwa sababu hatujui ipi itatokea.
+
+### 5.2 Matokeo (siku 60, Pepsi + Coca)
+| Sera | Lead time halisi | Siku za stockout | Mauzo yaliyopotea | Stock ya wastani asubuhi |
+|---|---|---|---|---|
+| **Halisi (kilichotokea kweli)** | – | **0** | – | **257,292** |
+| (a) Kuita ikiisha | saa 6 | 21 | 215,703 | 203,235 |
+| (a) Kuita ikiisha | siku 1 | 28 | 798,787 | 214,567 |
+| (b) Reorder point ya saa 6, z 0.5 | saa 6 | 4 | 33,098 | 285,492 |
+| (b) Reorder point ya saa 6, z 0.5 | siku 1 | 14 | 465,410 | 279,678 |
+| (b) Reorder point ya saa 6, z 1 | saa 6 | 3 | 21,614 | 305,576 |
+| (b) Reorder point ya saa 6, z 1 | siku 1 | 6 | 195,111 | 318,851 |
+| **(c) Reorder point ya siku 1, z 0.5** | saa 6 | **1** | **584** | **319,074** |
+| **(c) Reorder point ya siku 1, z 0.5** | siku 1 | **5** | **99,658** | **335,998** |
+| (c) Reorder point ya siku 1, z 1 | saa 6 | 1 | 584 | 355,767 |
+| (c) Reorder point ya siku 1, z 1 | siku 1 | 3 | 99,658 | 355,864 |
+
+Kwa bidhaa (sera (c), z 0.5): Pepsi stockout 1–2 na stock ya vipande 347–376 (halisi 280); Coca stockout 0–3 na stock 251–254 (halisi 202). Oda ni 10 za Pepsi na 7 za Coca kwa siku 60, karibu sawa na halisi (11 na 8).
+
+### 5.3 Maana yake
+- **"Kuita ikiisha" kwa maana halisi ni mbaya:** stockout 21–28 na mauzo ya 0.2–0.8M yanapotea. Lakini data inaonyesha duka halifanyi hivyo kihalisia: kwa hesabu, soda hazijawahi kufungwa na 0 ndani ya siku 60, na stock ya wastani ni siku 3.5–4.3 za mauzo. Yaani mnunuzi tayari anaita mapema.
+- **Sera (c) ndiyo salama:** wakala akichelewa hadi kesho, stockout ni 5 badala ya 14 za sera (b). Gharama yake ni stock ya ~320–336k, yaani **~60–80k zaidi ya leo**.
+- **Reorder point haipunguzi stock ya soda**; inaifanya kanuni iwe wazi badala ya kutegemea kumbukumbu ya mtu.
+- **Tahadhari:** hesabu ya soda hailingani (89% na 169% ya mauzo), kwa hiyo "stockout 0" za halisi zinaweza kuwa si kweli kabisa, na simulation inagawa mauzo ya siku sawasawa kwa saa zote.
+
+**Pendekezo:** soda zitumie sera (c), z 0.5, kama ulivyoelekeza. Kwenye orodha zinaonekana kama mstari wa "Mwite wakala leo: Pepsi kreti 20" pale tu stock inaposhuka chini ya reorder point, na hazihesabiwi kwenye kikomo cha mfuko wa 1M (zinaonyeshwa kando na gharama yake).
+
+### 5.4 Pendekezo (halijajengwa): kitufe "Nimemwita wakala"
+- Kwenye mstari wa soda wa orodha: kitufe **"Nimemwita wakala"** kinarekodi bidhaa, muda wa simu, kreti zilizoombwa na aliyepiga.
+- Manunuzi ya soda yakipokelewa, mfumo unayaunganisha na simu ya mwisho iliyo wazi na kuhesabu **lead time halisi** = muda wa kupokea − muda wa simu.
+- Baada ya simu ~10, `lead_time` ya reorder point inatoka kwenye data (mfano asilimia ya 80 ya lead time zilizopimwa) badala ya siku 1 ya kukisia. Ripoti ndogo: lead time ya wastani, ndefu zaidi, na mara ngapi alifika kesho yake.
+- Table mpya: `agent_call_log` (bidhaa, msambazaji, `called_at`, kreti, `purchase_uid`, `received_at`).
+- Sharti: muda wa kupokea manunuzi uingizwe wakati mzigo unapofika, si usiku.
 
 ---
 
@@ -163,49 +214,111 @@ Kubwa zaidi: JB RARE id 84 (189,000; mauzo ya mwisho 06/07), GORDONS id 57 (140,
 
 ## 7. Mpango wa Awamu 2 (hakuna code hadi uidhinishe)
 
-### 7.1 Backend
+Mpangilio wa kujenga: **(a) ripoti ya bidhaa zisizotembea → (b) oda ya daraja A → (c) onyo la soda.**
+
+### 7.1 Mtiririko wa mwisho wa oda (kama ulivyoamua)
+| # | Tukio | Kinachotokea | Alama kwenye skrini |
+|---|---|---|---|
+| 1 | Saa 00:00, mauzo ya siku yamefungwa | Oda ya kesho inatengenezwa kimya: stock ya mfumo, bajeti ya makadirio (namba za mfumo za siku hiyo) | "Toleo la usiku" |
+| 1b | Sale lenye tarehe ya jana linahifadhiwa (mauzo ya jana yanayoingizwa asubuhi) | Oda inajisasisha kwa stock ya mfumo ya wakati huo. Hakuna toleo la saa maalum | "Imesasishwa saa HH:MM baada ya mauzo ya jana" |
+| 2 | Counting ya asubuhi inakamilika | Mistari inahesabiwa upya kwa stock iliyohesabiwa | "Imesasishwa saa HH:MM baada ya counting" |
+| 3 | Recon inawasilishwa (hata kabla ya kuidhinishwa) | Bajeti inasasishwa; kilichokatwa kinahesabiwa upya | "Bajeti: recon imewasilishwa" (au "haijaidhinishwa") |
+| 4 | Macheda anahariri kiasi (wakati wowote) | Mstari huo unafungwa dhidi ya masasisho ya kiotomatiki. Hesabu mpya ikitofautiana, inaonyeshwa pembeni tu | "mfumo sasa: X" |
+| 5 | "Imenunuliwa" | Oda inafungwa; hakuna masasisho zaidi | "Imefungwa saa HH:MM" |
+| 6 | Kosa lolote la oda | Halizuii counting, recon wala approvals | Banner "Oda haikusasishwa — Hesabu upya" |
+| 7 | Kila hatua | Matoleo manne yanahifadhiwa kimya kwa kila bidhaa: la usiku, la mwisho la mfumo, la Macheda, kilichonunuliwa | hayaonekani; ni kwa ripoti ya baadaye |
+
+Kanuni za utekelezaji zinazotokana na mtiririko huu:
+- **Oda moja kwa siku** (`order_date` ya kipekee). Hali: `NIGHT` → `UPDATED` → `PURCHASED`. Hakuna hatua ya "approve"; kuhariri na "Imenunuliwa" ndizo hatua za mmiliki.
+- **Masasisho hayazuii chochote.** Yanaendeshwa BAADA ya commit ya counting/recon (`@TransactionalEventListener(AFTER_COMMIT)`, transaction mpya, `try/catch` inayoandika `last_error`). Counting au recon haiwezi kushindwa kwa sababu ya oda.
+- **Usawa wa masasisho:** kila sasisho linaandika upya mistari isiyohaririwa tu; mistari iliyohaririwa inasasishwa safu ya `system_packs` pekee. Oda ya `PURCHASED` haiguswi.
+- **"Hesabu upya"** ni kitufe kinachoendesha sasisho lilelile kwa mkono; kinafuta `last_error` kikifanikiwa.
+- **Bajeti ya makadirio ya usiku** = mauzo ya siku − madeni yaliyoingizwa − gharama zilizoingizwa − gharama za mwezi kwa siku + salio la mfuko (kikomo 1M). Recon ikiwasilishwa, namba zake zinachukua nafasi.
+- **Mauzo ya jana yanayoingizwa asubuhi** (16% ya mauzo, yote kati ya 07:37 na 10:31; `v3_late_sales_report.md`): kila sale lenye `sale_date` ya jana linapohifadhiwa, oda ya leo inasasishwa baada ya commit (transaction mpya, `try/catch` → `last_error`), kama masasisho ya counting na recon. Kuhifadhi sale hakuwezi kushindwa kwa sababu ya oda. Mauzo kadhaa yakiingizwa mfululizo, sasisho la mwisho ndilo linalobaki (ni hesabu ileile kutoka stock ya mfumo). Sale la jana likifutwa au kuhaririwa, sasisho lilelile linaendeshwa.
+- **Ratiba ya asubuhi (uamuzi wa 05/10):** mnaondoka kununua **10:00**, mzigo unafika **~12:00**. Oda inapaswa kuwa ya mwisho kufikia 10:00. Counting ilikamilika kabla ya 10:00 siku 30 tu kati ya 60 (`v3_count_vs_late_sales_report.md`), kwa hiyo siku nyingine Macheda anaondoka na toleo la stock ya mfumo; skrini ionyeshe wazi chanzo cha stock cha kila mstari.
+- **Kanuni ya duka (si code):** mauzo ya jana yaingizwe **KABLA** ya counting ya asubuhi. Snapshot ya stock ya mfumo inachukuliwa counting inapoanza; sale la jana likiingizwa baadaye, mstari unaonyesha upungufu wa uongo, na ukipostiwa stock inakatwa mara mbili. Duka tayari linafanya hivi (siku 35 kati ya 35; ukiukaji mmoja tu tangu Julai). Mpangilio: ingiza mauzo ya jana → counting → oda inajisasisha → ondoka 10:00.
+- **"Imenunuliwa"** inarekodi kreti halisi kwa kila mstari (zinaanza na kiasi cha Macheda; anaweza kubadilisha). Haitengenezi rekodi ya manunuzi; prefill ni awamu ijayo.
+
+### 7.2 Data inayohifadhiwa
+| Table | Safu muhimu |
+|---|---|
+| `order_suggestion` | `order_date` (unique), `status`, `night_generated_at`, `count_updated_at`, `budget_updated_at`, `purchased_at`, `budget_amount`, `budget_source` (ESTIMATE / RECON_SUBMITTED / RECON_APPROVED), `pool_carry`, `last_error`, `last_error_at` |
+| `order_suggestion_line` | bidhaa, daraja, pakiti, gharama; **`night_packs`**, **`system_packs`**, **`user_packs`** (NULL kama haijahaririwa), **`purchased_packs`**; `edited_at`, `edited_by`; inputs za hesabu ya mwisho (stock, chanzo cha stock, velocity, factors, target, akiba, kilichokatwa, sababu) |
+| `product_order_setting` | daraja la kulazimisha, pakiti, cover, lead time |
+| `business_settings` (safu mpya) | cover A, z, kikomo cha mfuko, saa ya kazi ya usiku |
+
+Matoleo manne ya kila bidhaa ndiyo msingi wa kupima baadaye: mfumo ulikuwa sahihi kiasi gani, na Macheda hubadilisha nini.
+
+### 7.3 Hatua (a): ripoti ya "Bidhaa zisizotembea"
+Inajengwa kwanza kwa sababu haitegemei chochote cha oda na inaonyesha pesa iliyokwama mara moja.
+
 | # | Kazi | Maelezo |
 |---|---|---|
-| B1 | Migration | `order_suggestion` (tarehe, status, bajeti na mchanganuo wake, salio la mfuko, alama za hesabu/recon), `order_suggestion_line` (inputs zote zimehifadhiwa), `product_order_setting` (daraja la kulazimisha, pakiti, cover, mzunguko wa wakala), safu za mipangilio kwenye `business_settings` |
-| B2 | `OrderSuggestionCalculator` | class safi isiyogusa DB: velocity, kurekebisha stockout, factors, target, kuzungusha pakiti, kukata kwa bajeti. Unit tests zinatumia namba za backtest hii |
-| B3 | `OrderClassifier` | kanuni ya A/B/C ya siku 60; KUPIMA → C; marekebisho ya mmiliki kwa bidhaa |
-| B4 | `OrderSuggestionService` | inapakia data, inaita calculator, inahifadhi. Njia mbili: usiku (stock iliyokadiriwa) na asubuhi (hesabu iliyoidhinishwa) |
-| B5 | Scheduler | usiku baada ya kufunga; saa inawekwa kwenye mipangilio. Inaheshimu `app.schedulers.enabled` |
-| B6 | Hook ya hesabu | hesabu ikiidhinishwa, mistari yenye tofauti inahesabiwa upya |
-| B7 | Bajeti | mfuko wenye kikomo; recon SUBMITTED au APPROVED; kama hakuna, namba za mfumo na alama |
-| B8 | Endpoints | `GET /api/order-suggestions/today`, `GET /{uid}`, `PUT /{uid}/lines`, `POST /{uid}/approve`, `GET ?from=&to=`, `GET/PUT /api/order-settings` |
-| B9 | Notification | "Pendekezo la oda la leo liko tayari" kwa mmiliki |
-| B10 | Ripoti ya bidhaa zisizotembea | `GET /api/reports/slow-movers?days=60`: stock ya hesabu ya mwisho, thamani kwa bei ya kununua, siku tangu mauzo ya mwisho, mauzo ya siku 30/60, siku za stock, hatua, jumla ya pesa iliyokwama |
-| B11 | Ruhusa | `ORDER_SUGGESTION_VIEW`, `ORDER_SUGGESTION_APPROVE`; ripoti inatumia ruhusa ya ripoti za stock |
+| A1 | `GET /api/reports/slow-movers?days=60` | Kwa kila bidhaa ya daraja C au isiyouzwa wala kununuliwa kwa siku 60: stock ya hesabu ya mwisho iliyoidhinishwa, thamani kwa bei ya kununua, tarehe na siku tangu mauzo ya mwisho, mauzo ya siku 30 na 60, siku za stock, hatua inayopendekezwa. Juu: jumla ya pesa iliyokwama |
+| A2 | Kanuni ya hatua | mauzo 0 kwa siku 60 → "rudisha / punguza bei; acha kuagiza"; stock ya siku > 120 → "punguza bei; acha kuagiza"; siku 46–120 → "acha kuagiza hadi stock ishuke"; vinginevyo "sawa" |
+| A3 | V3 `/reports/slow-movers` | jedwali linalopangwa kwa thamani, kichujio kwa hatua, jumla juu, kupakua CSV |
+| A4 | Jaribio | namba zilingane na `v3_order_backtest_out/slow_movers.csv` kwenye dump ileile |
 
-### 7.2 V3 (Angular)
+Orodha ya leo (hesabu ya 03/10): bidhaa 71 zenye stock ya **3,513,587**; pesa iliyokwama **2,502,807** kwenye bidhaa 49. Kumi kubwa zaidi kati ya zilizokwama:
+
+| id | Bidhaa | Stock | Thamani | Mauzo ya mwisho | Mauzo siku 30 / 60 | Hatua |
+|---|---|---|---|---|---|---|
+| 84 | JB RARE | 6 | 189,000 | 06/07 (siku 89) | 0 / 0 | rudisha / punguza bei |
+| 57 | GORDONS | 13 | 140,564 | 24/09 | 4 / 7 | acha kuagiza (siku 111 za stock) |
+| 78 | SMIRNOFF VODKA | 12 | 112,000 | 04/08 (siku 60) | 0 / 0 | rudisha / punguza bei |
+| 42 | BLACK AND WHITE 200ML | 13 | 107,523 | 01/10 | 7 / 15 | acha kuagiza (siku 52) |
+| 17 | CAPTAIN MOGRAN 200ML | 26 | 105,083 | 30/09 | 19 / 31 | acha kuagiza (siku 50) |
+| 34 | CHROME | 10 | 105,000 | 11/09 | 2 / 2 | punguza bei (siku 300) |
+| 108 | SMIRNOFF ORANGE | 25 | 103,125 | haijauzwa tangu Feb | 0 / 0 | rudisha / punguza bei |
+| 59 | GREPA WINE | 4 | 100,000 | 30/09 | 1 / 1 | punguza bei (siku 240) |
+| 82 | TULLYS | 11 | 91,300 | 30/03 (siku 187) | 0 / 0 | rudisha / punguza bei |
+| 106 | OLDEN WINE | 10 | 85,000 | 27/05 (siku 129) | 0 / 0 | rudisha / punguza bei |
+
+Orodha kamili ya bidhaa 71: `v3_order_backtest_out/slow_movers.csv`.
+
+### 7.4 Hatua (b): oda ya daraja A
 | # | Kazi | Maelezo |
 |---|---|---|
-| F1 | Banner kwenye dashboard | "Pendekezo la oda: kreti N, TZS X" + alama za "recon haijaidhinishwa" / "hesabu bado" |
-| F2 | Skrini `/purchases/suggestion` | kadi ya bajeti; jedwali A na B (bidhaa, stock, velocity, factors, target, kreti zinazoweza kubadilishwa, gharama, kipaumbele, sababu); kilichokatwa; orodha ya C ya mkono |
-| F3 | Idhinisha + "Shiriki" | maandishi ya orodha kwa WhatsApp (Web Share / nakili) na chapisho; soda kwenye orodha tofauti ya wakala |
-| F4 | Historia | kilichopendekezwa, kilichoidhinishwa, kilichonunuliwa kweli |
-| F5 | Mipangilio | cover kwa daraja, z, kikomo cha mfuko, mzunguko wa wakala, marekebisho kwa bidhaa |
-| F6 | Ripoti `/reports/slow-movers` | jedwali la sehemu 6 na jumla ya pesa iliyokwama |
+| B1 | Migration | tables za sehemu 7.2 |
+| B2 | `OrderSuggestionCalculator` | class safi isiyogusa DB: velocity ya siku 14 yenye stockout zilizorekebishwa, factors, target (cover 2, z 0.5), kuzungusha pakiti, kukata kwa bajeti (velocity kwanza, faida ikivunja sare). Unit tests kwa namba za backtest |
+| B3 | `OrderClassifier` | kanuni ya A/B/C ya siku 60; KUPIMA → C; marekebisho ya mmiliki |
+| B4 | Kazi ya 00:00 | hatua 1 ya mtiririko. Inaheshimu `app.schedulers.enabled`; kama oda ya siku hiyo ipo tayari, haifanyi kitu |
+| B4b | Sasisho baada ya sale la jana | hatua 1b: sale lenye `sale_date` ya jana likihifadhiwa, kuhaririwa au kufutwa; baada ya commit, haizuii. Jaribio: "sale linahifadhiwa hata oda ikishindwa" |
+| B5 | Sasisho baada ya counting | hatua 2; baada ya commit, haizuii |
+| B6 | Sasisho baada ya recon kuwasilishwa | hatua 3; baada ya commit, haizuii |
+| B7 | Kuhariri na kufunga | `PUT /api/order-suggestions/{uid}/lines/{lineUid}` (inaweka `user_packs`), `POST /{uid}/purchased`, `POST /{uid}/recalculate` |
+| B8 | Kusoma | `GET /api/order-suggestions/today`, `GET /{uid}`, `GET ?from=&to=` |
+| B9 | Notification | "Oda ya leo iko tayari" asubuhi; haitumwi tena kwa kila sasisho |
+| B10 | Ruhusa | `ORDER_SUGGESTION_VIEW`, `ORDER_SUGGESTION_EDIT` |
+| F1 | Banner ya dashboard | kreti na jumla; alama ya toleo; banner ya kosa yenye "Hesabu upya" |
+| F2 | Skrini `/purchases/suggestion` | kadi ya bajeti na chanzo chake; jedwali A (bidhaa, stock na chanzo chake, velocity, factors, target, kreti zinazoweza kuhaririwa, "mfumo sasa: X" kwa mistari iliyohaririwa, gharama, kipaumbele, sababu); kilichokatwa; orodha ya C ya mkono |
+| F3 | "Shiriki" na "Imenunuliwa" | maandishi ya orodha kwa WhatsApp / chapisho; kufunga oda kwa kreti halisi |
+| F4 | Historia | matoleo manne kwa kila bidhaa, siku kwa siku |
 
-### 7.3 Mpangilio wa kazi na majaribio
-1. B1–B3 pamoja na unit tests. Calculator lazima itoe kreti zilezile za script ya backtest kwa siku 5 za mfano.
-2. B4, B7, B8, kisha F2 na F3 (mtiririko wa asubuhi kwanza).
-3. B5, B6, B9, F1 (mtiririko wa usiku).
-4. B10 na F6 (ripoti).
-5. Jaribio kwenye staging kwa E2E kabla ya deploy yoyote; wewe ndiye unayefanya commit na deploy.
+### 7.5 Hatua (c): onyo la soda
+| # | Kazi | Maelezo |
+|---|---|---|
+| C1 | Reorder point ya daraja B | kanuni ya sehemu 5: lead time siku 1, z 0.5; kiasi = median ya mafungu ya nyuma. Inahesabiwa kwenye masasisho yaleyale ya oda |
+| C2 | Mstari wa onyo | "Mwite wakala leo: Pepsi kreti 20" pamoja na alama "data si ya kuaminika"; nje ya kikomo cha mfuko, gharama inaonyeshwa kando |
+| C3 | (Pendekezo, sehemu 5.4) | kitufe "Nimemwita wakala" na `agent_call_log`; kinasubiri uamuzi wako |
 
-Awamu ijayo (si sasa): prefill ya manunuzi kutoka orodha iliyoidhinishwa; kugawa kwa msambazaji.
+### 7.6 Majaribio na mpangilio
+1. Kila hatua (a, b, c) inaisha na jaribio la E2E kwenye staging kabla ya inayofuata.
+2. Kwa (b): calculator itoe kreti zilezile za script ya backtest kwa siku 5 za mfano; jaribio la "counting inafanikiwa hata oda ikishindwa"; jaribio la "mstari uliohaririwa haubadiliki".
+3. Wewe ndiye unayefanya commit na deploy.
 
-### 7.4 Mipangilio ya kuanzia
+Awamu ijayo (si sasa): prefill ya manunuzi kutoka "Imenunuliwa"; kugawa kwa msambazaji; ripoti ya usahihi wa mfumo kutoka matoleo manne.
+
+### 7.7 Mipangilio ya kuanzia
 | Kigezo | Thamani |
 |---|---|
 | Daraja A | cover 2, z 0.5 |
-| Soda | cover = mzunguko wa wakala + 2 |
+| Soda | reorder point: lead time siku 1, z 0.5; kiasi = median ya mafungu ya nyuma |
 | Factor ya siku ya wiki | ya duka, historia yote |
 | Factor ya tarehe | inahesabiwa upya, kilele kinajitafuta, maandalizi siku 3 |
-| Mfuko wa bajeti | kikomo 1M (tazama swali la 1) |
+| Mfuko wa bajeti | kikomo 1M |
 | Velocity | siku 14, stockout zinarekebishwa |
+| Kazi ya usiku | 00:00 |
 
 ---
 
@@ -213,14 +326,38 @@ Awamu ijayo (si sasa): prefill ya manunuzi kutoka orodha iliyoidhinishwa; kugawa
 1. **Muda wa mauzo haujulikani kutoka data** (sehemu 4). Namba ya 4.9% ni kiwango cha chini.
 2. **Recon haiwasilishwi usiku.** Bila hilo, bajeti ya usiku ni ya makadirio.
 3. **Oda kubwa za jumla** bado ndizo chanzo cha stockout kubwa (SAFARI LAGER 25/08, 27/08, 29/09: mara 3–5 ya velocity).
-4. **Soda:** ratiba ya wakala haijulikani, na hesabu yake hailingani.
+4. **Soda:** lead time ya wakala ni ya kukisia hadi kitufe cha "Nimemwita wakala" kianze kutoa data; hesabu yake hailingani.
 5. **Stock ya mwisho halisi** ya dirisha hili haikupimwa, kwa sababu dump ilichukuliwa saa 8 usiku kabla ya hesabu ya 04/10.
 
 ---
 
+## 10. Majibu ya 2026-10-05 na hali ya hatua (a)
+
+**Sehemu ya 7 imeidhinishwa.** Majibu ya maswali ya sehemu 9:
+
+| # | Swali | Uamuzi |
+|---|---|---|
+| 1 | Soda na mfuko wa 1M | Soda **nje** ya kikomo cha 1M; skrini inaonyesha jumla (bia + soda) pamoja na onyo |
+| 2 | Kitufe "Nimemwita wakala" | **Awamu ijayo** (si hatua c) |
+| 3 | Mauzo yanayoingizwa baada ya 00:00 | ~~Toleo la pili saa 06:00~~ → **oda inajisasisha kila sale lenye tarehe ya jana linapohifadhiwa** (uamuzi wa pili wa 05/10, baada ya `v3_late_sales_report.md` kuonyesha kwamba saa 06:00 hakuna sale lililokwisha ingizwa); counting na recon zinaendelea kusasisha kama ilivyopangwa |
+| 4 | Kuanza hatua (a) | Ndiyo |
+
+**Marekebisho ya 05/10 (yameingizwa kwenye 7.1 na 7.4):**
+- Hatua 1b ya mtiririko na kazi B4b: sasisho pale sale la jana linapohifadhiwa.
+- Ratiba: kuondoka kununua 10:00, mzigo ~12:00 (si saa 7 mchana). Kwa backtest, asilimia ya mauzo kabla ya mzigo ni ile ya kabla ya 12:00: 2.6% ya vipande vya daraja A (kiwango cha chini), yaani stockout 53 na mauzo yaliyopotea 1.08M badala ya 51 na 1.14M za saa 7 mchana (sehemu 4). Uamuzi wa z 0.5 haubadiliki.
+- Kanuni ya duka: mauzo ya jana yaingizwe kabla ya counting ya asubuhi (maelezo 7.1; vipimo `v3_count_vs_late_sales_report.md`).
+
+**Hatua (a) imejengwa (haijacommitiwa, haijadeploy):**
+- Backend: `GET /api/reports/slow-movers?asOf=` (ruhusa `STOCK_REPORT`, kusoma tu, bila migration). `SlowMoverCalculator` ni class safi; `SlowMoversService` inasoma rows tu. Unit tests 14 (`SlowMoverCalculatorTest`).
+- V3: `/reports/slow-movers` (kadi mpya kwenye Ripoti): pesa iliyokwama juu, vigae vya hatua, jedwali linalopangwa, kichujio kwa hatua, CSV na kuchapisha.
+- A4 imepita kwenye dump ileile: bidhaa 71, thamani 3,513,587, pesa iliyokwama 2,502,807 kwenye bidhaa 49; kila bidhaa inalingana na `slow_movers.csv` (idadi, thamani, mauzo 30/60, siku tangu mauzo ya mwisho, hatua).
+- Tofauti moja na A1 ya mpango: `?days=` haipo (dirisha ni siku 60 daima, kwa sababu safu za 30/60 na kanuni ya daraja zinalitegemea); badala yake kuna `?asOf=` kwa majaribio.
+- Bado: staging, kisha idhini yako kabla ya prod.
+
+---
+
 ## 9. Maswali kabla ya kuanza code
-1. **Kikomo cha mfuko siku ya wakala wa soda:** 1M inakata bia siku hizo (stockout 37 badala ya 27). Nipandishe hadi 1.5M, au oda ya soda isihesabiwe kwenye kikomo?
-2. **Wakala wa soda analeta kila siku ngapi, na siku gani?** (Pepsi na Coca tofauti kama zinatofautiana.)
-3. **Recon:** utaiwasilisha usiku baada ya kufunga? Kama sivyo, nitumie namba za mfumo zenye alama.
-4. **Scheduler ya usiku iendeshwe saa ngapi?** (Duka linafunga saa ngapi, na mauzo ya mwisho yanaingizwa saa ngapi; siku hizi yanaingizwa hadi saa 5:58 usiku.)
-5. **Unaidhinisha mpango huu wa Awamu 2?**
+1. **Soda na mfuko wa 1M:** napendekeza onyo la soda lisihesabiwe kwenye kikomo (oda yake ni ~190–260k na ingekata bia siku hiyo). Unakubali?
+2. **Kitufe "Nimemwita wakala"** (sehemu 5.4): kiingie hatua (c) au awamu ijayo?
+3. **Mauzo yanayoingizwa baada ya 00:00:** toleo la usiku litayakosa hadi counting. Inatosha, au kazi ya usiku iendeshwe baadaye (mfano saa 00:30) au irudiwe mauzo ya jana yakiingizwa?
+4. **Unaidhinisha sehemu ya 7, nianze na hatua (a)?**

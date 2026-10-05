@@ -5,7 +5,7 @@
  * from. Flutter's server reports that no longer work (daily-sales, cashier,
  * deleted-debts, inventory/*) are computed from those sources instead.
  */
-export type ReportId = 'financial' | 'profit' | 'sales' | 'inventory' | 'purchases' | 'receivables' | 'expenses' | 'deleted-debts';
+export type ReportId = 'financial' | 'profit' | 'sales' | 'inventory' | 'slow-movers' | 'purchases' | 'receivables' | 'expenses' | 'deleted-debts';
 
 type Label = { en: string; sw: string };
 
@@ -81,6 +81,21 @@ export const REPORTS: ReportDef[] = [
       { en: 'Valuation', sw: 'Thamani ya stoki' },
       { en: 'Re-order list', sw: 'Orodha ya kuagiza' },
       { en: 'Price list print', sw: 'Chapisha bei' },
+    ],
+  },
+  {
+    id: 'slow-movers',
+    icon: 'hourglass_bottom',
+    color: 'var(--c-warning)',
+    title: { en: 'Slow-moving stock', sw: 'Bidhaa zisizotembea' },
+    description: { en: 'Stock that does not sell, the cash stuck in it and what to do with each product', sw: 'Stoki isiyouzika, pesa iliyokwama ndani yake na hatua ya kuchukua kwa kila bidhaa' },
+    source: { en: 'Stock count, sales, purchases', sw: 'Hesabu ya stoki, mauzo, manunuzi' },
+    permissions: ['STOCK_REPORT'],
+    topics: [
+      { en: 'Stuck cash', sw: 'Pesa iliyokwama' },
+      { en: 'Days since last sale', sw: 'Siku tangu mauzo ya mwisho' },
+      { en: '30 / 60-day sales', sw: 'Mauzo ya siku 30 / 60' },
+      { en: 'Suggested action', sw: 'Hatua inayopendekezwa' },
     ],
   },
   {
@@ -275,6 +290,57 @@ export interface DailyPnl {
   months: PnlMonth[];
   monthlyItems: PnlMonthlyItem[];
   warnings: PnlWarning[];
+}
+
+// ── Slow-moving stock (/api/reports/slow-movers) ──
+
+export type SlowAction = 'RETURN_OR_DISCOUNT' | 'DISCOUNT' | 'STOP_ORDERING' | 'OK';
+
+export const SLOW_ACTIONS: { key: SlowAction; en: string; sw: string; color: string }[] = [
+  { key: 'RETURN_OR_DISCOUNT', en: 'Return / cut price; stop ordering', sw: 'Rudisha / punguza bei; acha kuagiza', color: 'var(--c-error)' },
+  { key: 'DISCOUNT', en: 'Cut price; stop ordering', sw: 'Punguza bei; acha kuagiza', color: 'var(--c-warning)' },
+  { key: 'STOP_ORDERING', en: 'Stop ordering until stock drops', sw: 'Acha kuagiza hadi stoki ishuke', color: 'var(--c-info)' },
+  { key: 'OK', en: 'OK', sw: 'Sawa', color: 'var(--c-success)' },
+];
+
+export interface SlowMover {
+  productId: number;
+  productUid: string;
+  name: string;
+  category: string;
+  /** 'C', or 'NONE' = neither sold nor bought in the window. */
+  orderClass: string;
+  quantity: number;
+  unitCost: number;
+  /** quantity × unitCost (purchase cost). */
+  value: number;
+  lastSaleDate: string | null;
+  daysSinceLastSale: number | null;
+  sold30: number;
+  sold60: number;
+  bought60: number;
+  /** Days the stock lasts at the 60-day pace; null when nothing sold in 60 days. */
+  coverDays: number | null;
+  action: SlowAction;
+  stuck: boolean;
+}
+
+export interface SlowMovers {
+  /** Last full sales day the figures run to. */
+  asOf: string;
+  windowDays: number;
+  /** Day of the stock count the quantities come from. */
+  stockDate: string | null;
+  stockStatus: string | null;
+  generatedAt: string;
+  totals: {
+    products: number;
+    stockValue: number;
+    stuckProducts: number;
+    stuckValue: number;
+    actions: { action: SlowAction; products: number; value: number }[];
+  };
+  items: SlowMover[];
 }
 
 /** The backend refuses longer periods. */

@@ -16,6 +16,7 @@ export const REPORTS_ROUTES: Routes = [
   { path: 'profit', canActivate: [reportGuard('profit')], loadComponent: () => import('./profit-report').then((c) => c.ProfitReport) },
   { path: 'sales', canActivate: [reportGuard('sales')], loadComponent: () => import('./sales-report').then((c) => c.SalesReport) },
   { path: 'inventory', canActivate: [reportGuard('inventory')], loadComponent: () => import('./inventory-report').then((c) => c.InventoryReport) },
+  { path: 'slow-movers', canActivate: [reportGuard('slow-movers')], loadComponent: () => import('./slow-movers-report').then((c) => c.SlowMoversReport) },
   { path: 'purchases', canActivate: [reportGuard('purchases')], loadComponent: () => import('./purchases-report').then((c) => c.PurchasesReport) },
   { path: 'receivables', canActivate: [reportGuard('receivables')], loadComponent: () => import('./receivables-report').then((c) => c.ReceivablesReport) },
   { path: 'expenses', canActivate: [reportGuard('expenses')], loadComponent: () => import('./expenses-report').then((c) => c.ExpensesReport) },

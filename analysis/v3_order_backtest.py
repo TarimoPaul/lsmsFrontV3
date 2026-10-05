@@ -116,7 +116,8 @@ class Data:
         self.monthly = defaultdict(float)  # (y, m) -> amount ; m=0 = every month of y
         for r in q["monthly_expenses"]:
             self.monthly[(int(r["y"]), int(r["m"]))] += f_(r["amount"])
-        self.timing = [(r["product_uid"], d_(r["dt"]), f_(r["pcs_pre13"]), f_(r["pcs_timed"]), f_(r["pcs_all"]))
+        self.timing = [(r["product_uid"], d_(r["dt"]), f_(r["pcs_pre13"]), f_(r["pcs_timed"]), f_(r["pcs_all"]),
+                        f_(r["pcs_pre12"]))
                        for r in q["sales_timing"]]
         self.suppliers = q["suppliers"]
         self.sessions = q["count_sessions"]
@@ -536,14 +537,14 @@ def one_step(data, prof, P):
     return out
 
 
-def pre_delivery_share(data, prof, cls="A"):
-    """share of class units entered before DELIVERY_HOUR, per weekday (see sales_timing in the SQL)"""
+def pre_delivery_share(data, prof, cls="A", hour=13):
+    """share of class units entered before `hour` (13 or 12), per weekday (see sales_timing in the SQL)"""
     pre, timed, total = defaultdict(float), defaultdict(float), defaultdict(float)
-    for u, dt, a, b, c in data.timing:
+    for u, dt, a, b, c, a12 in data.timing:
         if prof[u]["cls"] != cls:
             continue
         w = dt.weekday()
-        pre[w] += a
+        pre[w] += a if hour == 13 else a12
         timed[w] += b
         total[w] += c
     rows = {w: dict(pre=pre[w], timed=timed[w], total=total[w],
@@ -564,7 +565,8 @@ def night_test(data, prof, P):
         if r["cls"] not in ("A", "B"):
             continue
         a = dict(days=0, same=0, night_more=0, night_less=0, abs_packs=0.0, night_cost=0.0, morn_cost=0.0,
-                 short_night=0, short_morn=0, abs_stock=0.0)
+                 short_night=0, short_morn=0, abs_stock=0.0,
+                 sys_same=0, sys_more=0, sys_less=0, sys_abs_packs=0.0, sys_abs_stock=0.0, sys_short=0, sys_cost=0.0)
         for D in DAYS:
             c, prev = data.count(u, D, approved_only=True), data.count(u, D - ONE)
             if c is None or prev is None:
@@ -582,6 +584,16 @@ def night_test(data, prof, P):
             a["morn_cost"] += m["cost"]
             a["short_night"] += dem > c + n["units"] + 1e-9     # real stock is the morning count
             a["short_morn"] += dem > c + m["units"] + 1e-9
+            # system stock at 00:00 = the system snapshot the morning count is compared with
+            sysq = max(data.counts[D][u][1], 0.0)
+            y = suggest(data, u, r["cls"], D, sysq, P)
+            a["sys_same"] += y["packs"] == m["packs"]
+            a["sys_more"] += y["packs"] > m["packs"]
+            a["sys_less"] += y["packs"] < m["packs"]
+            a["sys_abs_packs"] += abs(y["packs"] - m["packs"])
+            a["sys_abs_stock"] += abs(sysq - c)
+            a["sys_short"] += dem > c + y["units"] + 1e-9
+            a["sys_cost"] += y["cost"]
         out[u] = a
     return out
 
@@ -614,6 +626,73 @@ def slow_movers(data, prof):
                          value=qty * r["cost"], last_sale=last_sale, days_since=days_since, sold30=s30, sold60=s60,
                          cover_days=cover, action=action))
     return sorted(rows, key=lambda x: -x["value"]), last_count
+
+
+def soda_policy(data, uid, rop_lead, real_lead, z):
+    """Agent-delivered product (class B): the shop phones the agent, goods come `real_lead` days later.
+
+    rop_lead=None  -> current habit: phone at the moment the shelf is empty.
+    rop_lead=L     -> reorder point: every morning, if stock <= demand over (1 + L) days + safety, phone.
+                      (1 day because the stock is only looked at once a day, plus the lead time.)
+    Order size = median of the lots bought before that day (no minimum order).
+    Time runs continuously; a day's demand (= units really sold) is spread evenly over the day."""
+    ppp = data.products[uid]["ppp"]
+    stock = data.count(uid, D0) or 0.0
+    arrive_at, arrive_qty = None, 0.0
+    lost = stock_sum = 0.0
+    so_days = orders = 0
+    lots = sorted(q for d, (q, _v) in data.purch[uid].items() if q > 0)
+
+    def lot(D):
+        past = sorted(q for d, (q, _v) in data.purch[uid].items() if q > 0 and d < D) or lots
+        q = past[len(past) // 2] if past else 15 * ppp
+        return math.ceil(q / ppp) * ppp
+
+    for i, D in enumerate(DAYS):
+        t, end, dem = float(i), float(i + 1), data.sold(uid, D)
+        stock_sum += stock
+        if rop_lead is not None and arrive_at is None:
+            v, sd, _n = data.velocity(uid, D)
+            horizon = 1.0 + rop_lead
+            need, left, k = 0.0, horizon, 0
+            while left > 1e-9:
+                w = min(1.0, left)
+                need += w * v * data.season(D, D + timedelta(days=k))
+                left -= w
+                k += 1
+            if stock <= need + z * sd * math.sqrt(horizon):
+                arrive_at, arrive_qty = t + real_lead, lot(D)
+                orders += 1
+        day_lost = 0.0
+        while t < end - 1e-9:
+            nxt = min(end, arrive_at) if arrive_at is not None and arrive_at > t else end
+            want = dem * (nxt - t)
+            if want > stock + 1e-9:
+                if rop_lead is None and arrive_at is None and dem > 0:
+                    # shelf emptied inside this stretch: phone the agent at that moment
+                    t_empty = t + stock / dem
+                    arrive_at, arrive_qty = t_empty + real_lead, lot(D)
+                    orders += 1
+                    stock = 0.0
+                    t = t_empty
+                    continue
+                day_lost += want - stock
+                stock = 0.0
+            else:
+                stock -= want
+            t = nxt
+            if arrive_at is not None and abs(t - arrive_at) < 1e-9:
+                stock += arrive_qty
+                arrive_at = None
+        if arrive_at is not None and arrive_at <= end + 1e-9:
+            stock += arrive_qty
+            arrive_at = None
+        if day_lost > 1e-6:
+            so_days += 1
+            lost += day_lost
+    cost = data.products[uid]["cost"]
+    return dict(so_days=so_days, lost=lost, stock=stock_sum / len(DAYS), stock_value=stock_sum / len(DAYS) * cost,
+                orders=orders, lots=lots, ppp=ppp)
 
 
 def dow_test(data, prof, top):
@@ -762,14 +841,17 @@ def main():
     measured = {w: pds[w]["share"] for w in range(7)}
     wd = ["Jtt", "Jnn", "Jtn", "Alh", "Ijm", "Jms", "Jpl"]
     print(f"\n== CLASS A UNITS ENTERED BEFORE {DELIVERY_HOUR}:00 (entry time = lower bound of real share)")
+    pds12 = pre_delivery_share(data, prof, hour=12)
     for w in list(range(7)) + ["all"]:
         r = pds[w]
         print(f"{wd[w] if w != 'all' else 'zote':5} before13={r['pre']:>7.0f} timed={r['timed']:>7.0f} all={r['total']:>7.0f} "
-              f"share={r['share']:.1%} no-timing={r['untimed']:.1%}")
+              f"share={r['share']:.1%} no-timing={r['untimed']:.1%} | before12={pds12[w]['pre']:>7.0f} share12={pds12[w]['share']:.1%}")
+    measured12 = {w: pds12[w]["share"] for w in range(7)}
     variants = [
         ("DECIDED: A2 z0.5, pool<=1M, B daily cover 3", Params(2.0, 3.0, **dec)),
         ("  no peak prep", Params(2.0, 3.0, peak_prep=False, **dec)),
         ("  MEASURED share sold before delivery", Params(2.0, 3.0, pre_share=measured, **dec)),
+        ("  MEASURED share sold before 12:00", Params(2.0, 3.0, pre_share=measured12, **dec)),
         ("  twice the measured share", Params(2.0, 3.0, pre_share={w: min(2 * v, 1.0) for w, v in measured.items()}, **dec)),
         ("  measured share, z 0.75", Params(2.0, 3.0, pre_share=measured, **dict(dec, z=0.75))),
         ("  measured share, cap 1.5M", Params(2.0, 3.0, pre_share=measured, **dict(dec, pool_cap=1_500_000))),
@@ -867,6 +949,45 @@ def main():
           f"night more {agg['night_more']:.0f} | night less {agg['night_less']:.0f} | avg |packs| {agg['abs_packs'] / agg['days']:.2f} | "
           f"shortfall days night {agg['short_night']:.0f} vs morning {agg['short_morn']:.0f} | "
           f"cost night {money(agg['night_cost'])} vs morning {money(agg['morn_cost'])}")
+    print(f"class A, night version from SYSTEM stock: same {agg['sys_same']:.0f} ({agg['sys_same'] / agg['days']:.0%}) | "
+          f"more {agg['sys_more']:.0f} | less {agg['sys_less']:.0f} | avg |packs| {agg['sys_abs_packs'] / agg['days']:.2f} | "
+          f"avg |stock diff| {agg['sys_abs_stock'] / agg['days']:.1f} pcs | shortfall days if never updated {agg['sys_short']:.0f} | "
+          f"cost {money(agg['sys_cost'])}")
+    for u in [r["uid"] for r in listed if r["cls"] == "A"]:
+        a = nt[u]
+        print(f"   sys {prof[u]['id']:>4} {prof[u]['name'][:24]:24} same={a['sys_same']:>2}/{a['days']} more={a['sys_more']:>2} "
+              f"less={a['sys_less']:>2} |stock diff|={a['sys_abs_stock'] / a['days']:.1f}")
+
+    # ---- agent-delivered sodas: phone-when-empty vs reorder point ------------------------
+    print("\n== SODA POLICIES (class B; real lead time 6h = 0.25 day, or 1 day)")
+    sodas = [r["uid"] for r in listed if r["cls"] == "B"]
+    for u in sodas:
+        r0 = soda_policy(data, u, None, 0.25, 0.0)
+        lots_c = [q / r0["ppp"] for q in r0["lots"]]
+        print(f"{prof[u]['id']:>4} {prof[u]['name']}: lots bought (crates) n={len(lots_c)} min={min(lots_c):.0f} "
+              f"median={lots_c[len(lots_c) // 2]:.0f} max={max(lots_c):.0f} | actual: stockout days {act[u]['so_days']}, "
+              f"avg morning stock {act[u]['stock_avg']:.0f} pcs = {money(act[u]['stock_avg'] * prof[u]['cost'])}")
+    soda_rows = []
+    policies = [("(a) phone when empty", None, 0.0), ("(b) reorder point, lead 6h, z0.5", 0.25, 0.5),
+                ("(b) reorder point, lead 6h, z1", 0.25, 1.0), ("(c) reorder point, lead 1 day, z0.5", 1.0, 0.5),
+                ("(c) reorder point, lead 1 day, z1", 1.0, 1.0)]
+    print(f"{'policy':38} {'real lead':>9} | " + " | ".join(f"{prof[u]['name'][:16]:16} so  lost  stock ord" for u in sodas)
+          + " | total so  lost_value  stock_value")
+    for label, rop_lead, z in policies:
+        for real, real_label in ((0.25, "6h"), (1.0, "1 day")):
+            cells, so, lv, sv = [], 0, 0.0, 0.0
+            for u in sodas:
+                r = soda_policy(data, u, rop_lead, real, z)
+                cells.append(f"{'':16} {r['so_days']:>2} {r['lost']:>5.0f} {r['stock']:>6.0f} {r['orders']:>3}")
+                so += r["so_days"]
+                lv += r["lost"] * (prof[u]["cost"] + prof[u]["margin"])
+                sv += r["stock_value"]
+                soda_rows.append(dict(policy=label, real_lead=real_label, id=prof[u]["id"], name=prof[u]["name"],
+                                      stockout_days=r["so_days"], lost_units=round(r["lost"]),
+                                      avg_stock_units=round(r["stock"]), avg_stock_value=round(r["stock_value"]),
+                                      orders=r["orders"]))
+            print(f"{label:38} {real_label:>9} | " + " | ".join(cells) + f" | {so:>8} {money(lv):>11} {money(sv):>12}")
+    write_csv("soda_policies.csv", soda_rows, list(soda_rows[0].keys()))
 
     # ---- stock that does not move --------------------------------------------------------
     sm, as_of = slow_movers(data, prof)

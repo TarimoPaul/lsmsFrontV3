@@ -6,7 +6,7 @@ import { toIsoDate } from '@shared/utils/date-utils';
 import { GlService } from '../general-ledger/gl.service';
 import { IncomeStatement } from '../general-ledger/gl.models';
 import { SalesService } from '../sales/sales.service';
-import { AgingKey, ArCustomer, ArInvoice, DailyPnl, DeletedDebt, PnlDay } from './reports.models';
+import { AgingKey, ArCustomer, ArInvoice, DailyPnl, DeletedDebt, PnlDay, SLOW_ACTIONS, SlowAction, SlowMovers } from './reports.models';
 
 type Raw = Record<string, unknown>;
 const num = (v: unknown) => (v === null || v === undefined || v === '' ? 0 : Number(v) || 0);
@@ -113,6 +113,49 @@ export class ReportsService {
         count: num(w['count']),
         amount: w['amount'] === null || w['amount'] === undefined ? null : num(w['amount']),
         message: str(w['message']) ?? '',
+      })),
+    };
+  }
+
+  /**
+   * Stock that does not move, with the cash stuck in it (GET /api/reports/slow-movers,
+   * STOCK_REPORT). Rules live server-side in SlowMoverCalculator.
+   */
+  async slowMovers(): Promise<SlowMovers> {
+    const r = await this.api.get<Raw>('/api/reports/slow-movers');
+    const t = (r['totals'] ?? {}) as Raw;
+    const list = (v: unknown) => (Array.isArray(v) ? (v as Raw[]) : []);
+    const action = (v: unknown): SlowAction => (SLOW_ACTIONS.some((a) => a.key === v) ? (v as SlowAction) : 'OK');
+    return {
+      asOf: String(r['asOf'] ?? ''),
+      windowDays: num(r['windowDays']),
+      stockDate: str(r['stockDate']),
+      stockStatus: str(r['stockStatus']),
+      generatedAt: String(r['generatedAt'] ?? ''),
+      totals: {
+        products: num(t['products']),
+        stockValue: num(t['stockValue']),
+        stuckProducts: num(t['stuckProducts']),
+        stuckValue: num(t['stuckValue']),
+        actions: list(t['actions']).map((a) => ({ action: action(a['action']), products: num(a['products']), value: num(a['value']) })),
+      },
+      items: list(r['items']).map((i) => ({
+        productId: num(i['productId']),
+        productUid: String(i['productUid'] ?? ''),
+        name: str(i['name']) ?? '—',
+        category: str(i['category']) ?? '',
+        orderClass: str(i['orderClass']) ?? 'C',
+        quantity: num(i['quantity']),
+        unitCost: num(i['unitCost']),
+        value: num(i['value']),
+        lastSaleDate: str(i['lastSaleDate']),
+        daysSinceLastSale: i['daysSinceLastSale'] === null || i['daysSinceLastSale'] === undefined ? null : num(i['daysSinceLastSale']),
+        sold30: num(i['sold30']),
+        sold60: num(i['sold60']),
+        bought60: num(i['bought60']),
+        coverDays: i['coverDays'] === null || i['coverDays'] === undefined ? null : num(i['coverDays']),
+        action: action(i['action']),
+        stuck: i['stuck'] === true,
       })),
     };
   }

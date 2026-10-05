@@ -1,0 +1,21 @@
+policy,real_lead,id,name,stockout_days,lost_units,avg_stock_units,avg_stock_value,orders
+(a) phone when empty,6h,3,PEPSI && MIRINDA,12,238,199,105868,10
+(a) phone when empty,6h,25,COCA && FANTA,9,128,183,97366,7
+(a) phone when empty,1 day,3,PEPSI && MIRINDA,16,990,213,113692,8
+(a) phone when empty,1 day,25,COCA && FANTA,12,369,189,100875,6
+"(b) reorder point, lead 6h, z0.5",6h,3,PEPSI && MIRINDA,1,1,307,163812,10
+"(b) reorder point, lead 6h, z0.5",6h,25,COCA && FANTA,3,54,228,121679,7
+"(b) reorder point, lead 6h, z0.5",1 day,3,PEPSI && MIRINDA,8,534,299,159279,9
+"(b) reorder point, lead 6h, z0.5",1 day,25,COCA && FANTA,6,257,226,120399,7
+"(b) reorder point, lead 6h, z1",6h,3,PEPSI && MIRINDA,1,1,323,172346,10
+"(b) reorder point, lead 6h, z1",6h,25,COCA && FANTA,2,35,250,133230,7
+"(b) reorder point, lead 6h, z1",1 day,3,PEPSI && MIRINDA,2,145,360,191999,10
+"(b) reorder point, lead 6h, z1",1 day,25,COCA && FANTA,4,185,238,126853,7
+"(c) reorder point, lead 1 day, z0.5",6h,3,PEPSI && MIRINDA,1,1,347,185146,10
+"(c) reorder point, lead 1 day, z0.5",6h,25,COCA && FANTA,0,0,251,133928,7
+"(c) reorder point, lead 1 day, z0.5",1 day,3,PEPSI && MIRINDA,2,145,376,200532,10
+"(c) reorder point, lead 1 day, z0.5",1 day,25,COCA && FANTA,3,25,254,135466,7
+"(c) reorder point, lead 1 day, z1",6h,3,PEPSI && MIRINDA,1,1,379,202212,10
+"(c) reorder point, lead 1 day, z1",6h,25,COCA && FANTA,0,0,288,153555,8
+"(c) reorder point, lead 1 day, z1",1 day,3,PEPSI && MIRINDA,2,145,376,200532,10
+"(c) reorder point, lead 1 day, z1",1 day,25,COCA && FANTA,1,25,291,155332,7
