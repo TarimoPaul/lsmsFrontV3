@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { ApiError } from '@core/api/api.types';
@@ -12,12 +13,13 @@ import { OrderService } from './order.service';
 
 /**
  * Dashboard line for the order of the day: crates and total, which version it is, and —
- * when the last recompute failed — "Oda haikusasishwa" with "Hesabu upya". Shows nothing
- * to users without ORDER_SUGGESTION_VIEW or while there is no order yet.
+ * when the last recompute failed — "Oda haikusasishwa" with "Hesabu upya". While there is
+ * no order yet it says so and offers to work it out, so the page is always one tap away.
+ * Shows nothing to users without ORDER_SUGGESTION_VIEW.
  */
 @Component({
   selector: 'app-order-banner',
-  imports: [RouterLink, Icon, Button],
+  imports: [RouterLink, NgTemplateOutlet, Icon, Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (order(); as o) {
@@ -39,8 +41,23 @@ import { OrderService } from './order.service';
           </span>
           <lsms-icon class="go" name="arrow_forward" [size]="18" />
         </a>
+      } @else {
+        <ng-container *ngTemplateOutlet="none" />
       }
+    } @else if (loaded()) {
+      <ng-container *ngTemplateOutlet="none" />
     }
+    <ng-template #none>
+      <div class="ob none">
+        <lsms-icon name="fact_check" [size]="20" />
+        <a class="txt" routerLink="/purchases/suggestion">
+          <b>{{ i18n.t("Today's order has not been made yet", 'Oda ya leo bado haijatengenezwa') }}</b>
+          <small>{{ i18n.t('It is made at 00:00 every night; you can also work it out now.', 'Hutengenezwa saa 00:00 kila usiku; unaweza pia kuihesabu sasa.') }}</small>
+        </a>
+        @if (canEdit()) { <button lsmsButton="secondary" size="sm" icon="calculate" [loading]="busy()" (click)="recalculate()">{{ i18n.t('Work it out now', 'Hesabu sasa') }}</button> }
+        <a class="go" routerLink="/purchases/suggestion" [attr.aria-label]="i18n.t('Open the order page', 'Fungua ukurasa wa oda')"><lsms-icon name="arrow_forward" [size]="18" /></a>
+      </div>
+    </ng-template>
   `,
   styles: `
     :host { display: block; }
@@ -52,6 +69,9 @@ import { OrderService } from './order.service';
     .ob.done > lsms-icon:first-child { color: var(--c-success); }
     .ob.err { background: color-mix(in srgb, var(--c-error) 8%, var(--c-surface)); border-color: color-mix(in srgb, var(--c-error) 35%, transparent); }
     .ob.err > lsms-icon:first-child { color: var(--c-error); }
+    .ob.none { background: var(--c-surface); border: 1px dashed var(--c-border); }
+    .ob.none > lsms-icon:first-child { color: var(--c-text-2); }
+    a.go { display: inline-flex; }
     .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: inherit; }
     .txt b { font-size: 0.92rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .txt small { font-size: 0.76rem; color: var(--c-text-2); }
@@ -66,6 +86,8 @@ export class OrderBanner {
   private readonly toast = inject(ToastService);
 
   protected readonly order = signal<OrderSuggestion | null>(null);
+  /** True once the first answer is in (also when there is no order, or the call failed quietly). */
+  protected readonly loaded = signal(false);
   protected readonly busy = signal(false);
   protected readonly canEdit = computed(() => this.auth.hasAnyPermission([ORDER_EDIT]));
 
@@ -101,6 +123,7 @@ export class OrderBanner {
   private async load(): Promise<void> {
     try {
       this.order.set(await this.api.today());
+      this.loaded.set(true);
     } catch {
       // the dashboard never fails because of the order
     }
