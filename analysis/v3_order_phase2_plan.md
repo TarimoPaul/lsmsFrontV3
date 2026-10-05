@@ -356,6 +356,41 @@ Awamu ijayo (si sasa): prefill ya manunuzi kutoka "Imenunuliwa"; kugawa kwa msam
 
 ---
 
+## 11. Hatua (b) imejengwa LOCAL (2026-10-05) — haijacommitiwa, haiko staging
+
+**Backend** (package `com.Lsms.OrderSuggestion`, migration `V125__Order_Suggestion.sql`):
+
+| Mpango | Kilichojengwa |
+|---|---|
+| B1 | Tables `order_suggestion`, `order_suggestion_line`, `product_order_setting`, na `order_setting` (mipangilio ya formula iko kwenye table yake, si `business_settings`) |
+| B2 | `OrderSuggestionCalculator` + `SeasonFactors` (safi, bila DB): velocity ya siku 14 yenye stockout zilizorekebishwa, factors, target (cover 2, z 0.5), kreti, kukata kwa bajeti, mfuko (cap 1M) |
+| B3 | `OrderClassifier` (A/B/C/NONE, kanuni ileile ya ripoti ya bidhaa zisizotembea) + marekebisho ya mmiliki kutoka `product_order_setting` (table tu; skrini yake bado) |
+| B4 | Kazi ya 00:00 (`OrderSuggestionScheduler`, inaheshimu `app.schedulers.enabled`); haifanyi kitu kama oda ya siku ipo |
+| B4b, B5, B6 | `OrderSuggestionTrigger`: sale la tarehe ya jana, counting kukamilika/kuidhinishwa, recon kuwasilishwa/kuidhinishwa. Baada ya commit, thread yake, kosa linaandikwa `last_error` tu |
+| B7 | `PUT /api/order-suggestions/{uid}/lines/{lineUid}`, `POST /{uid}/purchased`, `POST /today/recalculate` (si `/{uid}/recalculate`: inafanya kazi hata oda ikiwa haipo) |
+| B8 | `GET /today`, `GET /{uid}`, `GET ?from=&to=` (siku 62) |
+| B9 | Arifa "Oda ya leo iko tayari" mara moja kwa oda (wenye `ORDER_SUGGESTION_VIEW`; kama hakuna, `PURCHASE_READ`) |
+| B10 | `ORDER_SUGGESTION_VIEW`, `ORDER_SUGGESTION_EDIT` (zinaingizwa bila kupewa role yoyote; ROOT anaona zote) |
+
+**V3** (`features/order-suggestion`): F1 banner ya dashboard (kreti, jumla, toleo; kosa + "Hesabu upya"); F2 `/purchases/suggestion` (hali ya mtiririko, kadi ya bajeti na chanzo chake, jedwali la kreti zinazohaririwa na "mfumo sasa: X", kilichokatwa); F3 "Shiriki", "Chapisha", "Imenunuliwa"; F4 "Historia" (matoleo manne kwa kila bidhaa). **Haijajengwa:** orodha ya C ya mkono (F2) na skrini ya `product_order_setting`.
+
+**Majaribio (yote kwenye PC):**
+- Unit tests 70 mpya (build nzima 273, hakuna iliyoshindwa). `OrderSuggestionBacktestFixtureTest`: siku 5 halisi (12/08, 22/08, 04/09, 23/09, 03/10) × bidhaa 14: factors, velocity, target na **kreti zilezile za script**; kreti zilezile baada ya kukata bajeti; daraja zilezile kwa bidhaa 119.
+- Data halisi kupitia SQL ya moja kwa moja (dump ya 04/10, oda ya 03/10): bidhaa 14 zilezile, kreti zilezile, gharama 1,903,597.84, sawa na script.
+- Mtiririko kupitia API halisi 39/39: toleo la usiku; kuhariri; sale la jana → oda inajisasisha (stock 78 → 72); sale la leo halibadilishi; counting → oda inajisasisha kwa stock iliyohesabiwa; "Hesabu upya"; "Imenunuliwa"; oda iliyofungwa haibadiliki; matoleo manne.
+- Skrini kwenye browser 33/33 (Kiswahili, Kiingereza, simu).
+- `OrderSuggestionTriggerTest`: counting/sale/recon zinafanikiwa hata oda ikishindwa; hakuna kinachoendeshwa kabla ya commit wala baada ya rollback. Njia ya recon imepimwa kwa unit tests tu (si kupitia API).
+
+**Mambo yanayohitaji uamuzi wako:**
+1. **Factor ya siku ya wiki.** Sehemu 7.7 inasema "historia yote", lakini namba zilizoidhinishwa (stockout 27) zilitumia wiki 8 za mwisho. Kwa historia yote: stockout 29, mauzo yaliyopotea 1.09M (badala ya 27 na 1.03M). Nimeweka wiki 8 (`order_setting.dow_mode = RECENT`); inabadilishwa kwa mpangilio mmoja.
+2. **Mfuko wa siku ya kwanza ni 0.** Oda ya kwanza haina salio la jana, kwa hiyo bajeti inakata sana (mfano wa 03/10: 592,498 kati ya 1,903,598). Chaguo: kuanza na salio la mwanzo (mfano 1M), au kukubali siku ya kwanza.
+3. **Nani apewe ruhusa mbili mpya** (Macheda na nani mwingine).
+4. **Stock ya toleo la usiku** = stock ya mfumo ya 00:00 ukiondoa mauzo ya siku za nyuma yaliyoingizwa tangu hapo. Bajeti ya makadirio = mauzo ya jana ya rejista − madeni − gharama zilizoingizwa − gharama za mwezi kwa siku + salio la mfuko.
+
+**Kasoro iliyopo nje ya oda (haijarekebishwa):** tangu 03/10 namba za risiti ni `031026-2358` badala ya `RCP-…`. `DailyPnlService.stockValueAt` (ripoti ya faida ya kila siku) inatambua `RCP-…` tu, kwa hiyo mauzo ya tarehe ya nyuma yenye namba mpya hayahamishwi kwenye siku yake katika thamani ya stock. Code ya oda inakubali miundo yote miwili.
+
+---
+
 ## 9. Maswali kabla ya kuanza code
 1. **Soda na mfuko wa 1M:** napendekeza onyo la soda lisihesabiwe kwenye kikomo (oda yake ni ~190–260k na ingekata bia siku hiyo). Unakubali?
 2. **Kitufe "Nimemwita wakala"** (sehemu 5.4): kiingie hatua (c) au awamu ijayo?

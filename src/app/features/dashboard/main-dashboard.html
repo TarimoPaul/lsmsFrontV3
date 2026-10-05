@@ -25,6 +25,9 @@
     }
   </section>
 
+  <!-- ── Today's purchase suggestion (ORDER_SUGGESTION_VIEW only; empty until the order exists) ── -->
+  <app-order-banner class="reveal" style="--d: 150ms" />
+
   <!-- ── 2. Needs attention (close = hide for today · auto-hides after a reminder) ── -->
   @if (hasAlerts()) {
     <section class="alerts reveal" style="--d: 160ms" aria-live="polite">

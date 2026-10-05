@@ -99,7 +99,7 @@ const TAB_KEY = 'lsms.recon.tab';
         <div class="reminder">
           <lsms-icon name="notification_important" [size]="18" />
           <span>
-            <b>{{ i18n.t('You have ' + store.unclosed().length + ' day(s) not yet approved', 'Una siku ' + store.unclosed().length + ' ambazo hazijaidhinishwa') }}</b>
+            <b>{{ i18n.t('You have ' + store.unclosed().length + ' day(s) you have not submitted yet', 'Una siku ' + store.unclosed().length + ' ambazo hujaziwasilisha bado') }}</b>
             <span class="days">
               @for (u of store.unclosed().slice(0, 8); track u.uid) {
                 <button type="button" (click)="pick(u.date)">{{ day(u.date) | date: 'dd MMM' }} · {{ statusText(u.status) }}</button>

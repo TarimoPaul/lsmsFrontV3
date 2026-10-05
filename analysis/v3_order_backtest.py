@@ -50,6 +50,8 @@ DOW_WEEKS = 8
 DOM_CLAMP = (0.85, 1.30)
 PEAK_THRESHOLD = 1.08   # smoothed day-of-month factor that counts as "peak"
 PEAK_PREP_DAYS = 3
+# day-of-week factor used by the formula: "recent" = last DOW_WEEKS weeks, "long" = all history
+DOW_MODE = os.environ.get("LSMS_BT_DOW", "recent")
 
 
 # =======================================================================================
@@ -204,7 +206,7 @@ class Data:
         while hi < 31 and dom[hi + 1] >= PEAK_THRESHOLD:
             hi += 1
         peak = (lo, hi, sum(dom[k] for k in range(lo, hi + 1)) / (hi - lo + 1)) if dom[best] >= PEAK_THRESHOLD else None
-        res = dict(dow=dow, dom=dom, dow_long=dow_long, peak=peak)
+        res = dict(dow=dow_long if DOW_MODE == "long" else dow, dom=dom, dow_long=dow_long, dow_recent=dow, peak=peak)
         self._fcache[D] = res
         return res
 
@@ -755,9 +757,69 @@ def totals(data, prof, res, act, cls=None):
         act_strict=sum(act[u]["strict_days"] for u in us))
 
 
+def export_fixture(data, prof, path):
+    """Reference data for the backend unit tests (OrderSuggestionBacktestFixtureTest): the raw
+    inputs of the formula and what THIS script computes from them, so the Java calculator can be
+    held to the same crates. Sample days = approved-count days spread over the window."""
+    import json
+    P = Params(2.0, 3.0, z=0.5, formula="tomorrow", budget="pool", pool_cap=1_000_000)
+    approved = [d for d in DAYS if data.count_status.get(d) == "APPROVED"]
+    want = [date.fromisoformat(x) for x in os.environ.get(
+        "LSMS_BT_SAMPLE_DAYS", "2026-08-12,2026-08-22,2026-09-05,2026-09-23,2026-10-03").split(",")]
+    samples = [min(approved, key=lambda d: abs((d - w).days)) for w in want]
+    first = min(samples) - timedelta(days=VELOCITY_MAX_LOOKBACK + 1)
+    span = [first + timedelta(days=i) for i in range((D1 - first).days + 1)]
+    a_uids = [u for u, r in prof.items() if r["cls"] == "A"]
+    out = dict(source="analysis/v3_order_backtest.py", dowMode=DOW_MODE, windowEnd=str(D1), historyStart=str(HIST0),
+               cover=P.cover["A"], z=P.z,
+               storeDaily=[round(data.amt.get(HIST0 + timedelta(days=i), 0.0), 2) for i in range((D1 - HIST0).days + 1)],
+               spanStart=str(first), products=[], days=[], classes=[])
+    for u in a_uids:
+        p, r = data.products[u], prof[u]
+        out["products"].append(dict(id=p["id"], name=p["name"], ppp=p["ppp"], cost=p["cost"], margin=r["margin"],
+                                    sold=[data.sold(u, x) for x in span], stockout=[bool(data.stockout(u, x)) for x in span]))
+    for D in samples:
+        f = data.factors(D)
+        orders = {u: suggest(data, u, "A", D, data.count(u, D) or 0.0, P) for u in a_uids}
+        lines = [dict(id=data.products[u]["id"], stock=data.count(u, D) or 0.0, v=o["v"], sd=o["sd"], stockoutDays=o["n_so"],
+                      factor=o["factor"], target=o["target"], need=o["need"], packs=o["packs"], cost=o["cost"])
+                 for u, o in orders.items()]
+        wanted = sum(o["cost"] for o in orders.values())
+        limit = round(wanted * 0.6)
+        cut = {u: dict(o) for u, o in orders.items()}
+        apply_budget(data, prof, cut, limit)
+        out["days"].append(dict(date=str(D), dow=[f["dow"].get(w, 1.0) for w in range(7)],
+                                dowRecent=[f["dow_recent"].get(w, 1.0) for w in range(7)],
+                                dowLong=[f["dow_long"].get(w, 1.0) for w in range(7)],
+                                dom=[f["dom"][k] for k in range(1, 32)], peak=list(f["peak"]) if f["peak"] else None,
+                                factorTomorrow=data.season(D, D + ONE, True), lines=lines, wanted=wanted, limit=limit,
+                                packsAfterCut={str(data.products[u]["id"]): o["packs"] for u, o in cut.items()}))
+    # classification inputs for every product (window days + the morning after), as the classifier needs them
+    cdays = DAYS + [D1 + ONE]
+    out["classDays"] = dict(first=str(D0), approved=[data.count_status.get(d) == "APPROVED" for d in cdays])
+    for u, r in prof.items():
+        p = data.products[u]
+        if r["cls"] == "-" and not any(data.count(u, d) for d in cdays):
+            continue
+        out["classes"].append(dict(id=p["id"], name=p["name"], ppp=p["ppp"], cls="NONE" if r["cls"] == "-" else r["cls"],
+                                   sold=[data.sold(u, d) for d in DAYS], bought=[data.bought(u, d)[0] for d in DAYS],
+                                   count=[data.count(u, d) for d in cdays]))
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(out, fh, separators=(",", ":"))
+    act = actuals(data, prof)
+    res, _ = simulate(data, prof, P)
+    t = totals(data, prof, res, act, "A")
+    print(f"fixture -> {path} ({os.path.getsize(path)} bytes); samples {[str(d) for d in samples]}; dow={DOW_MODE}")
+    print(f"decided config, class A: stockout days sim={t['sim_so']} actual={t['act_so']} lost={money(t['lost_value'])} "
+          f"stock={money(t['sim_stock'])} buy={money(t['sim_buy'])} cut={money(t['cut_value'])}")
+
+
 def main():
     data = Data(run_queries())
     prof = profile(data)
+    if os.environ.get("LSMS_BT_FIXTURE"):
+        export_fixture(data, prof, os.environ["LSMS_BT_FIXTURE"])
+        return
     listed = sorted((r for r in prof.values() if r["cls"] != "-"), key=lambda r: -r["sold"])
 
     print(f"== CLASSIFICATION  (window {D0}..{D1}, {len(DAYS)} days; approved count days: "

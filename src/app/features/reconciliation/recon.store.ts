@@ -83,6 +83,17 @@ export class ReconStore {
     this.unclosed.set(await this.api.myUnclosed());
   }
 
+  /** Keep the reminder in step with the record just changed: a day that was submitted leaves it at once. */
+  private syncUnclosed(r: Recon): void {
+    if (!this.unclosed().some((u) => u.uid === r.uid)) {
+      // Sent back to draft / reopened: it may belong in the reminder again.
+      if (r.userUid === this.me() && (r.status === 'DRAFT' || r.status === 'REOPENED')) void this.loadUnclosed();
+      return;
+    }
+    const open = r.status === 'DRAFT' || r.status === 'REOPENED';
+    this.unclosed.update((list) => (open ? list.map((u) => (u.uid === r.uid ? { ...u, status: r.status } : u)) : list.filter((u) => u.uid !== r.uid)));
+  }
+
   /** Create (or fetch) the caller's own record for the selected day. */
   async startMine(): Promise<Recon | null> {
     this.saving.set(true);
@@ -116,6 +127,7 @@ export class ReconStore {
       if (res.recon) {
         this.current.set(res.recon);
         this.team.update((t) => t.map((x) => (x.uid === res.recon!.uid ? res.recon! : x)));
+        this.syncUnclosed(res.recon);
         if (success) this.toast.success(success);
       }
       return res;

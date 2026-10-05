@@ -11,6 +11,7 @@ import { APP_MODULES, AppModule, CATEGORY_LABELS, CATEGORY_ORDER, ModuleCategory
 import { ModuleUsageService } from '@core/navigation/module-usage.service';
 import { ComparisonBars, CountUp, DialogService, Icon, Skeleton } from '@shared/ui';
 import { Money } from '@shared/utils/money';
+import { OrderBanner } from '../order-suggestion/order-banner';
 import { DashboardAlertsService } from './dashboard-alerts.service';
 import { DashboardKpiService } from './dashboard-kpi.service';
 
@@ -48,7 +49,7 @@ interface QuickAction {
  */
 @Component({
   selector: 'app-main-dashboard',
-  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars, CountUp],
+  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars, CountUp, OrderBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-dashboard.html',
   styleUrl: './main-dashboard.scss',

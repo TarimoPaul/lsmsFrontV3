@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
@@ -13,6 +13,9 @@ import { CashEntry } from './reconciliation.models';
 import { ReconciliationService } from './reconciliation.service';
 import type { SafeBoxDepositData } from './safe-box-deposit-dialog';
 import { DepositRequest, SafeBoxService } from './safe-box.service';
+
+/** How often a manager's "to confirm" list re-checks for deposits submitted meanwhile. */
+const MANAGER_POLL_MS = 30_000;
 
 /**
  * Safe Box tab — port of Flutter `_SafeBoxTab`. Money put in the safe is a
@@ -69,6 +72,7 @@ import { DepositRequest, SafeBoxService } from './safe-box.service';
           @for (e of entries(); track e.uid) {
             @let left = remainingFor(e);
             @let pend = pendingFor(e);
+            @let free = left - pend;
             <li>
               <span class="ic"><lsms-icon name="lock" [size]="17" /></span>
               <span class="t">
@@ -79,8 +83,8 @@ import { DepositRequest, SafeBoxService } from './safe-box.service';
                   @if (e.reference || e.notes) { · {{ [e.reference, e.notes].filter(truthy).join(' · ') }} }
                 </small>
               </span>
-              @if (left > 0.01 && store.isMine()) {
-                <button lsmsButton size="sm" icon="upload" (click)="submit(e, left)">{{ i18n.t('Submit deposit', 'Wasilisha deposit') }}</button>
+              @if (free > 0.01 && store.isMine()) {
+                <button lsmsButton size="sm" icon="upload" (click)="submit(e, free)">{{ i18n.t('Submit deposit', 'Wasilisha deposit') }}</button>
               }
               @if (canEdit()) {
                 <button type="button" class="rm" (click)="removeEntry(e)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')"><lsms-icon name="delete" [size]="17" /></button>
@@ -126,7 +130,10 @@ import { DepositRequest, SafeBoxService } from './safe-box.service';
     @if (canManage()) {
       <!-- Manager: confirm / reject -->
       <section class="block">
-        <header><h4><lsms-icon name="verified_user" [size]="16" />{{ i18n.t('To confirm (manager)', 'Za kuthibitisha (meneja)') }}</h4></header>
+        <header>
+          <h4><lsms-icon name="verified_user" [size]="16" />{{ i18n.t('To confirm (manager)', 'Za kuthibitisha (meneja)') }}</h4>
+          <button lsmsButton="text" size="sm" icon="refresh" [loading]="refreshing()" (click)="reloadManager()">{{ i18n.t('Refresh', 'Pakia upya') }}</button>
+        </header>
         @if (toConfirm().length) {
           <ul class="items">
             @for (d of toConfirm(); track d.uid) {
@@ -217,6 +224,7 @@ export class ReconSafeBoxTab {
   protected readonly ref = signal('');
   protected readonly notes = signal('');
   protected readonly busy = signal<string | null>(null);
+  protected readonly refreshing = signal(false);
   protected readonly mine = signal<SafeBoxDeposit[]>([]);
   protected readonly toConfirm = signal<SafeBoxDeposit[]>([]);
   protected readonly outstanding = signal<SafeBoxCashierOutstanding[]>([]);
@@ -240,6 +248,20 @@ export class ReconSafeBoxTab {
       untracked(() => void this.loadEntries(ids ? ids.split(',') : []));
     });
     void this.loadLists();
+
+    // A deposit submitted on another device shows up here on its own — the manager
+    // must never have to leave and re-open the tab (or ask the cashier to send it again).
+    if (this.canManage()) {
+      const tick = () => {
+        if (document.visibilityState === 'visible') void this.loadManager();
+      };
+      const timer = setInterval(tick, MANAGER_POLL_MS);
+      document.addEventListener('visibilitychange', tick);
+      inject(DestroyRef).onDestroy(() => {
+        clearInterval(timer);
+        document.removeEventListener('visibilitychange', tick);
+      });
+    }
   }
 
   private async loadEntries(uids: string[]): Promise<void> {
@@ -251,10 +273,23 @@ export class ReconSafeBoxTab {
     const [mine, recipients] = await Promise.all([this.safe.myPending().catch(() => []), this.safe.recipients()]);
     this.mine.set(mine.sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '')));
     this.recipients = recipients;
-    if (this.canManage()) {
-      const [pending, owed] = await Promise.all([this.safe.pendingForManager().catch(() => []), this.safe.outstanding().catch(() => [])]);
-      this.toConfirm.set(pending);
-      this.outstanding.set(owed);
+    await this.loadManager();
+  }
+
+  /** Manager lists. A failed call keeps what is on screen (the poll must never blank the list). */
+  private async loadManager(): Promise<void> {
+    if (!this.canManage()) return;
+    const [pending, owed] = await Promise.all([this.safe.pendingForManager().catch(() => null), this.safe.outstanding().catch(() => null)]);
+    if (pending) this.toConfirm.set(pending);
+    if (owed) this.outstanding.set(owed);
+  }
+
+  protected async reloadManager(): Promise<void> {
+    this.refreshing.set(true);
+    try {
+      await this.loadManager();
+    } finally {
+      this.refreshing.set(false);
     }
   }
 
@@ -316,22 +351,37 @@ export class ReconSafeBoxTab {
     if (res.error) this.toast.error(res.error);
   }
 
-  protected submit(e: CashEntry, remaining: number): Promise<void> {
-    return this.openDeposit({ cashEntryUid: e.uid, remaining, recipients: this.recipients });
+  protected submit(e: CashEntry, free: number): Promise<void> {
+    return this.openDeposit({ cashEntryUid: e.uid, remaining: free, recipients: this.recipients });
   }
 
-  protected resubmit(d: SafeBoxDeposit): Promise<void> {
-    return this.openDeposit({ cashEntryUid: d.cashEntryUid, remaining: this.remainingOf(d), recipients: this.recipients });
+  protected async resubmit(d: SafeBoxDeposit): Promise<void> {
+    const free = await this.freeFor(d);
+    if (!(free > 0.01)) {
+      return void this.toast.warning(this.i18n.t('All of this money is already submitted or confirmed.', 'Pesa hii yote tayari imewasilishwa au imethibitishwa.'));
+    }
+    return this.openDeposit({ cashEntryUid: d.cashEntryUid, remaining: free, recipients: this.recipients });
   }
 
-  protected editDeposit(d: SafeBoxDeposit): Promise<void> {
-    return this.openDeposit({ cashEntryUid: d.cashEntryUid, remaining: this.remainingOf(d), recipients: this.recipients, editing: d });
+  protected async editDeposit(d: SafeBoxDeposit): Promise<void> {
+    return this.openDeposit({ cashEntryUid: d.cashEntryUid, remaining: await this.freeFor(d, true), recipients: this.recipients, editing: d });
   }
 
-  /** For a deposit from another day: the server's remaining, else its original amount. */
-  private remainingOf(d: SafeBoxDeposit): number {
-    const e = this.entries().find((x) => x.uid === d.cashEntryUid);
-    return e ? this.remainingFor(e) : (d.remaining ?? d.originalAmount ?? d.amount);
+  /**
+   * What can still be submitted against a deposit's safe-box entry: its amount minus
+   * CONFIRMED and minus PENDING deposits (the server refuses more). When editing, the
+   * deposit's own amount is being replaced, so it is not counted. The entry may be on
+   * another day, so its history is fetched when it is not already loaded.
+   */
+  private async freeFor(d: SafeBoxDeposit, editing = false): Promise<number> {
+    const uid = d.cashEntryUid;
+    if (!uid) return d.remaining ?? d.originalAmount ?? d.amount;
+    const total = this.entries().find((x) => x.uid === uid)?.amount ?? d.originalAmount ?? d.amount;
+    const history = this.history().get(uid) ?? (await this.safe.entryHistory(uid));
+    const taken = history
+      .filter((h) => h.status === 'CONFIRMED' || (h.status === 'PENDING' && !(editing && h.uid === d.uid)))
+      .reduce((n, h) => n + h.amount, 0);
+    return Math.max(0, total - taken);
   }
 
   private async openDeposit(data: SafeBoxDepositData): Promise<void> {

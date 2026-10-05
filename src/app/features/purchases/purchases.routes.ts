@@ -14,4 +14,11 @@ export const PURCHASES_ROUTES: Routes = [
     data: { permissions: ['PURCHASE_WRITE'] },
     loadComponent: () => import('./repurchase/repurchase-page').then((c) => c.RepurchasePage),
   },
+  {
+    path: 'suggestion',
+    title: 'Pendekezo la oda · LSMS',
+    canMatch: [permissionGuard],
+    data: { permissions: ['ORDER_SUGGESTION_VIEW'] },
+    loadComponent: () => import('../order-suggestion/order-page').then((c) => c.OrderPage),
+  },
 ];

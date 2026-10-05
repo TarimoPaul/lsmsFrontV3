@@ -9,7 +9,7 @@ import { DepositRequest } from './safe-box.service';
 
 export interface SafeBoxDepositData {
   cashEntryUid: string | null;
-  /** Still in the safe (confirmed deposits already taken off). */
+  /** What can still be submitted: confirmed and other waiting deposits already taken off. */
   remaining: number;
   recipients: Array<{ uid: string; name: string }>;
   /** Edit this still-pending deposit. */
@@ -18,7 +18,7 @@ export interface SafeBoxDepositData {
 
 /**
  * Submit / edit a Safe Box deposit — port of Flutter `_showSubmitDialog`:
- * how much (≤ what is still in the safe), banked (bank + receipt) or handed
+ * how much (≤ what is not yet submitted), banked (bank + receipt) or handed
  * to a manager (who). Closes with the request.
  */
 @Component({
@@ -27,7 +27,7 @@ export interface SafeBoxDepositData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="data.editing ? i18n.t('Edit deposit', 'Hariri deposit') : i18n.t('Submit a deposit', 'Wasilisha deposit')" icon="lock_open">
-      <p class="left"><lsms-icon name="lock" [size]="16" />{{ i18n.t('Still in the safe', 'Bado safeni') }} <b>{{ data.remaining | money }}</b></p>
+      <p class="left"><lsms-icon name="lock" [size]="16" />{{ i18n.t('Not yet submitted', 'Bado kuwasilishwa') }} <b>{{ data.remaining | money }}</b></p>
 
       <div class="form">
         <label>
@@ -111,7 +111,6 @@ export class SafeBoxDepositDialog {
   protected readonly recipient = signal<string | null>(this.e?.recipientUid ?? null);
 
   protected readonly amount = computed(() => Number(this.amountText().replace(/[^\d.]/g, '')) || 0);
-  /** "Remaining" only subtracts CONFIRMED deposits (like Flutter), so pending ones never need adding back. */
   protected readonly tooMuch = computed(() => this.amount() > this.data.remaining + 0.01);
   protected readonly valid = computed(() => {
     if (!(this.amount() > 0) || this.tooMuch()) return false;

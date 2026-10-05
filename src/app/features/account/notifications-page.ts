@@ -296,6 +296,9 @@ export class NotificationsPage {
         case 'PRICE_CHANGE':
           await this.router.navigateByUrl('/products');
           break;
+        case 'ORDER_SUGGESTION':
+          await this.router.navigateByUrl('/purchases/suggestion');
+          break;
       }
     } catch (e) {
       this.toast.error(ApiError.from(e).message);

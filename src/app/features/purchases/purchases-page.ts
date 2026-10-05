@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
@@ -51,6 +51,7 @@ type Filter = 'ALL' | PurchaseStatus;
 @Component({
   selector: 'app-purchases-page',
   imports: [
+    RouterLink,
     CanDirective,
     PageHeader,
     Button,

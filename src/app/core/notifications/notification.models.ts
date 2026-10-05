@@ -30,7 +30,7 @@ export type NotificationCategory = 'ALL' | 'DEBT' | 'PURCHASES' | 'SALES' | 'PRI
 export const CATEGORY_TYPES: Record<NotificationCategory, string[] | null> = {
   ALL: null,
   DEBT: ['DEBT_COLLECTED'],
-  PURCHASES: ['PURCHASE_CREATED', 'PURCHASE_APPROVED', 'PURCHASE_RECEIVED'],
+  PURCHASES: ['PURCHASE_CREATED', 'PURCHASE_APPROVED', 'PURCHASE_RECEIVED', 'ORDER_SUGGESTION'],
   SALES: ['DAILY_SALES_SUMMARY', 'PAST_DATE_SALE'],
   PRICES: ['PRICE_CHANGE'],
   SYSTEM: ['SYSTEM_ALERT'],
@@ -41,6 +41,7 @@ export const NOTIFICATION_KIND: Record<string, { en: string; sw: string; icon: s
   PURCHASE_CREATED: { en: 'Purchase created', sw: 'Manunuzi mapya', icon: 'shopping_cart', color: 'var(--c-info)' },
   PURCHASE_APPROVED: { en: 'Purchase approved', sw: 'Manunuzi yameidhinishwa', icon: 'check_circle', color: 'var(--c-success)' },
   PURCHASE_RECEIVED: { en: 'Stock received', sw: 'Mzigo umepokelewa', icon: 'inventory_2', color: 'var(--c-primary)' },
+  ORDER_SUGGESTION: { en: "Today's order is ready", sw: 'Oda ya leo iko tayari', icon: 'fact_check', color: 'var(--c-primary)' },
   DAILY_SALES_SUMMARY: { en: 'Daily sales', sw: 'Mauzo ya siku', icon: 'bar_chart', color: 'var(--c-success)' },
   PAST_DATE_SALE: { en: 'Back-dated sale', sw: 'Mauzo ya tarehe ya nyuma', icon: 'history', color: 'var(--c-warning)' },
   PRICE_CHANGE: { en: 'Price change', sw: 'Bei imebadilika', icon: 'sell', color: 'var(--c-warning)' },

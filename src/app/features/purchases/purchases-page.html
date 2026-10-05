@@ -7,6 +7,9 @@
     (refresh)="refresh()"
   >
     <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    <a *lsmsCan="'ORDER_SUGGESTION_VIEW'" lsmsButton="secondary" icon="fact_check" size="sm" routerLink="/purchases/suggestion">
+      {{ i18n.t('Order suggestion', 'Pendekezo la oda') }}
+    </a>
     <button *lsmsCan="'PURCHASE_WRITE'" lsmsButton="secondary" icon="replay" size="sm" class="rp" (click)="repurchase()">
       {{ i18n.t('Repurchase', 'Nunua tena') }}
       @if (repurchaseCart.count()) {

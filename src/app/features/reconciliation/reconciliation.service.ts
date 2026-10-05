@@ -73,9 +73,21 @@ export class ReconciliationService {
     return ((await this.api.get<Raw[] | null>(`${BASE}/pending-approval`)) ?? []).map(normalizeRecon);
   }
 
+  /**
+   * The caller's own days still to submit (DRAFT / REOPENED, older than yesterday).
+   * Stray records are left out: one with no sales and no entries (the day was only
+   * opened), and one with no sales on a day somebody else's record already carries
+   * (submitted / reviewed / approved). A backend that does not send those facts yet
+   * keeps every row.
+   */
   async myUnclosed(): Promise<Array<{ uid: string; date: string; status: string }>> {
     const rows = (await this.api.get<Raw[] | null>(`${BASE}/mine/unclosed`).catch(() => null)) ?? [];
-    return rows.map((r) => ({ uid: String(r['uid'] ?? ''), date: String(r['reconciliationDate'] ?? ''), status: String(r['status'] ?? '') }));
+    return rows
+      .filter((r) => {
+        if (r['totalSales'] === undefined || r['totalSales'] === null || Number(r['totalSales']) > 0) return true;
+        return r['hasEntries'] === true && r['coveredByOther'] !== true;
+      })
+      .map((r) => ({ uid: String(r['uid'] ?? ''), date: String(r['reconciliationDate'] ?? ''), status: String(r['status'] ?? '') }));
   }
 
   // ── Entries (each returns the updated record) ──────────────────────────────
