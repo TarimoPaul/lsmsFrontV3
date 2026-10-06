@@ -96,6 +96,10 @@ function normalize(r: Raw): OrderSuggestion {
         productUid: String(l['productUid'] ?? ''),
         productId: num(l['productId']),
         productName: str(l['productName']) ?? '—',
+        // Older backends send no label fields: fall back to the plain name.
+        displayName: str(l['displayName']) ?? str(l['productName']) ?? '—',
+        category: str(l['category']),
+        packageAbbreviation: str(l['packageAbbreviation']),
         piecesPerPack: num(l['piecesPerPack']) || 1,
         unitCost: num(l['unitCost']),
         packCost: num(l['packCost']),

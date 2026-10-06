@@ -7,6 +7,7 @@
  * in that package) and quantities must grow: quarter < half < whole — the
  * same rules as `Products.getPricingValidationErrors()` on the backend.
  */
+import { productTitle } from '@shared/utils/product-label';
 
 export interface MeasureRef {
   uid: string;
@@ -14,7 +15,12 @@ export interface MeasureRef {
   unitType: string;
   abbreviation: string | null;
   description: string | null;
+  /** Products using the measure, as counted by the server (measure list only). */
+  productCount?: number | null;
 }
+
+/** Longest abbreviation the backend column holds. */
+export const ABBREVIATION_MAX = 5;
 
 export interface Product {
   uid: string;
@@ -177,9 +183,9 @@ export function measureLabel(m: MeasureRef): string {
   return [m.packageType, m.unitType].filter(Boolean).join(' · ');
 }
 
-/** Same rule as backend `Products.getFormattedDisplayName()`. */
+/** Same rule as backend `Products.displayName()` — see `productTitle`. */
 export function displayNameOf(name: string, unitType?: string | null): string {
-  return unitType?.trim() ? `${name.trim()} ${unitType.trim()}` : name.trim();
+  return productTitle(name, unitType);
 }
 
 /** Identity used for duplicate checks: name + measures (backend `existsByProductNameAndItemsMeasureUidIn`). */

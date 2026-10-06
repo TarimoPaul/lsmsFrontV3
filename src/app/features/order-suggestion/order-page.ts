@@ -7,7 +7,8 @@ import { Button, DialogService, EmptyState, Icon, PageHeader, SegmentOption, Seg
 import { addDays, parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
-import { ORDER_EDIT, OrderLine, OrderSuggestion } from './order.models';
+import { packSize, packUnit, productDetail } from '@shared/utils/product-label';
+import { ORDER_EDIT, OrderLine, OrderSuggestion, PACK_WORDS } from './order.models';
 import { OrderService } from './order.service';
 
 type View = 'today' | 'history';
@@ -18,7 +19,7 @@ const HISTORY_DAYS = 14;
  *
  * The backend makes it at 00:00 and recomputes it by itself after yesterday's late
  * sales, the morning count and the reconciliation; this page shows where it stands,
- * lets the buyer set crates (an edited line is never recomputed — the system's answer
+ * lets the buyer set the packages (an edited line is never recomputed — the system's answer
  * shows beside it as "mfumo sasa"), share the list, and close it with "Imenunuliwa".
  * History keeps the four versions of every product: night / system / buyer / bought.
  */
@@ -89,7 +90,7 @@ const HISTORY_DAYS = 14;
             <section class="card total">
               <header><lsms-icon name="shopping_cart" [size]="18" /><span>{{ o.status === 'PURCHASED' ? i18n.t('Bought', 'Kilichonunuliwa') : i18n.t('Order now', 'Oda sasa') }}</span></header>
               <b>{{ m(o.status === 'PURCHASED' ? (o.totals.purchasedCost ?? 0) : o.totals.orderCost) }}</b>
-              <p>{{ shownPacks() }} {{ i18n.t('crates', 'kreti') }} · {{ shownProducts() }} {{ i18n.t('products', 'bidhaa') }}@if (o.totals.editedLines) { · {{ o.totals.editedLines }} {{ i18n.t('edited by you', 'zimehaririwa') }} }</p>
+              <p>{{ shownPacks() }} {{ w('packs') }} · {{ shownProducts() }} {{ i18n.t('products', 'bidhaa') }}@if (o.totals.editedLines) { · {{ o.totals.editedLines }} {{ i18n.t('edited by you', 'zimehaririwa') }} }</p>
               @if (o.totals.cutCost > 0) {
                 <p class="cut"><lsms-icon name="content_cut" [size]="14" />{{ i18n.t('The budget cut', 'Bajeti imekata') }} {{ m(o.totals.cutCost) }} {{ i18n.t('of the', 'kati ya') }} {{ m(o.totals.wantedCost) }} {{ i18n.t('the formula wanted', 'zilizotakiwa na formula') }}</p>
               }
@@ -128,7 +129,7 @@ const HISTORY_DAYS = 14;
                     <th class="n">{{ i18n.t('Stock', 'Stoki') }}</th>
                     <th class="n">{{ i18n.t('Sold / day', 'Mauzo / siku') }}</th>
                     <th class="n">{{ i18n.t('Target', 'Lengo') }}</th>
-                    <th class="c">{{ i18n.t('Crates', 'Kreti') }}</th>
+                    <th class="c">{{ w('Packs') }}</th>
                     <th class="n">{{ i18n.t('Cost', 'Gharama') }}</th>
                     @if (o.status === 'PURCHASED') { <th class="n">{{ i18n.t('Bought', 'Imenunuliwa') }}</th> }
                   </tr>
@@ -138,8 +139,8 @@ const HISTORY_DAYS = 14;
                     <tr [class.zero]="!l.packs && !l.cutPacks" [class.edited]="l.edited">
                       <td class="n pr">{{ l.priority }}</td>
                       <td class="nm">
-                        <b>{{ l.productName }}</b>
-                        <small>{{ i18n.t('crate of', 'kreti ya') }} {{ l.piecesPerPack }} · {{ m(l.packCost) }}</small>
+                        <b>{{ l.displayName }}</b>
+                        <small>{{ detail(l) }} · {{ m(l.packCost) }}/{{ unit(l) }}</small>
                         @if (l.cutPacks > 0) { <small class="tag cut"><lsms-icon name="content_cut" [size]="12" />{{ i18n.t('budget cut ' + l.cutPacks + ' of ' + l.wantedPacks, 'bajeti imekata ' + l.cutPacks + ' kati ya ' + l.wantedPacks) }}</small> }
                       </td>
                       <td class="n">
@@ -161,6 +162,7 @@ const HISTORY_DAYS = 14;
                         } @else {
                           <b class="num big">{{ l.packs }}</b>
                         }
+                        <small class="unit">{{ unit(l) }}</small>
                         @if (l.edited) {
                           <small class="sys">
                             {{ i18n.t('system now', 'mfumo sasa') }}: <b>{{ l.systemPacks }}</b>
@@ -178,8 +180,8 @@ const HISTORY_DAYS = 14;
           </section>
 
           <p class="foot muted">
-            {{ i18n.t('Target = sales per day × ' + o.seasonFactor.toFixed(2) + ' (season) × ' + o.coverDays + ' days + safety. Crates = (target − stock), rounded up to whole crates. Only the main products are here; sodas and slow products are not.',
-                      'Lengo = mauzo kwa siku × ' + o.seasonFactor.toFixed(2) + ' (msimu) × siku ' + o.coverDays + ' + akiba. Kreti = (lengo − stoki), zikizungushwa juu. Hapa ni bidhaa kuu tu; soda na bidhaa za polepole hazimo.') }}
+            {{ i18n.t('Target = sales per day × ' + o.seasonFactor.toFixed(2) + ' (season) × ' + o.coverDays + ' days + safety. Packages = (target − stock), rounded up to whole packages. Only the main products are here; sodas and slow products are not.',
+                      'Lengo = mauzo kwa siku × ' + o.seasonFactor.toFixed(2) + ' (msimu) × siku ' + o.coverDays + ' + akiba. Vifurushi = (lengo − stoki), vikizungushwa juu. Hapa ni bidhaa kuu tu; soda na bidhaa za polepole hazimo.') }}
           </p>
         }
       } @else {
@@ -210,7 +212,7 @@ const HISTORY_DAYS = 14;
                   <tbody>
                     @for (l of h.lines; track l.uid) {
                       <tr [class.zero]="!l.nightPacks && !l.systemPacks && !l.packs && !l.purchasedPacks">
-                        <td class="nm"><b>{{ l.productName }}</b></td>
+                        <td class="nm"><b>{{ l.displayName }}</b> <small>{{ unit(l) }}</small></td>
                         <td class="n num">{{ l.nightPacks ?? '—' }}</td>
                         <td class="n num">{{ l.systemPacks }}</td>
                         <td class="n num" [class.diff]="l.edited && l.userPacks !== l.systemPacks">{{ l.edited ? l.userPacks : '·' }}</td>
@@ -222,7 +224,7 @@ const HISTORY_DAYS = 14;
               </div>
             </details>
           }
-          <p class="foot muted">{{ i18n.t('Crates per product. "·" = the buyer left the system\\'s figure.', 'Kreti kwa kila bidhaa. "·" = mnunuzi aliacha namba ya mfumo.') }}</p>
+          <p class="foot muted">{{ i18n.t('Packages per product. "·" = the buyer left the system\\'s figure.', 'Vifurushi kwa kila bidhaa. "·" = mnunuzi aliacha namba ya mfumo.') }}</p>
         }
       }
     </div>
@@ -308,7 +310,7 @@ export class OrderPage {
   protected readonly busy = signal<'' | 'recalc' | 'purchased'>('');
   protected readonly history = signal<OrderSuggestion[] | null>(null);
   protected readonly historyError = signal('');
-  /** Crates typed but not saved yet, per line uid. */
+  /** Packages typed but not saved yet, per line uid. */
   private readonly draft = signal(new Map<string, number>());
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -364,8 +366,8 @@ export class OrderPage {
     const now = new Date();
     if (now.getHours() * 60 + now.getMinutes() < h * 60 + mi - 30) return null;
     return this.i18n.t(
-      `The count is not finished and it is nearly ${o.departureTime}: these crates use the SYSTEM stock (with yesterday's sales keyed in so far).`,
-      `Counting haijakamilika na ni karibu ${o.departureTime}: kreti hizi zinatumia stoki ya MFUMO (pamoja na mauzo ya jana yaliyoingizwa hadi sasa).`,
+      `The count is not finished and it is nearly ${o.departureTime}: this order uses the SYSTEM stock (with yesterday's sales keyed in so far).`,
+      `Counting haijakamilika na ni karibu ${o.departureTime}: oda hii inatumia stoki ya MFUMO (pamoja na mauzo ya jana yaliyoingizwa hadi sasa).`,
     );
   });
 
@@ -417,7 +419,25 @@ export class OrderPage {
 
   // ── Editing ───────────────────────────────────────────────────────────────
 
-  /** Crates shown for a line: what is being typed, else the order as stored. */
+  // ── Labels ────────────────────────────────────────────────────────────────
+
+  /** "packages" / "vifurushi" in the current language — never spelled in a template. */
+  protected w(key: keyof typeof PACK_WORDS): string {
+    const [en, sw] = PACK_WORDS[key];
+    return this.i18n.t(en, sw);
+  }
+
+  /** What one package of this line's product is called: crt, ctn… ("pkg" without a measure). */
+  protected unit(l: OrderLine): string {
+    return packUnit(l.packageAbbreviation, this.w('pkg'));
+  }
+
+  /** "Beer · 20 pcs/crt" — the shared product label without the name. */
+  protected detail(l: OrderLine): string {
+    return productDetail({ category: l.category, piecesPerPackage: l.piecesPerPack, abbreviation: l.packageAbbreviation }, { pkg: this.w('pkg') });
+  }
+
+  /** Packages shown for a line: what is being typed, else the order as stored. */
   protected value(l: OrderLine): number {
     return this.draft().get(l.uid) ?? l.packs;
   }
@@ -498,11 +518,16 @@ export class OrderPage {
 
   /** The list as plain text (WhatsApp / SMS): only the products to buy. */
   protected shareText(o: OrderSuggestion): string {
-    const rows = o.lines.filter((l) => this.value(l) > 0).map((l) => `• ${l.productName} — ${this.i18n.t('crates', 'kreti')} ${this.value(l)}`);
+    const rows = o.lines
+      .filter((l) => this.value(l) > 0)
+      .map((l) => {
+        const size = packSize(l.piecesPerPack, l.packageAbbreviation, { pkg: this.w('pkg') });
+        return `• ${l.displayName} — ${this.value(l)} ${this.unit(l)}${size ? ` (${size})` : ''}`;
+      });
     return [
       `${this.i18n.t('Order of', 'Oda ya')} ${this.day(o.orderDate)}`,
       ...rows,
-      `${this.i18n.t('Total', 'Jumla')}: ${this.i18n.t('crates', 'kreti')} ${this.shownPacks()} · ${this.m(o.totals.orderCost)}`,
+      `${this.i18n.t('Total', 'Jumla')}: ${this.w('packs')} ${this.shownPacks()} · ${this.m(o.totals.orderCost)}`,
     ].join('\n');
   }
 
@@ -525,11 +550,17 @@ export class OrderPage {
     printReport({
       title: this.i18n.t('Order', 'Oda'),
       subtitle: this.day(o.orderDate),
-      headers: [this.i18n.t('Product', 'Bidhaa'), this.i18n.t('Crate of', 'Kreti ya'), this.i18n.t('Crates', 'Kreti'), this.i18n.t('Cost', 'Gharama')],
-      rows: rows.map((l) => [l.productName, l.piecesPerPack, this.value(l), this.m(this.value(l) * l.packCost)]),
-      numeric: [1, 2, 3],
+      headers: [this.i18n.t('Product', 'Bidhaa'), this.i18n.t('Category', 'Kategoria'), this.i18n.t('Package', 'Kifurushi'), this.w('Packs'), this.i18n.t('Cost', 'Gharama')],
+      rows: rows.map((l) => [
+        l.displayName,
+        l.category ?? '',
+        packSize(l.piecesPerPack, l.packageAbbreviation, { pkg: this.w('pkg') }) || this.unit(l),
+        `${this.value(l)} ${this.unit(l)}`,
+        this.m(this.value(l) * l.packCost),
+      ]),
+      numeric: [3, 4],
       summary: [
-        [this.i18n.t('Crates', 'Kreti'), this.shownPacks()],
+        [this.w('Packs'), this.shownPacks()],
         [this.i18n.t('Total', 'Jumla'), this.m(o.totals.orderCost)],
       ],
     });

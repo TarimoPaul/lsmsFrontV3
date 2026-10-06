@@ -1,10 +1,13 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogShell, Icon } from '@shared/ui';
+import { parseLocal } from '@shared/utils/date-utils';
 import { ProductMiniList } from '../products/product-mini-list';
 import { MeasureRef, Product } from '../products/products.models';
+import { MeasureAudit, MeasuresService } from './measures.service';
 
 export interface MeasureDetailsData {
   measure: MeasureRef;
@@ -13,10 +16,10 @@ export interface MeasureDetailsData {
   canEdit: boolean;
 }
 
-/** Measure details with the products that use it. */
+/** Measure details with the products that use it and its audit log (who changed what, when). */
 @Component({
   selector: 'app-measure-details-dialog',
-  imports: [DialogShell, Button, Icon, ProductMiniList],
+  imports: [DialogShell, Button, Icon, ProductMiniList, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="i18n.t('Measure details', 'Maelezo ya kipimo')" icon="straighten">
@@ -42,6 +45,24 @@ export interface MeasureDetailsData {
           [emptyText]="i18n.t('Not used by any product — it can be deleted safely.', 'Hakitumiwi na bidhaa yoyote — kinaweza kufutwa bila tatizo.')"
         />
       </section>
+      @if (audit().length) {
+        <section class="block log">
+          <h4><lsms-icon name="history" [size]="15" />{{ i18n.t('Changes', 'Mabadiliko') }}</h4>
+          <ul>
+            @for (a of audit(); track a.uid) {
+              <li>
+                <span class="when">{{ date(a.at) | date: 'dd MMM yyyy, HH:mm' }} · {{ a.actorName || '—' }}</span>
+                @if (a.action === 'UPDATED') {
+                  <span class="chg"><s>{{ a.before }}</s> → <b>{{ a.after }}</b></span>
+                  @if (a.productsAffected) { <small>{{ i18n.t(a.productsAffected + ' product(s) affected', 'bidhaa ' + a.productsAffected + ' ziliguswa') }}</small> }
+                } @else {
+                  <span class="chg">{{ a.action === 'CREATED' ? i18n.t('Created', 'Kiliundwa') : i18n.t('Deleted', 'Kilifutwa') }}: <b>{{ a.after || a.before }}</b></span>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+      }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Close', 'Funga') }}</button>
         @if (data.canEdit) {
@@ -66,6 +87,11 @@ export interface MeasureDetailsData {
     .stat b { font-size: 1.3rem; font-weight: 800; color: var(--c-info); line-height: 1.1; }
     .stat small { font-size: 0.7rem; color: var(--c-text-2); }
     .block { padding: 14px 16px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); }
+    .log { margin-top: 12px; }
+    .log ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .log li { display: flex; flex-direction: column; gap: 1px; font-size: 0.82rem; }
+    .log .when, .log small { font-size: 0.72rem; color: var(--c-text-2); }
+    .log s { color: var(--c-text-2); }
     h4 {
       display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 800;
       letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2);
@@ -78,4 +104,15 @@ export class MeasureDetailsDialog {
   protected readonly ref = inject<DialogRef<'edit'>>(DialogRef);
   protected readonly i18n = inject(LanguageService);
   protected readonly m = this.data.measure;
+  protected readonly audit = signal<MeasureAudit[]>([]);
+
+  constructor() {
+    void inject(MeasuresService)
+      .auditLog(this.m.uid)
+      .then((rows) => this.audit.set(rows));
+  }
+
+  protected date(v: string | null): Date | null {
+    return parseLocal(v);
+  }
 }

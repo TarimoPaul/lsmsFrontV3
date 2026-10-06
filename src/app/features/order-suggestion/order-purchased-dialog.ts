@@ -4,7 +4,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogShell, Icon } from '@shared/ui';
 import { Money } from '@shared/utils/money';
-import { OrderLine } from './order.models';
+import { packUnit } from '@shared/utils/product-label';
+import { OrderLine, PACK_WORDS } from './order.models';
 
 export interface OrderPurchasedData {
   lines: OrderLine[];
@@ -23,13 +24,13 @@ export interface OrderPurchasedData {
     <lsms-dialog [title]="i18n.t('What was bought?', 'Kilichonunuliwa')" icon="task_alt">
       <p class="hint">
         <lsms-icon name="info" [size]="16" />
-        {{ i18n.t('Correct the crates you really bought. This closes the order of today — it does not record a purchase; enter the purchase in Purchases as usual.',
-                  'Rekebisha kreti ulizonunua kweli. Hii inafunga oda ya leo — haiingizi manunuzi; ingiza manunuzi kwenye Manunuzi kama kawaida.') }}
+        {{ i18n.t('Correct the packages you really bought. This closes the order of today — it does not record a purchase; enter the purchase in Purchases as usual.',
+                  'Rekebisha vifurushi ulivyonunua kweli. Hii inafunga oda ya leo — haiingizi manunuzi; ingiza manunuzi kwenye Manunuzi kama kawaida.') }}
       </p>
       <ul>
         @for (l of data.lines; track l.uid) {
           <li [class.zero]="!value(l)">
-            <span class="nm"><b>{{ l.productName }}</b><small>{{ i18n.t('ordered', 'oda') }} {{ l.packs }} · {{ m(l.packCost) }}/{{ i18n.t('crate', 'kreti') }}</small></span>
+            <span class="nm"><b>{{ l.displayName }}</b><small>{{ i18n.t('ordered', 'oda') }} {{ l.packs }} {{ unit(l) }} · {{ m(l.packCost) }}/{{ unit(l) }}</small></span>
             <span class="step">
               <button type="button" (click)="bump(l, -1)" [disabled]="!value(l)" [attr.aria-label]="i18n.t('Less', 'Punguza')">−</button>
               <input type="number" min="0" max="999" inputmode="numeric" [value]="value(l)" (input)="set(l, $any($event.target).value)" [attr.aria-label]="l.productName" />
@@ -39,7 +40,7 @@ export interface OrderPurchasedData {
           </li>
         }
       </ul>
-      <p class="sum"><span>{{ crates() }} {{ i18n.t('crates', 'kreti') }}</span><b>{{ m(total()) }}</b></p>
+      <p class="sum"><span>{{ packsTotal() }} {{ i18n.t(words.packs[0], words.packs[1]) }}</span><b>{{ m(total()) }}</b></p>
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
         <button lsmsButton icon="task_alt" (click)="ref.close(result())">{{ i18n.t('Close the order', 'Funga oda') }}</button>
@@ -69,7 +70,13 @@ export class OrderPurchasedDialog {
   protected readonly i18n = inject(LanguageService);
 
   private readonly packs = signal(new Map(this.data.lines.map((l) => [l.uid, l.packs])));
-  protected readonly crates = computed(() => [...this.packs().values()].reduce((a, b) => a + b, 0));
+  protected readonly words = PACK_WORDS;
+  protected readonly packsTotal = computed(() => [...this.packs().values()].reduce((a, b) => a + b, 0));
+
+  /** What one package of this line's product is called: crt, ctn… */
+  protected unit(l: OrderLine): string {
+    return packUnit(l.packageAbbreviation, this.i18n.t(PACK_WORDS.pkg[0], PACK_WORDS.pkg[1]));
+  }
   protected readonly total = computed(() => this.data.lines.reduce((a, l) => a + this.value(l) * l.packCost, 0));
   protected readonly result = computed(() => this.data.lines.map((l) => ({ lineUid: l.uid, packs: this.value(l) })));
 

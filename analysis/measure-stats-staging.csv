@@ -1,0 +1,146 @@
+### overview
+db,at,has_order_tables,products,measures,last_sale
+Lsms,2026-10-06 14:16:06,f,139,26,2026-10-03
+### measures
+id,package_type,unit_type,abbreviation,description,products
+12,Botle,1.6LT,btl,,2
+10,Botle,1.8LT,btl,,2
+6,Botle,200ml,btl,,10
+11,Botle,500ML,btl,,2
+7,Botle,750ML,btl,,29
+13,Bottle,1.5LT,btl,,0
+25,Bottle,1L,bt,,1
+19,Bottle,250ML,bt,,2
+22,Bottle,350,btl,kwa chuma za mls 350,1
+15,Bottle,375 ML,BT,,4
+17,BOX,3LT,BX,,1
+1,Caton,200ML,ctn,for caton za 200ml,10
+18,Caton,250ML,ctn,,4
+20,Caton,300ML,Ctn,,2
+5,Caton,330ML,ctn,,9
+23,Caton,350,ctn,kwa caton za 350,0
+21,Caton,450ML,ctn,,1
+8,Caton,500ML,ctn,,1
+9,Caton,750ml,ctn,,5
+16,Champainge,750BT,bt,,0
+26,Create,250 ML,crt,,1
+4,Create,330ML,crt,,5
+3,create,375ML,crt,kwachupazenyeml375mfanosafari,4
+2,Create,500ML,crt,kwa kreti za bia zenye ml 500,3
+24,Crete,350ML,CRT,kwa ajili ya kreti za soda na bia,1
+14,DUMU,5LT,dm,kwa madumu ya wine,3
+### qa_test_measures
+id,package_type,unit_type,abbreviation,description,created_at
+### no_measure
+id,product_name,category,pieces_per_package,current_stock,order_class
+11,AFYA MAJI 600ML,MAJI,12,36,
+94,AZAM JUICE,JUICE,6,12,
+131,Azam ukwaju kb,Beer,12,0,
+35,BALLANTINES  200ML,SPIRIT,24,1,
+30,BLACK AND WHITE,WISKY,12,0,
+42,BLACK AND WHITE 200ML,WISKY,24,13,
+6,BRUTA FRUIT 330ML,Beer,24,18,
+36,CAMINO KUPIMA,WISKY,,0,
+17,CAPTAIN MOGRAN 200ML,BRAND,24,26,
+14,CAPTAIN MORGAN 750ML,BRAND,12,2,
+9,Castle Lite Can 330ML,Beer,24,27,
+31,CHROME 200ML,GIN,24,1,
+18,DEFENDER ENERGY 200ML,Energy,12,0,
+16,DESPERADO 200ML,Beer,24,24,
+27,FLY FISH LEMON 330ML,Beer,20,53,
+28,FOUR  COUSIN 75OML,Wines,12,3,
+66,GILBEYS KUPIMA,GIN,,9,
+65,GOLDEN KING KUPIMA,SPIRIT,,9,
+47,GRAND MALTA,NON-ALCHOLIC,24,13,
+10,HANSON CHOICE 200ML,BRAND,30,0,
+2,IMAGE RED 250ML,Wines,24,0,
+26,KILIMANJARO LIGHT 330ML,Beer,24,6,
+33,KONYAGI 750ML,SPIRIT,12,7,
+52,KONYAGI YA KUPIMA,SPIRIT,1,3,
+24,K VANT 250ML,SPIRIT,24,17,
+8,REDS CAN 330ML,Beer,24,28,
+50,SAFARI LAGER 500ML,Beer,20,66,
+19,SAVANA 330ML,Beer,24,43,
+15,TZEE GIN 200ML,GIN,24,10,
+20,TZEE lemon && Ginger 200ML,GIN,24,21,
+4,TZEE LEMON && GINGER 750ML,SPIRIT,12,4,
+29,UHAI MAJI 500ML,MAJI,12,0,
+1,VALEUR BRAND 200ML,BRAND,24,0,
+91,WINE ZA KUPIMA,Wines,,1,
+22,YAKET MAJI 1.8LT,MAJI,6,0,
+7,YAKET MAJI 600ML,MAJI,12,0,
+43,ZAWADIBU,Wines,12,0,
+### bottle_measure_with_pack
+id,product_name,category,measure_id,package_type,unit_type,abbreviation,pieces_per_package,order_class
+55,ABSOLUTE VODKA,WISKY,7,Botle,750ML,btl,12,
+54,ABSOLUTE VODKA,WISKY,6,Botle,200ml,btl,24,
+49,AFYA,MAJI,10,Botle,1.8LT,btl,6,
+135,AZAM APPLE PUNCH,JUICE,6,Botle,200ml,btl,24,
+136,Azam Energy Chupa,Energy,6,Botle,200ml,btl,24,
+137,Azam Malt Coffee,JUICE,6,Botle,200ml,btl,24,
+53,BALLANTINES,WISKY,7,Botle,750ML,btl,12,
+48,BONGO DON,SPIRIT,6,Botle,200ml,btl,24,
+51,BONGO DON,GIN,7,Botle,750ML,btl,12,
+34,CHROME,SPIRIT,7,Botle,750ML,btl,12,
+98,COCA & FANTA AWAY,SODA,7,Botle,750ML,btl,12,
+87,DODOMA WINE,Wines,7,Botle,750ML,btl,12,
+86,DOMPO,Wines,7,Botle,750ML,btl,12,
+132,FOUR COUSIN DREAM CREAM,Beer,11,Botle,500ML,btl,12,
+71,GRANTS,Beer,15,Bottle,375 ML,BT,24,
+61,HEAVEN SUN WINE,Wines,7,Botle,750ML,btl,12,
+129,HILL WATER SPAKLE,Beer,7,Botle,750ML,btl,12,
+63,IMAGE,Wines,7,Botle,750ML,btl,12,
+128,JAGGER MASTER,Beer,25,Bottle,1L,bt,6,
+84,JB RARE,WISKY,7,Botle,750ML,btl,12,
+83,JB RARE,WISKY,6,Botle,200ml,btl,24,
+103,MA-LOT CHUPA,Wines,7,Botle,750ML,btl,12,
+106,OLDEN WINE,Wines,7,Botle,750ML,btl,12,
+134,ORIJIN BITTERS,SPIRIT,19,Bottle,250ML,bt,24,
+133,ORIJIN BITTERS,SPIRIT,7,Botle,750ML,btl,12,
+107,PEARLY BAY,Wines,7,Botle,750ML,btl,12,
+74,PEPSI TAKE AWAY,SODA,11,Botle,500ML,btl,12,
+75,RENDEZ CHAMPAIGNE,Wines,7,Botle,750ML,btl,12,
+95,SEQUAR,MAJI,12,Botle,1.6LT,btl,12,
+40,SINGSUNG MAJI,MAJI,10,Botle,1.8LT,btl,12,
+110,TAN PORT,Wines,7,Botle,750ML,btl,12,
+82,TULLYS,Wines,7,Botle,750ML,btl,12,
+85,TZEE GIN,SPIRIT,7,Botle,750ML,btl,12,
+80,UHAI MAJI,Beer,12,Botle,1.6LT,btl,6,
+111,VALEUR,VODKA,7,Botle,750ML,btl,12,
+### no_pieces_per_package
+id,product_name,category,pieces_per_package,current_stock,measures,order_class
+93,ALTAR WINE,Wines,,0,Botle 750ML (btl),
+36,CAMINO KUPIMA,WISKY,,0,,
+66,GILBEYS KUPIMA,GIN,,9,,
+65,GOLDEN KING KUPIMA,SPIRIT,,9,,
+122,GRANTS,WISKY,,1,Botle 200ml (btl),
+120,GRANTS NO GLASS,WISKY,,0,Botle 750ML (btl),
+121,GRANTS WITH GLASS,WISKY,,0,Botle 750ML (btl),
+62,HENNESY,GIN,,0,Caton 200ML (ctn) + Botle 200ml (btl),
+100,JAGER MASTER,VODKA,,0,Bottle 350 (btl),
+77,JAGER MASTER,Beer,,0,Botle 750ML (btl),
+96,JAGGER MASTER,WISKY,,0,Botle 200ml (btl),
+101,JAMESON,VODKA,,1,Botle 200ml (btl),
+124,JOHN WALKER RED LABEL,Beer,,0,Caton 200ML (ctn),
+52,KONYAGI YA KUPIMA,SPIRIT,1,3,,
+73,MAGIC MOMENTS,GIN,,2,Bottle 375 ML (BT),
+89,MAGICMOMENTS,WISKY,,1,Botle 750ML (btl),
+102,MA-LOT BOX WINE,Wines,,2,DUMU 5LT (dm),
+104,MA-LOT POTCH,Wines,,1,BOX 3LT (BX),
+105,MOON LIGHT,Beer,,2,Botle 750ML (btl),
+79,Moon Light Kupima,WISKY,,9,Botle 750ML (btl),
+90,ROBERTSON,Wines,,3,Botle 750ML (btl),
+92,SAINT ANNA,Wines,,0,Botle 750ML (btl),
+78,SMIRNOFF VODKA,Beer,,12,Bottle 375 ML (BT),
+109,TAN PORT,Wines,,0,Bottle 375 ML (BT),
+37,TANPORT,Wines,1,0,DUMU 5LT (dm),
+112,TANZANITE ROYAL GIN,GIN,,2,Bottle 250ML (bt),
+91,WINE ZA KUPIMA,Wines,,1,,
+### more_than_one_measure
+id,product_name,pieces_per_package,measure_id,package_type,unit_type,abbreviation,order_class
+62,HENNESY,,1,Caton,200ML,ctn,
+62,HENNESY,,6,Botle,200ml,btl,
+### size_repeated_in_name
+id,product_name,unit_type,order_class
+### class_a_products
+id,product_name,category,pieces_per_package,measures

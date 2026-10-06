@@ -6,6 +6,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, Combobox, ComboOption, DialogService, EmptyState, Icon, MoneyInput, SearchBar, Skeleton, ToastService } from '@shared/ui';
 import { Money, MoneyPipe } from '@shared/utils/money';
+import { productDetail } from '@shared/utils/product-label';
 import { ReconciliationService } from '../../reconciliation/reconciliation.service';
 import { StoreService } from '../../store/store.service';
 import { HEALTH, StockHealth, StockItem, packagesLabel, stockHealth } from '../../store/store.models';
@@ -179,6 +180,11 @@ export class RepurchasePage {
   protected setFilter(f: Filter): void {
     this.filter.set(f);
     this.limit.set(60);
+  }
+
+  /** "category · N pcs/abbr" — the shared product label (the name is on the line above). */
+  protected detail(r: Row): string {
+    return productDetail({ category: r.p.category, piecesPerPackage: r.p.piecesPerPackage, abbreviation: r.p.abbreviation }, { pkg: this.i18n.t('pkg', 'pkt') }) || '—';
   }
 
   protected stockText(r: Row): string {

@@ -53,7 +53,7 @@
             <span class="sn"><span class="lsms-row-no">{{ i + 1 }}</span></span>
             <span class="nm">
               <strong [title]="r.p.name">{{ r.p.name }}</strong>
-              <small>{{ r.p.category || '—' }}@if (r.p.piecesPerPackage && r.p.piecesPerPackage > 1) { · 1 {{ r.p.abbreviation || i18n.t('pkg', 'pkt') }} = {{ r.p.piecesPerPackage }} {{ i18n.t('pcs', 'vip') }} }</small>
+              <small>{{ detail(r) }}</small>
             </span>
             <span class="stock" [style.--hc]="h.color" [title]="i18n.isSwahili() ? h.sw : h.en"><lsms-icon [name]="h.icon" [size]="13" />{{ stockText(r) }}</span>
             <span class="cost">

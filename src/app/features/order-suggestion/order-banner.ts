@@ -8,7 +8,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { Button, Icon, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { Money } from '@shared/utils/money';
-import { ORDER_EDIT, ORDER_VIEW, OrderSuggestion } from './order.models';
+import { ORDER_EDIT, ORDER_VIEW, OrderSuggestion, PACK_WORDS } from './order.models';
 import { OrderService } from './order.service';
 
 /**
@@ -36,7 +36,7 @@ import { OrderService } from './order.service';
         <a class="ob" [class.done]="o.status === 'PURCHASED'" routerLink="/purchases/suggestion">
           <lsms-icon [name]="o.status === 'PURCHASED' ? 'task_alt' : 'fact_check'" [size]="20" />
           <span class="txt">
-            <b>{{ i18n.t("Today's order", 'Oda ya leo') }}: {{ i18n.t('crates', 'kreti') }} {{ packs() }} · {{ m(cost()) }}</b>
+            <b>{{ i18n.t("Today's order", 'Oda ya leo') }}: {{ i18n.t(words.packs[0], words.packs[1]) }} {{ packs() }} · {{ m(cost()) }}</b>
             <small>{{ version() }}</small>
           </span>
           <lsms-icon class="go" name="arrow_forward" [size]="18" />
@@ -90,6 +90,7 @@ export class OrderBanner {
   protected readonly loaded = signal(false);
   protected readonly busy = signal(false);
   protected readonly canEdit = computed(() => this.auth.hasAnyPermission([ORDER_EDIT]));
+  protected readonly words = PACK_WORDS;
 
   protected readonly packs = computed(() => {
     const o = this.order();

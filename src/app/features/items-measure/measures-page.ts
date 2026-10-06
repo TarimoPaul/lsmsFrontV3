@@ -34,8 +34,9 @@ type UsageFilter = 'ALL' | 'IN_USE' | 'UNUSED';
  * Items Measure management — port of Flutter `ItemsMeasureDashboard` +
  * `ItemsMeasureTable` (stats, search, add / edit / delete). v3 changes:
  * product usage per measure replaces the Active/Inactive tabs (the backend
- * never stores `isActive`), delete is blocked while products use a measure,
- * plus details, bulk delete and CSV/PDF export.
+ * never stores `isActive`), delete is blocked while products use a measure
+ * (here and on the server), editing warns how many products it touches, plus
+ * details with the audit log, bulk delete and CSV/PDF export.
  */
 @Component({
   selector: 'app-measures-page',
@@ -160,8 +161,9 @@ export class MeasuresPage {
     }
   }
 
+  /** From the product catalogue when it can be read, else the server's own count. */
   protected productCount(m: MeasureRef): number | null {
-    return this.products() === null ? null : (this.byMeasure().get(m.uid)?.length ?? 0);
+    return this.products() === null ? (m.productCount ?? null) : (this.byMeasure().get(m.uid)?.length ?? 0);
   }
 
   protected actions(m: MeasureRef): MenuAction[] {
@@ -174,7 +176,8 @@ export class MeasuresPage {
 
   protected async openForm(measure?: MeasureRef): Promise<void> {
     const { MeasureFormDialog } = await import('./measure-form-dialog');
-    const saved = await this.dialogs.openAsync<boolean>(MeasureFormDialog, { size: 'md', data: { measure, existing: this.measures() } });
+    const usedBy = measure ? this.productCount(measure) : null;
+    const saved = await this.dialogs.openAsync<boolean>(MeasureFormDialog, { size: 'md', data: { measure, existing: this.measures(), usedBy } });
     // Product names embed the unit, so refresh the shared catalogue after an edit.
     if (saved && measure && this.canReadProducts) {
       this.productsApi.catalogue.invalidate();

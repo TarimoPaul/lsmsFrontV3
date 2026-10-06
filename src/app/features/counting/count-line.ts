@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal, vi
 import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
 import { Icon, Spinner, ToastService } from '@shared/ui';
+import { productDetail } from '@shared/utils/product-label';
 import { CountStore } from './count.store';
 import { CountLine, formatQty } from './counting.models';
 import { QtyInput } from './qty-input';
@@ -35,8 +36,7 @@ const DEFAULT_TYPO = 500;
       <span class="name">
         <b>{{ line().productName }}</b>
         <small>
-          @if (category()) { {{ category() }} }
-          @if ((line().piecesPerPackage ?? 1) > 1) { @if (category()) { · } {{ line().piecesPerPackage }} pcs/{{ line().packageAbbreviation || 'pkg' }} }
+          {{ detail() }}
           @if (line().systemQtySnapshot !== null) { <em class="sys">{{ i18n.t('System', 'Mfumo') }}: {{ fmt(line().systemQtySnapshot) }}</em> }
         </small>
       </span>
@@ -93,6 +93,13 @@ const DEFAULT_TYPO = 500;
 })
 export class CountLineRow {
   protected readonly i18n = inject(LanguageService);
+  /** "category · N pcs/abbr" — the shared product label (the name is on the line above). */
+  protected readonly detail = computed(() =>
+    productDetail(
+      { category: this.category(), piecesPerPackage: this.line().piecesPerPackage, abbreviation: this.line().packageAbbreviation },
+      { pkg: this.i18n.t('pkg', 'pkt') },
+    ),
+  );
   private readonly store = inject(CountStore);
   private readonly toast = inject(ToastService);
 

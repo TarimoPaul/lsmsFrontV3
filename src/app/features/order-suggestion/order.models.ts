@@ -1,7 +1,7 @@
 /**
  * Purchase suggestion ("Pendekezo la oda") — the order of the day for the main
  * (class A) products. Every figure and rule comes from the backend
- * (/api/order-suggestions); the screen only shows it and lets the buyer set crates.
+ * (/api/order-suggestions); the screen only shows it and lets the buyer set the packages.
  */
 export const ORDER_VIEW = 'ORDER_SUGGESTION_VIEW';
 export const ORDER_EDIT = 'ORDER_SUGGESTION_EDIT';
@@ -9,11 +9,29 @@ export const ORDER_EDIT = 'ORDER_SUGGESTION_EDIT';
 export type OrderStatus = 'NIGHT' | 'UPDATED' | 'PURCHASED';
 export type BudgetSource = 'ESTIMATE' | 'RECON_SUBMITTED' | 'RECON_APPROVED';
 
+/**
+ * Words for "package" on the order screens, [English, Swahili] for `i18n.t(...)`.
+ * The only place they are spelled: a line names its own package by the product's
+ * abbreviation (crt, ctn…), these are for headers, totals and products without one.
+ */
+export const PACK_WORDS = {
+  packs: ['packages', 'vifurushi'],
+  Packs: ['Packages', 'Vifurushi'],
+  pack: ['package', 'kifurushi'],
+  /** Stands in for the abbreviation of a product that has no measure. */
+  pkg: ['pkg', 'pkt'],
+} as const;
+
 export interface OrderLine {
   uid: string;
   productUid: string;
   productId: number;
   productName: string;
+  /** "NAME UNIT" as the rest of the app shows the product. */
+  displayName: string;
+  category: string | null;
+  /** What one package of this product is called (crt, ctn…); null without a measure. */
+  packageAbbreviation: string | null;
   piecesPerPack: number;
   unitCost: number;
   packCost: number;
