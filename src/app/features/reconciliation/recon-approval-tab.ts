@@ -389,8 +389,8 @@ export class ReconApprovalTab {
       return false;
     }
     if (res.code === 'STALE_DEBT_COLLECTIONS') {
-      this.toast.info(this.i18n.t('New debt payments arrived — refreshed, check and approve again.', 'Malipo mapya ya madeni yameingia — imesasishwa, kagua kisha idhinisha tena.'));
-      void this.store.refresh();
+      this.toast.info(this.i18n.t('Debt payments received that day were missing — they are now in Debt collections. Verify them, then approve again.', 'Malipo ya madeni yaliyopokelewa siku hiyo yalikosekana — sasa yameingia kwenye Makusanyo ya madeni. Yathibitishe, kisha idhinisha tena.'), { duration: 8000 });
+      void this.store.refresh(true);
       return false;
     }
     if (res.error) this.toast.error(res.error);

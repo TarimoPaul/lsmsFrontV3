@@ -136,12 +136,13 @@ export class ReconStore {
     }
   }
 
-  async refresh(): Promise<void> {
+  /** `resync` also re-syncs a submitted / reviewed record — the backend then pulls in only missed debt collections. */
+  async refresh(resync = false): Promise<void> {
     const c = this.current();
     if (!c) return this.load();
     try {
       // Live sales totals move too when a payment lands, so re-pull them alongside.
-      const [r, summary] = await Promise.all([c.editable ? this.api.refresh(c.uid) : this.api.byUid(c.uid), this.api.autoSummary(this.date())]);
+      const [r, summary] = await Promise.all([c.editable || resync ? this.api.refresh(c.uid) : this.api.byUid(c.uid), this.api.autoSummary(this.date())]);
       this.current.set(r);
       if (summary) this.summary.set(summary);
     } catch (e) {

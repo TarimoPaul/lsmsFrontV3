@@ -141,7 +141,7 @@ export class SalePaymentDialog {
       const sale = await this.api.addPayment(this.data.sale.uid, Number(v.amount), this.method(), v.reference?.trim());
       this.toast.success(this.i18n.t('Payment recorded', 'Malipo yamerekodiwa'));
       // A previous-day debt becomes a debt collection in today's reconciliation.
-      void this.reconSync.paymentReceived(this.data.sale.saleDate);
+      void this.reconSync.paymentReceived(this.data.sale.saleDate, this.data.sale.uid);
       this.ref.close(sale);
     } catch (e) {
       this.toast.error(ApiError.from(e).message);
