@@ -1,0 +1,62 @@
+// Dark theme ONLY — "glass on a faceted backdrop".
+//
+// The light / eye-comfort palettes are untouched. In dark mode the page sits
+// on a shard backdrop (public/bg/dark-shards.svg, LSMS navy + cyan) and every
+// surface INSIDE the app shell turns into translucent glass, simply by
+// re-pointing the surface tokens — components keep reading --c-surface etc.
+//
+// Kept light on purpose: surfaces are plain translucent fills (no blur per
+// card). backdrop-filter is used only on the few floating layers (menus,
+// dialogs, the phone drawer), where something really sits underneath.
+//
+// Overlays (CDK dialogs, menus, select panels, toasts) render OUTSIDE
+// app-shell-layout, so they keep the opaque dark tokens from _tokens.scss.
+
+:root[data-theme='dark'] {
+  body {
+    background: #0a0e13 url('../../public/bg/dark-shards.svg') center / cover no-repeat;
+  }
+
+  app-shell-layout {
+    --c-bg: rgb(5 8 12 / 0.34); // page scrim + recessed wells (search box, bands)
+    --c-surface: rgb(255 255 255 / 0.055);
+    --c-surface-variant: rgb(255 255 255 / 0.08);
+    --c-card: rgb(255 255 255 / 0.06);
+    --c-elevated: rgb(255 255 255 / 0.095);
+    --c-input-fill: rgb(0 0 0 / 0.24);
+    --c-metric-gradient-end: rgb(255 255 255 / 0.03);
+
+    --c-border: rgb(255 255 255 / 0.12);
+    --c-divider: rgb(255 255 255 / 0.075);
+    --c-hover: rgb(255 255 255 / 0.075);
+
+    // Sticky / fixed pieces that content scrolls under must stay solid.
+    --c-float: #161d25;
+
+    // Glass edge: a hairline of light on top, soft depth below.
+    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 10px 28px rgb(0 0 0 / 0.24);
+
+    :is(lsms-dashboard-card, lsms-data-table, lsms-card[data-variant='standard']) {
+      box-shadow: var(--shadow-card);
+    }
+  }
+
+  // ── Floating layers: frosted glass ────────────────────────────────────────
+  .lsms-menu,
+  .lsms-popover,
+  .lsms-combo-list,
+  .lsms-select-panel,
+  .mat-mdc-menu-panel {
+    background: rgb(24 31 40 / 0.8);
+    border-color: rgb(255 255 255 / 0.11);
+    backdrop-filter: blur(18px) saturate(1.3);
+  }
+  .lsms-dialog-panel .cdk-dialog-container {
+    background: rgb(19 25 32 / 0.9);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 24px 64px rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(22px) saturate(1.2);
+  }
+}

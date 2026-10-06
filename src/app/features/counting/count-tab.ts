@@ -135,7 +135,7 @@ import { RecountLineRow } from './recount-line';
     .banner b { font-size: 0.92rem; color: var(--c-text); }
     .banner p { margin: 4px 0 0; font-size: 0.82rem; color: var(--c-text-2); }
     .banner.recount { color: var(--c-secondary); background: color-mix(in srgb, var(--c-secondary) 8%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-secondary) 30%, transparent); }
-    .progress { position: sticky; top: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); box-shadow: 0 4px 14px rgb(16 24 40 / 0.06); }
+    .progress { position: sticky; top: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-float); box-shadow: 0 4px 14px rgb(16 24 40 / 0.06); }
     .p-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .p-top b { display: block; font-size: 1rem; font-weight: 700; color: var(--c-text); }
     .p-top small { font-size: 0.74rem; color: var(--c-text-2); }

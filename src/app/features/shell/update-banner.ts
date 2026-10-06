@@ -26,7 +26,7 @@ import { Button, Icon } from '@shared/ui';
     :host { position: fixed; left: 50%; top: 80px; transform: translateX(-50%); z-index: 950; width: min(640px, calc(100vw - 24px)); }
     .bar {
       display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; border-radius: 14px;
-      background: var(--c-surface); border: 1px solid color-mix(in srgb, var(--c-primary) 40%, var(--c-border));
+      background: var(--c-float); border: 1px solid color-mix(in srgb, var(--c-primary) 40%, var(--c-border));
       box-shadow: 0 14px 34px rgb(15 23 42 / 0.2); color: var(--c-text); animation: up 0.25s ease-out;
     }
     lsms-icon { color: var(--c-primary); flex: none; }

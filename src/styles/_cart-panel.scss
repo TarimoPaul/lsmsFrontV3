@@ -323,6 +323,7 @@
       z-index: 900;
       max-height: none;
       border-radius: 0;
+      background: var(--c-float);
       display: none;
       &.open {
         display: flex;

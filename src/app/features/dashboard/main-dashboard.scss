@@ -29,6 +29,11 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
 }
 
+// Dark = glass (styles/_glass.scss): the cards get the lit top edge.
+:host-context([data-theme='dark']) :is(.kpi, .panel, .tile, .freq-item) {
+  box-shadow: var(--shadow-card);
+}
+
 // ── 1. Welcome ──────────────────────────────────────────────────────────────
 .welcome {
   display: flex;

@@ -49,7 +49,7 @@
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--c-text) 72%, transparent);
-  background: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface));
+  background: color-mix(in srgb, var(--c-primary) 7%, var(--c-float));
   border-bottom: 1px solid var(--c-border);
   .c-price {
     --pc: var(--c-primary);

@@ -111,6 +111,16 @@ export interface PageMeta {
     :host-context([data-theme='dark']) .inset .panel {
       box-shadow: -1px 0 0 var(--c-border), -6px 0 24px rgb(0 0 0 / 0.4);
     }
+    /* Dark = glass (styles/_glass.scss): the shard backdrop on <body> shows through
+       the frame; the sidebar is a lighter pane, the panel a darker scrim. */
+    :host-context([data-theme='dark']) .shell { background: transparent; }
+    :host-context([data-theme='dark']) .sidenav {
+      background: linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.03));
+    }
+    /* Phone drawer slides OVER the page, so it has to be frosted, not see-through. */
+    :host-context([data-theme='dark']) .sidenav.mat-drawer-over {
+      background: rgb(13 18 24 / 0.86); backdrop-filter: blur(20px) saturate(1.2);
+    }
     .panel { position: relative; }
     .topbar { flex: none; z-index: 20; }
     .scroll { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }

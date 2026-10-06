@@ -169,6 +169,10 @@ $sidebar-expanded: 280px;
 
 // ─── Shadows (AppSpacing.shadow*) ───────────────────────────────────────────
 :root {
+  // Sticky / fixed pieces that content scrolls under. Same as the surface,
+  // except in the dark glass shell (_glass.scss) where surfaces are see-through.
+  --c-float: var(--c-surface);
+
   --shadow-sm: 0 2px 4px rgb(var(--c-shadow) / 0.1);
   --shadow-md: 0 4px 8px rgb(var(--c-shadow) / 0.1);
   --shadow-lg: 0 8px 16px rgb(var(--c-shadow) / 0.15);

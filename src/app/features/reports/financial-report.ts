@@ -200,7 +200,7 @@ type Span = 6 | 12 | 24;
     .bar { position: absolute; left: 22%; right: 22%; min-height: 2px; border-radius: 4px 4px 0 0; background: var(--c-primary); }
     .bar.neg { background: var(--c-error); border-radius: 0 0 4px 4px; }
     .tip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); z-index: 2; min-width: 150px; padding: 8px 10px; border-radius: 10px;
-      font-size: 0.74rem; line-height: 1.45; color: var(--c-text); background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: 0 8px 20px -8px rgb(16 24 40 / 0.35); white-space: nowrap; }
+      font-size: 0.74rem; line-height: 1.45; color: var(--c-text); background: var(--c-float); border: 1px solid var(--c-border); box-shadow: 0 8px 20px -8px rgb(16 24 40 / 0.35); white-space: nowrap; }
     .tip b { display: block; }
     .col:nth-last-child(-n + 2) .tip { left: auto; right: 0; transform: none; }
     .col:nth-child(-n + 3) .tip { left: 0; transform: none; }

@@ -1,0 +1,366 @@
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED       STATUS                 PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.62   "sh -c 'java $JAVA_O…"   backend       7 hours ago   Up 7 hours             8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      4 days ago    Up 4 days              80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.4   "/docker-entrypoint.…"   frontend-v3   6 hours ago   Up 6 hours (healthy)   80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         4 days ago    Up 4 days              0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      4 days ago    Up 4 days (healthy)    5432/tcp
+BACKEND_VERSION=2.2.62
+ Image chiefmaster/my-lsms-backend:2.2.62 Pulling 
+ Image chiefmaster/my-lsms-backend:2.2.62 Pulled 
+ Container lsms-staging-backend-1 Recreate 
+ Container lsms-staging-backend-1 Recreated 
+ Container lsms-staging-backend-1 Starting 
+ Container lsms-staging-backend-1 Started 
+backend-1  | 2026-10-06 15:20:09 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 26.794 seconds (process running for 28.098)
+NAME                      IMAGE                                COMMAND                  SERVICE    CREATED              STATUS                       PORTS
+lsms-staging-backend-1    chiefmaster/my-lsms-backend:2.2.62   "sh -c 'java $JAVA_O…"   backend    About a minute ago   Up About a minute            8084/tcp
+lsms-staging-postgres-1   postgres:15                          "docker-entrypoint.s…"   postgres   3 days ago           Up About an hour (healthy)   5432/tcp
+125|t|2026-10-06 15:19:48.987314
+124|t|2026-10-03 21:03:37.213935
+123|t|2026-10-03 21:03:36.587787
+BACKEND_VERSION=2.2.63
+ Image chiefmaster/my-lsms-backend:2.2.63 Pulling 
+ d1d8abccf3e4 Pulling fs layer 0B
+ 64e64dba2418 Pulling fs layer 0B
+ 1408860fc644 Download complete 0B
+ d1d8abccf3e4 Downloading 1.184MB
+ d1d8abccf3e4 Downloading 4.194MB
+ d1d8abccf3e4 Downloading 6.291MB
+ 64e64dba2418 Downloading 1.049MB
+ d1d8abccf3e4 Downloading 9.437MB
+ 64e64dba2418 Downloading 2.097MB
+ d1d8abccf3e4 Downloading 12.58MB
+ 64e64dba2418 Downloading 3.146MB
+ d1d8abccf3e4 Downloading 15.73MB
+ 64e64dba2418 Downloading 4.194MB
+ 64e64dba2418 Downloading 4.194MB
+ d1d8abccf3e4 Downloading 18.87MB
+ d1d8abccf3e4 Downloading 22.02MB
+ 64e64dba2418 Downloading 5.243MB
+ d1d8abccf3e4 Downloading 25.17MB
+ 64e64dba2418 Downloading 6.291MB
+ d1d8abccf3e4 Downloading 27.26MB
+ 64e64dba2418 Downloading 7.34MB
+ d1d8abccf3e4 Downloading 30.41MB
+ 64e64dba2418 Downloading 8.389MB
+ d1d8abccf3e4 Downloading 33.55MB
+ 64e64dba2418 Downloading 8.389MB
+ d1d8abccf3e4 Downloading 36.7MB
+ 64e64dba2418 Downloading 9.437MB
+ d1d8abccf3e4 Downloading 39.85MB
+ 64e64dba2418 Downloading 10.49MB
+ 64e64dba2418 Downloading 10.49MB
+ d1d8abccf3e4 Downloading 42.99MB
+ d1d8abccf3e4 Downloading 45.09MB
+ 64e64dba2418 Downloading 11.53MB
+ d1d8abccf3e4 Downloading 48.23MB
+ 64e64dba2418 Downloading 12.58MB
+ d1d8abccf3e4 Downloading 52.43MB
+ 64e64dba2418 Downloading 12.58MB
+ d1d8abccf3e4 Downloading 53.48MB
+ 64e64dba2418 Downloading 13.63MB
+ d1d8abccf3e4 Downloading 57.67MB
+ 64e64dba2418 Downloading 13.63MB
+ 64e64dba2418 Downloading 14.68MB
+ d1d8abccf3e4 Downloading 60.82MB
+ d1d8abccf3e4 Downloading 63.96MB
+ 64e64dba2418 Downloading 15.73MB
+ d1d8abccf3e4 Downloading 68.16MB
+ 64e64dba2418 Downloading 15.73MB
+ d1d8abccf3e4 Downloading 71.3MB
+ 64e64dba2418 Downloading 15.73MB
+ d1d8abccf3e4 Downloading 74.45MB
+ 64e64dba2418 Downloading 16.78MB
+ d1d8abccf3e4 Downloading 77.59MB
+ 64e64dba2418 Downloading 16.78MB
+ d1d8abccf3e4 Download complete 0B
+ 64e64dba2418 Downloading 17.83MB
+ 64e64dba2418 Downloading 18.87MB
+ 64e64dba2418 Downloading 18.87MB
+ 64e64dba2418 Downloading 18.87MB
+ 64e64dba2418 Downloading 19.92MB
+ 64e64dba2418 Downloading 19.92MB
+ 64e64dba2418 Downloading 20.97MB
+ 64e64dba2418 Downloading 20.97MB
+ 64e64dba2418 Downloading 22.02MB
+ 64e64dba2418 Downloading 22.02MB
+ 64e64dba2418 Downloading 22.02MB
+ 64e64dba2418 Downloading 23.07MB
+ 64e64dba2418 Downloading 24.12MB
+ 64e64dba2418 Downloading 24.12MB
+ 64e64dba2418 Downloading 24.12MB
+ 64e64dba2418 Downloading 25.17MB
+ 64e64dba2418 Downloading 26.21MB
+ 64e64dba2418 Downloading 26.21MB
+ 64e64dba2418 Downloading 27.26MB
+ 64e64dba2418 Downloading 27.26MB
+ 64e64dba2418 Downloading 28.31MB
+ 64e64dba2418 Downloading 28.31MB
+ 64e64dba2418 Downloading 29.36MB
+ 64e64dba2418 Downloading 29.36MB
+ 64e64dba2418 Downloading 30.41MB
+ 64e64dba2418 Downloading 30.41MB
+ 64e64dba2418 Downloading 31.46MB
+ 64e64dba2418 Downloading 31.46MB
+ 64e64dba2418 Downloading 32.51MB
+ 64e64dba2418 Downloading 32.51MB
+ 64e64dba2418 Downloading 33.55MB
+ 64e64dba2418 Downloading 33.55MB
+ 64e64dba2418 Downloading 34.6MB
+ 64e64dba2418 Downloading 34.6MB
+ 64e64dba2418 Downloading 35.65MB
+ 64e64dba2418 Downloading 35.65MB
+ 64e64dba2418 Downloading 35.65MB
+ 64e64dba2418 Downloading 36.7MB
+ 64e64dba2418 Downloading 36.7MB
+ 64e64dba2418 Downloading 36.7MB
+ 64e64dba2418 Downloading 36.7MB
+ 64e64dba2418 Downloading 37.75MB
+ 64e64dba2418 Downloading 37.75MB
+ 64e64dba2418 Downloading 37.75MB
+ 64e64dba2418 Downloading 38.8MB
+ 64e64dba2418 Downloading 38.8MB
+ 64e64dba2418 Downloading 38.8MB
+ 64e64dba2418 Downloading 38.8MB
+ 64e64dba2418 Downloading 39.85MB
+ 64e64dba2418 Downloading 39.85MB
+ 64e64dba2418 Downloading 39.85MB
+ 64e64dba2418 Downloading 40.89MB
+ 64e64dba2418 Downloading 40.89MB
+ 64e64dba2418 Downloading 40.89MB
+ 64e64dba2418 Downloading 40.89MB
+ 64e64dba2418 Downloading 41.94MB
+ 64e64dba2418 Downloading 41.94MB
+ 64e64dba2418 Downloading 41.94MB
+ 64e64dba2418 Downloading 41.94MB
+ 64e64dba2418 Downloading 42.99MB
+ 64e64dba2418 Downloading 42.99MB
+ 64e64dba2418 Downloading 44.04MB
+ 64e64dba2418 Downloading 44.04MB
+ 64e64dba2418 Downloading 44.83MB
+ 64e64dba2418 Downloading 45.09MB
+ 64e64dba2418 Downloading 45.09MB
+ 64e64dba2418 Downloading 45.09MB
+ 64e64dba2418 Downloading 46.14MB
+ 64e64dba2418 Downloading 46.14MB
+ 64e64dba2418 Downloading 46.14MB
+ 64e64dba2418 Downloading 47.19MB
+ 64e64dba2418 Downloading 47.19MB
+ 64e64dba2418 Downloading 47.19MB
+ 64e64dba2418 Downloading 47.19MB
+ 64e64dba2418 Downloading 48.23MB
+ 64e64dba2418 Downloading 48.23MB
+ 64e64dba2418 Downloading 48.23MB
+ 64e64dba2418 Downloading 48.23MB
+ 64e64dba2418 Downloading 49.28MB
+ 64e64dba2418 Downloading 49.28MB
+ 64e64dba2418 Downloading 49.28MB
+ 64e64dba2418 Downloading 49.28MB
+ 64e64dba2418 Downloading 50.33MB
+ 64e64dba2418 Downloading 50.33MB
+ 64e64dba2418 Downloading 50.33MB
+ 64e64dba2418 Downloading 50.33MB
+ 64e64dba2418 Downloading 51.38MB
+ 64e64dba2418 Downloading 51.38MB
+ 64e64dba2418 Downloading 51.38MB
+ 64e64dba2418 Downloading 51.38MB
+ 64e64dba2418 Downloading 51.38MB
+ 64e64dba2418 Downloading 52.43MB
+ 64e64dba2418 Downloading 52.43MB
+ 64e64dba2418 Downloading 52.43MB
+ 64e64dba2418 Downloading 52.43MB
+ 64e64dba2418 Downloading 52.43MB
+ 64e64dba2418 Downloading 53.48MB
+ 64e64dba2418 Downloading 53.48MB
+ 64e64dba2418 Downloading 53.48MB
+ 64e64dba2418 Downloading 53.48MB
+ 64e64dba2418 Downloading 53.48MB
+ 64e64dba2418 Downloading 54.53MB
+ 64e64dba2418 Downloading 54.53MB
+ 64e64dba2418 Downloading 54.53MB
+ 64e64dba2418 Downloading 54.53MB
+ 64e64dba2418 Downloading 55.57MB
+ 64e64dba2418 Downloading 55.57MB
+ 64e64dba2418 Downloading 55.57MB
+ 64e64dba2418 Downloading 55.57MB
+ 64e64dba2418 Downloading 56.62MB
+ 64e64dba2418 Downloading 56.62MB
+ 64e64dba2418 Downloading 56.62MB
+ 64e64dba2418 Downloading 56.62MB
+ 64e64dba2418 Downloading 56.62MB
+ 64e64dba2418 Downloading 57.67MB
+ 64e64dba2418 Downloading 57.67MB
+ 64e64dba2418 Downloading 57.67MB
+ 64e64dba2418 Downloading 57.67MB
+ 64e64dba2418 Downloading 58.72MB
+ 64e64dba2418 Downloading 58.72MB
+ 64e64dba2418 Downloading 58.72MB
+ 64e64dba2418 Downloading 58.72MB
+ 64e64dba2418 Downloading 59.77MB
+ 64e64dba2418 Downloading 59.77MB
+ 64e64dba2418 Downloading 59.77MB
+ 64e64dba2418 Downloading 59.77MB
+ 64e64dba2418 Downloading 59.77MB
+ 64e64dba2418 Downloading 60.82MB
+ 64e64dba2418 Downloading 60.82MB
+ 64e64dba2418 Downloading 60.82MB
+ 64e64dba2418 Downloading 60.82MB
+ 64e64dba2418 Downloading 61.87MB
+ 64e64dba2418 Downloading 61.87MB
+ 64e64dba2418 Downloading 61.87MB
+ 64e64dba2418 Downloading 61.87MB
+ 64e64dba2418 Downloading 62.91MB
+ 64e64dba2418 Downloading 62.91MB
+ 64e64dba2418 Downloading 62.91MB
+ 64e64dba2418 Downloading 62.91MB
+ 64e64dba2418 Downloading 63.96MB
+ 64e64dba2418 Downloading 63.96MB
+ 64e64dba2418 Downloading 63.96MB
+ 64e64dba2418 Downloading 63.96MB
+ 64e64dba2418 Downloading 63.96MB
+ 64e64dba2418 Downloading 63.96MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 65.01MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 66.06MB
+ 64e64dba2418 Downloading 67.11MB
+ 64e64dba2418 Downloading 67.11MB
+ 64e64dba2418 Downloading 67.11MB
+ 64e64dba2418 Downloading 67.11MB
+ 64e64dba2418 Downloading 67.11MB
+ 64e64dba2418 Downloading 67.11MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 68.16MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 69.21MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.25MB
+ 64e64dba2418 Downloading 70.65MB
+ 64e64dba2418 Downloading 71.3MB
+ 64e64dba2418 Downloading 71.3MB
+ 64e64dba2418 Downloading 71.3MB
+ 64e64dba2418 Downloading 71.3MB
+ 64e64dba2418 Downloading 71.3MB
+ 64e64dba2418 Downloading 71.3MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 72.35MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 73.4MB
+ 64e64dba2418 Downloading 74.45MB
+ 64e64dba2418 Downloading 74.45MB
+ 64e64dba2418 Downloading 74.45MB
+ 64e64dba2418 Downloading 74.45MB
+ 64e64dba2418 Downloading 74.45MB
+ 64e64dba2418 Downloading 74.45MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 75.5MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 76.55MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 77.59MB
+ 64e64dba2418 Downloading 78.64MB
+ 64e64dba2418 Download complete 0B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Extracting 1B
+ 64e64dba2418 Pull complete 0B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Extracting 1B
+ d1d8abccf3e4 Pull complete 0B
+ Image chiefmaster/my-lsms-backend:2.2.63 Pulled 
+ Container lsms-staging-backend-1 Recreate 
+ Container lsms-staging-backend-1 Recreated 
+ Container lsms-staging-backend-1 Starting 
+ Container lsms-staging-backend-1 Started 
+backend-1  | 2026-10-06 15:24:48 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 23.773 seconds (process running for 24.607)
+NAME                      IMAGE                                COMMAND                  SERVICE    CREATED         STATUS                       PORTS
+lsms-staging-backend-1    chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend    2 minutes ago   Up 2 minutes                 8084/tcp
+lsms-staging-postgres-1   postgres:15                          "docker-entrypoint.s…"   postgres   3 days ago      Up About an hour (healthy)   5432/tcp
+126|t|2026-10-06 15:24:31.132405
+125|t|2026-10-06 15:19:48.987314
+124|t|2026-10-03 21:03:37.213935
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED       STATUS                 PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.62   "sh -c 'java $JAVA_O…"   backend       7 hours ago   Up 7 hours             8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      4 days ago    Up 4 days              80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.4   "/docker-entrypoint.…"   frontend-v3   6 hours ago   Up 6 hours (healthy)   80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         4 days ago    Up 4 days              0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      4 days ago    Up 4 days (healthy)    5432/tcp
+ Container lsms-staging-postgres-1 Running 
+ Container lsms-staging-backend-1 Running 
+ Container lsms-staging-postgres-1 Waiting 
+ Container lsms-staging-frontend-v3-1 Starting 
+ Container lsms-staging-frontend-v3-1 Started 
+ Container lsms-staging-postgres-1 Healthy 
+ Container lsms-staging-frontend-1 Starting 
+ Container lsms-staging-frontend-1 Started 
+ Container lsms-staging-nginx-1 Starting 
+ Container lsms-staging-nginx-1 Started 
+NAME                         IMAGE                                COMMAND                  SERVICE       CREATED          STATUS                           PORTS
+lsms-staging-backend-1       chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend       10 minutes ago   Up 10 minutes                    8084/tcp
+lsms-staging-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      3 days ago       Up Less than a second            80/tcp
+lsms-staging-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.0.1   "/docker-entrypoint.…"   frontend-v3   3 days ago       Up 1 second (health: starting)   80/tcp
+lsms-staging-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         3 days ago       Up Less than a second            127.0.0.1:8081->80/tcp
+lsms-staging-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      3 days ago       Up 2 hours (healthy)             5432/tcp

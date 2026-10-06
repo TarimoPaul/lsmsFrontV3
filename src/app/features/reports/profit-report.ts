@@ -197,7 +197,7 @@ import { ReportsService } from './reports.service';
     .two table.t td:first-child, section.card:last-of-type table.t td:first-child { white-space: normal; }
     .two table.t td.n { vertical-align: top; }
     td.owed { color: var(--c-warning); font-weight: 600; }
-    table.days td:first-child { position: sticky; left: 0; background: var(--c-surface); }
+    table.days td:first-child { position: sticky; left: 0; background: var(--c-float); }
     table.days th:first-child { position: sticky; left: 0; z-index: 1; }
   `,
 })

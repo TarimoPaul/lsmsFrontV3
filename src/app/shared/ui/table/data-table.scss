@@ -4,7 +4,7 @@
   --tint: color-mix(in srgb, var(--c-primary) 5%, var(--c-surface));
   --line: color-mix(in srgb, var(--c-border) 60%, transparent);
   // Table body tones: header band, faint zebra, hover and selection.
-  --th-bg: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface));
+  --th-bg: color-mix(in srgb, var(--c-primary) 7%, var(--c-float));
   --zebra: color-mix(in srgb, var(--c-primary) 2.5%, var(--c-surface));
   --row-hover: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface));
   --row-selected: color-mix(in srgb, var(--c-primary) 11%, var(--c-surface));
