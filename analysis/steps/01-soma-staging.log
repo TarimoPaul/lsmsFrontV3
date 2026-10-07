@@ -1,0 +1,145 @@
+---STAGING-PS--- 
+NAME                         IMAGE                                COMMAND                  SERVICE       CREATED        STATUS                  PORTS
+lsms-staging-backend-1       chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend       22 hours ago   Up 22 hours             8084/tcp
+lsms-staging-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      4 days ago     Up 22 hours             80/tcp
+lsms-staging-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.0.1   "/docker-entrypoint.…"   frontend-v3   4 days ago     Up 22 hours (healthy)   80/tcp
+lsms-staging-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         4 days ago     Up 22 hours             127.0.0.1:8081->80/tcp
+lsms-staging-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      4 days ago     Up 24 hours (healthy)   5432/tcp
+---STAGING-SERVICES--- 
+postgres
+backend
+frontend
+frontend-v3
+nginx
+---STAGING-ENV-VERSION--- 
+BACKEND_VERSION=2.2.63
+---STAGING-DATABASES--- 
+Lsms|75 MB
+postgres|7487 kB
+template0|7329 kB
+template1|7535 kB
+---STAGING-FLYWAY-LAST-5--- 
+126|t|2026-10-06 15:24:31.132405
+125|t|2026-10-06 15:19:48.987314
+124|t|2026-10-03 21:03:37.213935
+123|t|2026-10-03 21:03:36.587787
+122|t|2026-09-28 17:01:41.394568
+---STAGING-LAST-SALE--- 
+2026-10-03 13:57:57|2332
+---CONTABO-DAILY-DUMPS--- 
+-rw------- 1 chief chief 7917166 Oct  5 02:00 lsms_20261005_0200.dump
+-rw------- 1 chief chief 7954853 Oct  5 19:35 lsms_20261005_1935.dump
+-rw------- 1 chief chief 7960784 Oct  6 02:00 lsms_20261006_0200.dump
+-rw------- 1 chief chief 7971976 Oct  6 08:20 lsms_20261006_0820.dump
+-rw------- 1 chief chief 8002638 Oct  6 16:02 lsms_20261006_1602.dump
+-rw------- 1 chief chief 8025697 Oct  7 02:00 lsms_20261007_0200.dump
+---B2-DAILY-DUMPS--- 
+  7917166 2026-10-05 02:00:09.089000000 lsms_20261005_0200.dump
+  7954853 2026-10-05 19:35:40.974000000 lsms_20261005_1935.dump
+  7960784 2026-10-06 02:00:05.389000000 lsms_20261006_0200.dump
+  7971976 2026-10-06 08:20:09.762000000 lsms_20261006_0820.dump
+  8002638 2026-10-06 16:02:11.093000000 lsms_20261006_1602.dump
+  8025697 2026-10-07 02:00:05.816000000 lsms_20261007_0200.dump
+---DISK-NA-RAM--- 
+/dev/sda1       193G  6.3G  187G   4% /
+               total        used        free      shared  buff/cache   available
+Mem:           11960        1990        9715         164         717        9970
+---STAGING-MD--- 
+# LSMS Staging (Contabo) — imejengwa 2026-10-03
+
+Staging binafsi inayofanana na production (image zilezile), yenye data
+iliyorejeshwa kutoka backup ya B2. Haigusi production: ina project, network,
+volume na port zake yenyewe.
+
+## Kanuni
+- Amri ZOTE za staging: `cd ~/lsms-staging && docker compose -p lsms-staging ...`
+- Usiendeshe `down`, `stop`, `rm`, `up`, `restart` ndani ya `~/lsms-deployment`.
+- Staging haiwaki yenyewe baada ya reboot (`restart: "no"`).
+  Kuiwasha tena: `cd ~/lsms-staging && docker compose -p lsms-staging up -d`
+
+## Kilichopo
+| Service | Image | Mem | Port |
+|---|---|---|---|
+| postgres | postgres:15 | 1g | hakuna |
+| backend | chiefmaster/my-lsms-backend:2.2.58 | 1536m | hakuna |
+| frontend (Flutter) | chiefmaster/lsms-frontend:2.2.53 | 128m | hakuna |
+| frontend-v3 | chiefmaster/lsms-frontend-v3:3.0.1 | 128m | hakuna |
+| nginx | nginx:1.31.2 | 128m | 127.0.0.1:8081 -> 80 tu |
+
+Network: `lsms-staging-net`. Volume: `lsms-staging_pgdata`.
+Container: `lsms-staging-<service>-1`.
+
+## Jinsi ya kuingia
+Kwenye kompyuta yako:
+
+    ssh -L 8081:localhost:8081 contabo
+
+Kisha fungua:
+- V3 (Angular): http://localhost:8081/v3/
+- Flutter:      http://localhost:8081/
+
+Akaunti na nywila ni zilezile za production kama zilivyokuwa kwenye dump ya
+2026-10-03 13:28. Token za production hazifanyi kazi staging (JWT_SECRET ni mpya).
+
+## Jaribio la restore kutoka B2 (2026-10-03) — LIMEFAULU
+- Dump: `lsms_20261003_1328.dump` (7,840,359 bytes), imepakuliwa kutoka
+  `b2:elikom-lsms-backups/daily/`
+- sha256 ya B2 = sha256 ya `~/backups/daily/` (6d131616...157d197c): SAWA
+- `pg_restore --no-owner`: exit code 0, mistari ya stderr 0
+- Jedwali: staging 76, production 76
+- Jumla ya rows: staging 106,334, production 106,334; jedwali zenye tofauti: 0
+- Flyway: migrations 90, ya juu V122; backend 2.2.58 haikuongeza yoyote
+- `/tmp/staging-restore` imefutwa
+
+## Tofauti na production
+`.env` (mode 600) ni nakala ya production, isipokuwa:
+- `JWT_SECRET` — thamani mpya (openssl rand -base64 64)
+- `APP_SCHEDULERS_ENABLED=false` — imeongezwa (na kupitishwa kwa backend)
+- `BACKEND_VERSION=2.2.58` — imeongezwa (production imeandika tag moja kwa moja)
+
+`default.conf`: block ya `return 444` imeondolewa na `server_name` ni `_`.
+Block ya `location ^~ /v3/` imebaki.
+
+## Kilichozimwa
+- IMEZIMWA kwa `APP_SCHEDULERS_ENABLED=false`:
+  `MaterializedViewScheduler` (refresh ya materialized views) na
+  `CapitalExpenditureScheduler` (matumizi ya kujirudia, GL, bajeti, depreciation,
+  ripoti ya mwezi).
+- HAZIWEZI kuzimwa kwa env kwenye 2.2.58 (hazina @ConditionalOnProperty):
+  `DailySalesNotificationScheduler` (00:00) na `PasswordResetScheduler` (02:00).
+  Zinaandika kwenye DB ya staging tu. Kama staging ikiwa hewani usiku wa manane,
+  itaongeza notification ya muhtasari wa mauzo kwenye DB ya staging.
+- Huduma za nje (SMS, email, webhook, API za nje): backend 2.2.58 HAINA yoyote
+  (hakuna dependency wala HTTP/mail client kwenye code), kwa hiyo hakuna cha kuzima.
+  Imethibitishwa: backend ya staging ina connection za postgres ya staging tu.
+- Uthibitisho wa schedulers ni thamani ya env ndani ya container (`false`) na
+  kutokuwepo kwa mistari ya scheduler kwenye log; class hizo haziandiki log
+  wakati wa kuanza, kwa hiyo hakuna mstari wa "disabled".
+
+## Scripts
+- `./stock.sh <sehemu ya jina>` — READ-ONLY, DB ya STAGING tu. Inaonyesha id,
+  jina, `current_stock`, is_active, is_deleted. Tumia kabla na baada ya kila
+  jaribio (hasa kufuta sale).
+- `./teardown.sh --dry-run` — inaonyesha itakachofuta, haifuti kitu.
+- `./teardown.sh` — inaonyesha containers/volumes/networks, inakataa kama jina
+  lolote halianzi na `lsms-staging`, inaomba uandike `yes`, kisha
+  `docker compose -p lsms-staging down -v` (data ya staging inafutwa).
+
+## Production `docker compose ps`
+Kabla (2026-10-03 13:38 EAT):
+
+    lsms-deployment-backend-1       my-lsms-backend:2.2.58   Up 23 hours
+    lsms-deployment-frontend-1      lsms-frontend:2.2.53     Up 23 hours
+    lsms-deployment-frontend-v3-1   lsms-frontend-v3:3.0.1   Up 16 hours (healthy)
+    lsms-deployment-nginx-1         nginx:1.31.2             Up 23 hours   0.0.0.0:80->80/tcp
+    lsms-deployment-postgres-1      postgres:15              Up 23 hours (healthy)
+
+Baada (2026-10-03 13:48 EAT):
+
+    NAME                            IMAGE                                STATUS                  PORTS
+    lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.58   Up 23 hours             8084/tcp
+    lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     Up 23 hours             80/tcp
+    lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.0.1   Up 16 hours (healthy)   80/tcp
+    lsms-deployment-nginx-1         nginx:1.31.2                         Up 23 hours             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+    lsms-deployment-postgres-1      postgres:15                          Up 23 hours (healthy)   5432/tcp
+---MWISHO--- 
