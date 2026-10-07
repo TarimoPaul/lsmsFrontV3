@@ -50,6 +50,8 @@ export interface SegmentOption<T> {
     }
     :host(.lsms-seg-wrap) { flex-wrap: wrap; overflow: visible; }
     :host::-webkit-scrollbar { display: none; }
+    /* Phones: always one row that scrolls sideways (a wrapped second row pushes the page down). */
+    @media (max-width: 767px) { :host(.lsms-seg-wrap) { flex-wrap: nowrap; overflow-x: auto; } .chip { padding: 10px 16px; } }
     .chip {
       display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
       padding: 8px 14px; border-radius: 24px;

@@ -52,6 +52,14 @@
     />
   } @else if (isMobile()) {
     <div class="cards">
+      @if (bulkSelection()) {
+        <!-- Cards have no header row: the "select all" of the table lives here on phones. -->
+        <label class="pick-all">
+          <input type="checkbox" [checked]="allPageSelected()" [indeterminate]="somePageSelected()" (change)="toggleAll()" />
+          <span>{{ i18n.t('Select all', 'Chagua zote') }}</span>
+          <small>{{ pageItems().length }}</small>
+        </label>
+      }
       @for (row of pageItems(); track rowId()(row); let i = $index) {
         @if (mobileCard(); as mc) {
           <ng-container *ngTemplateOutlet="mc.template; context: { $implicit: row, row: row, index: startIndex() + i }" />

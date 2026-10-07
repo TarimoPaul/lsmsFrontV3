@@ -210,11 +210,12 @@ export class DataTable<T> {
     () => !this.allPageSelected() && this.pageItems().some((r) => this.selectedIds().has(this.rowId()(r))),
   );
 
-  protected isSelected(row: T): boolean {
+  /** Public so a custom phone card (`lsmsMobileCard`) can offer the row checkbox too. */
+  isSelected(row: T): boolean {
     return this.selectedIds().has(this.rowId()(row));
   }
 
-  protected toggleRow(row: T): void {
+  toggleRow(row: T): void {
     const id = this.rowId()(row);
     this.selectedIds.update((set) => {
       const next = new Set(set);

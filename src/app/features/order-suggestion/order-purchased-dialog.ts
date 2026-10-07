@@ -30,7 +30,7 @@ export interface OrderPurchasedData {
       <ul>
         @for (l of data.lines; track l.uid) {
           <li [class.zero]="!value(l)">
-            <span class="nm"><b>{{ l.displayName }}</b><small>{{ i18n.t('ordered', 'oda') }} {{ l.packs }} {{ unit(l) }} · {{ m(l.packCost) }}/{{ unit(l) }}</small></span>
+            <span class="nm"><b>{{ l.displayName }}</b><small>{{ i18n.t('ordered', 'oda') }} {{ l.packs }} {{ unit(l) }} · {{ m(l.packCost) }}/{{ unit(l) }}@if (l.added) { · {{ i18n.t('added', 'imeongezwa') }} }</small></span>
             <span class="step">
               <button type="button" (click)="bump(l, -1)" [disabled]="!value(l)" [attr.aria-label]="i18n.t('Less', 'Punguza')">−</button>
               <input type="number" min="0" max="999" inputmode="numeric" [value]="value(l)" (input)="set(l, $any($event.target).value)" [attr.aria-label]="l.productName" />

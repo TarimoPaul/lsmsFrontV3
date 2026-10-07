@@ -7,7 +7,7 @@
         <h1>{{ i18n.t('Repurchase', 'Nunua tena') }}</h1>
         <small>{{ i18n.t('Products bought before — the last purchase fills the order', 'Bidhaa zilizowahi kununuliwa — manunuzi ya mwisho yanajaza agizo') }}</small>
       </div>
-      <lsms-search-bar class="search" [placeholder]="i18n.t('Search product or category…', 'Tafuta bidhaa au kundi…')" [debounce]="150" [autofocus]="true" (search)="search.set($event); limit.set(60)" />
+      <lsms-search-bar class="search" [placeholder]="i18n.t('Search product or category…', 'Tafuta bidhaa au kundi…')" [debounce]="150" [autofocus]="focusSearch" (search)="search.set($event); limit.set(60)" />
       <button type="button" class="icon-btn" (click)="load(true)" [attr.aria-label]="i18n.t('Refresh', 'Onyesha upya')" [title]="i18n.t('Refresh', 'Onyesha upya')">
         <lsms-icon name="refresh" [size]="20" />
       </button>

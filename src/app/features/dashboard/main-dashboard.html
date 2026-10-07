@@ -1,4 +1,70 @@
-<div class="page" [class.intro]="intro()">
+<div class="page" [class.intro]="intro()" [class.phone]="phone()">
+  @if (phone()) {
+  <!-- ── 1 (phones). Hero: the day's figure + the two main actions, then shortcuts ── -->
+  <!-- The greeting is in the app bar above, which carries the same colour. -->
+  <section class="hero">
+    <p class="h-date reveal" style="--d: 0ms">
+      <lsms-icon name="calendar_today" [size]="14" />{{ today() }}
+      @if (auth.activeBranch(); as b) {
+        <span class="h-branch"><lsms-icon name="storefront" [size]="13" />{{ b.branchName }}</span>
+      }
+    </p>
+    @if (kpi.canSeeSales()) {
+      <p class="h-label reveal" style="--d: 60ms">{{ i18n.t("Today's sales", 'Mauzo ya leo') }}</p>
+      <div class="h-figure reveal" style="--d: 100ms">
+        @if (kpi.today(); as t) {
+          <strong class="h-value" [lsmsCountUp]="t.totalRevenue" [countFormat]="money" [countDelay]="countDelay(0)"></strong>
+          @if (kpi.revenueChange(); as ch) {
+            <span class="h-trend" [class.down]="ch < 0">
+              <lsms-icon [name]="ch < 0 ? 'trending_down' : 'trending_up'" [size]="14" />{{ ch > 0 ? '+' : '' }}{{ ch.toFixed(0) }}%
+            </span>
+          }
+        } @else {
+          <strong class="h-value wait">—</strong>
+        }
+      </div>
+      <p class="h-sub reveal" style="--d: 140ms">
+        @if (kpi.today(); as t) {
+          {{ t.totalSalesCount }} {{ i18n.t('sales', 'mauzo') }} · {{ i18n.t('yesterday', 'jana') }} {{ money(kpi.yesterday()?.totalRevenue) }}
+        } @else {
+          &nbsp;
+        }
+      </p>
+    } @else {
+      <h1 class="h-title reveal" style="--d: 60ms">{{ i18n.t('Ready for today?', 'Tayari kwa kazi ya leo?') }}</h1>
+      <p class="h-sub reveal" style="--d: 120ms">{{ auth.primaryRole() }} · {{ counts()['ALL'].open }}/{{ counts()['ALL'].total }} {{ i18n.t('modules', 'moduli') }}</p>
+    }
+    @if (quickActions().length) {
+      <div class="h-actions reveal" style="--d: 180ms">
+        @for (a of quickActions().slice(0, 2); track a.route) {
+          <a class="h-btn" matRipple [class.primary]="a.primary" [routerLink]="a.route"><lsms-icon [name]="a.icon" [size]="18" />{{ a.label }}</a>
+        }
+        @if (quickActions().length > 2) {
+          <button type="button" class="h-btn more" matRipple [matMenuTriggerFor]="moreActions" [attr.aria-label]="i18n.t('More actions', 'Vitendo zaidi')">
+            <lsms-icon name="more_vert" [size]="20" />
+          </button>
+          <mat-menu #moreActions="matMenu" xPosition="before">
+            @for (a of quickActions().slice(2); track a.route) {
+              <a mat-menu-item [routerLink]="a.route"><lsms-icon [name]="a.icon" [size]="20" /><span>{{ a.label }}</span></a>
+            }
+          </mat-menu>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="shortcuts reveal" style="--d: 240ms">
+    <h2>{{ i18n.t('Shortcuts', 'Njia za mkato') }}</h2>
+    <div class="grid">
+      @for (m of shortcuts(); track m.id) {
+        <button type="button" class="tile" matRipple [style.--accent]="m.color" (click)="openModule(m)">
+          <span class="t-ic"><lsms-icon [name]="m.icon" [size]="22" /></span>
+          <span class="t-body"><strong>{{ m.short[i18n.lang()] }}</strong></span>
+        </button>
+      }
+    </div>
+  </section>
+  } @else {
   <!-- ── 1. Welcome + quick actions ── -->
   <section class="welcome">
     <div class="hello">
@@ -24,6 +90,7 @@
       </div>
     }
   </section>
+  }
 
   <!-- ── Today's purchase suggestion (ORDER_SUGGESTION_VIEW only; empty until the order exists) ── -->
   <app-order-banner class="reveal" style="--d: 150ms" />
@@ -109,7 +176,7 @@
   @if (showOverview()) {
     <section class="kpis">
       @if (kpi.canSeeSales()) {
-        <article class="kpi reveal" style="--accent: var(--c-primary)" [style.--d.ms]="kpiDelay(0)">
+        <article class="kpi in-hero reveal" style="--accent: var(--c-primary)" [style.--d.ms]="kpiDelay(0)">
           <header><span class="k-ic"><lsms-icon name="point_of_sale" [size]="20" /></span>{{ i18n.t("Today's sales", 'Mauzo ya leo') }}</header>
           @if (kpi.today(); as t) {
             <strong class="value" [lsmsCountUp]="t.totalRevenue" [countFormat]="money" [countDelay]="countDelay(0)"></strong>
@@ -174,9 +241,9 @@
       }
     </section>
 
-    <!-- ── 4. Today: hourly sales + stock health ── -->
+    <!-- ── 4. Today: hourly sales (not on phones — less scrolling) + stock health ── -->
     <section class="today">
-      @if (kpi.canSeeSales()) {
+      @if (kpi.canSeeSales() && !phone()) {
         <article class="panel chart reveal" style="--d: 560ms">
           <header class="p-head">
             <div>
@@ -243,7 +310,7 @@
   }
 
   <!-- ── 5. Frequently used ── -->
-  @if (usage.frequent().length) {
+  @if (usage.frequent().length && !phone()) {
     <section class="block reveal" style="--d: 740ms">
       <header class="b-head"><h2><lsms-icon name="bolt" [size]="18" />{{ i18n.t('Frequently used', 'Unazotumia mara kwa mara') }}</h2></header>
       <div class="freq">

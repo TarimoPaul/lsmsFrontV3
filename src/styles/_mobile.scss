@@ -1,0 +1,149 @@
+// Touch devices and small screens — behaviour shared by every page.
+//
+// The phone / tablet shell itself lives in features/shell (bottom-nav, topbar,
+// shell-layout) and reads the geometry tokens of _tokens.scss (--topbar-h,
+// --nav-space, --safe-*). This file holds what is global:
+// - dialogs open as bottom sheets on phones (reachable with the thumb, full width);
+// - fixed pieces (toasts, banners) keep clear of the bars, the notch and the home indicator;
+// - no grey tap flash, no double-tap zoom delay on controls.
+
+a,
+button,
+[role='button'],
+[matRipple],
+label,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+// The two cart benches (POS, Repurchase) are focused tasks with their own
+// floating cart bar: the bottom bar steps aside there, and its room is given
+// back to the page. The back arrow of the app bar leads out.
+@media (max-width: 1023px) {
+  app-shell-layout .panel:has(.bench) {
+    --nav-space: var(--safe-b);
+    --nav-rail: 0px;
+    app-bottom-nav {
+      display: none;
+    }
+  }
+}
+
+// ── Dialogs → bottom sheets ─────────────────────────────────────────────────
+// CDK centres the pane with inline styles on the wrapper, hence !important.
+@media (max-width: 599px) {
+  .cdk-global-overlay-wrapper:has(> .lsms-dialog-panel) {
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+  .cdk-overlay-pane.lsms-dialog-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - var(--safe-t) - 24px) !important;
+  }
+  .lsms-dialog-panel .cdk-dialog-container {
+    border-radius: 24px 24px 0 0;
+    padding-bottom: var(--safe-b);
+    overscroll-behavior: contain;
+    animation: lsms-sheet-in 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+    // Grab handle: says "sheet" at a glance.
+    &::before {
+      content: '';
+      flex: none;
+      align-self: center;
+      width: 40px;
+      height: 4px;
+      margin-top: 8px;
+      border-radius: 2px;
+      background: color-mix(in srgb, var(--c-text-2) 35%, transparent);
+    }
+  }
+  // Search opens tall, so its field stays at the top, clear of the keyboard.
+  .lsms-dialog-panel .cdk-dialog-container:has(app-command-palette) {
+    height: calc(100dvh - var(--safe-t) - 24px);
+  }
+}
+@keyframes lsms-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lsms-dialog-panel .cdk-dialog-container {
+    animation: none !important;
+  }
+}
+
+// ── Tables inside dialogs → one small card per row ──────────────────────────
+// DialogShell marks tables of 4+ columns `lsms-stacked` and puts the column
+// heading on every cell (data-label). The first cell is the title of the row;
+// the others sit three per line, heading above value. No sideways scrolling.
+// (!important: the dialogs style .n / .nowrap cells with scoped rules.)
+@media (max-width: 599px) {
+  lsms-dialog table.lsms-stacked {
+    display: block;
+    > thead {
+      display: none;
+    }
+    > tbody,
+    > tfoot {
+      display: block;
+    }
+    > tbody > tr,
+    > tfoot > tr {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px 12px;
+      padding: 12px;
+      border-bottom: 1px solid var(--c-border);
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+    td {
+      display: block;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      text-align: left !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere;
+    }
+    td:first-child,
+    td[colspan] {
+      grid-column: 1 / -1;
+    }
+    td:first-child {
+      font-size: 0.9rem;
+    }
+    td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 1px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: var(--c-text-2);
+    }
+    td[data-label]:empty {
+      display: none;
+    }
+  }
+  // The sheet itself scrolls: no second scroll box around a stacked table.
+  lsms-dialog :has(> table.lsms-stacked) {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+// Material menus on phones: comfortable 48px rows.
+@media (max-width: 767px) {
+  .mat-mdc-menu-panel {
+    --mat-menu-item-label-text-size: 0.92rem;
+    .mat-mdc-menu-item {
+      min-height: 48px;
+    }
+  }
+}

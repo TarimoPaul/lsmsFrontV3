@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 
 import { ApiService } from '@core/api/api.service';
-import { BudgetSource, OrderLine, OrderStatus, OrderSuggestion } from './order.models';
+import { BudgetSource, OrderCandidate, OrderLine, OrderSlowAction, OrderStatus, OrderSuggestion, SlowWarning } from './order.models';
 
 type Raw = Record<string, unknown>;
 const BASE = '/api/order-suggestions';
@@ -31,6 +31,22 @@ export class OrderService {
     return normalize(await this.api.put<Raw>(`${BASE}/${orderUid}/lines/${lineUid}`, { packs }));
   }
 
+  /** "+ Ongeza bidhaa": the products that are not on the order, with stock, sales per day and slow-movers warning. */
+  async candidates(orderUid: string): Promise<OrderCandidate[]> {
+    const rows = await this.api.get<Raw[] | null>(`${BASE}/${orderUid}/candidates`);
+    return (rows ?? []).map(candidate);
+  }
+
+  /** Put a product of the buyer's own on the order; it is theirs from then on (never recomputed). */
+  async addLine(orderUid: string, productUid: string, packs: number): Promise<OrderSuggestion> {
+    return normalize(await this.api.post<Raw>(`${BASE}/${orderUid}/lines`, { productUid, packs }));
+  }
+
+  /** Take a line the buyer added off the order. */
+  async removeLine(orderUid: string, lineUid: string): Promise<OrderSuggestion> {
+    return normalize(await this.api.delete<Raw>(`${BASE}/${orderUid}/lines/${lineUid}`));
+  }
+
   /** "Imenunuliwa": close the order with the crates really bought (lines left out = bought as ordered). */
   async purchased(orderUid: string, lines: { lineUid: string; packs: number }[]): Promise<OrderSuggestion> {
     return normalize(await this.api.post<Raw>(`${BASE}/${orderUid}/purchased`, { lines }));
@@ -41,6 +57,36 @@ export class OrderService {
     const r = await this.api.post<Raw | null>(`${BASE}/today/recalculate`);
     return r ? normalize(r) : null;
   }
+}
+
+const SLOW: readonly string[] = ['RETURN_OR_DISCOUNT', 'DISCOUNT', 'STOP_ORDERING'];
+
+function slow(r: Raw): SlowWarning {
+  const action = str(r['slowAction']);
+  const known = action !== null && SLOW.includes(action);
+  return {
+    slowAction: known ? (action as OrderSlowAction) : null,
+    slowCoverDays: known ? numOrNull(r['slowCoverDays']) : null,
+    slowValue: known ? numOrNull(r['slowValue']) : null,
+  };
+}
+
+function candidate(r: Raw): OrderCandidate {
+  return {
+    productUid: String(r['productUid'] ?? ''),
+    productName: str(r['productName']) ?? '—',
+    displayName: str(r['displayName']) ?? str(r['productName']) ?? '—',
+    category: str(r['category']),
+    packageAbbreviation: str(r['packageAbbreviation']),
+    piecesPerPack: num(r['piecesPerPack']) || 1,
+    packCost: num(r['packCost']),
+    stock: num(r['stock']),
+    stockSource: r['stockSource'] === 'COUNT' ? 'COUNT' : 'SYSTEM',
+    stockCountedAt: str(r['stockCountedAt']),
+    velocity: num(r['velocity']),
+    seasonFactor: num(r['seasonFactor']),
+    ...slow(r),
+  };
 }
 
 function normalize(r: Raw): OrderSuggestion {
@@ -77,6 +123,8 @@ function normalize(r: Raw): OrderSuggestion {
       otherPurchases: num(b['otherPurchases']),
       poolCarry: num(b['poolCarry']),
       limit: numOrNull(b['limit']),
+      // Older backends send no flag: they did apply the limit.
+      known: b['known'] !== false,
       poolCap: num(b['poolCap']),
       poolOut: num(b['poolOut']),
     },
@@ -88,6 +136,8 @@ function normalize(r: Raw): OrderSuggestion {
       orderCost: num(t['orderCost']),
       orderPacks: num(t['orderPacks']),
       editedLines: num(t['editedLines']),
+      addedLines: num(t['addedLines']),
+      addedCost: num(t['addedCost']),
       purchasedCost: numOrNull(t['purchasedCost']),
     },
     lines: lines.map(
@@ -100,6 +150,7 @@ function normalize(r: Raw): OrderSuggestion {
         displayName: str(l['displayName']) ?? str(l['productName']) ?? '—',
         category: str(l['category']),
         packageAbbreviation: str(l['packageAbbreviation']),
+        stockCountedAt: str(l['stockCountedAt']),
         piecesPerPack: num(l['piecesPerPack']) || 1,
         unitCost: num(l['unitCost']),
         packCost: num(l['packCost']),
@@ -108,7 +159,9 @@ function normalize(r: Raw): OrderSuggestion {
         userPacks: numOrNull(l['userPacks']),
         purchasedPacks: numOrNull(l['purchasedPacks']),
         packs: num(l['packs']),
+        added: l['added'] === true,
         edited: l['edited'] === true,
+        ...slow(l),
         cost: num(l['cost']),
         stock: num(l['stock']),
         stockSource: l['stockSource'] === 'COUNT' ? 'COUNT' : 'SYSTEM',

@@ -21,7 +21,7 @@
         class="search"
         [placeholder]="i18n.t('Search product…', 'Tafuta bidhaa…')"
         [debounce]="150"
-        [autofocus]="true"
+        [autofocus]="focusSearch"
         (search)="search.set($event); limit.set(60)"
       />
       <button
@@ -153,10 +153,10 @@
                         i18n.t('Add', 'Ongeza') + ' ' + p.name + ' — ' + typeLabel(t)
                       "
                     >
-                      <small class="lbl">{{ typeLabel(t) }}</small>
+                      <small class="lbl" [attr.data-short]="t === 'WHOLE_PACKAGE' && !i18n.isSwahili() ? 'Whole' : null">{{ typeLabel(t) }}</small>
                       <b>{{ o.price | money: { symbol: false } }}</b>
                       @if (o.pieces > 1) {
-                        <small class="pcs">{{ o.pieces }} {{ i18n.t('pcs', 'vip') }}</small>
+                        <small class="pcs"><i class="x">×</i>{{ o.pieces }}<span class="u"> {{ i18n.t('pcs', 'vip') }}</span></small>
                       }
                       @if (n) {
                         <i class="badge">×{{ n }}</i>

@@ -63,6 +63,11 @@ import { Icon } from '../icon/icon';
       border-top: 0.5px solid var(--c-divider);
       border-radius: 11px 11px 0 0;
     }
+    /* Inside a KPI grid on a phone (the grid is the container). */
+    @container (max-width: 480px) {
+      .header { padding: 5px 8px 4px 10px; gap: 6px; }
+      .body { padding: 8px 10px 9px; }
+    }
   `,
 })
 export class DashboardCard {

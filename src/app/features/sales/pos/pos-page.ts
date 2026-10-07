@@ -4,6 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
+import { BreakpointService } from '@core/layout/breakpoint.service';
+import { handPageTitle } from '@core/layout/shell-title.service';
 import { Button, Combobox, ComboOption, DialogService, EmptyState, Icon, MoneyInput, SearchBar, Skeleton, TextField, ToastService } from '@shared/ui';
 import { addDays, dayOnly, isSameDay, parseLocal, toIsoDate, toLocalDateTime } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
@@ -49,6 +51,8 @@ export class PosPage {
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  /** Desktop focuses the search on load; on touch screens that would open the keyboard. */
+  protected readonly focusSearch = !inject(BreakpointService).touch;
 
   protected readonly types = SALE_TYPES;
   protected readonly typeOrder = SALE_TYPE_ORDER;
@@ -153,6 +157,10 @@ export class PosPage {
   });
 
   constructor() {
+    handPageTitle(() => ({
+      title: this.i18n.t('New sale', 'Mauzo mapya'),
+      subtitle: this.i18n.t(this.products().length + ' products available', 'Bidhaa ' + this.products().length + ' zinapatikana'),
+    }));
     void this.reload(false);
     void this.api.paymentMethods.load().catch(() => undefined);
     if (this.auth.hasPermission('CUSTOMER_READ')) void this.customersApi.list.load().catch(() => undefined);

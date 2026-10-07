@@ -6,6 +6,7 @@ import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { BusinessService } from '@core/data/business.service';
 import { LanguageService } from '@core/i18n/language.service';
+import { BreakpointService } from '@core/layout/breakpoint.service';
 import {
   ActionMenu,
   Button,
@@ -28,6 +29,7 @@ import {
   SegmentOption,
   SegmentedFilterBar,
   TableColumn,
+  TableMobileCard,
   ToastService,
 } from '@shared/ui';
 import { DateRange, addDays, dayOnly, endOfDay, formatRangeLabel, isSameDay, parseLocal, rangeForPreset, toLocalDateTime } from '@shared/utils/date-utils';
@@ -68,6 +70,7 @@ type View = 'sales' | 'profit' | 'returns' | 'debts';
     DateRangeSelector,
     DataTable,
     TableColumn,
+    TableMobileCard,
     ActionMenu,
     ExportToolbar,
     EmptyState,
@@ -86,6 +89,7 @@ type View = 'sales' | 'profit' | 'returns' | 'debts';
 export class SalesPage {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(LanguageService);
+  protected readonly phone = inject(BreakpointService).isMobile;
   private readonly api = inject(SalesService);
   private readonly business = inject(BusinessService);
   private readonly dialogs = inject(DialogService);

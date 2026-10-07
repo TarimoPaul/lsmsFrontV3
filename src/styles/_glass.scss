@@ -36,8 +36,15 @@
     // Glass edge: a hairline of light on top, soft depth below.
     --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 10px 28px rgb(0 0 0 / 0.24);
 
+    // Full frost — only for the sidebar and the KPI cards (few, small areas).
+    --glass-frost: blur(16px) saturate(1.35);
+
     :is(lsms-dashboard-card, lsms-data-table, lsms-card[data-variant='standard']) {
       box-shadow: var(--shadow-card);
+    }
+    // The shared KPI tile of every module.
+    lsms-dashboard-card {
+      backdrop-filter: var(--glass-frost);
     }
   }
 

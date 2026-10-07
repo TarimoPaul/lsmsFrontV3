@@ -37,7 +37,7 @@ import { OrderService } from './order.service';
           <lsms-icon [name]="o.status === 'PURCHASED' ? 'task_alt' : 'fact_check'" [size]="20" />
           <span class="txt">
             <b>{{ i18n.t("Today's order", 'Oda ya leo') }}: {{ i18n.t(words.packs[0], words.packs[1]) }} {{ packs() }} · {{ m(cost()) }}</b>
-            <small>{{ version() }}</small>
+            <small>{{ version() }}@if (!o.budget.known && o.status !== 'PURCHASED') { · {{ i18n.t('budget not known — nothing cut', 'bajeti haijulikani — hakuna kilichokatwa') }} }</small>
           </span>
           <lsms-icon class="go" name="arrow_forward" [size]="18" />
         </a>
@@ -77,6 +77,11 @@ import { OrderService } from './order.service';
     .txt small { font-size: 0.76rem; color: var(--c-text-2); }
     .go { color: var(--c-text-2); }
     a.ob:hover .go { color: var(--c-primary); }
+    /* Phones: the text keeps the full row; the action drops below as a full-width button. */
+    @media (max-width: 600px) {
+      .ob { flex-wrap: wrap; border-radius: 18px; }
+      .ob > button { order: 5; flex: 1 1 100%; }
+    }
   `,
 })
 export class OrderBanner {
@@ -108,7 +113,11 @@ export class OrderBanner {
     if (o.status === 'PURCHASED') return t(`Closed ${this.time(o.purchasedAt)}`, `Imefungwa ${this.time(o.purchasedAt)}`);
     if (o.countDate) return t(`Updated ${this.time(o.countUpdatedAt)} after counting`, `Imesasishwa ${this.time(o.countUpdatedAt)} baada ya counting`);
     if (o.salesUpdatedAt) return t(`Updated ${this.time(o.salesUpdatedAt)} after yesterday's sales — system stock`, `Imesasishwa ${this.time(o.salesUpdatedAt)} baada ya mauzo ya jana — stoki ya mfumo`);
-    if (o.status === 'NIGHT') return t('Night version — system stock, estimated budget', 'Toleo la usiku — stoki ya mfumo, bajeti ya makadirio');
+    if (o.status === 'NIGHT') {
+      return o.budget.known
+        ? t('Night version — system stock, estimated budget', 'Toleo la usiku — stoki ya mfumo, bajeti ya makadirio')
+        : t('Night version — system stock', 'Toleo la usiku — stoki ya mfumo');
+    }
     return t(`Updated ${this.time(o.calculatedAt)}`, `Imesasishwa ${this.time(o.calculatedAt)}`);
   });
 

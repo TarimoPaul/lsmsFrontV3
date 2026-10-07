@@ -33,6 +33,9 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 :host-context([data-theme='dark']) :is(.kpi, .panel, .tile, .freq-item) {
   box-shadow: var(--shadow-card);
 }
+:host-context([data-theme='dark']) .kpi {
+  backdrop-filter: var(--glass-frost);
+}
 
 // ── 1. Welcome ──────────────────────────────────────────────────────────────
 .welcome {
@@ -250,9 +253,13 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     letter-spacing: -0.6px;
     line-height: 1.1;
     font-variant-numeric: tabular-nums;
+    // The template's space before the unit is stripped at build time, so the gap
+    // is set here (and the number's tight tracking is not carried into the word).
     small {
+      margin-left: 6px;
       font-size: 0.85rem;
       font-weight: 600;
+      letter-spacing: 0;
       color: var(--c-text-2);
     }
   }
@@ -327,6 +334,12 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 @media (max-width: 1100px) {
   .today {
     grid-template-columns: 1fr;
+  }
+}
+// Tablets: two KPI cards per row (auto-fit left a lone fourth card).
+@media (min-width: 768px) and (max-width: 1100px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .panel {
@@ -696,32 +709,334 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }
 
-// Phones: two KPI columns, tighter cards.
-@media (max-width: 767px) {
+// ── Phones ──────────────────────────────────────────────────────────────────
+// Not the desktop page squeezed: a hero carries the figure of the day and the
+// two main actions, shortcuts overlap it as round icon tiles, KPIs become
+// full-width rows (money stays written in full) and the launcher is an icon
+// grid. `.phone` is set by the component below 768px.
+.phone {
+  &.page {
+    padding: 0 14px 20px;
+    gap: 16px;
+  }
+
+  // Hero: continues the colour of the app bar, full bleed, rounded at the bottom.
+  .hero {
+    position: relative;
+    overflow: hidden;
+    margin: 0 -14px;
+    padding: 6px 20px 68px;
+    color: var(--hero-ink);
+    border-radius: 0 0 30px 30px;
+    background: linear-gradient(180deg, var(--hero-a) 0%, var(--hero-b) 100%);
+    // A soft light low on the right, well away from the seam with the app bar.
+    &::after {
+      content: '';
+      position: absolute;
+      right: -70px;
+      bottom: -90px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgb(255 255 255 / 0.16), transparent 68%);
+      pointer-events: none;
+    }
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+  }
+  .h-date {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 500;
+    opacity: 0.86;
+  }
+  .h-branch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-weight: 600;
+    background: rgb(255 255 255 / 0.14);
+  }
+  .h-label {
+    margin-top: 20px;
+    font-size: 0.84rem;
+    opacity: 0.86;
+  }
+  .h-figure {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-top: 4px;
+    min-height: 44px;
+  }
+  .h-value {
+    font-size: clamp(1.7rem, 8.4vw, 2.3rem);
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    &.wait {
+      opacity: 0.5;
+    }
+  }
+  .h-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #d8f5dc;
+    background: rgb(86 211 100 / 0.24);
+    &.down {
+      color: #ffe1de;
+      background: rgb(255 123 114 / 0.28);
+    }
+  }
+  .h-title {
+    margin-top: 18px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .h-sub {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    opacity: 0.8;
+    font-variant-numeric: tabular-nums;
+  }
+  .h-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .h-btn {
+    position: relative;
+    overflow: hidden;
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 24px;
+    border: 1px solid rgb(255 255 255 / 0.24);
+    background: rgb(255 255 255 / 0.12);
+    color: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    &.primary {
+      border-color: transparent;
+      background: var(--hero-accent);
+      color: var(--hero-accent-ink);
+      box-shadow: 0 8px 18px -8px rgb(0 0 0 / 0.45);
+    }
+    &.more {
+      flex: 0 0 48px;
+      padding: 0;
+    }
+  }
+  // Narrow phones (320–359px): text-only pills so both labels fit.
+  @media (max-width: 359px) {
+    .h-btn {
+      padding: 0 8px;
+      font-size: 0.8rem;
+      &:not(.more) lsms-icon {
+        display: none;
+      }
+    }
+    .hero {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+  // Up to 379px (the common 360px Android): three tiles per row so long names
+  // (Reconciliation) stay whole; six shortcuts keep the rows full.
+  @media (max-width: 379px) {
+    :is(.shortcuts, .block) > .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .shortcuts .tile:nth-child(n + 7) {
+      display: none;
+    }
+  }
+
+  // Shortcuts: one card riding over the rounded edge of the hero.
+  .shortcuts {
+    position: relative;
+    z-index: 1;
+    margin-top: -64px;
+    padding: 18px 8px 16px;
+    border-radius: 26px;
+    background: var(--c-float);
+    border: 1px solid var(--c-border);
+    box-shadow: 0 14px 30px -18px rgb(20 40 58 / 0.45);
+    h2 {
+      margin: 0 10px 14px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+  }
+
+  // Round icon tiles, four across (shortcuts and the module launcher).
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px 4px;
+  }
+  .tile {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 7px;
+    height: auto;
+    padding: 2px 0;
+    border: 0;
+    border-radius: 16px;
+    background: none;
+    box-shadow: none;
+    text-align: center;
+    overflow: visible;
+    -webkit-tap-highlight-color: transparent;
+    &:active:not(.locked) .t-ic {
+      transform: scale(0.94);
+      background: var(--accent);
+      color: #fff;
+    }
+    &.locked {
+      background: none;
+    }
+  }
+  .t-ic {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+  .t-body {
+    flex: none;
+    width: 100%;
+    strong {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: normal;
+      font-size: 0.72rem;
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -0.1px;
+    }
+    small {
+      display: none;
+    }
+  }
+  .t-go {
+    display: none;
+  }
+  .t-lock {
+    top: -2px;
+    right: calc(50% - 32px);
+    border-radius: 50%;
+    border: 2px solid var(--c-surface);
+  }
+  // The tiles of the launcher sit in one card as well.
+  .block > .grid {
+    padding: 18px 8px;
+    border-radius: 26px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+  }
+  // Category chips: one row that scrolls sideways, bleeding to the screen edge.
+  .b-head {
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: stretch;
+    h2 {
+      font-size: 1.05rem;
+    }
+  }
+  .filters {
+    margin: 0 -14px;
+    padding: 0 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    ::ng-deep .mdc-evolution-chip-set__chips {
+      flex-wrap: nowrap;
+    }
+    ::ng-deep .mat-mdc-chip {
+      flex-shrink: 0;
+    }
+  }
+
+  // Alerts: the arrow alone is the call to action.
+  .alerts {
+    grid-template-columns: 1fr;
+  }
+  .alert {
+    border-radius: 18px;
+  }
+  .a-cta {
+    font-size: 0;
+    gap: 0;
+  }
+
+  // KPIs: full-width rows — label left, figure right, detail underneath.
   .kpis {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
   }
   .kpi {
-    padding: 14px;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 12px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    &.in-hero {
+      display: none; // the hero shows the sales of the day
+    }
     header {
-      font-size: 0.74rem;
+      font-size: 0.8rem;
     }
     .value {
-      font-size: 1.15rem;
+      font-size: 1.12rem;
+      letter-spacing: -0.3px;
+      text-align: right;
     }
     footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      font-size: 0.7rem;
+      grid-column: 1 / -1;
+      font-size: 0.74rem;
     }
   }
-  .hello h1 {
-    font-size: 1.4rem;
+  .k-ic {
+    padding: 9px;
+    border-radius: 50%;
   }
-  .qa {
-    flex: 1 1 calc(50% - 8px);
+  .panel {
+    padding: 16px;
+    border-radius: 22px;
+    min-height: 0;
+  }
+  .legend {
+    gap: 12px;
+    font-size: 0.72rem;
   }
 }

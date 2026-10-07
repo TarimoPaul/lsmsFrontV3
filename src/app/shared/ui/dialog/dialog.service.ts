@@ -4,6 +4,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { LanguageService } from '../../../core/i18n/language.service';
+import { BreakpointService } from '../../../core/layout/breakpoint.service';
 import { ConfirmDialog, ConfirmDialogData, ConfirmKind } from './confirm-dialog';
 
 /**
@@ -34,6 +35,8 @@ const SIZES: Record<DialogSize, { width: string; maxWidth: string; maxHeight: st
 export class DialogService {
   private readonly dialog = inject(Dialog);
   private readonly i18n = inject(LanguageService);
+  /** Touch screens: focus the sheet itself — focusing a field would open the keyboard over it. */
+  private readonly touch = inject(BreakpointService).touch;
 
   open<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
@@ -47,7 +50,7 @@ export class DialogService {
       maxHeight: size.maxHeight,
       disableClose: opts.disableClose,
       ariaLabel: opts.ariaLabel,
-      autoFocus: 'first-tabbable',
+      autoFocus: this.touch ? 'dialog' : 'first-tabbable',
       restoreFocus: true,
       panelClass: 'lsms-dialog-panel',
       backdropClass: 'lsms-dialog-backdrop',

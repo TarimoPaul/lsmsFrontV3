@@ -95,6 +95,13 @@ $sidebar-expanded: 280px;
   --c-sidebar: #294760;
   --c-sidebar-bg: linear-gradient(180deg, #2e4e68 0%, #294760 45%, #243f56 100%);
   --c-sidebar-accent: #7cc4e4;
+  // Phone dashboard hero (and the app bar above it): the frame's steel blue
+  // running into the brand blue, with the bone accent for the main action.
+  --hero-a: #2b4a63;
+  --hero-b: #3b7597;
+  --hero-ink: #ffffff;
+  --hero-accent: #f1e4d1;
+  --hero-accent-ink: #23405a;
 
   --c-text: #2d3748;
   --c-text-2: #4a5568;
@@ -147,6 +154,12 @@ $sidebar-expanded: 280px;
   --c-sidebar: #0a0e13;
   --c-sidebar-bg: linear-gradient(180deg, #0f1a24 0%, #0b1118 50%, #080c11 100%);
   --c-sidebar-accent: #96d4d4;
+  // Glass shell: the hero is a cyan-tinted pane, not a solid block.
+  --hero-a: rgb(150 212 212 / 0.17);
+  --hero-b: rgb(150 212 212 / 0.05);
+  --hero-ink: #e6edf3;
+  --hero-accent: #e4b429;
+  --hero-accent-ink: #0f1419;
 
   --c-text: #e6edf3;
   --c-text-2: #b1bac4;
@@ -180,4 +193,38 @@ $sidebar-expanded: 280px;
 
   --font-family: 'PlusJakartaSans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --text-scale: 1; // ThemeService text-size multiplier (0.8 – 1.5)
+
+  // ── Shell geometry (read by everything that is fixed against the app bars) ──
+  // Notch / home-indicator insets (index.html sets viewport-fit=cover).
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --topbar-h: 72px;
+  // Room taken at the bottom by the floating navigation bar (phones + tablets).
+  --nav-space: 0px;
+  // Room taken on the left when that bar turns into a side rail (phone held sideways).
+  --nav-rail: 0px;
+}
+// Same limit as ShellLayout.desktop(): below it the sidebar is a drawer and the
+// floating bottom bar is the main navigation.
+@media (max-width: 1023px) {
+  :root {
+    --nav-space: calc(60px + 12px + max(12px, var(--safe-b)));
+  }
+}
+@media (max-width: 767px) {
+  :root {
+    --topbar-h: calc(60px + var(--safe-t));
+  }
+}
+// A phone held sideways has ~390px of height: a 72px app bar plus a bottom bar
+// would leave a third of it. The app bar slims down and the navigation moves
+// to a rail on the left, so the page keeps the full height.
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 1023px) {
+  :root {
+    --topbar-h: calc(52px + var(--safe-t));
+    --nav-space: var(--safe-b);
+    --nav-rail: calc(60px + var(--safe-l));
+  }
 }

@@ -27,6 +27,8 @@ export class BreakpointService {
   readonly isTablet = computed(() => this.width() >= Breakpoints.md && this.width() < Breakpoints.xl);
   readonly isDesktop = computed(() => this.width() >= Breakpoints.xl);
   readonly isMobileDevice = computed(() => Math.min(this.width(), this.height()) < Breakpoints.md);
+  /** Finger as the main pointer: never focus a field on load (it would open the keyboard over the page). */
+  readonly touch = this.win?.matchMedia?.('(pointer: coarse)').matches ?? false;
 
   constructor() {
     let frame = 0;

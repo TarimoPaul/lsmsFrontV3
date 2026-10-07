@@ -98,7 +98,8 @@
     />
   </lsms-dashboard-kpi-row>
 
-  @if (k.count > 0) {
+  <!-- Hourly charts are left out on phones: KPIs then straight to the sales list. -->
+  @if (k.count > 0 && !phone()) {
     <lsms-dashboard-today-section [desktopHeight]="300">
       <lsms-dashboard-revenue-card
         todayRevenue
@@ -147,6 +148,7 @@
         </div>
       }
       <lsms-data-table
+        #saleTable
         [title]="i18n.t('Sales', 'Mauzo') + ' · ' + periodLabel()"
         [items]="rows()"
         [rowId]="rowId"
@@ -211,6 +213,32 @@
         </ng-template>
         <ng-template lsmsColumn="actions" let-row>
           <lsms-action-menu [actions]="actions(row)" />
+        </ng-template>
+        <!-- Phones: one sale = who · total, when · receipt · payment, then what was sold (two lines). -->
+        <ng-template lsmsMobileCard let-row>
+          <article class="m-sale" [class.selected]="saleTable.isSelected(row)" (click)="openDetails(row)">
+            <div class="m-top">
+              @if (canDelete()) {
+                <input type="checkbox" [checked]="saleTable.isSelected(row)" [attr.aria-label]="i18n.t('Select row', 'Chagua')" (click)="$event.stopPropagation()" (change)="saleTable.toggleRow(row)" />
+              }
+              <strong class="m-who">{{ row.customerName || i18n.t('Walk-in customer', 'Mteja wa kawaida') }}</strong>
+              <b class="m-total">{{ row.total | money }}</b>
+              <span class="m-act" (click)="$event.stopPropagation()"><lsms-action-menu [actions]="actions(row)" /></span>
+            </div>
+            <div class="m-meta">
+              <span class="m-when">{{ date(row.saleDate) | date: 'HH:mm' }} · {{ date(row.saleDate) | date: 'dd MMM' }} · {{ short(row.receiptNumber) }}</span>
+              @if (row.hasReturn) { <lsms-icon class="m-ret" name="assignment_return" [size]="14" /> }
+              <span class="m-pay">
+                @if (row.balance > 0) {
+                  <small class="owe">{{ i18n.t('Owes', 'Deni') }} {{ row.balance | money: { symbol: false } }}</small>
+                } @else {
+                  <small>{{ methodText(row) }}</small>
+                }
+                <lsms-payment-status-badge [paid]="row.paid" [total]="row.total" [compact]="true" />
+              </span>
+            </div>
+            <p class="m-items"><span class="n-items">{{ row.lines.length }}</span>{{ itemsText(row) }}</p>
+          </article>
         </ng-template>
       </lsms-data-table>
     }

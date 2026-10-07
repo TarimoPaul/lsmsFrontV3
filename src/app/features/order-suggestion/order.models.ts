@@ -22,7 +22,33 @@ export const PACK_WORDS = {
   pkg: ['pkg', 'pkt'],
 } as const;
 
-export interface OrderLine {
+/** The slow-movers verdict a product carries when its stock is stuck (the "OK" of the report is no warning). */
+export type OrderSlowAction = 'RETURN_OR_DISCOUNT' | 'DISCOUNT' | 'STOP_ORDERING';
+
+/** Slow-movers warning: days the stock covers at the 60-day sales (null = nothing sold) and its value at cost. */
+export interface SlowWarning {
+  slowAction: OrderSlowAction | null;
+  slowCoverDays: number | null;
+  slowValue: number | null;
+}
+
+/** A product that is not on the order, as "+ Ongeza bidhaa" offers it. */
+export interface OrderCandidate extends SlowWarning {
+  productUid: string;
+  productName: string;
+  displayName: string;
+  category: string | null;
+  packageAbbreviation: string | null;
+  piecesPerPack: number;
+  packCost: number;
+  stock: number;
+  stockSource: 'SYSTEM' | 'COUNT';
+  stockCountedAt: string | null;
+  velocity: number;
+  seasonFactor: number;
+}
+
+export interface OrderLine extends SlowWarning {
   uid: string;
   productUid: string;
   productId: number;
@@ -42,10 +68,17 @@ export interface OrderLine {
   purchasedPacks: number | null;
   /** The order as it stands: the buyer's crates when edited, else the system's. */
   packs: number;
+  /**
+   * The buyer added this product ("+ Ongeza bidhaa", source USER_ADDED): the system never
+   * sets or cuts its packages, and it can be taken off the order again.
+   */
+  added: boolean;
   edited: boolean;
   cost: number;
   stock: number;
   stockSource: 'SYSTEM' | 'COUNT';
+  /** When the product was counted (stockSource COUNT); null for system stock or an older backend. */
+  stockCountedAt: string | null;
   /** De-seasonalised pieces per day (last 14 days, stockout days adjusted). */
   velocity: number;
   stockoutDays: number;
@@ -92,6 +125,8 @@ export interface OrderSuggestion {
     otherPurchases: number;
     poolCarry: number;
     limit: number | null;
+    /** False = the limit is 0 or less: the budget is not known, so nothing was cut. */
+    known: boolean;
     poolCap: number;
     poolOut: number;
   };
@@ -103,6 +138,9 @@ export interface OrderSuggestion {
     orderCost: number;
     orderPacks: number;
     editedLines: number;
+    /** Lines the buyer added, and their cost (already inside orderCost). */
+    addedLines: number;
+    addedCost: number;
     purchasedCost: number | null;
   };
   lines: OrderLine[];

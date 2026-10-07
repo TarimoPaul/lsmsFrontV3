@@ -8,6 +8,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { ThemeService } from '@core/theme/theme.service';
 import { BreakpointService } from '@core/layout/breakpoint.service';
+import { ShellTitle } from '@core/layout/shell-title.service';
 import { APP_MODULES, AppModule, findModule } from '@core/navigation/app-modules';
 import { ModuleUsageService } from '@core/navigation/module-usage.service';
 import { safeStorage } from '@core/utils/safe-storage';
@@ -15,6 +16,7 @@ import { DialogService, ToastService } from '@shared/ui';
 import { environment } from '../../../environments/environment';
 import { BranchPickerData, BranchPickerDialog } from '../auth/branch-picker/branch-picker-dialog';
 import { CommandPalette } from './command-palette/command-palette';
+import { BottomNav } from './bottom-nav/bottom-nav';
 import { Sidebar } from './sidebar/sidebar';
 import { DebtBanners } from './debt-banners';
 import { UpdateBanner } from './update-banner';
@@ -29,11 +31,13 @@ export interface PageMeta {
  * Authenticated app frame — port of Flutter `main_home.dart` shell:
  * sidebar + toolbar + routed content. Desktop (≥1024): persistent sidebar,
  * collapsible 280↔72 (persisted), toolbar + page in a full-height panel whose
- * left edge is rounded against the sidebar. Smaller: modal drawer, full-bleed panel.
+ * left edge is rounded against the sidebar. Smaller: modal drawer, full-bleed panel
+ * and a floating bottom bar as the main navigation; phones (<768) also get the
+ * compact app bar (back button, greeting on the dashboard).
  */
 @Component({
   selector: 'app-shell-layout',
-  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, DebtBanners, UpdateBanner],
+  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, BottomNav, DebtBanners, UpdateBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-sidenav-container class="shell" [hasBackdrop]="!desktop()" [autosize]="true">
@@ -61,7 +65,9 @@ export interface PageMeta {
             [subtitle]="pageSubtitle()"
             [isHome]="isHome()"
             [showMenuButton]="!desktop()"
+            [phone]="phone()"
             (menu)="drawerOpen.set(true)"
+            (back)="goUp()"
             (search)="openPalette()"
             (refresh)="refresh()"
             (switchBranch)="switchBranch()"
@@ -85,6 +91,9 @@ export interface PageMeta {
               <span>LSMS v{{ version }}</span>
             </footer>
           </div>
+          @if (!desktop()) {
+            <app-bottom-nav (search)="openPalette()" (menu)="drawerOpen.set(true)" />
+          }
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -116,6 +125,7 @@ export interface PageMeta {
     :host-context([data-theme='dark']) .shell { background: transparent; }
     :host-context([data-theme='dark']) .sidenav {
       background: linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.03));
+      backdrop-filter: var(--glass-frost);
     }
     /* Phone drawer slides OVER the page, so it has to be frosted, not see-through. */
     :host-context([data-theme='dark']) .sidenav.mat-drawer-over {
@@ -123,11 +133,18 @@ export interface PageMeta {
     }
     .panel { position: relative; }
     .topbar { flex: none; z-index: 20; }
-    .scroll { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+    .scroll {
+      position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;
+      /* Room for the floating bottom bar (0 on desktop); no rubber-band into the browser chrome. */
+      padding-bottom: var(--nav-space); overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
+    }
+    /* Notch / rounded-corner phones held sideways: keep the page clear of the cut-out. */
+    .content:not(.inset) .scroll { padding-left: max(var(--safe-l), var(--nav-rail)); padding-right: var(--safe-r); }
+    .sidenav.mat-drawer-over { padding: var(--safe-t) 0 var(--safe-b) var(--safe-l); }
 
     /* Floating bubbles behind the page — port of Flutter main_menu _FloatingShapesPainter
        (7 primary-tinted circles, 4% light / 6% dark, 20s drift of ±20px × ±15px). */
-    .bubbles { position: absolute; inset: 72px 0 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .bubbles { position: absolute; inset: var(--topbar-h) 0 0; overflow: hidden; pointer-events: none; z-index: 0; }
     .bubbles i {
       position: absolute; width: calc(var(--r) * 2); height: calc(var(--r) * 2);
       margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1); border-radius: 50%;
@@ -172,6 +189,7 @@ export class ShellLayout {
   private readonly toast = inject(ToastService);
   private readonly usage = inject(ModuleUsageService);
   protected readonly theme = inject(ThemeService);
+  private readonly shellTitle = inject(ShellTitle);
 
   protected readonly version = environment.appVersion;
   /** Flutter `_ShapeData(baseX, baseY, radius, phaseOffset)` — positions in % of the panel. */
@@ -186,6 +204,7 @@ export class ShellLayout {
   ];
   protected readonly year = new Date().getFullYear();
   protected readonly desktop = computed(() => this.bp.width() >= 1024);
+  protected readonly phone = computed(() => this.bp.width() < 768);
   protected readonly drawerOpen = signal(false);
   protected readonly collapsed = signal(safeStorage.getBool('sidebar_collapsed') ?? false);
   /** The panel scrolls (not the window), so the router's scroll restoration can't reach it. */
@@ -198,8 +217,10 @@ export class ShellLayout {
     ),
     { initialValue: this.currentMeta() },
   );
-  protected readonly pageTitle = computed(() => this.meta()?.title[this.i18n.lang()] ?? 'LSMS');
-  protected readonly pageSubtitle = computed(() => this.meta()?.subtitle?.[this.i18n.lang()]);
+  /** Phones: the page's own header names the screen (see ShellTitle); otherwise the route does. */
+  private readonly handed = computed(() => (this.phone() ? this.shellTitle.page() : null));
+  protected readonly pageTitle = computed(() => this.handed()?.title ?? this.meta()?.title[this.i18n.lang()] ?? 'LSMS');
+  protected readonly pageSubtitle = computed(() => (this.handed() ? this.handed()!.subtitle : this.meta()?.subtitle?.[this.i18n.lang()]));
   private readonly url = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
@@ -240,6 +261,8 @@ export class ShellLayout {
     });
     inject(DestroyRef).onDestroy(() => clearTimeout(this.introTimer));
     effect(() => safeStorage.set('sidebar_collapsed', this.collapsed()));
+    this.shellTitle.active.set(true);
+    inject(DestroyRef).onDestroy(() => this.shellTitle.active.set(false));
     // Count module visits for the dashboard's "Frequently used" row.
     effect(() => {
       const path = this.url().split('?')[0];
@@ -253,6 +276,12 @@ export class ShellLayout {
 
   protected toggleCollapse(): void {
     this.collapsed.update((c) => !c);
+  }
+
+  /** Phone back arrow: a sub-page goes up to its module, a module goes home. */
+  protected goUp(): void {
+    const parts = this.url().split('?')[0].split('/').filter(Boolean);
+    void this.router.navigateByUrl(parts.length > 1 && parts[0] !== 'account' ? '/' + parts[0] : '/dashboard');
   }
 
   protected onKeydown(e: KeyboardEvent): void {

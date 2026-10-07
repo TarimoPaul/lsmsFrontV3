@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output } f
 import { RouterLink } from '@angular/router';
 
 import { LanguageService } from '@core/i18n/language.service';
+import { handPageTitle } from '@core/layout/shell-title.service';
 import { Button, DateRangeSelector, Icon, IconButton } from '@shared/ui';
 import { DateRange } from '@shared/utils/date-utils';
 import { ReportId, reportDef } from './reports.models';
@@ -61,6 +62,12 @@ import { ReportId, reportDef } from './reports.models';
     .dot { margin: 0 2px; }
     .actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    /* Phones: the app bar carries back + title + source (handPageTitle); only the actions stay. */
+    @media (max-width: 767px) {
+      .head { padding-top: 4px; }
+      .back, .mark, .txt { display: none; }
+      .actions { margin-left: 0; flex: 1; justify-content: flex-end; }
+    }
   `,
 })
 export class ReportFrame {
@@ -85,4 +92,8 @@ export class ReportFrame {
     const d = this.def();
     return d ? (this.i18n.isSwahili() ? d.source.sw : d.source.en) : '';
   });
+
+  constructor() {
+    handPageTitle(() => ({ title: this.title(), subtitle: this.i18n.t('Source', 'Chanzo') + ': ' + this.source() }));
+  }
 }

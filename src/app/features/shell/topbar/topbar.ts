@@ -8,6 +8,7 @@ import { RouterLink } from '@angular/router';
 
 import { initials } from '@core/auth/auth.models';
 import { AuthService } from '@core/auth/auth.service';
+import { greeting } from '@core/i18n/greeting';
 import { LanguageService } from '@core/i18n/language.service';
 import { NotificationCenter } from '@core/notifications/notification-center.service';
 import { ThemeService } from '@core/theme/theme.service';
@@ -25,6 +26,7 @@ import { Icon } from '@shared/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
+  host: { '[class.phone]': 'phone()', '[class.on-hero]': 'onHero()' },
 })
 export class Topbar {
   protected readonly auth = inject(AuthService);
@@ -39,13 +41,20 @@ export class Topbar {
   /** Hide the "Home ›" crumb on the dashboard itself. */
   readonly isHome = input(false);
   readonly showMenuButton = input(false);
+  /** Compact phone bar: back arrow instead of the menu, no search (both are in the bottom bar). */
+  readonly phone = input(false);
 
   readonly menu = output<void>();
+  readonly back = output<void>();
   readonly search = output<void>();
   readonly refresh = output<void>();
   readonly switchBranch = output<void>();
   readonly logout = output<void>();
 
   protected readonly initials = computed(() => initials(this.auth.user()));
+  /** On the phone dashboard the bar is the top of the hero block (same colour, greeting inside). */
+  protected readonly onHero = computed(() => this.phone() && this.isHome());
+  protected readonly hello = computed(() => greeting(this.i18n));
+  protected readonly firstName = computed(() => this.auth.user()?.firstName || this.auth.displayName());
   protected readonly isMac = /Mac|iPhone|iPad/.test(globalThis.navigator?.platform ?? '');
 }

@@ -206,6 +206,10 @@
     font-size: 0.7rem;
     line-height: 1.2;
     color: var(--c-text-2);
+    .x {
+      display: none; // phones write "×12" next to the label instead of "12 pcs" on a third line
+      font-style: normal;
+    }
   }
   .plus {
     position: absolute;
@@ -337,10 +341,16 @@
   .board-head {
     display: none;
   }
+  // Phone density: a product is ~100px tall (was 133), so six fit a screen
+  // instead of four. Type follows mobile-app sizes: 13px names and prices,
+  // 11px captions; a price chip is two lines (tier ×pieces / price), 42px tall.
+  // The price is never cut: with four tiers side by side the one long tier
+  // name gives way instead ("Wholesale" → data-short "Whole").
   .item {
     grid-template-columns: minmax(0, 1fr) auto;
-    row-gap: 10px;
-    padding: 12px;
+    row-gap: 7px;
+    min-height: 0;
+    padding: 9px 10px 10px;
     border-radius: 14px;
     border: 1px solid var(--c-border);
     &,
@@ -369,19 +379,78 @@
       gap: 2px;
     }
   }
+  .board {
+    gap: 6px;
+  }
+  .tile {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 0.7rem;
+  }
+  .c-prod {
+    gap: 8px;
+  }
+  .name strong {
+    font-size: 0.82rem;
+    line-height: 1.25;
+  }
+  .name small {
+    line-height: 1.3;
+  }
   .prices {
     grid-column: 1 / -1;
     display: flex;
-    gap: 6px;
+    gap: 5px;
   }
   .price {
     flex: 1 1 0;
-    min-height: 50px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'lbl pcs' 'amt amt';
+    align-items: baseline;
+    justify-items: start;
+    column-gap: 3px;
+    row-gap: 1px;
+    min-height: 42px;
+    padding: 5px 6px;
+    border-radius: 9px;
     .lbl {
+      grid-area: lbl;
       display: block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.7rem;
+      line-height: 1.2;
+    }
+    .pcs {
+      grid-area: pcs;
+      .x {
+        display: inline;
+      }
+      .u {
+        display: none;
+      }
+    }
+    b {
+      grid-area: amt;
+      font-size: 0.82rem;
+      line-height: 1.25;
+    }
+    .plus {
+      display: none;
     }
     &.none {
       display: none;
+    }
+  }
+  .prices:has(> :nth-child(4)) .lbl[data-short] {
+    font-size: 0;
+    &::before {
+      content: attr(data-short);
+      font-size: 0.7rem;
     }
   }
   .noprice {

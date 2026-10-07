@@ -114,6 +114,8 @@ interface Day {
     .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
     h1 { margin: 0; font-size: 1.35rem; }
     .head p { margin: 2px 0 0; color: var(--c-text-2); font-size: 0.86rem; }
+    /* Phones: the app bar already says "Notifications". */
+    @media (max-width: 767px) { .head h1 { display: none; } }
     .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--c-text-2); cursor: pointer; }
     .card { margin-top: 12px; border: 1px solid var(--c-border); border-radius: 16px; background: var(--c-surface); overflow: hidden; }

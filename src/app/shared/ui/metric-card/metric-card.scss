@@ -28,6 +28,14 @@ lsms-dashboard-card {
   @include t.ellipsis;
   color: var(--c-text);
 }
+// Two tiles side by side on a phone (lsms-metrics-grid is the container): a
+// smaller figure, so money is still written in full instead of being cut.
+@container (max-width: 480px) {
+  .value {
+    font-size: 1.08rem;
+    letter-spacing: -0.3px;
+  }
+}
 .subtitle {
   @include t.caption;
   margin-top: 4px;

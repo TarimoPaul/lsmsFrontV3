@@ -319,7 +319,7 @@
     // below the 72px app bar instead of over it.
     .cart {
       position: fixed;
-      inset: 72px 0 0;
+      inset: var(--topbar-h) 0 0;
       z-index: 900;
       max-height: none;
       border-radius: 0;
@@ -341,7 +341,7 @@
       position: fixed;
       left: 12px;
       right: 12px;
-      bottom: 12px;
+      bottom: calc(12px + var(--nav-space)); // clear of the home indicator (the bottom bar is hidden here)
       z-index: 800;
       display: flex;
       align-items: center;
@@ -387,6 +387,120 @@
       .search {
         order: 3;
         flex-basis: 100%;
+        max-width: none;
+      }
+    }
+  }
+
+  // ── Phones: the app bar carries back + title (handPageTitle); the search
+  // stays pinned under it while the products scroll, and targets grow to
+  // finger size.
+  @media (max-width: 767px) {
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin: -8px -12px 0;
+      padding: 8px 12px;
+      background: var(--c-float);
+      border-bottom: 1px solid var(--c-border);
+      .back,
+      .ttl {
+        display: none;
+      }
+      .search {
+        order: 0;
+        flex: 1 1 0;
+        min-width: 0;
+        margin-left: 0;
+      }
+    }
+    .chips {
+      margin: 0 -12px;
+      padding: 0 12px 2px;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+    .stock-seg button {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+    .chip {
+      padding: 9px 14px;
+      font-size: 0.8rem;
+    }
+    // The full-screen cart is ONE scroll: lines, totals and payment follow each
+    // other (a fixed footer left room for two lines), and only the final
+    // button stays pinned at the thumb. `display: contents` makes the
+    // footer's children direct children of the scroller, so the button can
+    // stick from the first line on.
+    .cart.open {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-bottom: var(--safe-b);
+      .cart-head {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: var(--c-float);
+      }
+      .cart-body {
+        flex: none;
+        min-height: 0;
+        overflow: visible;
+        border-bottom: 1px solid var(--c-border);
+      }
+      .checkout {
+        display: contents;
+        > * {
+          flex: none;
+          margin: 10px 16px 0;
+        }
+        > :is(.pay, .send) {
+          position: sticky;
+          bottom: calc(12px + var(--safe-b));
+          z-index: 2;
+          width: calc(100% - 32px); // full-width button + the side margins
+          min-height: 54px;
+          margin-top: 14px;
+          margin-bottom: 12px;
+          border-radius: 27px;
+          box-shadow: 0 10px 26px -6px rgb(15 23 42 / 0.4);
+        }
+      }
+    }
+    .cart-bar {
+      min-height: 50px;
+      border-radius: 25px;
+      padding: 10px 20px;
+      .ic {
+        margin-right: 8px; // room for the count badge
+      }
+    }
+  }
+
+  // ── Phone held sideways (short screen): title, search and refresh share one
+  // row, so products start right under it.
+  @media (orientation: landscape) and (max-height: 520px) and (max-width: 1000px) {
+    .bench {
+      padding-top: 6px;
+    }
+    .bar {
+      flex-wrap: nowrap;
+      .ttl {
+        flex: 0 1 auto;
+        small {
+          display: none;
+        }
+      }
+      .search {
+        order: 0;
+        flex: 1 1 0;
+        min-width: 0;
         max-width: none;
       }
     }

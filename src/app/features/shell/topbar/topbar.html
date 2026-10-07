@@ -1,5 +1,17 @@
 <div class="left">
-  @if (showMenuButton()) {
+  @if (onHero()) {
+    <!-- Phone dashboard: the bar is the top of the hero and greets the user. -->
+    <span class="brand-mark"><img src="icons/Finallogo.png" alt="" width="26" height="26" /></span>
+    <div class="hi">
+      <small>{{ hello() }}</small>
+      <strong>{{ firstName() }}</strong>
+    </div>
+  } @else if (phone()) {
+    <!-- The menu lives in the bottom bar; the top-left corner is "back". -->
+    <button type="button" class="icon-btn" matRipple [attr.aria-label]="i18n.t('Back', 'Rudi')" (click)="back.emit()">
+      <lsms-icon name="arrow_back" [size]="22" />
+    </button>
+  } @else if (showMenuButton()) {
     <button type="button" class="icon-btn" matRipple [attr.aria-label]="i18n.t('Open menu', 'Fungua menyu')" (click)="menu.emit()">
       <lsms-icon name="menu" [size]="22" />
     </button>

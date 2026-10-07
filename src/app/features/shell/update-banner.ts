@@ -23,7 +23,7 @@ import { Button, Icon } from '@shared/ui';
     }
   `,
   styles: `
-    :host { position: fixed; left: 50%; top: 80px; transform: translateX(-50%); z-index: 950; width: min(640px, calc(100vw - 24px)); }
+    :host { position: fixed; left: 50%; top: calc(var(--topbar-h) + 8px); transform: translateX(-50%); z-index: 950; width: min(640px, calc(100vw - 24px)); }
     .bar {
       display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; border-radius: 14px;
       background: var(--c-float); border: 1px solid color-mix(in srgb, var(--c-primary) 40%, var(--c-border));

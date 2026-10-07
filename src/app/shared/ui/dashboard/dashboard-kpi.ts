@@ -44,6 +44,8 @@ import { DashboardCard } from './dashboard-card';
     .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .value { @include t.h3; @include t.ellipsis; color: var(--c-text); }
     .value.hero { font-size: 1.375rem; }
+    /* Two tiles side by side on a phone: a smaller figure, so money is still written in full. */
+    @container (max-width: 480px) { .value, .value.hero { font-size: 1.08rem; letter-spacing: -0.3px; } }
     .subtitle { @include t.caption; margin-top: 4px; color: var(--c-text-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .trend:not(:empty) { margin-top: 8px; }
   `,
@@ -77,6 +79,7 @@ export class DashboardKpiCard {
       grid-auto-rows: minmax(110px, auto);
       gap: 10px;
     }
+    @container (max-width: 480px) { .grid { gap: 8px; grid-auto-rows: minmax(76px, auto); } }
     @container (min-width: 600px) { .grid { gap: 12px; } }
     @container (min-width: 700px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   `,
@@ -110,6 +113,8 @@ export class DashboardKpiRow {}
     .budget { height: 150px; }
     .peak { height: 200px; }
     .budget:empty { display: none; }
+    /* Phones: charts are a glance on the way to the list, not the page. */
+    @container (max-width: 480px) { .revenue { height: 230px; } .peak { height: 160px; } .budget { height: 130px; } }
     @container (min-width: 600px) {
       .wrap { flex-direction: row; gap: 12px; height: var(--desktop-h, 340px); }
       .revenue { flex: 16; height: auto; min-width: 0; }

@@ -112,6 +112,12 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     .bar { display: flex; align-items: center; gap: 10px; }
     .bar lsms-search-bar { flex: 1; max-width: 520px; }
     .bar button { margin-left: auto; }
+    /* Phones: search on its own row, the two actions share the next one. */
+    @media (max-width: 599px) {
+      .bar { flex-wrap: wrap; }
+      .bar lsms-search-bar { flex: 1 1 100%; max-width: none; }
+      .bar button { flex: 1 1 0; margin-left: 0; }
+    }
     .what { display: inline-flex; align-items: center; gap: 10px; }
     .ic { display: inline-flex; padding: 7px; border-radius: 10px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }

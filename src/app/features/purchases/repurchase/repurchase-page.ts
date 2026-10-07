@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
+import { BreakpointService } from '@core/layout/breakpoint.service';
+import { handPageTitle } from '@core/layout/shell-title.service';
 import { Button, Combobox, ComboOption, DialogService, EmptyState, Icon, MoneyInput, SearchBar, Skeleton, ToastService } from '@shared/ui';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { productDetail } from '@shared/utils/product-label';
@@ -59,6 +61,8 @@ export class RepurchasePage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly reconApi = inject(ReconciliationService);
+  /** Desktop focuses the search on load; on touch screens that would open the keyboard. */
+  protected readonly focusSearch = !inject(BreakpointService).touch;
 
   /** Opened from a reconciliation's Purchases tab: offer to link what gets ordered to that day's cash. */
   protected readonly recon = this.route.snapshot.queryParamMap.get('recon');
@@ -140,6 +144,10 @@ export class RepurchasePage {
   protected readonly canSubmit = computed(() => this.cart.count() > 0 && !this.cart.invalid() && !this.blockedInCart() && !this.busy());
 
   constructor() {
+    handPageTitle(() => ({
+      title: this.i18n.t('Repurchase', 'Nunua tena'),
+      subtitle: this.i18n.t('The last purchase fills the order', 'Manunuzi ya mwisho yanajaza agizo'),
+    }));
     void this.load();
     if (this.auth.hasPermission('SUPPLIER_READ')) void this.suppliersApi.list.load().catch(() => undefined);
   }

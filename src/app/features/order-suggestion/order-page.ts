@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
@@ -8,6 +9,7 @@ import { addDays, parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
 import { packSize, packUnit, productDetail } from '@shared/utils/product-label';
+import { AfterOrder, LOW_COVER_DAYS, afterOrder, daysLabel, qtyLabel, slowWarning, slowWords } from './order-math';
 import { ORDER_EDIT, OrderLine, OrderSuggestion, PACK_WORDS } from './order.models';
 import { OrderService } from './order.service';
 
@@ -21,11 +23,18 @@ const HISTORY_DAYS = 14;
  * sales, the morning count and the reconciliation; this page shows where it stands,
  * lets the buyer set the packages (an edited line is never recomputed — the system's answer
  * shows beside it as "mfumo sasa"), share the list, and close it with "Imenunuliwa".
+ * Every line says what its stock is in the product's own package and where that
+ * figure comes from (counted at HH:MM, or a system estimate — never hidden), and what
+ * the shelf holds after the order and for how many days, live as the buyer types.
+ * While the count or yesterday's reconciliation is not in, a reminder links to them.
+ * "+ Ongeza bidhaa" puts any other product on the order: that line is the buyer's — marked
+ * "Imeongezwa", never recomputed or cut, removable, and part of the total, Share and print.
+ * A budget of 0 or less is "not known": nothing is cut and the screen says so.
  * History keeps the four versions of every product: night / system / buyer / bought.
  */
 @Component({
   selector: 'app-order-page',
-  imports: [PageHeader, SegmentedFilterBar, Button, Icon, Skeleton, EmptyState],
+  imports: [PageHeader, SegmentedFilterBar, Button, Icon, Skeleton, EmptyState, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="wrap">
@@ -42,6 +51,9 @@ const HISTORY_DAYS = 14;
             <button lsmsButton="secondary" size="sm" icon="print" (click)="print(o)">{{ i18n.t('Print', 'Chapisha') }}</button>
           }
           @if (canEdit() && o.status !== 'PURCHASED') {
+            @if (o.lines.length) {
+              <button lsmsButton="secondary" size="sm" icon="add" (click)="addProduct(o)">{{ i18n.t('Add a product', 'Ongeza bidhaa') }}</button>
+            }
             <button lsmsButton="secondary" size="sm" icon="refresh" [loading]="busy() === 'recalc'" (click)="recalculate()">{{ i18n.t('Recalculate', 'Hesabu upya') }}</button>
             @if (o.lines.length) {
               <button lsmsButton size="sm" icon="task_alt" [loading]="busy() === 'purchased'" (click)="purchased(o)">{{ i18n.t('Purchased', 'Imenunuliwa') }}</button>
@@ -75,6 +87,15 @@ const HISTORY_DAYS = 14;
             </div>
           }
 
+          @if (todo(); as td) {
+            <div class="banner todo" role="status">
+              <lsms-icon name="pending_actions" [size]="20" />
+              <div><b>{{ td.title }}</b><small>{{ td.text }}</small></div>
+              @if (td.count) { <a lsmsButton="secondary" size="sm" icon="checklist" routerLink="/counting">{{ i18n.t('Go to counting', 'Nenda Counting') }}</a> }
+              @if (td.recon) { <a lsmsButton="secondary" size="sm" icon="balance" routerLink="/reconciliation" [queryParams]="{ date: td.reconDate }">{{ i18n.t('Go to reconciliation', 'Nenda Recon') }}</a> }
+            </div>
+          }
+
           <ul class="flow" [attr.aria-label]="i18n.t('Where the order stands', 'Hali ya oda')">
             @for (s of steps(); track s.key) {
               <li [class.on]="s.on" [class.warn]="s.warn" [class.done]="s.key === 'purchased' && s.on">
@@ -82,16 +103,16 @@ const HISTORY_DAYS = 14;
               </li>
             }
           </ul>
-          @if (notice(); as n) {
-            <p class="xcheck bad"><lsms-icon name="info" [size]="17" />{{ n }}</p>
-          }
 
           <div class="top">
             <section class="card total">
               <header><lsms-icon name="shopping_cart" [size]="18" /><span>{{ o.status === 'PURCHASED' ? i18n.t('Bought', 'Kilichonunuliwa') : i18n.t('Order now', 'Oda sasa') }}</span></header>
               <b>{{ m(o.status === 'PURCHASED' ? (o.totals.purchasedCost ?? 0) : o.totals.orderCost) }}</b>
-              <p>{{ shownPacks() }} {{ w('packs') }} · {{ shownProducts() }} {{ i18n.t('products', 'bidhaa') }}@if (o.totals.editedLines) { · {{ o.totals.editedLines }} {{ i18n.t('edited by you', 'zimehaririwa') }} }</p>
-              @if (o.totals.cutCost > 0) {
+              <p>{{ shownPacks() }} {{ w('packs') }} · {{ shownProducts() }} {{ i18n.t('products', 'bidhaa') }}@if (o.totals.editedLines) { · {{ o.totals.editedLines }} {{ i18n.t('edited by you', 'zimehaririwa') }} }@if (o.totals.addedLines) { · {{ o.totals.addedLines }} {{ i18n.t('added by you', 'zimeongezwa') }} }</p>
+              @if (!o.budget.known && o.status !== 'PURCHASED') {
+                <p class="cut"><lsms-icon name="help" [size]="14" />{{ i18n.t('Budget not known — this is the full suggestion, nothing was cut', 'Bajeti haijulikani — hili ni pendekezo kamili, halijakatwa') }}</p>
+              }
+              @if (o.budget.known && o.totals.cutCost > 0) {
                 <p class="cut"><lsms-icon name="content_cut" [size]="14" />{{ i18n.t('The budget cut', 'Bajeti imekata') }} {{ m(o.totals.cutCost) }} {{ i18n.t('of the', 'kati ya') }} {{ m(o.totals.wantedCost) }} {{ i18n.t('the formula wanted', 'zilizotakiwa na formula') }}</p>
               }
               @if (over() > 0) {
@@ -104,6 +125,14 @@ const HISTORY_DAYS = 14;
                 <lsms-icon name="account_balance_wallet" [size]="18" /><span>{{ i18n.t('Budget for today', 'Bajeti ya leo') }}</span>
                 <em class="src" [class.est]="o.budget.source === 'ESTIMATE'" [class.ok]="o.budget.source === 'RECON_APPROVED'">{{ budgetLabel() }}</em>
               </header>
+              @if (!o.budget.known) {
+                <p class="unknown" role="status">
+                  <lsms-icon name="warning" [size]="16" />
+                  <span><b>{{ i18n.t('Budget not known', 'Bajeti haijulikani') }}</b>
+                    {{ i18n.t('The money of yesterday is not in yet, so the limit below is 0 or less. Nothing was cut: the order shows everything the formula wants. Decide what to buy with the cash you have.',
+                              'Pesa ya jana bado haijaingia, kwa hiyo kikomo hapa chini ni 0 au pungufu. Hakuna kilichokatwa: oda inaonyesha kila kitu ambacho formula inataka. Amua cha kununua kwa pesa uliyonayo.') }}</span>
+                </p>
+              }
               <table>
                 <tbody>
                   <tr><td>{{ i18n.t('Money in from yesterday\\'s sales', 'Pesa iliyoingia ya mauzo ya jana') }}</td><td class="n">{{ m(o.budget.received) }}</td></tr>
@@ -112,7 +141,7 @@ const HISTORY_DAYS = 14;
                   <tr><td>− {{ i18n.t('Monthly costs per day', 'Gharama za mwezi kwa siku') }}</td><td class="n">{{ m(o.budget.accrual) }}</td></tr>
                   @if (o.budget.otherPurchases) { <tr><td>− {{ i18n.t('Other purchases today', 'Manunuzi mengine ya leo') }}</td><td class="n">{{ m(o.budget.otherPurchases) }}</td></tr> }
                   <tr><td>+ {{ i18n.t('Carried from the day before', 'Salio la mfuko la jana') }}</td><td class="n">{{ m(o.budget.poolCarry) }}</td></tr>
-                  <tr class="sum"><td>= {{ i18n.t('Limit for this order', 'Kikomo cha oda hii') }}</td><td class="n" [class.neg]="(o.budget.limit ?? 0) < 0">{{ m(o.budget.limit ?? 0) }}</td></tr>
+                  <tr class="sum"><td>= {{ i18n.t('Limit for this order', 'Kikomo cha oda hii') }}@if (!o.budget.known) { <small>&nbsp;({{ i18n.t('not applied', 'hakijatumika') }})</small> }</td><td class="n" [class.neg]="(o.budget.limit ?? 0) < 0">{{ m(o.budget.limit ?? 0) }}</td></tr>
                   <tr class="quiet"><td>{{ i18n.t('Left for tomorrow', 'Kitabaki kwa kesho') }} <small>({{ i18n.t('at most', 'kisizidi') }} {{ m(o.budget.poolCap) }})</small></td><td class="n">{{ m(o.budget.poolOut) }}</td></tr>
                 </tbody>
               </table>
@@ -136,22 +165,24 @@ const HISTORY_DAYS = 14;
                 </thead>
                 <tbody>
                   @for (l of o.lines; track l.uid) {
-                    <tr [class.zero]="!l.packs && !l.cutPacks" [class.edited]="l.edited">
-                      <td class="n pr">{{ l.priority }}</td>
+                    <tr [class.zero]="!l.packs && !l.cutPacks" [class.edited]="l.edited" [class.added]="l.added">
+                      <td class="n pr">{{ l.added ? '+' : l.priority }}</td>
                       <td class="nm">
                         <b>{{ l.displayName }}</b>
                         <small>{{ detail(l) }} · {{ m(l.packCost) }}/{{ unit(l) }}</small>
+                        @if (l.added) { <small class="tag add"><lsms-icon name="person_add" [size]="12" />{{ i18n.t('Added', 'Imeongezwa') }}</small> }
+                        @if (slow(l); as sw) { <small class="tag warn slow"><lsms-icon name="warning" [size]="12" />{{ sw }}</small> }
                         @if (l.cutPacks > 0) { <small class="tag cut"><lsms-icon name="content_cut" [size]="12" />{{ i18n.t('budget cut ' + l.cutPacks + ' of ' + l.wantedPacks, 'bajeti imekata ' + l.cutPacks + ' kati ya ' + l.wantedPacks) }}</small> }
                       </td>
-                      <td class="n">
-                        <span class="num">{{ q(l.stock) }}</span>
-                        <small class="tag" [class.count]="l.stockSource === 'COUNT'">{{ l.stockSource === 'COUNT' ? i18n.t('counted', 'hesabu') : i18n.t('system', 'mfumo') }}</small>
+                      <td class="n" [attr.data-label]="i18n.t('Stock', 'Stoki')">
+                        <span class="num">{{ qty(l, l.stock) }}</span>
+                        <small class="tag stk" [class.count]="l.stockSource === 'COUNT'" [class.est]="l.stockSource !== 'COUNT'">{{ source(l) }}</small>
                       </td>
-                      <td class="n">
+                      <td class="n" [attr.data-label]="i18n.t('Sold / day', 'Mauzo / siku')">
                         <span class="num">{{ q(l.velocity) }}</span>
                         @if (l.stockoutDays) { <small class="tag warn" [title]="i18n.t('Days the shelf was empty in the last 14 — sales adjusted upwards', 'Siku rafu ilikuwa tupu ndani ya siku 14 — mauzo yamerekebishwa juu')">{{ i18n.t(l.stockoutDays + ' d empty', 'siku ' + l.stockoutDays + ' tupu') }}</small> }
                       </td>
-                      <td class="n"><span class="num">{{ q(l.target) }}</span></td>
+                      <td class="n" [attr.data-label]="i18n.t('Target', 'Lengo')"><span class="num">{{ l.added ? '—' : q(l.target) }}</span></td>
                       <td class="c">
                         @if (canEdit() && o.status !== 'PURCHASED') {
                           <span class="step">
@@ -163,6 +194,13 @@ const HISTORY_DAYS = 14;
                           <b class="num big">{{ l.packs }}</b>
                         }
                         <small class="unit">{{ unit(l) }}</small>
+                        @let a = after(l);
+                        <small class="after" [class.low]="a.low" [title]="afterTitle(l)">
+                          @if (a.low) { <lsms-icon name="warning" [size]="12" /> }{{ i18n.t('after order', 'baada ya oda') }}: <b>{{ qty(l, a.pieces) }}</b>@if (a.days !== null) { ≈ {{ cover(a.days) }} }
+                        </small>
+                        @if (l.added && canEdit() && o.status !== 'PURCHASED') {
+                          <button type="button" class="link rm" [disabled]="removing() === l.uid" (click)="remove(l)">{{ i18n.t('remove', 'ondoa') }}</button>
+                        }
                         @if (l.edited) {
                           <small class="sys">
                             {{ i18n.t('system now', 'mfumo sasa') }}: <b>{{ l.systemPacks }}</b>
@@ -170,8 +208,8 @@ const HISTORY_DAYS = 14;
                           </small>
                         }
                       </td>
-                      <td class="n"><span class="num strong">{{ value(l) ? m(value(l) * l.packCost) : '—' }}</span></td>
-                      @if (o.status === 'PURCHASED') { <td class="n"><b class="num">{{ l.purchasedPacks ?? '—' }}</b></td> }
+                      <td class="n" [attr.data-label]="i18n.t('Cost', 'Gharama')"><span class="num strong">{{ value(l) ? m(value(l) * l.packCost) : '—' }}</span></td>
+                      @if (o.status === 'PURCHASED') { <td class="n" [attr.data-label]="i18n.t('Bought', 'Imenunuliwa')"><b class="num">{{ l.purchasedPacks ?? '—' }}</b></td> }
                     </tr>
                   }
                 </tbody>
@@ -180,8 +218,8 @@ const HISTORY_DAYS = 14;
           </section>
 
           <p class="foot muted">
-            {{ i18n.t('Target = sales per day × ' + o.seasonFactor.toFixed(2) + ' (season) × ' + o.coverDays + ' days + safety. Packages = (target − stock), rounded up to whole packages. Only the main products are here; sodas and slow products are not.',
-                      'Lengo = mauzo kwa siku × ' + o.seasonFactor.toFixed(2) + ' (msimu) × siku ' + o.coverDays + ' + akiba. Vifurushi = (lengo − stoki), vikizungushwa juu. Hapa ni bidhaa kuu tu; soda na bidhaa za polepole hazimo.') }}
+            {{ i18n.t('Target = sales per day × ' + o.seasonFactor.toFixed(2) + ' (season) × ' + o.coverDays + ' days + safety. Packages = (target − stock), rounded up to whole packages. Only the main products are worked out; add any other product yourself with "Add a product" — the system never changes or cuts a line you added.',
+                      'Lengo = mauzo kwa siku × ' + o.seasonFactor.toFixed(2) + ' (msimu) × siku ' + o.coverDays + ' + akiba. Vifurushi = (lengo − stoki), vikizungushwa juu. Mfumo huhesabu bidhaa kuu tu; bidhaa nyingine ziongeze mwenyewe kwa "Ongeza bidhaa" — mfumo haubadilishi wala haukati mstari ulioongeza.') }}
           </p>
         }
       } @else {
@@ -212,10 +250,10 @@ const HISTORY_DAYS = 14;
                   <tbody>
                     @for (l of h.lines; track l.uid) {
                       <tr [class.zero]="!l.nightPacks && !l.systemPacks && !l.packs && !l.purchasedPacks">
-                        <td class="nm"><b>{{ l.displayName }}</b> <small>{{ unit(l) }}</small></td>
+                        <td class="nm"><b>{{ l.displayName }}</b> <small>{{ unit(l) }}</small>@if (l.added) { <small class="tag add">{{ i18n.t('Added', 'Imeongezwa') }}</small> }</td>
                         <td class="n num">{{ l.nightPacks ?? '—' }}</td>
-                        <td class="n num">{{ l.systemPacks }}</td>
-                        <td class="n num" [class.diff]="l.edited && l.userPacks !== l.systemPacks">{{ l.edited ? l.userPacks : '·' }}</td>
+                        <td class="n num">{{ l.added ? '—' : l.systemPacks }}</td>
+                        <td class="n num" [class.diff]="l.added || (l.edited && l.userPacks !== l.systemPacks)">{{ l.added ? l.packs : l.edited ? l.userPacks : '·' }}</td>
                         <td class="n num" [class.diff]="l.purchasedPacks !== null && l.purchasedPacks !== l.packs">{{ l.purchasedPacks ?? '—' }}</td>
                       </tr>
                     }
@@ -224,7 +262,7 @@ const HISTORY_DAYS = 14;
               </div>
             </details>
           }
-          <p class="foot muted">{{ i18n.t('Packages per product. "·" = the buyer left the system\\'s figure.', 'Vifurushi kwa kila bidhaa. "·" = mnunuzi aliacha namba ya mfumo.') }}</p>
+          <p class="foot muted">{{ i18n.t('Packages per product. "·" = the buyer left the system\\'s figure. "Added" = a product the buyer put on the order.', 'Vifurushi kwa kila bidhaa. "·" = mnunuzi aliacha namba ya mfumo. "Imeongezwa" = bidhaa aliyoiongeza mnunuzi mwenyewe.') }}</p>
         }
       }
     </div>
@@ -272,14 +310,30 @@ const HISTORY_DAYS = 14;
     .num { font-variant-numeric: tabular-nums; } .num.big { font-size: 1.05rem; } .strong { font-weight: 600; }
     td small.tag, .nm small.tag { display: inline-flex; align-items: center; gap: 3px; margin-top: 2px; padding: 1px 7px; border-radius: 100px; font-size: 0.68rem; color: var(--c-text-2); background: var(--c-bg); white-space: nowrap; }
     td.n small.tag { display: flex; width: fit-content; margin-left: auto; }
-    small.tag.count { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 11%, transparent); }
-    small.tag.warn, small.tag.cut { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    /* The leading td keeps these above the td small.tag rule: Angular scopes every compound, so element count decides. */
+    td small.tag.count { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 11%, transparent); }
+    td small.tag.est { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    td.n small.tag.stk { white-space: normal; text-align: right; max-width: 170px; line-height: 1.25; border-radius: 8px; }
+    .after { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 3px; margin-top: 4px; font-size: 0.72rem; color: var(--c-text-2); b { font-weight: 600; color: var(--c-text); } }
+    .after.low { color: var(--c-warning); b { color: var(--c-warning); } lsms-icon { color: var(--c-warning); } }
+    .banner.todo { color: var(--c-text); background: color-mix(in srgb, var(--c-warning) 8%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent); > lsms-icon { color: var(--c-warning); } }
+    td small.tag.warn, td small.tag.cut { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .step { display: inline-flex; align-items: center; border: 1px solid var(--c-border); border-radius: 10px; overflow: hidden; background: var(--c-surface); }
     .step button { width: 32px; height: 34px; border: 0; background: transparent; font-size: 1.1rem; color: var(--c-text); cursor: pointer; }
     .step button:disabled { opacity: 0.4; cursor: default; }
     .step button:hover:not(:disabled) { background: var(--c-bg); }
     .step input { width: 46px; height: 34px; border: 0; border-inline: 1px solid var(--c-border); text-align: center; font: inherit; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-text); background: transparent; -moz-appearance: textfield; }
     .step input::-webkit-outer-spin-button, .step input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    table.lines tr.added td { background: color-mix(in srgb, var(--c-primary) 4%, transparent); }
+    td small.tag.add, .nm small.tag.add { color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 11%, transparent); }
+    .nm small.tag.slow { white-space: normal; border-radius: 8px; line-height: 1.25; }
+    table.hist .nm small.tag.add { display: inline-flex; margin-left: 6px; }
+    .link.rm { display: block; margin: 4px auto 0; padding: 0; font-size: 0.72rem; color: var(--c-error); }
+    .link.rm:disabled { opacity: 0.5; cursor: default; }
+    .unknown { display: flex; gap: 8px; margin: 0 0 6px; padding: 9px 12px; border-radius: 10px; font-size: 0.8rem; color: var(--c-text);
+      background: color-mix(in srgb, var(--c-warning) 9%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent);
+      lsms-icon { color: var(--c-warning); flex-shrink: 0; } b { display: block; } }
+    .budget tr.sum small { font-weight: 400; color: var(--c-text-2); }
     .sys { display: block; margin-top: 3px; font-size: 0.72rem; color: var(--c-info); white-space: nowrap; }
     .link { padding: 0 0 0 4px; border: 0; background: none; font: inherit; color: var(--c-primary); text-decoration: underline; cursor: pointer; }
     .foot { margin: 0; font-size: 0.76rem; }
@@ -293,6 +347,34 @@ const HISTORY_DAYS = 14;
     .v { display: flex; flex-direction: column; margin-left: auto; text-align: right; font-size: 0.84rem; font-variant-numeric: tabular-nums; color: var(--c-text); small { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--c-text-2); } }
     .v + .v { margin-left: 0; }
     table.hist td.diff { color: var(--c-warning); font-weight: 700; }
+
+    /* Phones: the buyer edits packages at the market, so a line is a card — name, three
+       labelled figures (data-label), then the package stepper with its cost. No sideways scroll. */
+    @media (max-width: 700px) {
+      table.lines:not(.hist) { display: block; }
+      table.lines:not(.hist) thead { display: none; }
+      table.lines:not(.hist) tbody { display: block; }
+      table.lines:not(.hist) tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 12px; align-items: start; padding: 14px; border-bottom: 1px solid var(--c-border); }
+      table.lines:not(.hist) tr:last-child { border-bottom: 0; }
+      table.lines:not(.hist) td { display: block; min-width: 0; padding: 0; border: 0; text-align: left; background: none; }
+      table.lines:not(.hist) td.pr { display: none; }
+      table.lines:not(.hist) td.nm { grid-column: 1 / -1; }
+      table.lines:not(.hist) td.nm b { font-size: 0.92rem; }
+      table.lines:not(.hist) td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 1px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; color: var(--c-text-2); }
+      table.lines:not(.hist) td.n small.tag { margin-left: 0; }
+      table.lines:not(.hist) td.n small.tag.stk { text-align: left; }
+      table.lines:not(.hist) td.c { grid-column: 1 / 3; }
+      table.lines:not(.hist) td.c + td { align-self: center; text-align: right; }
+      table.lines:not(.hist) td.c + td + td { grid-column: 1 / -1; }
+      .after { justify-content: flex-start; }
+      .link.rm { margin-left: 0; }
+      .unit { margin-left: 6px; }
+      .step button { width: 42px; height: 42px; font-size: 1.25rem; }
+      .step input { width: 54px; height: 42px; }
+      table.hist th, table.hist td { padding: 8px 6px; }
+      table.hist .nm { min-width: 0; }
+      details.day summary { padding: 12px 14px; gap: 8px 12px; }
+    }
   `,
 })
 export class OrderPage {
@@ -308,6 +390,8 @@ export class OrderPage {
   protected readonly loading = signal(true);
   protected readonly error = signal('');
   protected readonly busy = signal<'' | 'recalc' | 'purchased'>('');
+  /** Uid of the added line being taken off the order. */
+  protected readonly removing = signal('');
   protected readonly history = signal<OrderSuggestion[] | null>(null);
   protected readonly historyError = signal('');
   /** Packages typed but not saved yet, per line uid. */
@@ -333,7 +417,7 @@ export class OrderPage {
   /** How far the order as it stands is above the limit (0 when within it). */
   protected readonly over = computed(() => {
     const o = this.order();
-    if (!o || o.budget.limit === null || o.status === 'PURCHASED') return 0;
+    if (!o || o.budget.limit === null || !o.budget.known || o.status === 'PURCHASED') return 0;
     return Math.max(0, o.totals.orderCost - Math.max(o.budget.limit, 0));
   });
 
@@ -353,22 +437,42 @@ export class OrderPage {
       { key: 'night', on: !!o.nightGeneratedAt, warn: false, icon: 'dark_mode', label: o.nightGeneratedAt ? t(`Night version ${this.time(o.nightGeneratedAt)}`, `Toleo la usiku ${this.time(o.nightGeneratedAt)}`) : t('No night version', 'Hakuna toleo la usiku') },
       { key: 'sales', on: !!o.salesUpdatedAt, warn: false, icon: 'history', label: o.salesUpdatedAt ? t(`Updated ${this.time(o.salesUpdatedAt)} after yesterday's sales`, `Imesasishwa ${this.time(o.salesUpdatedAt)} baada ya mauzo ya jana`) : t("Yesterday's late sales: none yet", 'Mauzo ya jana ya kuchelewa: bado hakuna') },
       { key: 'count', on: !!o.countDate, warn: false, icon: 'checklist', label: o.countDate ? t(`Updated ${this.time(o.countUpdatedAt)} after counting`, `Imesasishwa ${this.time(o.countUpdatedAt)} baada ya counting`) : t('Counting: not yet — system stock', 'Counting: bado — stoki ya mfumo') },
-      { key: 'budget', on: o.budget.source !== 'ESTIMATE', warn: o.budget.source === 'RECON_SUBMITTED', icon: 'account_balance_wallet', label: t('Budget: ', 'Bajeti: ') + this.budgetLabel() },
+      { key: 'budget', on: !o.budget.known || o.budget.source !== 'ESTIMATE', warn: !o.budget.known || o.budget.source === 'RECON_SUBMITTED', icon: 'account_balance_wallet', label: t('Budget: ', 'Bajeti: ') + (o.budget.known ? this.budgetLabel() : t('not known — nothing cut', 'haijulikani — hakuna kilichokatwa')) },
       { key: 'purchased', on: o.status === 'PURCHASED', warn: false, icon: 'task_alt', label: o.status === 'PURCHASED' ? t(`Closed ${this.time(o.purchasedAt)}`, `Imefungwa ${this.time(o.purchasedAt)}`) : t(`Leave ${o.departureTime} · goods ~${o.arrivalTime}`, `Kuondoka ${o.departureTime} · mzigo ~${o.arrivalTime}`) },
     ];
   });
 
-  /** Past the time to leave and still no count: say plainly what the crates are based on. */
-  protected readonly notice = computed(() => {
+  /**
+   * Reminder above the order, ONLY while something the order waits for is missing:
+   * today's count (stock is then the system's estimate) and/or yesterday's
+   * reconciliation (the budget is then an estimate). Gone once both are in.
+   */
+  protected readonly todo = computed(() => {
     const o = this.order();
-    if (!o || o.status === 'PURCHASED' || o.countDate || !o.lines.length) return null;
-    const [h, mi] = o.departureTime.split(':').map(Number);
-    const now = new Date();
-    if (now.getHours() * 60 + now.getMinutes() < h * 60 + mi - 30) return null;
-    return this.i18n.t(
-      `The count is not finished and it is nearly ${o.departureTime}: this order uses the SYSTEM stock (with yesterday's sales keyed in so far).`,
-      `Counting haijakamilika na ni karibu ${o.departureTime}: oda hii inatumia stoki ya MFUMO (pamoja na mauzo ya jana yaliyoingizwa hadi sasa).`,
-    );
+    if (!o || o.status === 'PURCHASED' || !o.lines.length) return null;
+    const count = !o.countDate;
+    const recon = o.budget.source === 'ESTIMATE';
+    if (!count && !recon) return null;
+    const t = (en: string, sw: string) => this.i18n.t(en, sw);
+    const d = parseLocal(o.orderDate);
+    return {
+      count,
+      recon,
+      reconDate: d ? toIsoDate(addDays(d, -1)) : null,
+      title:
+        count && recon
+          ? t('Counting and reconciliation are not in yet', 'Counting na recon bado hazijawasilishwa')
+          : count
+            ? t('Counting is not in yet', 'Counting bado haijawasilishwa')
+            : t("Yesterday's reconciliation is not submitted yet", 'Recon ya jana bado haijawasilishwa'),
+      text: [
+        count ? t('Stock below is the system estimate.', 'Stoki hapa chini ni makadirio ya mfumo.') : '',
+        recon ? t('The budget is an estimate.', 'Bajeti ni makadirio.') : '',
+        t('The order updates itself once they are done.', 'Oda itajisasisha zikikamilika.'),
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
   });
 
   constructor() {
@@ -417,8 +521,6 @@ export class OrderPage {
     }
   }
 
-  // ── Editing ───────────────────────────────────────────────────────────────
-
   // ── Labels ────────────────────────────────────────────────────────────────
 
   /** "packages" / "vifurushi" in the current language — never spelled in a template. */
@@ -435,6 +537,34 @@ export class OrderPage {
   /** "Beer · 20 pcs/crt" — the shared product label without the name. */
   protected detail(l: OrderLine): string {
     return productDetail({ category: l.category, piecesPerPackage: l.piecesPerPack, abbreviation: l.packageAbbreviation }, { pkg: this.w('pkg') });
+  }
+
+  /** Pieces in the line's own package: "3 crt + 5 pcs". */
+  protected qty(l: OrderLine, pieces: number): string {
+    return qtyLabel(pieces, l, { pkg: this.w('pkg'), pcs: this.i18n.t('pcs', 'vip') });
+  }
+
+  /** Where the stock figure comes from — always shown. */
+  protected source(l: OrderLine): string {
+    if (l.stockSource !== 'COUNT') return this.i18n.t('System estimate — not counted', 'Makadirio ya mfumo — counting haijafanyika');
+    const at = this.time(l.stockCountedAt);
+    return at ? this.i18n.t(`Counted ${at}`, `Imehesabiwa ${at}`) : this.i18n.t('Counted', 'Imehesabiwa');
+  }
+
+  /** Shelf after the order (stock + what is being typed) and the days it lasts. */
+  protected after(l: OrderLine): AfterOrder {
+    return afterOrder(l, this.value(l));
+  }
+
+  protected cover(d: number): string {
+    return this.i18n.t(`${daysLabel(d)} days`, `siku ${daysLabel(d)}`);
+  }
+
+  protected afterTitle(l: OrderLine): string {
+    return this.i18n.t(
+      `(stock + order) ÷ expected sales per day (${this.q(l.velocity)} × season ${l.seasonFactor.toFixed(2)}). Flagged below ${LOW_COVER_DAYS} days.`,
+      `(stoki + oda) ÷ mauzo yanayotarajiwa kwa siku (${this.q(l.velocity)} × msimu ${l.seasonFactor.toFixed(2)}). Onyo chini ya siku ${LOW_COVER_DAYS}.`,
+    );
   }
 
   /** Packages shown for a line: what is being typed, else the order as stored. */
@@ -481,6 +611,39 @@ export class OrderPage {
       this.toast.error(ApiError.from(e).message);
       void this.load(false);
     }
+  }
+
+  // ── Products the buyer adds ───────────────────────────────────────────────
+
+  /** "+ Ongeza bidhaa": the dialog saves each product itself and hands back the order as it then stands. */
+  protected async addProduct(o: OrderSuggestion): Promise<void> {
+    const { OrderAddDialog } = await import('./order-add-dialog');
+    const saved = await this.dialogs.openAsync<OrderSuggestion>(OrderAddDialog, { size: 'md', data: { orderUid: o.uid } });
+    if (saved && !this.timers.size) this.order.set(saved);
+    else void this.load(false);
+  }
+
+  /** Takes a line the buyer added off the order (it can be added again). */
+  protected async remove(l: OrderLine): Promise<void> {
+    const o = this.order();
+    if (!o || !l.added) return;
+    clearTimeout(this.timers.get(l.uid));
+    this.timers.delete(l.uid);
+    this.removing.set(l.uid);
+    try {
+      this.order.set(await this.api.removeLine(o.uid, l.uid));
+      this.toast.success(this.i18n.t(`${l.displayName} removed from the order`, `${l.displayName} imeondolewa kwenye oda`));
+    } catch (e) {
+      this.toast.error(ApiError.from(e).message);
+      void this.load(false);
+    } finally {
+      this.removing.set('');
+    }
+  }
+
+  /** The slow-movers warning the buyer saw when adding this line: "Acha kuagiza — stoki ya siku 96 · thamani 126,000". */
+  protected slow(l: OrderLine): string | null {
+    return slowWarning(l, slowWords((en, sw) => this.i18n.t(en, sw)), (v) => this.m(v));
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────

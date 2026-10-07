@@ -6,7 +6,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 520px) minmax(0, 1fr);
   align-items: center;
   gap: 16px;
-  height: 72px;
+  height: var(--topbar-h);
   padding: 0 32px;
   // Top strip of the rounded content panel (the panel clips its corners).
   background: var(--c-surface);
@@ -260,29 +260,119 @@
     }
   }
 }
+// Phones: a 60px bar below the notch — [back | title] … [branch · bell · avatar].
+// Search and the menu are in the bottom bar, within thumb reach.
 @media (max-width: 767px) {
   :host {
-    padding: 0 8px 0 4px;
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: var(--safe-t) calc(12px + var(--safe-r)) 0 calc(8px + var(--safe-l));
+    gap: 8px;
   }
+  .search,
   .hide-sm,
   .who,
   .chev,
   .branch span,
-  .titles p {
+  .branch lsms-icon:last-child {
     display: none;
+  }
+  .left {
+    gap: 6px;
+  }
+  .right {
+    gap: 8px;
+  }
+  .crumbs {
+    font-size: 1.08rem;
+  }
+  .titles p {
+    font-size: 0.72rem;
   }
   .cluster {
     border: 0;
     padding: 0;
     background: none;
   }
+  // 40px round targets.
+  .icon-btn,
+  .branch {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .right .icon-btn {
+    border: 1px solid var(--c-border);
+    background: var(--c-bg);
+  }
   .user {
-    padding: 0 2px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    overflow: visible; // keep the online dot
+  }
+  .avatar {
+    width: 40px;
+    height: 40px;
   }
   .crumbs a,
   .crumbs lsms-icon {
     display: none;
+  }
+}
+
+// ── Phone dashboard: the bar is the top edge of the hero ────────────────────
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.16);
+  img {
+    object-fit: contain;
+  }
+}
+.hi {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 6px;
+  line-height: 1.25;
+  small {
+    font-size: 0.74rem;
+    opacity: 0.78;
+  }
+  strong {
+    @include t.ellipsis;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+}
+:host(.on-hero) {
+  background: var(--hero-a);
+  border-bottom-color: transparent;
+  color: var(--hero-ink);
+  .titles {
+    display: none;
+  }
+  .right .icon-btn,
+  .branch {
+    border-color: rgb(255 255 255 / 0.2);
+    background: rgb(255 255 255 / 0.12);
+    color: var(--hero-ink);
+  }
+  .avatar {
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.35);
+  }
+  .online {
+    border-color: var(--hero-a);
   }
 }
 

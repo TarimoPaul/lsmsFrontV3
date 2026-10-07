@@ -1,12 +1,15 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatChipListbox, MatChipOption } from '@angular/material/chips';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatRipple } from '@angular/material/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '@core/auth/auth.service';
+import { greeting } from '@core/i18n/greeting';
 import { LanguageService } from '@core/i18n/language.service';
+import { BreakpointService } from '@core/layout/breakpoint.service';
 import { APP_MODULES, AppModule, CATEGORY_LABELS, CATEGORY_ORDER, ModuleCategory } from '@core/navigation/app-modules';
 import { ModuleUsageService } from '@core/navigation/module-usage.service';
 import { ComparisonBars, CountUp, DialogService, Icon, Skeleton } from '@shared/ui';
@@ -46,10 +49,12 @@ interface QuickAction {
  * Home dashboard (v3). Keeps Flutter MainMenu's content — greeting,
  * permission-gated alerts, module launcher with RBAC locks — and adds a
  * business overview: KPI strip, hourly sales vs yesterday and stock health.
+ * Phones get their own first screen (hero with the day's figure, two actions,
+ * a shortcut grid) instead of the desktop welcome row squeezed to fit.
  */
 @Component({
   selector: 'app-main-dashboard',
-  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars, CountUp, OrderBanner],
+  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatMenu, MatMenuItem, MatMenuTrigger, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars, CountUp, OrderBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-dashboard.html',
   styleUrl: './main-dashboard.scss',
@@ -63,6 +68,9 @@ export class MainDashboard {
   private readonly dialogs = inject(DialogService);
   private readonly router = inject(Router);
 
+  /** Phone layout (<768): hero + shortcut grid, KPI rows, icon launcher. */
+  protected readonly phone = inject(BreakpointService).isMobile;
+
   protected readonly filter = signal<Filter>('ALL');
   /** True during the first ~2 s: later re-renders (filter change, refresh) skip the long delays. */
   protected readonly intro = signal(true);
@@ -72,12 +80,7 @@ export class MainDashboard {
   protected readonly money = (n: number | null | undefined) => Money.format(n ?? 0);
   protected readonly compact = (n: number | null | undefined) => Money.format(n ?? 0, { decimals: 0 });
 
-  protected readonly greeting = computed(() => {
-    const h = new Date().getHours();
-    if (h < 12) return this.i18n.t('Good morning', 'Habari za asubuhi');
-    if (h < 17) return this.i18n.t('Good afternoon', 'Habari za mchana');
-    return this.i18n.t('Good evening', 'Habari za jioni');
-  });
+  protected readonly greeting = computed(() => greeting(this.i18n));
 
   protected readonly firstName = computed(() => this.auth.user()?.firstName || this.auth.displayName());
 
@@ -122,6 +125,15 @@ export class MainDashboard {
   protected readonly visibleTiles = computed(() => {
     const f = this.filter();
     return this.tiles().filter((t) => f === 'ALL' || t.module.category === f);
+  });
+  /** Phone shortcut grid: the user's most used modules, topped up with others they may open (max 8). */
+  protected readonly shortcuts = computed<AppModule[]>(() => {
+    const out = [...this.usage.frequent()];
+    for (const t of this.tiles()) {
+      if (out.length >= 8) break;
+      if (!t.locked && !out.some((m) => m.id === t.module.id)) out.push(t.module);
+    }
+    return out.slice(0, 8);
   });
   protected readonly counts = computed(() => {
     const out: Record<string, { open: number; total: number }> = { ALL: { open: 0, total: 0 } };

@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { LanguageService } from '@core/i18n/language.service';
 import { EmptyState, Icon, PageHeader, SegmentOption, SegmentedFilterBar, Skeleton } from '@shared/ui';
@@ -201,7 +202,9 @@ export class ReconciliationPage {
   });
 
   constructor() {
-    const saved = read(DATE_KEY);
+    // ?date=YYYY-MM-DD opens that day (the order screen links to yesterday's reconciliation).
+    const asked = inject(ActivatedRoute).snapshot.queryParamMap.get('date');
+    const saved = asked && /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : read(DATE_KEY);
     const date = saved && saved <= this.today ? saved : this.today;
     void this.store.load(date);
     void this.store.loadUnclosed();
