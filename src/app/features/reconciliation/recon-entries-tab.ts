@@ -115,7 +115,7 @@ interface Item {
     }
 
     @if (items().length) {
-      <ul class="items">
+      <ul class="items entries">
         @for (it of items(); track it.uid) {
           <li>
             <span class="ic"><lsms-icon [name]="it.icon" [size]="17" /></span>
@@ -123,15 +123,18 @@ interface Item {
               <b>{{ it.title }}</b>
               <small>{{ it.sub }}</small>
             </span>
-            @if (it.badge) {
-              <span class="tag" [style.--tc]="it.badge.color">{{ it.badge.text }}</span>
-            }
-            @if (it.auto) {
-              <span class="tag" style="--tc: var(--c-info)" [title]="i18n.t('Added automatically from a sale payment', 'Imeongezwa yenyewe kutoka malipo ya mauzo')">AUTO</span>
-            }
-            @if (it.verified) {
-              <span class="ok" [title]="i18n.t('Verified by ', 'Imethibitishwa na ') + (it.verifiedBy || '—')"><lsms-icon name="verified" [size]="16" [filled]="true" /></span>
-            }
+            <!-- One row with the rest on a desktop; on a phone the marks drop under the text so the name keeps its room. -->
+            <span class="marks">
+              @if (it.badge) {
+                <span class="tag" [style.--tc]="it.badge.color">{{ it.badge.text }}</span>
+              }
+              @if (it.auto) {
+                <span class="tag" style="--tc: var(--c-info)" [title]="i18n.t('Added automatically from a sale payment', 'Imeongezwa yenyewe kutoka malipo ya mauzo')">AUTO</span>
+              }
+              @if (it.verified) {
+                <span class="ok" [title]="i18n.t('Verified by ', 'Imethibitishwa na ') + (it.verifiedBy || '—')"><lsms-icon name="verified" [size]="16" [filled]="true" /><em>{{ i18n.t('Verified', 'Imethibitishwa') }}</em></span>
+              }
+            </span>
             <b class="amt">{{ it.amount | money }}</b>
             @if (store.canEdit() && editable() && !it.auto) {
               <button type="button" class="rm" (click)="remove(it)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')"><lsms-icon name="delete" [size]="17" /></button>

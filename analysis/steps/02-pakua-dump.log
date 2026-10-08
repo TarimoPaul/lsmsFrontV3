@@ -1,0 +1,10 @@
+---PAKUA-KUTOKA-B2--- 
+total 7840
+-rw-rw-r-- 1 chief chief 8025697 Oct  7 02:00 lsms_20261007_0200.dump
+---SHA256-B2-NA-NAKALA-YA-CONTABO--- 
+e4846ef572d924d7e9fa20d2e54c6af885a63537a014e29b90f0047b28a44381  /tmp/staging-restore/lsms_20261007_0200.dump
+e4846ef572d924d7e9fa20d2e54c6af885a63537a014e29b90f0047b28a44381  /home/chief/backups/daily/lsms_20261007_0200.dump
+---DUMP-INASOMEKA-idadi-ya-TABLE-DATA--- 
+82
+---LINGANISHA-BYTE-KWA-BYTE--- 
+SHA_SAWA

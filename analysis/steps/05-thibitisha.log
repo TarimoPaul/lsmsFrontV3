@@ -1,0 +1,37 @@
+---STAGING-LOG-YA-BACKEND--- 
+backend-1  | 2026-10-07 14:48:22 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 28.627 seconds (process running for 29.723)
+---STAGING-IDADI-YA-ERROR--- 
+0
+---STAGING-PS--- 
+NAME                         IMAGE                                COMMAND                  SERVICE       CREATED              STATUS                  PORTS
+lsms-staging-backend-1       chiefmaster/my-lsms-backend:2.2.65   "sh -c 'java $JAVA_O…"   backend       About a minute ago   Up About a minute       8084/tcp
+lsms-staging-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      4 days ago           Up 23 hours             80/tcp
+lsms-staging-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.0.1   "/docker-entrypoint.…"   frontend-v3   4 days ago           Up 23 hours (healthy)   80/tcp
+lsms-staging-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         4 days ago           Up 23 hours             127.0.0.1:8081->80/tcp
+lsms-staging-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      4 days ago           Up 25 hours (healthy)   5432/tcp
+BACKEND_VERSION=2.2.65
+---STAGING-SCHEMA-BAADA-YA-V127--- 
+FLYWAY|127|Order Suggestion User Added Lines|t|2026-10-07 14:48:01.070155
+FLYWAY|126|Create Item Measure Audit Log|t|2026-10-06 16:02:25.101437
+FLYWAY|125|Order Suggestion|t|2026-10-06 08:20:24.895393
+FLYWAY|124|Fix PL View Annual Expense And Depreciation|t|2026-10-03 21:58:58.022176
+FLYWAY_FAILED|0
+ORDER_LINE_NEW_COLUMNS|added_at,added_by,slow_action,slow_cover_days,slow_value,source
+ORDER_BUDGET_KNOWN_COLUMN|1
+ORDER_LINES_BY_SOURCE|SYSTEM|26
+ORDERS_BUDGET_KNOWN|t|2
+ASSET_TABLES_MUST_BE_0|0
+ASSET_PERMISSIONS_MUST_BE_0|0
+STAFF_LIABILITY_FOREIGN_KEYS|5
+---PROD-PS--- 
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED        STATUS                  PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend       23 hours ago   Up 23 hours             8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      5 days ago     Up 5 days               80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.5   "/docker-entrypoint.…"   frontend-v3   23 hours ago   Up 23 hours (healthy)   80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         5 days ago     Up 5 days               0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      5 days ago     Up 5 days (healthy)     5432/tcp
+---PROD-FLYWAY-LAST-3--- 
+126|t|2026-10-06 16:02:25.101437
+125|t|2026-10-06 08:20:24.895393
+124|t|2026-10-03 21:58:58.022176
+---MWISHO--- 

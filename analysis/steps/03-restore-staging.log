@@ -1,0 +1,44 @@
+---HAKIKI-DUMP-TENA--- 
+SHA_SAWA
+---PROD-PS-KABLA--- 
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED        STATUS                  PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend       23 hours ago   Up 23 hours             8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      5 days ago     Up 5 days               80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.5   "/docker-entrypoint.…"   frontend-v3   23 hours ago   Up 23 hours (healthy)   80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         5 days ago     Up 5 days               0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      5 days ago     Up 5 days (healthy)     5432/tcp
+---STAGING-SIMAMISHA-BACKEND--- 
+ Container lsms-staging-backend-1 Stopping 
+ Container lsms-staging-backend-1 Stopped 
+---STAGING-HIFADHI-DB-YA-ZAMANI--- 
+-rw-rw-r-- 1 chief chief 7866778 Oct  7 14:37 /home/chief/lsms-staging/staging_kabla_ya_refresh_20261007.dump
+---STAGING-DROPDB--- 
+DROPDB_SAWA
+---STAGING-CREATEDB--- 
+CREATEDB_SAWA
+---STAGING-PG-RESTORE--- 
+PG_RESTORE_SAWA
+---STAGING-WASHA-BACKEND-2.2.63--- 
+BACKEND_VERSION=2.2.63
+ Container lsms-staging-postgres-1 Running 
+ Container lsms-staging-postgres-1 Waiting 
+ Container lsms-staging-postgres-1 Healthy 
+ Container lsms-staging-backend-1 Starting 
+ Container lsms-staging-backend-1 Started 
+---STAGING-SUBIRI-BACKEND-IWAKE--- 
+backend-1  | 2026-10-07 14:38:30 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 27.076 seconds (process running for 30.039)
+---STAGING-PS--- 
+NAME                         IMAGE                                COMMAND                  SERVICE       CREATED        STATUS                  PORTS
+lsms-staging-backend-1       chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend       23 hours ago   Up 37 seconds           8084/tcp
+lsms-staging-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      4 days ago     Up 23 hours             80/tcp
+lsms-staging-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.0.1   "/docker-entrypoint.…"   frontend-v3   4 days ago     Up 23 hours (healthy)   80/tcp
+lsms-staging-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         4 days ago     Up 23 hours             127.0.0.1:8081->80/tcp
+lsms-staging-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      4 days ago     Up 25 hours (healthy)   5432/tcp
+---PROD-PS-BAADA--- 
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED        STATUS                  PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.63   "sh -c 'java $JAVA_O…"   backend       23 hours ago   Up 23 hours             8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      5 days ago     Up 5 days               80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.5   "/docker-entrypoint.…"   frontend-v3   23 hours ago   Up 23 hours (healthy)   80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         5 days ago     Up 5 days               0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      5 days ago     Up 5 days (healthy)     5432/tcp
+---MWISHO--- 

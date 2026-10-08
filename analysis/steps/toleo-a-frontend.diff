@@ -1,0 +1,2011 @@
+diff --git a/src/app/core/auth/access-resolver.ts b/src/app/core/auth/access-resolver.ts
+index cc6b3e0..85ad609 100644
+--- a/src/app/core/auth/access-resolver.ts
++++ b/src/app/core/auth/access-resolver.ts
+@@ -145,7 +145,7 @@ export function parsePermission(permission: string): { module: string; action: s
+   if (upper.endsWith('_REPORT') || upper.includes('_REPORT_')) return { module: 'reports', action: 'read' };
+ 
+   // Counting permissions are verb-shaped; any of them unlocks the tile.
+-  if (upper.startsWith('COUNTING_') || upper === 'BYPASS_COUNTING') return { module: 'counting', action: 'read' };
++  if (upper.startsWith('COUNTING_') || upper.startsWith('ASSET_COUNT_') || upper === 'BYPASS_COUNTING') return { module: 'counting', action: 'read' };
+ 
+   const override = OVERRIDES[upper];
+   if (override) return override;
+diff --git a/src/app/features/capital/capital-dialogs.ts b/src/app/features/capital/capital-dialogs.ts
+index f50b14f..cdbff15 100644
+--- a/src/app/features/capital/capital-dialogs.ts
++++ b/src/app/features/capital/capital-dialogs.ts
+@@ -195,6 +195,8 @@ export class ExpenseDialog {
+   styles: FORM,
+ })
+ export class AssetDialog {
++  /** Optional prefill — the Counting asset register opens this form for an asset it already named. */
++  private readonly data = inject<{ description?: string } | null>(DIALOG_DATA, { optional: true });
+   protected readonly ref = inject<DialogRef<Expenditure>>(DialogRef);
+   protected readonly i18n = inject(LanguageService);
+   private readonly api = inject(CapitalService);
+@@ -202,7 +204,7 @@ export class AssetDialog {
+   protected readonly types = ASSET_TYPES;
+   protected readonly today = today();
+   protected readonly type = signal('OFFICE_CAPITAL');
+-  protected readonly desc = signal('');
++  protected readonly desc = signal(this.data?.description ?? '');
+   protected readonly amount = signal('');
+   protected readonly salvage = signal('');
+   protected readonly life = signal(60);
+diff --git a/src/app/features/counting/assets/asset-count.ts b/src/app/features/counting/assets/asset-count.ts
+new file mode 100644
+index 0000000..6f94e8f
+--- /dev/null
++++ b/src/app/features/counting/assets/asset-count.ts
+@@ -0,0 +1,327 @@
++import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
++
++import { ApiError } from '@core/api/api.types';
++import { LanguageService } from '@core/i18n/language.service';
++import { Button, DialogService, EmptyState, Icon, Skeleton, Spinner, ToastService } from '@shared/ui';
++import { QtyInput } from '../qty-input';
++import { ASSET_REASONS, AssetLine, AssetSession, assetHasVariance } from './asset.models';
++import { AssetService } from './asset.service';
++
++/**
++ * Periodic asset verification: start → count every confirmed asset WITHOUT
++ * seeing the confirmed quantity → complete. If everything matches the count is
++ * closed on the spot; otherwise the counter explains each difference and the
++ * CEO decides. Sales are never paused.
++ */
++@Component({
++  selector: 'app-asset-count',
++  imports: [QtyInput, Button, Icon, EmptyState, Skeleton, Spinner],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    @if (resuming()) {
++      <lsms-skeleton variant="list" [rows]="5" />
++    } @else if (error() && !session()) {
++      <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load', 'Imeshindikana kupakia')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="resume()" />
++    } @else if (!session()) {
++      <section class="hero">
++        <span class="badge"><lsms-icon name="chair" [size]="34" /></span>
++        <h2>{{ i18n.t('Verify assets', 'Hakiki mali za duka') }}</h2>
++        @if (ready()) {
++          <p>{{ i18n.t('Count each asset as you see it. You will not see the confirmed quantity while counting.', 'Hesabu kila mali kama unavyoiona. Hutaona idadi iliyothibitishwa wakati unahesabu.') }}</p>
++          <ul class="facts">
++            <li><lsms-icon name="inventory_2" [size]="17" />{{ i18n.t(status()!.approvedItems + ' confirmed asset(s) to verify', 'Mali ' + status()!.approvedItems + ' zilizothibitishwa za kuhakiki') }}</li>
++            <li><lsms-icon name="point_of_sale" [size]="17" />{{ i18n.t('Sales continue as usual', 'Mauzo yanaendelea kama kawaida') }}</li>
++            <li><lsms-icon name="fact_check" [size]="17" />{{ i18n.t('The CEO decides any difference', 'CEO anaamua tofauti yoyote') }}</li>
++          </ul>
++          <button lsmsButton="primary" size="lg" icon="play_arrow" [loading]="starting()" (click)="start()">{{ i18n.t('Start verification', 'Anza uhakiki') }}</button>
++        } @else {
++          <p>{{ i18n.t('No asset has been confirmed by the CEO yet. The asset list must be filled and confirmed first.', 'Hakuna mali iliyothibitishwa na CEO bado. Orodha ya mali ijazwe na kuthibitishwa kwanza.') }}</p>
++          @if (canOpenRegister()) {
++            <button lsmsButton="primary" icon="chair" (click)="openRegister.emit()">{{ i18n.t('Open the asset list', 'Fungua orodha ya mali') }}</button>
++          }
++        }
++      </section>
++    } @else {
++      @let s = session()!;
++      @switch (s.status) {
++        @case ('IN_PROGRESS') {
++          <section class="progress" [class.all]="progress().all">
++            <div class="p-top">
++              <div>
++                <b>{{ i18n.t(progress().done + '/' + progress().total + ' counted', progress().done + '/' + progress().total + ' zimehesabiwa') }}</b>
++                <small>{{ i18n.t('Blind count · sales are not paused', 'Blind count · mauzo hayasimami') }}</small>
++              </div>
++              <button lsmsButton="success" [icon]="progress().all ? 'check' : undefined" [disabled]="!progress().all" [loading]="completing()" (click)="complete()">
++                {{ progress().all ? i18n.t('Complete verification', 'Kamilisha uhakiki') : i18n.t((progress().total - progress().done) + ' still to count', 'Bado mali ' + (progress().total - progress().done)) }}
++              </button>
++            </div>
++            <div class="bar" role="progressbar" [attr.aria-valuenow]="progress().pct" aria-valuemin="0" aria-valuemax="100"><span [style.width.%]="progress().pct"></span></div>
++          </section>
++          @if (s.lines.length > 8) {
++            <input class="search" type="search" [value]="query()" (input)="query.set($any($event.target).value)" [placeholder]="i18n.t('Search asset…', 'Tafuta mali…')" [attr.aria-label]="i18n.t('Search asset', 'Tafuta mali')" />
++          }
++          <div class="list">
++            @for (l of shown(); track l.uid; let i = $index) {
++              <div class="row" [class.done]="l.countedQty !== null">
++                <span class="no">{{ i + 1 }}</span>
++                <span class="st">
++                  @if (saving().has(l.uid)) { <lsms-spinner [size]="16" /> } @else { <lsms-icon [name]="l.countedQty !== null ? 'check' : 'chair'" [size]="17" /> }
++                </span>
++                <span class="name"><b>{{ l.assetName }}</b>@if (l.location) { <small>{{ l.location }}</small> }</span>
++                <app-qty-input [value]="l.countedQty" [tone]="l.countedQty !== null ? 'done' : ''" (commit)="commit(l, $event)" />
++              </div>
++            } @empty {
++              <p class="none">{{ i18n.t('No asset matches this search.', 'Hakuna mali inayolingana na utafutaji huu.') }}</p>
++            }
++          </div>
++        }
++        @case ('PENDING_APPROVAL') {
++          <section class="hero warn">
++            <span class="badge"><lsms-icon name="rule" [size]="34" /></span>
++            <h2>{{ i18n.t('Verification completed', 'Uhakiki umekamilika') }}</h2>
++            <p>{{ i18n.t(differing().length + ' asset(s) differ from the confirmed quantity. Explain each one — the CEO will decide.', 'Mali ' + differing().length + ' zina tofauti na idadi iliyothibitishwa. Eleza kila moja — CEO ataamua.') }}</p>
++          </section>
++          <div class="explain">
++            @for (l of differing(); track l.uid) {
++              @let d = draft()[l.uid];
++              <article [class.ok]="!!l.explainedAt">
++                <header>
++                  <b>{{ l.assetName }}</b>
++                  @if (l.explainedAt) { <span class="pill"><lsms-icon name="check" [size]="13" />{{ i18n.t('Explained', 'Imeelezwa') }}</span> }
++                </header>
++                <div class="nums">
++                  <span><small>{{ i18n.t('Confirmed', 'Iliyothibitishwa') }}</small><b>{{ l.expectedQty }}</b></span>
++                  <span><small>{{ i18n.t('Counted', 'Uliyohesabu') }}</small><b>{{ l.countedQty }}</b></span>
++                  <span><small>{{ i18n.t('Difference', 'Tofauti') }}</small><b [class.neg]="l.varianceQty! < 0" [class.pos]="l.varianceQty! > 0">{{ l.varianceQty! > 0 ? '+' : '' }}{{ l.varianceQty }}</b></span>
++                </div>
++                <div class="reasons" role="radiogroup" [attr.aria-label]="i18n.t('Reason for the difference', 'Sababu ya tofauti')">
++                  @for (r of reasons; track r.key) {
++                    <button type="button" role="radio" [attr.aria-checked]="(d?.reason ?? l.reason) === r.key" [class.on]="(d?.reason ?? l.reason) === r.key" (click)="setDraft(l, { reason: r.key })">{{ i18n.isSwahili() ? r.sw : r.en }}</button>
++                  }
++                </div>
++                <div class="note">
++                  <input type="text" maxlength="300" [value]="d?.note ?? l.note ?? ''" (input)="setDraft(l, { note: $any($event.target).value })" [placeholder]="i18n.t('Note', 'Maelezo')" [attr.aria-label]="i18n.t('Note', 'Maelezo')" />
++                  <button lsmsButton="primary" size="sm" [loading]="saving().has(l.uid)" [disabled]="!canSend(l)" (click)="explain(l)">{{ l.explainedAt ? i18n.t('Update', 'Sasisha') : i18n.t('Send', 'Tuma') }}</button>
++                </div>
++              </article>
++            }
++          </div>
++        }
++        @default {
++          <section class="hero ok">
++            <span class="badge"><lsms-icon name="task_alt" [size]="34" /></span>
++            <h2>{{ i18n.t('Everything matches', 'Mali zote zimelingana') }}</h2>
++            <p>{{ i18n.t(s.totalItems + ' asset(s) verified — every one equals the confirmed quantity.', 'Mali ' + s.totalItems + ' zimehakikiwa — zote zinalingana na idadi iliyothibitishwa.') }}</p>
++            <button lsmsButton="secondary" (click)="session.set(null)">{{ i18n.t('Done', 'Sawa') }}</button>
++          </section>
++        }
++      }
++    }
++  `,
++  styles: `
++    :host { display: flex; flex-direction: column; gap: 14px; }
++    .hero { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 34px 20px; text-align: center; border-radius: 18px; border: 1px solid var(--c-border); background: var(--c-surface); --hc: var(--c-primary); }
++    .hero.ok { --hc: var(--c-success); }
++    .hero.warn { --hc: var(--c-warning); padding: 22px 20px; }
++    .hero .badge { display: inline-flex; padding: 16px; border-radius: 20px; color: var(--hc); background: color-mix(in srgb, var(--hc) 11%, transparent); }
++    .hero h2 { margin: 4px 0 0; font-size: 1.2rem; font-weight: 700; color: var(--c-text); }
++    .hero p { max-width: 560px; margin: 0; font-size: 0.88rem; color: var(--c-text-2); }
++    .facts { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 12px; padding: 0; list-style: none; text-align: left; }
++    .facts li { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: var(--c-text); }
++    .facts lsms-icon { color: var(--c-primary); }
++    .progress { position: sticky; top: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-float); box-shadow: 0 4px 14px rgb(16 24 40 / 0.06); }
++    .p-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
++    .p-top b { display: block; font-size: 1rem; font-weight: 700; color: var(--c-text); }
++    .p-top small { font-size: 0.74rem; color: var(--c-text-2); }
++    .bar { height: 8px; border-radius: 8px; background: color-mix(in srgb, var(--c-text-2) 14%, transparent); overflow: hidden; }
++    .bar span { display: block; height: 100%; border-radius: 8px; background: var(--c-primary); transition: width 0.3s ease; }
++    .progress.all .bar span { background: var(--c-success); }
++    .search { height: 40px; padding: 0 12px; border: 1px solid var(--c-border); border-radius: 12px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: 0; }
++    .search:focus { border-color: var(--c-primary); }
++    .list { border-radius: 16px; border: 1px solid var(--c-border); background: var(--c-surface); overflow: hidden; }
++    .row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--c-border); }
++    .row:last-child { border-bottom: 0; }
++    .no { width: 22px; font-size: 0.72rem; color: var(--c-text-2); text-align: right; }
++    .st { display: inline-flex; color: var(--c-text-2); }
++    .row.done .st { color: var(--c-success); }
++    .name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
++    .name b { font-size: 0.9rem; font-weight: 500; color: var(--c-text); overflow-wrap: anywhere; }
++    .name small { font-size: 0.74rem; color: var(--c-text-2); }
++    .none { margin: 0; padding: 18px; text-align: center; font-size: 0.84rem; color: var(--c-text-2); }
++    .explain { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr)); gap: 12px; }
++    article { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--c-border); border-radius: 14px; background: var(--c-surface); }
++    article.ok { border-color: color-mix(in srgb, var(--c-success) 45%, transparent); }
++    article header { display: flex; align-items: center; gap: 8px; }
++    article header b { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
++    .pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
++    .nums { display: flex; gap: 22px; }
++    .nums span { display: flex; flex-direction: column; }
++    .nums small { font-size: 0.7rem; color: var(--c-text-2); }
++    .nums b { font-size: 1rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
++    .neg { color: var(--c-error) !important; }
++    .pos { color: var(--c-success) !important; }
++    .reasons { display: flex; flex-wrap: wrap; gap: 6px; }
++    .reasons button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
++    .reasons button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, var(--c-surface)); color: var(--c-primary); font-weight: 600; }
++    .note { display: flex; gap: 8px; }
++    .note input { flex: 1; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.84rem; color: var(--c-text); outline: 0; }
++    .note input:focus { border-color: var(--c-primary); }
++    @media (max-width: 520px) { .row { flex-wrap: wrap; } .name { flex-basis: calc(100% - 70px); } app-qty-input { margin-left: auto; } }
++  `,
++})
++export class AssetCount {
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++  private readonly dialogs = inject(DialogService);
++  private readonly toast = inject(ToastService);
++
++  readonly canOpenRegister = input(false);
++  /** A count started / completed → the tab refreshes its status strip. */
++  readonly changed = output<void>();
++  readonly openRegister = output<void>();
++
++  protected readonly status = this.api.status;
++  protected readonly session = signal<AssetSession | null>(null);
++  protected readonly resuming = signal(true);
++  protected readonly starting = signal(false);
++  protected readonly completing = signal(false);
++  protected readonly error = signal<string | null>(null);
++  protected readonly saving = signal<ReadonlySet<string>>(new Set());
++  protected readonly query = signal('');
++  /** Unsent explanation edits, by line uid. */
++  protected readonly draft = signal<Record<string, { reason?: string; note?: string }>>({});
++
++  /** Latest value typed while a save of the same line is in flight. */
++  private readonly queued = new Map<string, number>();
++
++  protected readonly reasons = Object.entries(ASSET_REASONS).map(([key, l]) => ({ key, ...l }));
++  protected readonly ready = computed(() => (this.status()?.approvedItems ?? 0) > 0);
++
++  protected readonly progress = computed(() => {
++    const lines = this.session()?.lines ?? [];
++    const done = lines.filter((l) => l.countedQty != null).length;
++    return { done, total: lines.length, pct: lines.length ? Math.round((done / lines.length) * 100) : 0, all: lines.length > 0 && done >= lines.length };
++  });
++  protected readonly shown = computed(() => {
++    const q = this.query().trim().toLowerCase();
++    const lines = this.session()?.lines ?? [];
++    return q ? lines.filter((l) => l.assetName.toLowerCase().includes(q) || (l.location ?? '').toLowerCase().includes(q)) : lines;
++  });
++  protected readonly differing = computed(() => (this.session()?.lines ?? []).filter(assetHasVariance));
++
++  constructor() {
++    void this.resume();
++  }
++
++  async resume(): Promise<void> {
++    this.error.set(null);
++    try {
++      const active = await this.api.active();
++      // Keep a just-completed "everything matches" screen until the user dismisses it.
++      if (active || this.session()?.status !== 'MATCHED') this.session.set(active);
++    } catch (e) {
++      this.error.set(ApiError.from(e).message);
++    } finally {
++      this.resuming.set(false);
++    }
++  }
++
++  protected async start(): Promise<void> {
++    this.starting.set(true);
++    try {
++      this.session.set(await this.api.start());
++      this.changed.emit();
++    } catch (e) {
++      await this.dialogs.error(ApiError.from(e).message, this.i18n.t('Could not start', 'Imeshindwa kuanza uhakiki'));
++    } finally {
++      this.starting.set(false);
++    }
++  }
++
++  /** Saves when the row is left / Enter / a step. Untouched rows are never sent (empty ≠ 0). */
++  protected async commit(line: AssetLine, qty: number | null): Promise<void> {
++    const s = this.session();
++    if (!s || qty == null || qty === line.countedQty) return;
++    if (this.saving().has(line.uid)) {
++      this.queued.set(line.uid, qty);
++      return;
++    }
++    this.saving.update((x) => new Set(x).add(line.uid));
++    try {
++      let next: number | undefined = qty;
++      while (next !== undefined) {
++        this.patch(await this.api.submitLine(s.uid, line.uid, next));
++        const queued = this.queued.get(line.uid);
++        this.queued.delete(line.uid);
++        next = queued !== undefined && queued !== next ? queued : undefined;
++      }
++    } catch (e) {
++      this.queued.delete(line.uid);
++      this.toast.error(ApiError.from(e).message || this.i18n.t('Could not save', 'Imeshindwa kuhifadhi'));
++    } finally {
++      this.unsave(line.uid);
++    }
++  }
++
++  protected async complete(): Promise<void> {
++    const s = this.session();
++    if (!s) return;
++    const ok = await this.dialogs.confirm({
++      title: this.i18n.t('Complete verification', 'Kamilisha uhakiki'),
++      message: this.i18n.t('All assets are counted. After completing you cannot change the counts.', 'Mali zote zimehesabiwa. Ukikamilisha hutaweza kubadilisha idadi.'),
++      confirmText: this.i18n.t('Complete', 'Kamilisha'),
++      cancelText: this.i18n.t('Cancel', 'Ghairi'),
++    });
++    if (!ok) return;
++    this.completing.set(true);
++    try {
++      this.session.set(await this.api.complete(s.uid));
++      this.changed.emit();
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message || this.i18n.t('Could not complete', 'Imeshindwa kukamilisha'));
++    } finally {
++      this.completing.set(false);
++    }
++  }
++
++  protected setDraft(line: AssetLine, part: { reason?: string; note?: string }): void {
++    this.draft.update((d) => ({ ...d, [line.uid]: { ...d[line.uid], ...part } }));
++  }
++
++  /** A reason is chosen, "Other" has a note, and something differs from what is saved. */
++  protected canSend(line: AssetLine): boolean {
++    const d = this.draft()[line.uid];
++    const reason = d?.reason ?? line.reason;
++    const note = (d?.note ?? line.note ?? '').trim();
++    if (!reason || (reason === 'NYINGINE' && !note)) return false;
++    return !line.explainedAt || reason !== line.reason || note !== (line.note ?? '');
++  }
++
++  protected async explain(line: AssetLine): Promise<void> {
++    const s = this.session();
++    const d = this.draft()[line.uid];
++    const reason = d?.reason ?? line.reason;
++    if (!s || !reason) return;
++    this.saving.update((x) => new Set(x).add(line.uid));
++    try {
++      this.patch(await this.api.explain(s.uid, line.uid, reason, d?.note ?? line.note));
++      this.draft.update(({ [line.uid]: _, ...rest }) => rest);
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message || this.i18n.t('Could not save the explanation', 'Imeshindwa kuhifadhi maelezo'));
++    } finally {
++      this.unsave(line.uid);
++    }
++  }
++
++  private patch(updated: AssetLine): void {
++    this.session.update((s) => (s ? { ...s, lines: s.lines.map((l) => (l.uid === updated.uid ? { ...l, ...updated } : l)) } : s));
++  }
++
++  private unsave(uid: string): void {
++    this.saving.update((x) => {
++      const n = new Set(x);
++      n.delete(uid);
++      return n;
++    });
++  }
++}
+diff --git a/src/app/features/counting/assets/asset-dialogs.ts b/src/app/features/counting/assets/asset-dialogs.ts
+new file mode 100644
+index 0000000..94639c6
+--- /dev/null
++++ b/src/app/features/counting/assets/asset-dialogs.ts
+@@ -0,0 +1,485 @@
++import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
++import { DatePipe } from '@angular/common';
++import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
++
++import { ApiError } from '@core/api/api.types';
++import { AuthService } from '@core/auth/auth.service';
++import { LanguageService } from '@core/i18n/language.service';
++import { Button, DialogService, DialogShell, Icon, MoneyInput, SelectField, SelectOption, Skeleton, ToastService } from '@shared/ui';
++import { parseLocal } from '@shared/utils/date-utils';
++import { Money, MoneyPipe } from '@shared/utils/money';
++import { ReasonDialog, ReasonDialogData } from '../../reconciliation/reason-dialog';
++import { CountingService } from '../counting.service';
++import {
++  ASSET_DECISIONS,
++  ASSET_REASONS,
++  ASSET_SESSION_STATUS,
++  AssetDecision,
++  AssetDecisionDraft,
++  AssetItem,
++  AssetLine,
++  AssetSession,
++  WEEK_DAYS,
++  assetHasVariance,
++} from './asset.models';
++import { AssetService } from './asset.service';
++
++const FORM = `
++  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
++  label small { font-weight: 400; }
++  input { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: none; }
++  input:focus { border-color: var(--c-primary); }
++  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
++  .info { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text); background: color-mix(in srgb, var(--c-info) 8%, transparent); }
++  .info lsms-icon { color: var(--c-info); flex-shrink: 0; }
++  .err { margin: 0; font-size: 0.82rem; color: var(--c-error); }
++  .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
++  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
++  .chips button { padding: 7px 13px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; color: var(--c-text); cursor: pointer; }
++  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
++`;
++
++// ── Add / edit one asset ───────────────────────────────────────────────────
++
++/** New asset (name, quantity …) or edit of name / place / unit value. Closes with the saved row. */
++@Component({
++  selector: 'app-asset-item-dialog',
++  imports: [DialogShell, Button, Icon, MoneyInput],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    <lsms-dialog [title]="data ? i18n.t('Edit asset', 'Hariri mali') : i18n.t('Add asset', 'Ongeza mali')" icon="chair">
++      @if (!data) {
++        <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('The quantity is a proposal until the CEO confirms it.', 'Idadi ni pendekezo mpaka CEO aithibitishe.') }}</p>
++      }
++      <label><span>{{ i18n.t('Asset name', 'Jina la mali') }}</span><input type="text" maxlength="200" [value]="name()" (input)="name.set($any($event.target).value)" [placeholder]="i18n.t('e.g. Fridge, plastic chairs, crates', 'mf. Friji, viti vya plastiki, kreti')" autofocus /></label>
++      <div class="two">
++        @if (!data) {
++          <label><span>{{ i18n.t('Quantity', 'Idadi') }}</span><input type="text" inputmode="numeric" [value]="qty()" (input)="qty.set(digits($any($event.target)))" /></label>
++        }
++        <label><span>{{ i18n.t('Where it is kept', 'Mahali ilipo') }} <small>({{ i18n.t('optional', 'hiari') }})</small></span><input type="text" maxlength="120" [value]="location()" (input)="location.set($any($event.target).value)" /></label>
++      </div>
++      <label><span>{{ i18n.t('Value of one', 'Thamani ya kimoja') }} (TZS) <small>({{ i18n.t('optional — suggests the amount when staff are charged', 'hiari — inapendekeza kiasi mfanyakazi akitozwa') }})</small></span><input lsmsMoneyInput type="text" [value]="unitValue()" (input)="unitValue.set($any($event.target).value)" /></label>
++      @if (error()) { <p class="err">{{ error() }}</p> }
++      <ng-container dialogActions>
++        <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
++        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ i18n.t('Save', 'Hifadhi') }}</button>
++      </ng-container>
++    </lsms-dialog>
++  `,
++  styles: FORM,
++})
++export class AssetItemDialog {
++  protected readonly data = inject<AssetItem | null>(DIALOG_DATA);
++  protected readonly ref = inject<DialogRef<AssetItem>>(DialogRef);
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++
++  protected readonly name = signal(this.data?.name ?? '');
++  protected readonly location = signal(this.data?.location ?? '');
++  protected readonly qty = signal('');
++  protected readonly unitValue = signal(this.data?.unitValue ? Money.group(String(this.data.unitValue)) : '');
++  protected readonly saving = signal(false);
++  protected readonly error = signal<string | null>(null);
++
++  protected readonly valid = computed(() => this.name().trim().length >= 2 && (!!this.data || this.qty() !== ''));
++
++  protected digits(el: HTMLInputElement): string {
++    const d = el.value.replace(/\D/g, '').slice(0, 6);
++    if (d !== el.value) el.value = d;
++    return d;
++  }
++
++  protected async save(): Promise<void> {
++    if (!this.valid()) return;
++    this.saving.set(true);
++    this.error.set(null);
++    const body = { name: this.name().trim(), location: this.location().trim(), unitValue: Money.parse(this.unitValue()) ?? 0 };
++    try {
++      this.ref.close(this.data?.uid ? await this.api.update(this.data.uid, body) : await this.api.create({ ...body, qty: Number(this.qty()) }));
++    } catch (e) {
++      this.error.set(ApiError.from(e).message);
++    } finally {
++      this.saving.set(false);
++    }
++  }
++}
++
++// ── Verification schedule ──────────────────────────────────────────────────
++
++/** Daily / weekly reminder (ASSET_COUNT_APPROVE). Closes with `true` once saved. */
++@Component({
++  selector: 'app-asset-schedule-dialog',
++  imports: [DialogShell, Button, Icon],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    <lsms-dialog [title]="i18n.t('Asset verification schedule', 'Ratiba ya uhakiki wa mali')" icon="edit_calendar">
++      <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('A reminder only: when verification is due the counter is told, but sales are never blocked.', 'Ni ukumbusho tu: uhakiki ukifika mhakiki anaonyeshwa, lakini mauzo hayazuiwi.') }}</p>
++      <span class="lbl">{{ i18n.t('How often', 'Mara ngapi') }}</span>
++      <div class="chips">
++        <button type="button" [class.on]="frequency() === 'DAILY'" (click)="frequency.set('DAILY')">{{ i18n.t('Every day', 'Kila siku') }}</button>
++        <button type="button" [class.on]="frequency() === 'WEEKLY'" (click)="frequency.set('WEEKLY')">{{ i18n.t('Every week', 'Kila wiki') }}</button>
++        <button type="button" [class.on]="frequency() === 'OFF'" (click)="frequency.set('OFF')">{{ i18n.t('No schedule', 'Hakuna ratiba') }}</button>
++      </div>
++      @if (frequency() === 'WEEKLY') {
++        <span class="lbl">{{ i18n.t('On which day', 'Siku gani') }}</span>
++        <div class="chips">
++          @for (d of days; track $index) {
++            <button type="button" [class.on]="day() === $index + 1" (click)="day.set($index + 1)">{{ i18n.isSwahili() ? d.sw : d.en }}</button>
++          }
++        </div>
++      }
++      @if (error()) { <p class="err">{{ error() }}</p> }
++      <ng-container dialogActions>
++        <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
++        <button lsmsButton="primary" [loading]="saving()" (click)="save()">{{ i18n.t('Save', 'Hifadhi') }}</button>
++      </ng-container>
++    </lsms-dialog>
++  `,
++  styles: FORM,
++})
++export class AssetScheduleDialog {
++  protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++
++  protected readonly days = WEEK_DAYS;
++  protected readonly frequency = signal<'DAILY' | 'WEEKLY' | 'OFF'>(this.api.status()?.frequency ?? 'WEEKLY');
++  protected readonly day = signal(this.api.status()?.dayOfWeek ?? 1);
++  protected readonly saving = signal(false);
++  protected readonly error = signal<string | null>(null);
++
++  protected async save(): Promise<void> {
++    this.saving.set(true);
++    this.error.set(null);
++    try {
++      await this.api.saveSchedule(this.frequency(), this.frequency() === 'WEEKLY' ? this.day() : null);
++      this.ref.close(true);
++    } catch (e) {
++      this.error.set(ApiError.from(e).message);
++    } finally {
++      this.saving.set(false);
++    }
++  }
++}
++
++// ── One verification in detail + the CEO's decisions ───────────────────────
++
++export interface AssetSessionDialogData {
++  uid: string;
++}
++
++type Draft = { decision: AssetDecision; note: string; amount: string; userUid: string | null };
++
++/**
++ * Read-only for everyone; for the CEO (ASSET_COUNT_APPROVE) on a count that is
++ * awaiting a decision, every differing asset gets: Accept new quantity / No
++ * action / Charge staff (amount + who). Closes with `true` when it changed.
++ */
++@Component({
++  selector: 'app-asset-session-dialog',
++  imports: [DialogShell, Button, Icon, Skeleton, SelectField, MoneyInput, DatePipe, MoneyPipe],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    <lsms-dialog [title]="title()" icon="fact_check">
++      @if (loading()) {
++        <lsms-skeleton variant="list" [rows]="5" />
++      } @else if (error() && !session()) {
++        <p class="bad"><lsms-icon name="error" [size]="18" />{{ error() }}</p>
++      } @else if (session(); as s) {
++        @let st = STATUS[s.status];
++        <section class="head">
++          <span class="pill" [style.--pc]="st.color"><lsms-icon [name]="st.icon" [size]="14" />{{ i18n.isSwahili() ? st.sw : st.en }}</span>
++          <div class="facts">
++            <span><small>{{ i18n.t('Counted', 'Zimehesabiwa') }}</small><b>{{ s.itemsCounted }}/{{ s.totalItems }}</b></span>
++            @if (s.itemsWithVariance !== null) { <span><small>{{ i18n.t('With difference', 'Zenye tofauti') }}</small><b>{{ s.itemsWithVariance }}</b></span> }
++            <span><small>{{ i18n.t('Verified by', 'Aliyehakiki') }}</small><b>{{ name(s.startedByUid) }}</b></span>
++            @if (s.approvedByUid) { <span><small>{{ i18n.t('Decided by', 'Aliyeamua') }}</small><b>{{ name(s.approvedByUid) }} · {{ day(s.approvedAt) | date: 'dd MMM HH:mm' }}</b></span> }
++          </div>
++          @if (s.status === 'CANCELLED' && s.cancelledReason) { <p class="bad"><lsms-icon name="block" [size]="16" />{{ s.cancelledReason }}</p> }
++          @if (s.status === 'IN_PROGRESS') { <p class="warn"><lsms-icon name="visibility_off" [size]="16" />{{ i18n.t('Still being counted — quantities appear once it is completed.', 'Bado inahesabiwa — idadi zitaonekana ikikamilika.') }}</p> }
++        </section>
++
++        @if (s.status !== 'IN_PROGRESS') {
++          <div class="seg" role="tablist">
++            <button type="button" role="tab" [class.on]="onlyDiff()" (click)="onlyDiff.set(true)">{{ i18n.t('With difference', 'Zenye tofauti') }} <em>{{ differing().length }}</em></button>
++            <button type="button" role="tab" [class.on]="!onlyDiff()" (click)="onlyDiff.set(false)">{{ i18n.t('All', 'Zote') }} <em>{{ s.lines.length }}</em></button>
++          </div>
++          <ul class="lines">
++            @for (l of lines(); track l.uid) {
++              @let v = differs(l);
++              @let d = drafts()[l.uid];
++              <li [class.var]="v" [class.short]="(l.varianceQty ?? 0) < 0">
++                <div class="l-head">
++                  <b>{{ l.assetName }}</b>
++                  @if (l.location) { <small>{{ l.location }}</small> }
++                  @if (deciding() && v) { <span class="state" [class.ok]="complete(l)">{{ complete(l) ? i18n.t('Decided', 'Imeamuliwa') : i18n.t('Needs decision', 'Inahitaji uamuzi') }}</span> }
++                </div>
++                <div class="nums">
++                  <span><small>{{ i18n.t('Confirmed', 'Iliyothibitishwa') }}</small><b>{{ l.expectedQty }}</b></span>
++                  <span><small>{{ i18n.t('Counted', 'Iliyohesabiwa') }}</small><b>{{ l.countedQty }}</b></span>
++                  <span><small>{{ i18n.t('Difference', 'Tofauti') }}</small><b [class.neg]="(l.varianceQty ?? 0) < 0" [class.pos]="(l.varianceQty ?? 0) > 0">{{ (l.varianceQty ?? 0) > 0 ? '+' : '' }}{{ l.varianceQty }}</b></span>
++                </div>
++                @if (v) {
++                  @if (l.explainedAt) {
++                    <p class="note info"><lsms-icon name="record_voice_over" [size]="14" /><span><b>{{ i18n.t('Counter says', 'Maelezo ya mhakiki') }}: {{ reason(l.reason) }}</b>@if (l.note) { — {{ l.note }} }</span></p>
++                  } @else {
++                    <p class="note warn-t"><lsms-icon name="help" [size]="14" />{{ i18n.t('Not explained by the counter', 'Haijaelezwa na mhakiki') }}</p>
++                  }
++                  @if (l.decision) {
++                    @let dd = DECISIONS[l.decision];
++                    <p class="note" [style.color]="dd.color"><lsms-icon [name]="dd.icon" [size]="14" /><span><b>{{ i18n.isSwahili() ? dd.sw : dd.en }}</b>@if (l.chargeAmount) { · {{ name(l.chargeUserUid) }} · {{ l.chargeAmount | money: { decimals: 0 } }} }@if (l.decisionNote) { — {{ l.decisionNote }} }</span></p>
++                  }
++                }
++                @if (deciding() && v) {
++                  <div class="decide" role="radiogroup" [attr.aria-label]="i18n.t('Decision', 'Uamuzi')">
++                    @for (k of decisionKeys; track k) {
++                      @if (k !== 'CHARGE_STAFF' || (l.varianceQty ?? 0) < 0) {
++                        <button type="button" role="radio" [attr.aria-checked]="d?.decision === k" [class.on]="d?.decision === k" [style.--dc]="DECISIONS[k].color" (click)="decide(l, k)">
++                          <lsms-icon [name]="DECISIONS[k].icon" [size]="16" />{{ i18n.isSwahili() ? DECISIONS[k].sw : DECISIONS[k].en }}
++                        </button>
++                      }
++                    }
++                  </div>
++                  @if (d) {
++                    <div class="extra">
++                      @if (d.decision === 'CHARGE_STAFF') {
++                        <input lsmsMoneyInput type="text" class="amt" [value]="d.amount" (input)="patch(l, { amount: $any($event.target).value })" [placeholder]="i18n.t('Amount to charge (TZS)', 'Kiasi cha kutoza (TZS)')" [attr.aria-label]="i18n.t('Amount to charge', 'Kiasi cha kutoza')" />
++                        @if (staffOptions().length) {
++                          <lsms-select-field [dense]="true" [options]="staffOptions()" [value]="d.userUid" (valueChange)="patch(l, { userUid: $event })" [ariaLabel]="i18n.t('Staff member to charge', 'Mfanyakazi wa kutozwa')" />
++                        } @else {
++                          <small class="who">{{ i18n.t('Charged to', 'Atatozwa') }}: {{ name(s.startedByUid) }}</small>
++                        }
++                      }
++                      <input type="text" maxlength="300" [value]="d.note" (input)="patch(l, { note: $any($event.target).value })" [placeholder]="i18n.t('Note (optional)', 'Maelezo (hiari)')" [attr.aria-label]="i18n.t('Note', 'Maelezo')" />
++                      @if (d.decision === 'ACCEPT') { <small class="hint">{{ i18n.t('The confirmed quantity becomes', 'Idadi rasmi itakuwa') }} {{ l.countedQty }}.</small> }
++                      @if (d.decision === 'NO_ACTION') { <small class="hint">{{ i18n.t('The confirmed quantity stays', 'Idadi rasmi inabaki') }} {{ l.expectedQty }}.</small> }
++                      @if (d.decision === 'CHARGE_STAFF') { <small class="hint c">{{ i18n.t('A staff debt is recorded and the confirmed quantity becomes', 'Deni la mfanyakazi linaandikwa na idadi rasmi inakuwa') }} {{ l.countedQty }}.</small> }
++                    </div>
++                  }
++                }
++              </li>
++            } @empty {
++              <li class="empty">{{ i18n.t('Every asset matched.', 'Mali zote zimelingana.') }}</li>
++            }
++          </ul>
++        }
++      }
++
++      <ng-container dialogActions>
++        @if (canCancel()) {
++          <button lsmsButton="danger" icon="block" [loading]="cancelling()" (click)="cancel()">{{ i18n.t('Cancel this verification', 'Futa uhakiki huu') }}</button>
++        }
++        <span class="spacer"></span>
++        <button lsmsButton="secondary" (click)="ref.close(changed())">{{ i18n.t('Close', 'Funga') }}</button>
++        @if (deciding()) {
++          <button lsmsButton="success" icon="check" [disabled]="!allDecided()" [loading]="approving()" (click)="approve()">
++            {{ allDecided() ? i18n.t('Confirm decisions', 'Thibitisha uamuzi') : i18n.t('Decide every difference first', 'Amua kila tofauti kwanza') }}
++          </button>
++        }
++      </ng-container>
++    </lsms-dialog>
++  `,
++  styles: `
++    .bad, .warn { display: flex; align-items: center; gap: 6px; margin: 0; padding: 8px 10px; border-radius: 10px; font-size: 0.8rem; }
++    .bad { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 8%, transparent); }
++    .warn { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 9%, transparent); }
++    .head { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--c-border); }
++    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 600; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
++    .facts { display: flex; flex-wrap: wrap; gap: 8px 24px; }
++    .facts span, .nums span { display: flex; flex-direction: column; }
++    .facts small, .nums small { font-size: 0.7rem; color: var(--c-text-2); }
++    .facts b { font-size: 0.86rem; font-weight: 600; color: var(--c-text); }
++    .seg { display: inline-flex; margin: 12px 0 8px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--c-text-2) 10%, transparent); }
++    .seg button { padding: 6px 12px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
++    .seg button.on { background: var(--c-surface); color: var(--c-text); font-weight: 600; box-shadow: 0 1px 2px rgb(16 24 40 / 0.08); }
++    .seg em { font-style: normal; font-size: 0.72rem; opacity: 0.8; }
++    .lines { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
++    .lines li { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
++    .lines li.var { border-color: color-mix(in srgb, var(--c-success) 40%, var(--c-border)); }
++    .lines li.var.short { border-color: color-mix(in srgb, var(--c-error) 40%, var(--c-border)); }
++    .lines li.empty { align-items: center; color: var(--c-text-2); font-size: 0.84rem; }
++    .l-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
++    .l-head b { font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
++    .l-head small { flex: 1; font-size: 0.74rem; color: var(--c-text-2); }
++    .state { margin-left: auto; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
++    .state.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
++    .nums { display: flex; gap: 24px; }
++    .nums b { font-size: 1rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
++    .neg { color: var(--c-error) !important; }
++    .pos { color: var(--c-success) !important; }
++    .note { display: flex; align-items: flex-start; gap: 6px; margin: 0; padding: 6px 9px; border-radius: 8px; font-size: 0.76rem; background: color-mix(in srgb, currentColor 8%, transparent); }
++    .note lsms-icon { flex-shrink: 0; margin-top: 1px; }
++    .note.info { color: var(--c-info); }
++    .note.warn-t { color: var(--c-warning); }
++    .decide { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
++    .decide button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 6px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
++    .decide button.on { border-color: var(--dc); color: var(--dc); font-weight: 600; background: color-mix(in srgb, var(--dc) 12%, var(--c-surface)); }
++    .extra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
++    .extra input { flex: 1 1 200px; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.82rem; color: var(--c-text); outline: 0; }
++    .extra input.amt { flex: 0 1 170px; font-weight: 600; }
++    .extra lsms-select-field { flex: 1 1 200px; }
++    .hint, .who { width: 100%; font-size: 0.74rem; color: var(--c-text-2); }
++    .hint.c { color: var(--c-error); font-weight: 600; }
++    .who { width: auto; }
++    .spacer { flex: 1; }
++  `,
++})
++export class AssetSessionDialog {
++  protected readonly data = inject<AssetSessionDialogData>(DIALOG_DATA);
++  protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++  private readonly counting = inject(CountingService);
++  private readonly auth = inject(AuthService);
++  private readonly dialogs = inject(DialogService);
++  private readonly toast = inject(ToastService);
++
++  protected readonly STATUS = ASSET_SESSION_STATUS;
++  protected readonly DECISIONS = ASSET_DECISIONS;
++  protected readonly decisionKeys: AssetDecision[] = ['ACCEPT', 'NO_ACTION', 'CHARGE_STAFF'];
++  protected readonly differs = assetHasVariance;
++
++  protected readonly session = signal<AssetSession | null>(null);
++  protected readonly loading = signal(true);
++  protected readonly error = signal<string | null>(null);
++  protected readonly onlyDiff = signal(true);
++  protected readonly drafts = signal<Record<string, Draft>>({});
++  protected readonly approving = signal(false);
++  protected readonly cancelling = signal(false);
++  protected readonly changed = signal(false);
++
++  private readonly canApprove = computed(() => this.auth.hasPermission('ASSET_COUNT_APPROVE'));
++  protected readonly deciding = computed(() => this.canApprove() && this.session()?.status === 'PENDING_APPROVAL');
++  protected readonly canCancel = computed(() => {
++    const s = this.session()?.status;
++    return this.canApprove() && (s === 'IN_PROGRESS' || s === 'PENDING_APPROVAL');
++  });
++
++  protected readonly differing = computed(() => (this.session()?.lines ?? []).filter(assetHasVariance));
++  protected readonly lines = computed(() => (this.onlyDiff() ? this.differing() : (this.session()?.lines ?? [])));
++  protected readonly allDecided = computed(() => this.differing().every((l) => this.complete(l)));
++
++  protected readonly title = computed(() => {
++    const d = parseLocal(this.session()?.sessionDate ?? null);
++    const base = this.i18n.t('Asset verification', 'Uhakiki wa mali');
++    return d ? `${base} · ${d.toLocaleDateString(this.i18n.isSwahili() ? 'sw-TZ' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}` : base;
++  });
++
++  /** Staff the CEO may charge (needs USER_READ; otherwise the counter is charged). */
++  protected readonly staffOptions = computed<SelectOption<string>[]>(() =>
++    [...(this.counting.staff.value() ?? new Map<string, string>()).entries()].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label)),
++  );
++
++  constructor() {
++    void this.load();
++    void this.counting.staff.load().catch(() => undefined);
++  }
++
++  private async load(): Promise<void> {
++    try {
++      const s = await this.api.session(this.data.uid);
++      this.session.set(s);
++      if (!this.differing().length) this.onlyDiff.set(false);
++    } catch (e) {
++      this.error.set(ApiError.from(e).message);
++    } finally {
++      this.loading.set(false);
++    }
++  }
++
++  protected decide(l: AssetLine, decision: AssetDecision): void {
++    const missing = Math.abs(l.varianceQty ?? 0);
++    const prev = this.drafts()[l.uid];
++    this.drafts.update((d) => ({
++      ...d,
++      [l.uid]: {
++        decision,
++        note: prev?.note ?? '',
++        // Suggested charge = missing units × the asset's unit value (editable).
++        amount: prev?.amount || (l.unitValue ? Money.group(String(Math.round(l.unitValue * missing))) : ''),
++        userUid: prev?.userUid ?? this.session()?.startedByUid ?? null,
++      },
++    }));
++  }
++
++  protected patch(l: AssetLine, part: Partial<Draft>): void {
++    this.drafts.update((d) => (d[l.uid] ? { ...d, [l.uid]: { ...d[l.uid], ...part } } : d));
++  }
++
++  protected complete(l: AssetLine): boolean {
++    const d = this.drafts()[l.uid];
++    return !!d && (d.decision !== 'CHARGE_STAFF' || (Money.parse(d.amount) ?? 0) > 0);
++  }
++
++  protected async approve(): Promise<void> {
++    const s = this.session();
++    if (!s || !this.allDecided()) return;
++    const drafts = this.drafts();
++    const decisions: AssetDecisionDraft[] = this.differing().map((l) => ({
++      lineUid: l.uid,
++      decision: drafts[l.uid].decision,
++      note: drafts[l.uid].note,
++      chargeAmount: Money.parse(drafts[l.uid].amount),
++      chargeUserUid: drafts[l.uid].userUid,
++    }));
++    const charged = decisions.filter((d) => d.decision === 'CHARGE_STAFF');
++    const total = charged.reduce((sum, d) => sum + (d.chargeAmount ?? 0), 0);
++    const ok = await this.dialogs.confirm({
++      title: this.i18n.t('Confirm decisions', 'Thibitisha uamuzi'),
++      message:
++        this.i18n.t(`${decisions.length} difference(s) decided. This cannot be undone.`, `Tofauti ${decisions.length} zimeamuliwa. Hatua hii haiwezi kurudishwa.`) +
++        (charged.length ? '\n' + this.i18n.t(`Staff debt to record: ${Money.format(total)}`, `Deni la mfanyakazi litakaloandikwa: ${Money.format(total)}`) : ''),
++      confirmText: this.i18n.t('Confirm', 'Thibitisha'),
++      cancelText: this.i18n.t('Back', 'Rudi'),
++    });
++    if (!ok) return;
++    this.approving.set(true);
++    try {
++      this.session.set(await this.api.approve(s.uid, decisions));
++      this.changed.set(true);
++      this.toast.success(this.i18n.t('Asset verification decided', 'Uhakiki wa mali umeamuliwa'));
++    } catch (e) {
++      await this.dialogs.error(ApiError.from(e).message);
++    } finally {
++      this.approving.set(false);
++    }
++  }
++
++  protected async cancel(): Promise<void> {
++    const s = this.session();
++    if (!s) return;
++    const reason = await this.dialogs.openAsync<string, ReasonDialogData>(ReasonDialog, {
++      size: 'sm',
++      data: {
++        title: this.i18n.t('Cancel this verification', 'Futa uhakiki huu'),
++        message: this.i18n.t('The counts entered are discarded and a new verification can be started.', 'Idadi zilizoingizwa zinaachwa na uhakiki mpya unaweza kuanzwa.'),
++        label: this.i18n.t('Reason', 'Sababu'),
++        confirm: this.i18n.t('Cancel verification', 'Futa uhakiki'),
++        danger: true,
++      },
++    });
++    if (!reason) return;
++    this.cancelling.set(true);
++    try {
++      await this.api.cancel(s.uid, reason);
++      this.ref.close(true);
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message);
++    } finally {
++      this.cancelling.set(false);
++    }
++  }
++
++  protected reason(code: string | null): string {
++    const r = code ? ASSET_REASONS[code] : null;
++    return r ? (this.i18n.isSwahili() ? r.sw : r.en) : (code ?? '—');
++  }
++
++  protected name(uid: string | null): string {
++    return this.counting.staffName(uid) ?? '—';
++  }
++
++  protected day(v: string | null): Date | null {
++    return parseLocal(v);
++  }
++}
+diff --git a/src/app/features/counting/assets/asset-history.ts b/src/app/features/counting/assets/asset-history.ts
+new file mode 100644
+index 0000000..5ff7696
+--- /dev/null
++++ b/src/app/features/counting/assets/asset-history.ts
+@@ -0,0 +1,142 @@
++import { DatePipe } from '@angular/common';
++import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
++
++import { ApiError } from '@core/api/api.types';
++import { LanguageService } from '@core/i18n/language.service';
++import { DataTable, DialogService, EmptyState, Icon, SegmentOption, SegmentedFilterBar, TableColumn } from '@shared/ui';
++import { parseLocal } from '@shared/utils/date-utils';
++import { CountingService } from '../counting.service';
++import type { AssetSessionDialogData } from './asset-dialogs';
++import { ASSET_SESSION_STATUS, AssetSession, AssetSessionStatus } from './asset.models';
++import { AssetService } from './asset.service';
++
++type Filter = 'ALL' | AssetSessionStatus;
++
++/** Every asset verification; a row opens its detail (where the CEO decides differences). */
++@Component({
++  selector: 'app-asset-history',
++  imports: [DataTable, TableColumn, SegmentedFilterBar, EmptyState, Icon, DatePipe],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    @if (error() && !rows().length) {
++      <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load', 'Imeshindikana kupakia')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="load()" />
++    } @else if (!loading() && !rows().length) {
++      <lsms-empty-state icon="history" [title]="i18n.t('No verification yet', 'Hakuna uhakiki bado')" [message]="i18n.t('Asset verifications will be listed here.', 'Uhakiki wa mali utaorodheshwa hapa.')" />
++    } @else {
++      @if (filters().length > 2) {
++        <lsms-segmented-filter-bar [options]="filters()" [selected]="filter()" (selectedChange)="filter.set($event)" />
++      }
++      <div class="table-card">
++        <lsms-data-table
++          [title]="i18n.t('Asset verifications', 'Uhakiki wa mali')"
++          [items]="shown()"
++          [loading]="loading()"
++          [pageSize]="15"
++          [mobileTitle]="dateLabel"
++          [mobileColumns]="['status', 'counted', 'diff', 'by']"
++          [mobileCompactColumns]="['diff']"
++          [emptyTitle]="i18n.t('Nothing with this status', 'Hakuna yenye hali hii')"
++          emptyIcon="filter_alt_off"
++          (rowClick)="open($event)"
++        >
++          <ng-template lsmsColumn="date" [label]="i18n.t('Date', 'Tarehe')" [sortBy]="dateKey" [locked]="true" let-row>
++            <span class="cell-stack">
++              <strong>{{ day(row.sessionDate) | date: 'EEE, dd MMM yyyy' }}</strong>
++              <small>{{ i18n.t('Started', 'Ilianza') }} {{ day(row.startedAt) | date: 'HH:mm' }}@if (row.completedAt) { · {{ i18n.t('done', 'ilimalizika') }} {{ day(row.completedAt) | date: 'HH:mm' }} }</small>
++            </span>
++          </ng-template>
++          <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" let-row>
++            @let st = status(row.status);
++            <span class="pill" [style.--pc]="st.color"><lsms-icon [name]="st.icon" [size]="13" />{{ i18n.isSwahili() ? st.sw : st.en }}</span>
++          </ng-template>
++          <ng-template lsmsColumn="counted" [label]="i18n.t('Counted', 'Zimehesabiwa')" align="end" let-row>
++            <span class="num">{{ row.itemsCounted }}/{{ row.totalItems }}</span>
++          </ng-template>
++          <ng-template lsmsColumn="diff" [label]="i18n.t('With difference', 'Zenye tofauti')" align="end" let-row>
++            <span class="num strong" [class.neg]="row.itemsWithVariance">{{ row.itemsWithVariance ?? '—' }}</span>
++          </ng-template>
++          <ng-template lsmsColumn="by" [label]="i18n.t('Verified by', 'Aliyehakiki')" let-row>
++            <span class="cell-stack">
++              <span>{{ name(row.startedByUid) }}</span>
++              @if (row.approvedByUid) { <small>{{ i18n.t('Decided by', 'Aliyeamua') }} {{ name(row.approvedByUid) }}</small> }
++              @if (row.status === 'CANCELLED' && row.cancelledReason) { <small class="neg">{{ row.cancelledReason }}</small> }
++            </span>
++          </ng-template>
++        </lsms-data-table>
++      </div>
++    }
++  `,
++  styles: `
++    @use 'list-page';
++    @include list-page.base;
++    :host { display: flex; flex-direction: column; gap: 12px; }
++    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
++    .neg { color: var(--c-error); }
++  `,
++})
++export class AssetHistory {
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++  private readonly counting = inject(CountingService);
++  private readonly dialogs = inject(DialogService);
++
++  /** A count was decided / cancelled. */
++  readonly changed = output<void>();
++
++  protected readonly rows = signal<AssetSession[]>([]);
++  protected readonly loading = signal(true);
++  protected readonly error = signal<string | null>(null);
++  protected readonly filter = signal<Filter>('ALL');
++
++  protected readonly shown = computed(() => (this.filter() === 'ALL' ? this.rows() : this.rows().filter((r) => r.status === this.filter())));
++  protected readonly filters = computed<SegmentOption<Filter>[]>(() => {
++    const n = (s: AssetSessionStatus) => this.rows().filter((r) => r.status === s).length;
++    const all: Filter[] = ['ALL', 'PENDING_APPROVAL', 'MATCHED', 'APPROVED', 'IN_PROGRESS', 'CANCELLED'];
++    return all
++      .filter((f) => f === 'ALL' || n(f) > 0)
++      .map((f) => ({
++        value: f,
++        label: f === 'ALL' ? this.i18n.t('All', 'Zote') : this.i18n.isSwahili() ? ASSET_SESSION_STATUS[f].sw : ASSET_SESSION_STATUS[f].en,
++        count: f === 'ALL' ? this.rows().length : n(f),
++      }));
++  });
++
++  protected readonly dateLabel = (r: AssetSession) => r.sessionDate ?? '—';
++  protected readonly dateKey = (r: AssetSession) => r.startedAt ?? r.sessionDate;
++
++  constructor() {
++    void this.load();
++    void this.counting.staff.load().catch(() => undefined);
++  }
++
++  async load(): Promise<void> {
++    this.loading.set(true);
++    this.error.set(null);
++    try {
++      this.rows.set(await this.api.list());
++    } catch (e) {
++      this.error.set(ApiError.from(e).message);
++    } finally {
++      this.loading.set(false);
++    }
++  }
++
++  protected async open(row: AssetSession): Promise<void> {
++    const { AssetSessionDialog } = await import('./asset-dialogs');
++    const result = await this.dialogs.openAsync<boolean, AssetSessionDialogData>(AssetSessionDialog, { size: 'lg', data: { uid: row.uid } });
++    if (result) this.changed.emit();
++    void this.load();
++  }
++
++  protected status(s: AssetSessionStatus) {
++    return ASSET_SESSION_STATUS[s] ?? ASSET_SESSION_STATUS.IN_PROGRESS;
++  }
++
++  protected name(uid: string | null): string {
++    return this.counting.staffName(uid) ?? '—';
++  }
++
++  protected day(v: string | null): Date | null {
++    return parseLocal(v);
++  }
++}
+diff --git a/src/app/features/counting/assets/asset-register.ts b/src/app/features/counting/assets/asset-register.ts
+new file mode 100644
+index 0000000..7880e6a
+--- /dev/null
++++ b/src/app/features/counting/assets/asset-register.ts
+@@ -0,0 +1,405 @@
++import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
++
++import { ApiError } from '@core/api/api.types';
++import { AuthService } from '@core/auth/auth.service';
++import { LanguageService } from '@core/i18n/language.service';
++import { Button, DialogService, EmptyState, Icon, MetricCard, MetricsGrid, SegmentOption, SegmentedFilterBar, Skeleton, Spinner, ToastService } from '@shared/ui';
++import { MoneyPipe } from '@shared/utils/money';
++import type { Expenditure } from '../../capital/capital.models';
++import { ReasonDialog, ReasonDialogData } from '../../reconciliation/reason-dialog';
++import { QtyInput } from '../qty-input';
++import { ASSET_STATUS, AssetItem, assetIsPending } from './asset.models';
++import { AssetService } from './asset.service';
++
++type Filter = 'all' | 'pending' | 'new' | 'confirmed';
++const key = (i: AssetItem) => i.uid ?? 'cap:' + i.capitalExpenditureUid;
++
++/**
++ * The asset register. Rows = what is already registered + Capital fixed assets
++ * waiting for their first quantity. ASSET_COUNT_MANAGE types the quantity on
++ * the row (a proposal); the CEO (ASSET_COUNT_APPROVE) confirms or rejects it.
++ * A changed quantity on a confirmed asset is a new proposal — the confirmed one
++ * stays official until the CEO agrees.
++ *
++ * An asset added here that is not in Capital asks once whether it should be:
++ * "yes" opens Capital's own new-asset form with the name filled in.
++ */
++@Component({
++  selector: 'app-asset-register',
++  imports: [QtyInput, Button, Icon, EmptyState, Skeleton, Spinner, MetricCard, MetricsGrid, SegmentedFilterBar, MoneyPipe],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    @if (loading() && !rows().length) {
++      <lsms-skeleton variant="list" [rows]="6" />
++    } @else if (error() && !rows().length) {
++      <lsms-empty-state icon="error" iconColor="var(--c-error)" [title]="i18n.t('Could not load', 'Imeshindikana kupakia')" [message]="error()!" [secondaryActionLabel]="i18n.t('Retry', 'Jaribu tena')" (secondaryAction)="load()" />
++    } @else {
++      <lsms-metrics-grid [gap]="12">
++        <lsms-metric-card [title]="i18n.t('Confirmed by the CEO', 'Zimethibitishwa na CEO')" [value]="'' + stats().confirmed" icon="verified" color="var(--c-success)" [subtitle]="i18n.t(stats().units + ' unit(s) in total', 'Jumla vitu ' + stats().units)" />
++        <lsms-metric-card [title]="i18n.t('Awaiting the CEO', 'Zinasubiri CEO')" [value]="'' + stats().pending" icon="hourglass_top" color="var(--c-warning)" />
++        <lsms-metric-card [title]="i18n.t('Quantity not filled', 'Hazijajazwa idadi')" [value]="'' + stats().fresh" icon="edit_note" color="var(--c-info)" [subtitle]="i18n.t('Capital assets', 'Mali za Capital')" />
++      </lsms-metrics-grid>
++
++      <div class="bar">
++        <input class="search" type="search" [value]="query()" (input)="query.set($any($event.target).value)" [placeholder]="i18n.t('Search asset…', 'Tafuta mali…')" [attr.aria-label]="i18n.t('Search asset', 'Tafuta mali')" />
++        @if (canApprove() && stats().pending) {
++          <button lsmsButton="success" icon="done_all" [loading]="busy() === 'all'" [disabled]="!!busy()" (click)="approveAll()">{{ i18n.t('Confirm all', 'Thibitisha zote') }} ({{ stats().pending }})</button>
++        }
++        @if (canManage()) {
++          <button lsmsButton="primary" icon="add" (click)="add()">{{ i18n.t('Add asset', 'Ongeza mali') }}</button>
++        }
++      </div>
++      <lsms-segmented-filter-bar [options]="filters()" [selected]="filter()" (selectedChange)="filter.set($event)" />
++
++      @if (!shown().length) {
++        <lsms-empty-state icon="chair" [title]="i18n.t('No assets here', 'Hakuna mali hapa')" [message]="rows().length ? i18n.t('Nothing matches this filter.', 'Hakuna kinacholingana na kichujio hiki.') : i18n.t('Add the shop assets and how many there are — the CEO then confirms them.', 'Ongeza mali za duka na idadi yake — kisha CEO anathibitisha.')" />
++      } @else {
++        <div class="list">
++          @for (r of shown(); track id(r)) {
++            @let st = status(r);
++            <div class="row" [class.off]="r.status === 'RETIRED'">
++              <div class="what">
++                <b>{{ r.name }}</b>
++                <small>
++                  @if (r.location) { <span>{{ r.location }}</span> }
++                  @if (r.capitalExpenditureUid) {
++                    <span class="chip cap" [class.gone]="r.capitalStatus === 'DISPOSED'"><lsms-icon name="account_balance" [size]="12" />Capital@if (r.capitalCost !== null) { · {{ r.capitalCost | money: { decimals: 0 } }} }@if (r.capitalStatus === 'DISPOSED') { · {{ i18n.t('disposed', 'imeondolewa') }} }</span>
++                  } @else if (r.uid && r.status !== 'RETIRED') {
++                    <span class="chip">{{ i18n.t('Not in Capital', 'Haipo Capital') }}</span>
++                  }
++                </small>
++                @if (r.rejectReason) { <small class="why"><lsms-icon name="block" [size]="13" />{{ i18n.t('CEO', 'CEO') }}: {{ r.rejectReason }}</small> }
++                @if (r.status === 'RETIRED' && r.notes) { <small class="why muted">{{ r.notes }}</small> }
++              </div>
++
++              <div class="qty">
++                <span class="official">
++                  <small>{{ i18n.t('Confirmed', 'Iliyothibitishwa') }}</small>
++                  <b>{{ r.approvedQty ?? '—' }}</b>
++                </span>
++                @if (r.status !== 'RETIRED') {
++                  @if (canManage()) {
++                    <span class="edit">
++                      <small>{{ r.approvedQty === null ? i18n.t('Quantity', 'Idadi') : i18n.t('New quantity', 'Idadi mpya') }}</small>
++                      <app-qty-input [value]="r.proposedQty ?? r.approvedQty" [tone]="r.proposedQty !== null ? 'changed' : ''" [disabled]="saving().has(id(r))" (commit)="setQty(r, $event)" />
++                    </span>
++                  } @else if (r.proposedQty !== null) {
++                    <span class="official prop"><small>{{ i18n.t('Proposed', 'Inayopendekezwa') }}</small><b>{{ r.proposedQty }}</b></span>
++                  }
++                }
++              </div>
++
++              <span class="pill" [style.--pc]="st.color">
++                @if (saving().has(id(r))) { <lsms-spinner [size]="12" /> } @else { <lsms-icon [name]="st.icon" [size]="13" /> }
++                {{ i18n.isSwahili() ? st.sw : st.en }}
++              </span>
++
++              <div class="acts">
++                @if (canApprove() && r.uid && r.proposedQty !== null && r.status !== 'RETIRED') {
++                  <button lsmsButton="success" size="sm" icon="check" [loading]="busy() === r.uid" [disabled]="!!busy()" (click)="approve(r)">{{ i18n.t('Confirm', 'Thibitisha') }}</button>
++                  @if (r.status !== 'REJECTED') {
++                    <button lsmsButton="text" size="sm" icon="close" [disabled]="!!busy()" (click)="reject(r)">{{ i18n.t('Reject', 'Kataa') }}</button>
++                  }
++                }
++                @if (r.uid && r.status !== 'RETIRED') {
++                  @if (canManage()) {
++                    <button class="ib" type="button" (click)="edit(r)" [title]="i18n.t('Edit', 'Hariri')" [attr.aria-label]="i18n.t('Edit', 'Hariri') + ' ' + r.name"><lsms-icon name="edit" [size]="17" /></button>
++                    @if (!r.capitalExpenditureUid && canCapital()) {
++                      <button class="ib" type="button" (click)="addToCapital(r)" [title]="i18n.t('Add to Capital', 'Ongeza kwenye Capital')" [attr.aria-label]="i18n.t('Add to Capital', 'Ongeza kwenye Capital') + ' ' + r.name"><lsms-icon name="account_balance" [size]="17" /></button>
++                    }
++                    @if (r.approvedQty === null) {
++                      <button class="ib bad" type="button" (click)="remove(r)" [title]="i18n.t('Delete', 'Futa')" [attr.aria-label]="i18n.t('Delete', 'Futa') + ' ' + r.name"><lsms-icon name="delete" [size]="17" /></button>
++                    }
++                  }
++                  @if (canApprove() && r.approvedQty !== null) {
++                    <button class="ib bad" type="button" (click)="retire(r)" [title]="i18n.t('Remove from the list', 'Ondoa kwenye orodha')" [attr.aria-label]="i18n.t('Remove from the list', 'Ondoa kwenye orodha') + ' ' + r.name"><lsms-icon name="delete_sweep" [size]="17" /></button>
++                  }
++                }
++              </div>
++            </div>
++          }
++        </div>
++      }
++    }
++  `,
++  styles: `
++    :host { display: flex; flex-direction: column; gap: 12px; }
++    .bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
++    .search { flex: 1 1 220px; height: 40px; padding: 0 12px; border: 1px solid var(--c-border); border-radius: 12px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: 0; }
++    .search:focus { border-color: var(--c-primary); }
++    .list { border-radius: 16px; border: 1px solid var(--c-border); background: var(--c-surface); overflow: hidden; }
++    .row { display: grid; grid-template-columns: minmax(0, 1fr) auto 150px auto; align-items: center; gap: 12px 16px; padding: 12px 14px; border-bottom: 1px solid var(--c-border); }
++    .row:last-child { border-bottom: 0; }
++    .row.off { opacity: 0.6; }
++    .what { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
++    .what b { font-size: 0.9rem; font-weight: 600; color: var(--c-text); overflow-wrap: anywhere; }
++    .what small { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.74rem; color: var(--c-text-2); }
++    .chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 600; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text-2) 12%, transparent); }
++    .chip.cap { color: var(--c-secondary); background: color-mix(in srgb, var(--c-secondary) 11%, transparent); }
++    .chip.gone { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 10%, transparent); }
++    .why { color: var(--c-error) !important; }
++    .why.muted { color: var(--c-text-2) !important; }
++    .qty { display: flex; align-items: flex-end; gap: 14px; }
++    .qty span { display: flex; flex-direction: column; gap: 3px; }
++    .qty small { font-size: 0.68rem; color: var(--c-text-2); }
++    .official { min-width: 74px; }
++    .official b { height: 40px; display: inline-flex; align-items: center; font-size: 1.05rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
++    .official.prop b { color: var(--c-warning); }
++    .pill { justify-self: start; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
++    .acts { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 76px; }
++    .ib { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 0; border-radius: 10px; background: transparent; color: var(--c-text-2); cursor: pointer; }
++    .ib:hover { color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 9%, transparent); }
++    .ib.bad:hover { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 9%, transparent); }
++    @media (max-width: 900px) {
++      .row { grid-template-columns: minmax(0, 1fr) auto; }
++      .qty { grid-column: 1 / -1; grid-row: 2; }
++      .pill { grid-column: 2; grid-row: 1; justify-self: end; }
++      .acts { grid-column: 1 / -1; justify-content: flex-start; flex-wrap: wrap; }
++    }
++  `,
++})
++export class AssetRegister {
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++  private readonly auth = inject(AuthService);
++  private readonly dialogs = inject(DialogService);
++  private readonly toast = inject(ToastService);
++
++  /** Something the status strip counts has changed. */
++  readonly changed = output<void>();
++
++  protected readonly rows = signal<AssetItem[]>([]);
++  protected readonly loading = signal(true);
++  protected readonly error = signal<string | null>(null);
++  protected readonly query = signal('');
++  protected readonly filter = signal<Filter>('all');
++  protected readonly saving = signal<ReadonlySet<string>>(new Set());
++  /** Row uid being confirmed / rejected, or 'all'. */
++  protected readonly busy = signal<string | null>(null);
++
++  protected readonly canManage = computed(() => this.auth.hasPermission('ASSET_COUNT_MANAGE'));
++  protected readonly canApprove = computed(() => this.auth.hasPermission('ASSET_COUNT_APPROVE'));
++  protected readonly canCapital = computed(() => this.auth.hasPermission('CAPITAL_WRITE') || this.auth.hasPermission('CAPITAL_ASSET_WRITE'));
++
++  protected readonly stats = computed(() => {
++    const live = this.rows().filter((r) => r.status !== 'RETIRED');
++    const confirmed = live.filter((r) => r.approvedQty !== null);
++    return {
++      confirmed: confirmed.length,
++      units: confirmed.reduce((s, r) => s + (r.approvedQty ?? 0), 0),
++      pending: live.filter(assetIsPending).length,
++      fresh: live.filter((r) => r.status === 'NEW').length,
++    };
++  });
++
++  protected readonly filters = computed<SegmentOption<Filter>[]>(() => {
++    const s = this.stats();
++    const t = (en: string, sw: string) => this.i18n.t(en, sw);
++    return [
++      { value: 'all', label: t('All', 'Zote'), count: this.rows().length },
++      { value: 'pending', label: t('Awaiting the CEO', 'Zinasubiri CEO'), count: s.pending || undefined },
++      { value: 'new', label: t('Not filled', 'Hazijajazwa'), count: s.fresh || undefined },
++      { value: 'confirmed', label: t('Confirmed', 'Zimethibitishwa'), count: s.confirmed || undefined },
++    ];
++  });
++
++  protected readonly shown = computed(() => {
++    const q = this.query().trim().toLowerCase();
++    const f = this.filter();
++    return this.rows().filter((r) => {
++      if (q && !r.name.toLowerCase().includes(q) && !(r.location ?? '').toLowerCase().includes(q)) return false;
++      if (f === 'pending') return assetIsPending(r);
++      if (f === 'new') return r.status === 'NEW';
++      if (f === 'confirmed') return r.approvedQty !== null && r.status !== 'RETIRED';
++      return true;
++    });
++  });
++
++  protected readonly id = key;
++
++  constructor() {
++    void this.load();
++  }
++
++  async load(): Promise<void> {
++    this.loading.set(true);
++    this.error.set(null);
++    try {
++      this.rows.set(await this.api.register());
++    } catch (e) {
++      this.error.set(ApiError.from(e).message);
++    } finally {
++      this.loading.set(false);
++    }
++  }
++
++  /** A confirmed asset with a pending change reads "awaiting", not "confirmed". */
++  protected status(r: AssetItem) {
++    return ASSET_STATUS[r.status === 'APPROVED' && r.proposedQty !== null ? 'PENDING' : r.status] ?? ASSET_STATUS.PENDING;
++  }
++
++  /** Typing a quantity on the row: registers a Capital asset, or proposes a change. */
++  protected async setQty(r: AssetItem, qty: number | null): Promise<void> {
++    if (qty == null || qty === (r.proposedQty ?? r.approvedQty)) return;
++    const k = key(r);
++    if (this.saving().has(k)) return;
++    this.saving.update((x) => new Set(x).add(k));
++    try {
++      const saved = r.uid
++        ? await this.api.update(r.uid, { qty })
++        : await this.api.create({ name: r.name, qty, capitalExpenditureUid: r.capitalExpenditureUid ?? undefined });
++      this.replace(k, saved);
++      this.changed.emit();
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message || this.i18n.t('Could not save', 'Imeshindwa kuhifadhi'));
++      // Put the field back to what the server has.
++      this.rows.update((list) => list.map((x) => (key(x) === k ? { ...x } : x)));
++    } finally {
++      this.saving.update((x) => {
++        const n = new Set(x);
++        n.delete(k);
++        return n;
++      });
++    }
++  }
++
++  protected async add(): Promise<void> {
++    const { AssetItemDialog } = await import('./asset-dialogs');
++    const created = await this.dialogs.openAsync<AssetItem, AssetItem | null>(AssetItemDialog, { size: 'sm', data: null, disableClose: true });
++    if (!created) return;
++    this.rows.update((list) => [created, ...list]);
++    this.changed.emit();
++    this.toast.success(this.i18n.t('Asset saved — waiting for the CEO', 'Mali imehifadhiwa — inasubiri CEO'));
++    if (!created.capitalExpenditureUid) await this.askCapital(created);
++  }
++
++  protected async edit(r: AssetItem): Promise<void> {
++    const { AssetItemDialog } = await import('./asset-dialogs');
++    const saved = await this.dialogs.openAsync<AssetItem, AssetItem | null>(AssetItemDialog, { size: 'sm', data: r });
++    if (saved) this.replace(key(r), saved);
++  }
++
++  /** Asked once, right after adding an asset that Capital does not know. */
++  private async askCapital(r: AssetItem): Promise<void> {
++    if (!this.canCapital() || !r.uid) return;
++    const yes = await this.dialogs.confirm({
++      title: this.i18n.t('Add to Capital too?', 'Iongezwe kwenye Capital pia?'),
++      message: this.i18n.t(
++        `"${r.name}" is not among the fixed assets in Capital. Should it be added there (cost, depreciation, balance sheet)?`,
++        `"${r.name}" haipo kwenye mali za kudumu za Capital. Iongezwe huko (gharama, uchakavu, mizania)?`,
++      ),
++      confirmText: this.i18n.t('Yes, add to Capital', 'Ndiyo, ongeza Capital'),
++      cancelText: this.i18n.t('No, counting only', 'Hapana, kuhesabu tu'),
++    });
++    if (yes) await this.addToCapital(r);
++    else await this.api.update(r.uid, { capitalDecision: 'DECLINED' }).then((s) => this.replace(key(r), s), () => undefined);
++  }
++
++  /** Opens Capital's own new-asset form with the name filled in, then links the two. */
++  protected async addToCapital(r: AssetItem): Promise<void> {
++    if (!r.uid) return;
++    const { AssetDialog } = await import('../../capital/capital-dialogs');
++    const created = await this.dialogs.openAsync<Expenditure, { description: string }>(AssetDialog, { size: 'md', disableClose: true, data: { description: r.name } });
++    if (!created) return;
++    try {
++      this.replace(key(r), await this.api.update(r.uid, { capitalExpenditureUid: created.uid }));
++      this.toast.success(this.i18n.t('Added to Capital — waiting for approval there', 'Imeongezwa Capital — inasubiri idhini huko'));
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message);
++    }
++  }
++
++  protected async approve(r: AssetItem): Promise<void> {
++    if (!r.uid) return;
++    await this.confirmItems([r.uid], r.uid);
++  }
++
++  protected async approveAll(): Promise<void> {
++    const pending = this.rows().filter((r) => r.uid && assetIsPending(r));
++    const ok = await this.dialogs.confirm({
++      title: this.i18n.t('Confirm quantities', 'Thibitisha idadi'),
++      message: this.i18n.t(
++        `Confirm ${pending.length} asset(s)? These quantities become the official ones every verification is checked against.`,
++        `Thibitisha mali ${pending.length}? Idadi hizi zinakuwa rasmi — kila uhakiki utalinganishwa nazo.`,
++      ),
++      confirmText: this.i18n.t('Confirm all', 'Thibitisha zote'),
++      cancelText: this.i18n.t('Cancel', 'Ghairi'),
++    });
++    if (ok) await this.confirmItems(pending.map((r) => r.uid!), 'all');
++  }
++
++  private async confirmItems(uids: string[], busy: string): Promise<void> {
++    this.busy.set(busy);
++    try {
++      this.rows.set(await this.api.approveItems(uids));
++      this.changed.emit();
++      this.toast.success(this.i18n.t('Quantity confirmed', 'Idadi imethibitishwa'));
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message);
++    } finally {
++      this.busy.set(null);
++    }
++  }
++
++  protected async reject(r: AssetItem): Promise<void> {
++    const reason = await this.reason({
++      title: this.i18n.t('Reject quantity', 'Kataa idadi'),
++      message: `${r.name} · ${this.i18n.t('proposed', 'inayopendekezwa')} ${r.proposedQty}`,
++      label: this.i18n.t('Why?', 'Kwa nini?'),
++      confirm: this.i18n.t('Reject', 'Kataa'),
++      danger: true,
++    });
++    if (!reason || !r.uid) return;
++    await this.act(r, () => this.api.rejectItem(r.uid!, reason));
++  }
++
++  protected async retire(r: AssetItem): Promise<void> {
++    const reason = await this.reason({
++      title: this.i18n.t('Remove from the asset list', 'Ondoa kwenye orodha ya mali'),
++      message: this.i18n.t(`"${r.name}" will no longer be verified. Its history stays.`, `"${r.name}" haitahakikiwa tena. Historia yake inabaki.`),
++      label: this.i18n.t('Reason (sold, scrapped …)', 'Sababu (imeuzwa, imetupwa …)'),
++      confirm: this.i18n.t('Remove', 'Ondoa'),
++      danger: true,
++    });
++    if (!reason || !r.uid) return;
++    await this.act(r, () => this.api.retireItem(r.uid!, reason));
++  }
++
++  protected async remove(r: AssetItem): Promise<void> {
++    const ok = await this.dialogs.confirm({
++      title: this.i18n.t('Delete asset', 'Futa mali'),
++      message: this.i18n.t(`Delete "${r.name}" from the list?`, `Futa "${r.name}" kwenye orodha?`),
++      confirmText: this.i18n.t('Delete', 'Futa'),
++      cancelText: this.i18n.t('Cancel', 'Ghairi'),
++    });
++    if (!ok || !r.uid) return;
++    try {
++      await this.api.remove(r.uid);
++      // A registered Capital asset goes back to "not filled" → reload the merged list.
++      await this.load();
++      this.changed.emit();
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message);
++    }
++  }
++
++  private async act(r: AssetItem, call: () => Promise<AssetItem>): Promise<void> {
++    this.busy.set(r.uid);
++    try {
++      this.replace(key(r), await call());
++      this.changed.emit();
++    } catch (e) {
++      this.toast.error(ApiError.from(e).message);
++    } finally {
++      this.busy.set(null);
++    }
++  }
++
++  private reason(data: ReasonDialogData): Promise<string | undefined> {
++    return this.dialogs.openAsync<string, ReasonDialogData>(ReasonDialog, { size: 'sm', data });
++  }
++
++  private replace(k: string, saved: AssetItem): void {
++    this.rows.update((list) => list.map((x) => (key(x) === k ? saved : x)));
++  }
++}
+diff --git a/src/app/features/counting/assets/asset.models.ts b/src/app/features/counting/assets/asset.models.ts
+new file mode 100644
+index 0000000..ea2b33a
+--- /dev/null
++++ b/src/app/features/counting/assets/asset.models.ts
+@@ -0,0 +1,223 @@
++/**
++ * Asset register + asset counts (Spring `com.Lsms.Counting.Asset`).
++ *
++ * The register says how many of each asset the business owns: a quantity is
++ * PROPOSED (ASSET_COUNT_MANAGE) and becomes official once the CEO confirms it
++ * (ASSET_COUNT_APPROVE). A periodic count (COUNTING_PERFORM) is checked against
++ * the official quantity only.
++ *
++ * Blind rule: while a count is IN_PROGRESS the backend leaves `expectedQty` /
++ * `varianceQty` out of the JSON — UI code only ever null-checks them.
++ */
++
++export type AssetStatus = 'NEW' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETIRED';
++export type AssetSessionStatus = 'IN_PROGRESS' | 'PENDING_APPROVAL' | 'APPROVED' | 'MATCHED' | 'CANCELLED';
++export type AssetDecision = 'ACCEPT' | 'NO_ACTION' | 'CHARGE_STAFF';
++
++export interface AssetItem {
++  /** null = a Capital fixed asset that is not in the register yet (`status` NEW). */
++  uid: string | null;
++  name: string;
++  location: string | null;
++  capitalExpenditureUid: string | null;
++  /** LINKED · DECLINED · null (nobody answered "add to Capital?" yet). */
++  capitalDecision: string | null;
++  capitalStatus: string | null;
++  capitalCost: number | null;
++  approvedQty: number | null;
++  proposedQty: number | null;
++  unitValue: number | null;
++  status: AssetStatus;
++  proposedByUid: string | null;
++  proposedAt: string | null;
++  approvedByUid: string | null;
++  approvedAt: string | null;
++  rejectReason: string | null;
++  notes: string | null;
++}
++
++export interface AssetLine {
++  uid: string;
++  assetItemUid: string;
++  assetName: string;
++  location: string | null;
++  countedQty: number | null;
++  countedAt: string | null;
++  // Sighted-only (absent while the count is in progress).
++  expectedQty: number | null;
++  varianceQty: number | null;
++  unitValue: number | null;
++  reason: string | null;
++  note: string | null;
++  explainedAt: string | null;
++  decision: AssetDecision | null;
++  decisionNote: string | null;
++  chargeAmount: number | null;
++  chargeUserUid: string | null;
++}
++
++export interface AssetSession {
++  uid: string;
++  sessionDate: string | null;
++  status: AssetSessionStatus;
++  startedByUid: string | null;
++  startedAt: string | null;
++  completedAt: string | null;
++  approvedByUid: string | null;
++  approvedAt: string | null;
++  cancelledReason: string | null;
++  totalItems: number;
++  itemsCounted: number;
++  itemsWithVariance: number | null;
++  lines: AssetLine[];
++}
++
++export interface AssetStatusSummary {
++  approvedItems: number;
++  pendingItems: number;
++  frequency: 'DAILY' | 'WEEKLY' | null;
++  dayOfWeek: number | null;
++  due: boolean;
++  dueSince: string | null;
++  lastCountDate: string | null;
++  activeSessionUid: string | null;
++  sessionsAwaitingApproval: number;
++}
++
++export interface AssetDecisionDraft {
++  lineUid: string;
++  decision: AssetDecision;
++  note?: string | null;
++  chargeAmount?: number | null;
++  chargeUserUid?: string | null;
++}
++
++export const assetHasVariance = (l: AssetLine) => l.varianceQty != null && l.varianceQty !== 0;
++/** A quantity is waiting for the CEO. */
++export const assetIsPending = (i: AssetItem) => i.proposedQty != null && i.status !== 'REJECTED' && i.status !== 'RETIRED';
++
++type Label = { en: string; sw: string };
++
++export const ASSET_STATUS: Record<AssetStatus, Label & { color: string; icon: string }> = {
++  NEW: { en: 'Not counted yet', sw: 'Haijajazwa', color: 'var(--c-text-2)', icon: 'edit_note' },
++  PENDING: { en: 'Awaiting CEO', sw: 'Inasubiri CEO', color: 'var(--c-warning)', icon: 'hourglass_top' },
++  APPROVED: { en: 'Confirmed', sw: 'Imethibitishwa', color: 'var(--c-success)', icon: 'verified' },
++  REJECTED: { en: 'Rejected', sw: 'Imekataliwa', color: 'var(--c-error)', icon: 'block' },
++  RETIRED: { en: 'Removed', sw: 'Imeondolewa', color: 'var(--c-text-2)', icon: 'delete_sweep' },
++};
++
++export const ASSET_SESSION_STATUS: Record<AssetSessionStatus, Label & { color: string; icon: string }> = {
++  IN_PROGRESS: { en: 'In progress', sw: 'Inaendelea', color: 'var(--c-info)', icon: 'pending' },
++  PENDING_APPROVAL: { en: 'Awaiting CEO decision', sw: 'Inasubiri uamuzi wa CEO', color: 'var(--c-warning)', icon: 'hourglass_top' },
++  APPROVED: { en: 'Decided', sw: 'Imeamuliwa', color: 'var(--c-success)', icon: 'verified' },
++  MATCHED: { en: 'All matched', sw: 'Zote zimelingana', color: 'var(--c-success)', icon: 'task_alt' },
++  CANCELLED: { en: 'Cancelled', sw: 'Imefutwa', color: 'var(--c-text-2)', icon: 'block' },
++};
++
++/** Counter's explanation of a difference (backend `AssetCountService.REASONS`). */
++export const ASSET_REASONS: Record<string, Label> = {
++  IMEHARIBIKA: { en: 'Broken', sw: 'Imeharibika' },
++  IMEPOTEA: { en: 'Missing', sw: 'Imepotea' },
++  IMEHAMISHWA: { en: 'Moved elsewhere', sw: 'Imehamishwa' },
++  IMEONGEZWA: { en: 'New one added', sw: 'Imeongezwa' },
++  SIJUI: { en: "Don't know", sw: 'Sijui' },
++  NYINGINE: { en: 'Other', sw: 'Nyingine' },
++};
++
++export const ASSET_DECISIONS: Record<AssetDecision, Label & { color: string; icon: string }> = {
++  ACCEPT: { en: 'Accept new quantity', sw: 'Kubali idadi mpya', color: 'var(--c-warning)', icon: 'tune' },
++  NO_ACTION: { en: 'No action', sw: 'Bila hatua', color: 'var(--c-text-2)', icon: 'do_not_disturb_on' },
++  CHARGE_STAFF: { en: 'Charge staff', sw: 'Mtoze mfanyakazi', color: 'var(--c-error)', icon: 'person_alert' },
++};
++
++/** ISO-8601 day of week, 1 = Monday. */
++export const WEEK_DAYS: Label[] = [
++  { en: 'Monday', sw: 'Jumatatu' },
++  { en: 'Tuesday', sw: 'Jumanne' },
++  { en: 'Wednesday', sw: 'Jumatano' },
++  { en: 'Thursday', sw: 'Alhamisi' },
++  { en: 'Friday', sw: 'Ijumaa' },
++  { en: 'Saturday', sw: 'Jumamosi' },
++  { en: 'Sunday', sw: 'Jumapili' },
++];
++
++// ── Normalisers ──
++
++type Raw = Record<string, unknown>;
++const num = (v: unknown): number | null => (v === null || v === undefined || v === '' ? null : Number(v));
++const str = (v: unknown): string | null => (v === null || v === undefined || v === '' ? null : String(v));
++
++export function toAssetItem(r: Raw): AssetItem {
++  return {
++    uid: str(r['uid']),
++    name: str(r['name']) ?? '—',
++    location: str(r['location']),
++    capitalExpenditureUid: str(r['capitalExpenditureUid']),
++    capitalDecision: str(r['capitalDecision']),
++    capitalStatus: str(r['capitalStatus']),
++    capitalCost: num(r['capitalCost']),
++    approvedQty: num(r['approvedQty']),
++    proposedQty: num(r['proposedQty']),
++    unitValue: num(r['unitValue']),
++    status: (str(r['status']) ?? 'PENDING') as AssetStatus,
++    proposedByUid: str(r['proposedByUid']),
++    proposedAt: str(r['proposedAt']),
++    approvedByUid: str(r['approvedByUid']),
++    approvedAt: str(r['approvedAt']),
++    rejectReason: str(r['rejectReason']),
++    notes: str(r['notes']),
++  };
++}
++
++export function toAssetLine(r: Raw): AssetLine {
++  return {
++    uid: String(r['uid']),
++    assetItemUid: String(r['assetItemUid'] ?? ''),
++    assetName: str(r['assetName']) ?? '—',
++    location: str(r['location']),
++    countedQty: num(r['countedQty']),
++    countedAt: str(r['countedAt']),
++    expectedQty: num(r['expectedQty']),
++    varianceQty: num(r['varianceQty']),
++    unitValue: num(r['unitValue']),
++    reason: str(r['reason']),
++    note: str(r['note']),
++    explainedAt: str(r['explainedAt']),
++    decision: str(r['decision']) as AssetDecision | null,
++    decisionNote: str(r['decisionNote']),
++    chargeAmount: num(r['chargeAmount']),
++    chargeUserUid: str(r['chargeUserUid']),
++  };
++}
++
++export function toAssetSession(r: Raw): AssetSession {
++  return {
++    uid: String(r['uid']),
++    sessionDate: str(r['sessionDate']),
++    status: (str(r['status']) ?? 'IN_PROGRESS') as AssetSessionStatus,
++    startedByUid: str(r['startedByUid']),
++    startedAt: str(r['startedAt']),
++    completedAt: str(r['completedAt']),
++    approvedByUid: str(r['approvedByUid']),
++    approvedAt: str(r['approvedAt']),
++    cancelledReason: str(r['cancelledReason']),
++    totalItems: num(r['totalItems']) ?? 0,
++    itemsCounted: num(r['itemsCounted']) ?? 0,
++    itemsWithVariance: num(r['itemsWithVariance']),
++    lines: ((r['lines'] as Raw[] | null) ?? []).map(toAssetLine),
++  };
++}
++
++export function toAssetStatus(r: Raw): AssetStatusSummary {
++  return {
++    approvedItems: num(r['approvedItems']) ?? 0,
++    pendingItems: num(r['pendingItems']) ?? 0,
++    frequency: str(r['frequency']) as 'DAILY' | 'WEEKLY' | null,
++    dayOfWeek: num(r['dayOfWeek']),
++    due: !!r['due'],
++    dueSince: str(r['dueSince']),
++    lastCountDate: str(r['lastCountDate']),
++    activeSessionUid: str(r['activeSessionUid']),
++    sessionsAwaitingApproval: num(r['sessionsAwaitingApproval']) ?? 0,
++  };
++}
+diff --git a/src/app/features/counting/assets/asset.service.ts b/src/app/features/counting/assets/asset.service.ts
+new file mode 100644
+index 0000000..00ef878
+--- /dev/null
++++ b/src/app/features/counting/assets/asset.service.ts
+@@ -0,0 +1,138 @@
++import { Injectable, inject, signal } from '@angular/core';
++
++import { ApiService } from '@core/api/api.service';
++import {
++  AssetDecisionDraft,
++  AssetItem,
++  AssetLine,
++  AssetSession,
++  AssetStatusSummary,
++  toAssetItem,
++  toAssetLine,
++  toAssetSession,
++  toAssetStatus,
++} from './asset.models';
++
++type Raw = Record<string, unknown>;
++const BASE = '/api/v1/counting/assets';
++
++export interface AssetItemInput {
++  name?: string;
++  location?: string;
++  qty?: number;
++  unitValue?: number;
++  capitalExpenditureUid?: string;
++  capitalDecision?: 'DECLINED';
++}
++
++/**
++ * Asset register + asset count API (Spring `AssetCountController`). Backend
++ * errors carry the Swahili sentence to show — callers display it as-is.
++ * An asset count never pauses sales.
++ */
++@Injectable({ providedIn: 'root' })
++export class AssetService {
++  private readonly api = inject(ApiService);
++
++  /** Shared by the tab header, the count view and the register (one request). */
++  readonly status = signal<AssetStatusSummary | null>(null);
++
++  async loadStatus(): Promise<AssetStatusSummary> {
++    const s = toAssetStatus(await this.api.get<Raw>(`${BASE}/status`));
++    this.status.set(s);
++    return s;
++  }
++
++  /** DAILY · WEEKLY (needs `dayOfWeek` 1=Mon..7=Sun) · OFF. */
++  async saveSchedule(frequency: 'DAILY' | 'WEEKLY' | 'OFF', dayOfWeek: number | null): Promise<AssetStatusSummary> {
++    const s = toAssetStatus(await this.api.put<Raw>(`${BASE}/schedule`, { frequency, dayOfWeek }));
++    this.status.set(s);
++    return s;
++  }
++
++  // ── Register (ASSET_COUNT_MANAGE / ASSET_COUNT_APPROVE) ──
++
++  /** Register rows, then Capital fixed assets nobody registered yet (`uid` null). */
++  async register(): Promise<AssetItem[]> {
++    return ((await this.api.get<Raw[] | null>(BASE)) ?? []).map(toAssetItem);
++  }
++
++  async create(body: AssetItemInput): Promise<AssetItem> {
++    return toAssetItem(await this.api.post<Raw>(BASE, body));
++  }
++
++  /** A changed quantity becomes a proposal the CEO has to confirm again. */
++  async update(uid: string, body: AssetItemInput): Promise<AssetItem> {
++    return toAssetItem(await this.api.put<Raw>(`${BASE}/${uid}`, body));
++  }
++
++  /** Only a row that was never confirmed. */
++  async remove(uid: string): Promise<void> {
++    await this.api.delete(`${BASE}/${uid}`);
++  }
++
++  /** Returns the whole refreshed register. */
++  async approveItems(uids: string[]): Promise<AssetItem[]> {
++    return ((await this.api.post<Raw[] | null>(`${BASE}/approve`, { uids })) ?? []).map(toAssetItem);
++  }
++
++  async rejectItem(uid: string, reason: string): Promise<AssetItem> {
++    return toAssetItem(await this.api.post<Raw>(`${BASE}/${uid}/reject`, { reason }));
++  }
++
++  /** Takes an asset out of future counts; its history stays. */
++  async retireItem(uid: string, reason: string): Promise<AssetItem> {
++    return toAssetItem(await this.api.post<Raw>(`${BASE}/${uid}/retire`, { reason }));
++  }
++
++  // ── Counts ──
++
++  async start(): Promise<AssetSession> {
++    return toAssetSession(await this.api.post<Raw>(`${BASE}/counts`, {}));
++  }
++
++  /** The branch's open count, else my own count still waiting for the CEO; null = nothing. */
++  async active(): Promise<AssetSession | null> {
++    const r = await this.api.get<Raw | null>(`${BASE}/counts/active`);
++    return r ? toAssetSession(r) : null;
++  }
++
++  /** Summary rows only (no lines). */
++  async list(status?: string): Promise<AssetSession[]> {
++    return ((await this.api.get<Raw[] | null>(`${BASE}/counts`, { params: { status } })) ?? []).map(toAssetSession);
++  }
++
++  async session(uid: string): Promise<AssetSession> {
++    return toAssetSession(await this.api.get<Raw>(`${BASE}/counts/${uid}`));
++  }
++
++  async submitLine(sessionUid: string, lineUid: string, countedQty: number): Promise<AssetLine> {
++    return toAssetLine(await this.api.put<Raw>(`${BASE}/counts/${sessionUid}/lines/${lineUid}`, { countedQty }));
++  }
++
++  /** → MATCHED when nothing differs, else PENDING_APPROVAL. Lines come back sighted. */
++  async complete(sessionUid: string): Promise<AssetSession> {
++    return toAssetSession(await this.api.post<Raw>(`${BASE}/counts/${sessionUid}/complete`));
++  }
++
++  async explain(sessionUid: string, lineUid: string, reason: string, note: string | null): Promise<AssetLine> {
++    const body = { reason, ...(note?.trim() ? { note: note.trim() } : {}) };
++    return toAssetLine(await this.api.put<Raw>(`${BASE}/counts/${sessionUid}/lines/${lineUid}/explanation`, body));
++  }
++
++  async approve(sessionUid: string, decisions: AssetDecisionDraft[]): Promise<AssetSession> {
++    const body = {
++      decisions: decisions.map((d) => ({
++        lineUid: d.lineUid,
++        decision: d.decision,
++        ...(d.note?.trim() ? { note: d.note.trim() } : {}),
++        ...(d.decision === 'CHARGE_STAFF' ? { chargeAmount: d.chargeAmount, ...(d.chargeUserUid ? { chargeUserUid: d.chargeUserUid } : {}) } : {}),
++      })),
++    };
++    return toAssetSession(await this.api.post<Raw>(`${BASE}/counts/${sessionUid}/approve`, body));
++  }
++
++  async cancel(sessionUid: string, reason: string): Promise<AssetSession> {
++    return toAssetSession(await this.api.post<Raw>(`${BASE}/counts/${sessionUid}/cancel`, { reason }));
++  }
++}
+diff --git a/src/app/features/counting/assets/assets-tab.ts b/src/app/features/counting/assets/assets-tab.ts
+new file mode 100644
+index 0000000..e3cb142
+--- /dev/null
++++ b/src/app/features/counting/assets/assets-tab.ts
+@@ -0,0 +1,138 @@
++import { DatePipe } from '@angular/common';
++import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
++
++import { AuthService } from '@core/auth/auth.service';
++import { LanguageService } from '@core/i18n/language.service';
++import { Button, DialogService, Icon, SegmentOption, SegmentedFilterBar, ToastService } from '@shared/ui';
++import { parseLocal } from '@shared/utils/date-utils';
++import { AssetCount } from './asset-count';
++import { AssetHistory } from './asset-history';
++import { AssetRegister } from './asset-register';
++import { WEEK_DAYS } from './asset.models';
++import { AssetService } from './asset.service';
++
++type View = 'count' | 'register' | 'history';
++
++/**
++ * "Assets" tab of the Counting module. The register is filled once and confirmed
++ * by the CEO; after that the confirmed assets are verified on a daily / weekly
++ * schedule. Views appear only for what the user can act on: Verify
++ * (COUNTING_PERFORM), Asset list (ASSET_COUNT_MANAGE / ASSET_COUNT_APPROVE),
++ * History (COUNTING_PERFORM / ASSET_COUNT_APPROVE).
++ */
++@Component({
++  selector: 'app-assets-tab',
++  imports: [SegmentedFilterBar, Button, Icon, DatePipe, AssetCount, AssetRegister, AssetHistory],
++  changeDetection: ChangeDetectionStrategy.OnPush,
++  template: `
++    <section class="strip" [class.due]="status()?.due">
++      <lsms-icon [name]="status()?.due ? 'notification_important' : 'event_repeat'" [size]="20" />
++      <div>
++        <b>{{ scheduleLabel() }}</b>
++        <small>
++          @if (status()?.due) {
++            {{ i18n.t('Asset verification is due', 'Uhakiki wa mali unatakiwa kufanyika') }}@if (status()!.dueSince !== today) { · {{ i18n.t('since', 'tangu') }} {{ day(status()!.dueSince) | date: 'EEE dd MMM' }} }
++          } @else if (status()?.lastCountDate) {
++            {{ i18n.t('Last verified', 'Mara ya mwisho kuhakikiwa') }}: {{ day(status()!.lastCountDate) | date: 'EEE, dd MMM yyyy' }}
++          } @else {
++            {{ i18n.t('Assets have not been verified yet', 'Mali hazijawahi kuhakikiwa') }}
++          }
++        </small>
++      </div>
++      @if (canApprove()) {
++        <button lsmsButton="text" size="sm" icon="edit_calendar" (click)="editSchedule()">{{ i18n.t('Schedule', 'Ratiba') }}</button>
++      }
++    </section>
++
++    @if (views().length > 1) {
++      <lsms-segmented-filter-bar [options]="views()" [selected]="view()" (selectedChange)="view.set($event)" />
++    }
++    @switch (view()) {
++      @case ('count') { <app-asset-count #count (changed)="reload()" (openRegister)="view.set('register')" [canOpenRegister]="canRegister()" /> }
++      @case ('register') { <app-asset-register #register (changed)="reload()" /> }
++      @case ('history') { <app-asset-history #history (changed)="reload()" /> }
++    }
++  `,
++  styles: `
++    :host { display: flex; flex-direction: column; gap: 14px; }
++    .strip { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-primary); }
++    .strip.due { color: var(--c-warning); border-color: color-mix(in srgb, var(--c-warning) 40%, transparent); background: color-mix(in srgb, var(--c-warning) 7%, var(--c-surface)); }
++    .strip div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
++    .strip b { font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
++    .strip small { font-size: 0.78rem; color: var(--c-text-2); }
++  `,
++})
++export class AssetsTab {
++  protected readonly i18n = inject(LanguageService);
++  private readonly api = inject(AssetService);
++  private readonly auth = inject(AuthService);
++  private readonly dialogs = inject(DialogService);
++  private readonly toast = inject(ToastService);
++
++  private readonly count = viewChild<AssetCount>('count');
++  private readonly register = viewChild<AssetRegister>('register');
++  private readonly history = viewChild<AssetHistory>('history');
++
++  protected readonly status = this.api.status;
++  protected readonly today = new Date().toLocaleDateString('en-CA');
++
++  protected readonly canPerform = computed(() => this.auth.hasPermission('COUNTING_PERFORM'));
++  protected readonly canApprove = computed(() => this.auth.hasPermission('ASSET_COUNT_APPROVE'));
++  protected readonly canRegister = computed(() => this.canApprove() || this.auth.hasPermission('ASSET_COUNT_MANAGE'));
++
++  protected readonly views = computed<SegmentOption<View>[]>(() => {
++    const t = (en: string, sw: string) => this.i18n.t(en, sw);
++    const s = this.status();
++    return [
++      ...(this.canPerform() ? [{ value: 'count' as View, label: t('Verify', 'Hakiki'), icon: 'fact_check', count: s?.due ? 1 : undefined }] : []),
++      ...(this.canRegister() ? [{ value: 'register' as View, label: t('Asset list', 'Orodha ya mali'), icon: 'chair', count: (this.canApprove() && s?.pendingItems) || undefined }] : []),
++      ...(this.canPerform() || this.canApprove()
++        ? [{ value: 'history' as View, label: t('History', 'Historia'), icon: 'history', count: (this.canApprove() && s?.sessionsAwaitingApproval) || undefined }]
++        : []),
++    ];
++  });
++
++  protected readonly view = signal<View>('count');
++
++  protected readonly scheduleLabel = computed(() => {
++    const s = this.status();
++    if (!s?.frequency) return this.i18n.t('No verification schedule', 'Hakuna ratiba ya uhakiki');
++    if (s.frequency === 'DAILY') return this.i18n.t('Verified every day', 'Uhakiki kila siku');
++    const d = WEEK_DAYS[(s.dayOfWeek ?? 1) - 1];
++    return this.i18n.t('Verified every ' + d.en, 'Uhakiki kila ' + d.sw);
++  });
++
++  constructor() {
++    const allowed = this.views().map((v) => v.value);
++    this.view.set(allowed[0] ?? 'count');
++    void this.reload().then(() => {
++      // The CEO lands where a decision is waiting.
++      const s = this.status();
++      if (!this.canApprove() || !s) return;
++      if (s.pendingItems) this.view.set('register');
++      else if (s.sessionsAwaitingApproval) this.view.set('history');
++    });
++  }
++
++  /** Page-level refresh. */
++  load(): void {
++    void this.reload();
++    void this.count()?.resume();
++    void this.register()?.load();
++    void this.history()?.load();
++  }
++
++  protected async reload(): Promise<void> {
++    await this.api.loadStatus().catch(() => undefined);
++  }
++
++  protected async editSchedule(): Promise<void> {
++    const { AssetScheduleDialog } = await import('./asset-dialogs');
++    const saved = await this.dialogs.openAsync<boolean>(AssetScheduleDialog, { size: 'sm' });
++    if (saved) this.toast.success(this.i18n.t('Schedule saved', 'Ratiba imehifadhiwa'));
++  }
++
++  protected day(v: string | null): Date | null {
++    return parseLocal(v);
++  }
++}
+diff --git a/src/app/features/counting/counting-page.ts b/src/app/features/counting/counting-page.ts
+index ae1f75a..88987d0 100644
+--- a/src/app/features/counting/counting-page.ts
++++ b/src/app/features/counting/counting-page.ts
+@@ -4,31 +4,33 @@ import { ActivatedRoute, Router } from '@angular/router';
+ import { AuthService } from '@core/auth/auth.service';
+ import { LanguageService } from '@core/i18n/language.service';
+ import { EmptyState, PageHeader, SegmentOption, SegmentedFilterBar } from '@shared/ui';
++import { AssetsTab } from './assets/assets-tab';
+ import { CountTab } from './count-tab';
+ import { CountStore } from './count.store';
+ import { MyLiabilitiesTab } from './my-liabilities-tab';
+ import { SessionsTab } from './sessions-tab';
+ import { StaffLiabilitiesTab } from './staff-liabilities-tab';
+ 
+-type Tab = 'count' | 'approval' | 'history' | 'my-liabilities' | 'staff-liabilities';
++type Tab = 'count' | 'approval' | 'history' | 'assets' | 'my-liabilities' | 'staff-liabilities';
+ 
+ /**
+  * Stock count module — port of Flutter `CountingMainScreen`. Tabs appear only
+  * for what the user can act on (hide, don't deny): Count (COUNTING_PERFORM),
+- * Approval (COUNTING_APPROVE), History (either), My debts
++ * Approval (COUNTING_APPROVE), History (either), Assets (COUNTING_PERFORM /
++ * ASSET_COUNT_MANAGE / ASSET_COUNT_APPROVE — asset register + verification), My debts
+  * (LIABILITY_READ_OWN), Staff debts (LIABILITY_READ_ALL / LIABILITY_MANAGE).
+  * `?tab=` selects a tab (the dashboard's liability alert opens My debts).
+  */
+ @Component({
+   selector: 'app-counting-page',
+-  imports: [PageHeader, SegmentedFilterBar, EmptyState, CountTab, SessionsTab, MyLiabilitiesTab, StaffLiabilitiesTab],
++  imports: [PageHeader, SegmentedFilterBar, EmptyState, CountTab, SessionsTab, AssetsTab, MyLiabilitiesTab, StaffLiabilitiesTab],
+   providers: [CountStore],
+   changeDetection: ChangeDetectionStrategy.OnPush,
+   template: `
+     <div class="wrap">
+       <lsms-page-header
+         [title]="i18n.t('Stock count', 'Kuhesabu mali')"
+-        [subtitle]="i18n.t('Blind stock counts, approvals and staff shortage debts', 'Kuhesabu mali kwa blind count, uthibitisho na madeni ya uhaba ya wafanyakazi')"
++        [subtitle]="i18n.t('Blind stock counts, asset verification, approvals and staff shortage debts', 'Kuhesabu stock kwa blind count, uhakiki wa mali za duka, uthibitisho na madeni ya uhaba ya wafanyakazi')"
+         icon="checklist"
+         [refreshable]="tabs().length > 0"
+         (refresh)="refresh()"
+@@ -41,6 +43,7 @@ type Tab = 'count' | 'approval' | 'history' | 'my-liabilities' | 'staff-liabilit
+           @case ('count') { <app-count-tab /> }
+           @case ('approval') { <app-sessions-tab #sessions mode="queue" /> }
+           @case ('history') { <app-sessions-tab #sessions mode="history" /> }
++          @case ('assets') { <app-assets-tab #assets /> }
+           @case ('my-liabilities') { <app-my-liabilities-tab #mine /> }
+           @case ('staff-liabilities') { <app-staff-liabilities-tab #staff /> }
+         }
+@@ -61,6 +64,7 @@ export class CountingPage {
+   private readonly store = inject(CountStore);
+ 
+   private readonly sessions = viewChild<SessionsTab>('sessions');
++  private readonly assets = viewChild<AssetsTab>('assets');
+   private readonly mine = viewChild<MyLiabilitiesTab>('mine');
+   private readonly staff = viewChild<StaffLiabilitiesTab>('staff');
+ 
+@@ -73,6 +77,7 @@ export class CountingPage {
+       ...(perform ? [{ value: 'count' as Tab, label: t('Count', 'Hesabu'), icon: 'checklist' }] : []),
+       ...(approve ? [{ value: 'approval' as Tab, label: t('Approval', 'Kuthibitisha'), icon: 'fact_check' }] : []),
+       ...(perform || approve ? [{ value: 'history' as Tab, label: t('History', 'Historia'), icon: 'history' }] : []),
++      ...(perform || has('ASSET_COUNT_MANAGE') || has('ASSET_COUNT_APPROVE') ? [{ value: 'assets' as Tab, label: t('Assets', 'Mali za duka'), icon: 'chair' }] : []),
+       ...(has('LIABILITY_READ_OWN') ? [{ value: 'my-liabilities' as Tab, label: t('My debts', 'Madeni yangu'), icon: 'account_balance_wallet' }] : []),
+       ...(has('LIABILITY_READ_ALL') || has('LIABILITY_MANAGE') ? [{ value: 'staff-liabilities' as Tab, label: t('Staff debts', 'Madeni ya wafanyakazi'), icon: 'groups' }] : []),
+     ];
+@@ -100,6 +105,9 @@ export class CountingPage {
+       case 'history':
+         void this.sessions()?.load();
+         break;
++      case 'assets':
++        this.assets()?.load();
++        break;
+       case 'my-liabilities':
+         void this.mine()?.load();
+         break;
