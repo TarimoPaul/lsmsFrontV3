@@ -195,6 +195,8 @@ export class ExpenseDialog {
   styles: FORM,
 })
 export class AssetDialog {
+  /** Optional prefill — the Counting asset register opens this form for an asset it already named. */
+  private readonly data = inject<{ description?: string } | null>(DIALOG_DATA, { optional: true });
   protected readonly ref = inject<DialogRef<Expenditure>>(DialogRef);
   protected readonly i18n = inject(LanguageService);
   private readonly api = inject(CapitalService);
@@ -202,7 +204,7 @@ export class AssetDialog {
   protected readonly types = ASSET_TYPES;
   protected readonly today = today();
   protected readonly type = signal('OFFICE_CAPITAL');
-  protected readonly desc = signal('');
+  protected readonly desc = signal(this.data?.description ?? '');
   protected readonly amount = signal('');
   protected readonly salvage = signal('');
   protected readonly life = signal(60);

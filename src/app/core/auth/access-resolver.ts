@@ -145,7 +145,7 @@ export function parsePermission(permission: string): { module: string; action: s
   if (upper.endsWith('_REPORT') || upper.includes('_REPORT_')) return { module: 'reports', action: 'read' };
 
   // Counting permissions are verb-shaped; any of them unlocks the tile.
-  if (upper.startsWith('COUNTING_') || upper === 'BYPASS_COUNTING') return { module: 'counting', action: 'read' };
+  if (upper.startsWith('COUNTING_') || upper.startsWith('ASSET_COUNT_') || upper === 'BYPASS_COUNTING') return { module: 'counting', action: 'read' };
 
   const override = OVERRIDES[upper];
   if (override) return override;
