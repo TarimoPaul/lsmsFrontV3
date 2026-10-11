@@ -1,0 +1,23 @@
+---STAGING-LAZIMA-IWE-2.2.65--- 
+BACKEND_VERSION=2.2.65
+---STAGING-HIFADHI-DB-KABLA-YA-MIGRATION--- 
+-rw-rw-r-- 1 chief chief 8028628 Oct  8 12:49 /home/chief/lsms-staging/staging_kabla_ya_2266_20261008.dump
+---STAGING-NAKALA-YA-ENV--- 
+-rw------- 1 chief chief 614 Oct  7 14:47 .env
+-rw------- 1 chief chief 614 Oct  7 14:47 .env.bak.20261008-kabla-ya-2266
+---STAGING-BADILISHA-BACKEND_VERSION--- 
+BACKEND_VERSION=2.2.66
+2
+---STAGING-PULL-IMAGE--- 
+ Image chiefmaster/my-lsms-backend:2.2.66 Pulling 
+ Image chiefmaster/my-lsms-backend:2.2.66 Pulled 
+chiefmaster/my-lsms-backend@sha256:0cb30c4cf83da1bfd20ee380a8dfb61c10e9ad41bab8430ced8acc099b3b45e2
+---STAGING-WASHA-BACKEND-2.2.66--- 
+ Container lsms-staging-postgres-1 Running 
+ Container lsms-staging-backend-1 Recreate 
+ Container lsms-staging-backend-1 Recreated 
+ Container lsms-staging-postgres-1 Waiting 
+ Container lsms-staging-postgres-1 Healthy 
+ Container lsms-staging-backend-1 Starting 
+ Container lsms-staging-backend-1 Started 
+---MWISHO--- 

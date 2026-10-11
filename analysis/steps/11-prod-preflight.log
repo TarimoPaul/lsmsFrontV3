@@ -1,0 +1,22 @@
+---PREFLIGHT-ONLY-2.2.66--- 
+
+===== PREFLIGHT (BACKEND -> CONTABO) =====
+  Server sasa: 2.2.65        Toleo jipya: 2.2.66   (chiefmaster/my-lsms-backend:2.2.66)
+  -DeployOnly: HAKUNA build/push - image iliyopo Docker Hub inatumika kama ilivyo.
+  Image:       sha256:0cb30c4cf83da1bfd20ee380a8dfb61c10e9ad41bab8430ced8acc099b3b45e2
+  Revision:    5c5ef33c133f59850ca25b4a2d6720a24329269b
+  Migrations za Flyway ambazo HAZIJAENDESHWA kwenye server (2):
+      V128__Asset_Register_And_Asset_Counts.sql
+      V129__Staff_Liability_Asset_Source.sql
+  Migration ikishaendeshwa hairudishwi yenyewe - rollback inarudisha image tu, si database.
+  (Flyway: baseline=38, out-of-order=true - migrations za baseline na chini yake hazihesabiwi)
+
+  -PreflightOnly: nimeishia hapa. Hakuna kilichobadilishwa.
+---MASHARTI--- 
+SAWA  digest: ni ile ya staging [sha256:0cb30c4cf83da1bfd20ee380a8dfb61c10e9ad41bab8430ced8acc099b3b45e2] 
+SAWA  prod inaendesha: [2.2.65] 
+SAWA  migrations zinazosubiri: [2] 
+SAWA  V128 iko kwenye orodha ya zinazosubiri 
+SAWA  V129 iko kwenye orodha ya zinazosubiri 
+SAWA  hakuna migration iliyorukwa 
+PREFLIGHT_SAWA 
