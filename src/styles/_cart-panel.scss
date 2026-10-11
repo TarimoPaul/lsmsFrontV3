@@ -31,7 +31,7 @@
       min-width: 0;
       h1 {
         font-size: 1.25rem;
-        font-weight: 800;
+        font-weight: 600;
         margin: 0;
       }
       small {
@@ -95,7 +95,7 @@
       background: transparent;
       font: inherit;
       font-size: 0.76rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--c-text-2);
       cursor: pointer;
       &.on {
@@ -112,13 +112,13 @@
     background: var(--c-surface);
     font: inherit;
     font-size: 0.78rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text);
     cursor: pointer;
     white-space: nowrap;
     small {
       margin-left: 2px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--c-text-2);
     }
     &.on {
@@ -154,7 +154,7 @@
       gap: 8px;
       flex: 1;
       font-size: 1rem;
-      font-weight: 800;
+      font-weight: 600;
       margin: 0;
       lsms-icon {
         color: var(--c-primary);
@@ -177,7 +177,7 @@
       background: transparent;
       font: inherit;
       font-size: 0.78rem;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--c-error);
       cursor: pointer;
       &:hover {
@@ -254,7 +254,7 @@
       margin-right: 4px;
       padding: 0 6px;
       border-radius: 6px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--pc);
       background: color-mix(in srgb, var(--pc) 12%, transparent);
     }
@@ -298,7 +298,7 @@
       text-align: center;
       font: inherit;
       font-size: 0.84rem;
-      font-weight: 700;
+      font-weight: 600;
       background: transparent;
       color: var(--c-text);
       outline: none;
@@ -350,7 +350,7 @@
       border: 0;
       border-radius: 16px;
       font: inherit;
-      font-weight: 700;
+      font-weight: 600;
       color: #fff;
       background: var(--c-primary);
       box-shadow: 0 10px 30px rgb(15 23 42 / 25%);

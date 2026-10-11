@@ -69,7 +69,7 @@ export interface CategoryFormData {
     }
     .badge {
       display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 42px; height: 42px;
-      border-radius: 12px; color: #fff; font-weight: 800; font-size: 0.85rem; background: var(--cat);
+      border-radius: 12px; color: #fff; font-weight: 600; font-size: 0.85rem; background: var(--cat);
       transition: background 0.2s;
     }
     .txt { display: flex; flex-direction: column; min-width: 0; }

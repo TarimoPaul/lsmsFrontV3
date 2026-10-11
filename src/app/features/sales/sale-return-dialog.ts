@@ -110,7 +110,7 @@ interface Row {
     .banner span { display: flex; flex-direction: column; gap: 2px; }
     .banner.err { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 7%, var(--c-bg)); border: 1px solid color-mix(in srgb, var(--c-error) 28%, transparent); }
     .banner.warn { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 8%, var(--c-bg)); }
-    .lbl { font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); }
+    .lbl { font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); }
     .types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .types button { display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; text-align: left; color: var(--c-text); cursor: pointer; }
     .types button b { font-size: 0.84rem; }
@@ -118,7 +118,7 @@ interface Row {
     .types button.on { border-color: var(--c-primary); box-shadow: 0 0 0 1px var(--c-primary); background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface)); }
     @media (max-width: 560px) { .types { grid-template-columns: 1fr; } }
     .rows-head { display: flex; align-items: center; justify-content: space-between; }
-    .link { padding: 0; border: 0; background: none; font: inherit; font-size: 0.78rem; font-weight: 700; color: var(--c-primary); cursor: pointer; }
+    .link { padding: 0; border: 0; background: none; font: inherit; font-size: 0.78rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
     .rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
     .rows li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--c-bg); border: 1px solid var(--c-border); }
     .nm { display: flex; flex-direction: column; flex: 1; min-width: 0; }
@@ -127,10 +127,10 @@ interface Row {
     .amt { min-width: 70px; text-align: right; font-variant-numeric: tabular-nums; }
     .stepper { display: inline-flex; align-items: center; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface); overflow: hidden; }
     .stepper button { display: inline-flex; padding: 4px 6px; border: 0; background: transparent; color: var(--c-text); cursor: pointer; }
-    .stepper input { width: 40px; border: 0; text-align: center; font: inherit; font-size: 0.84rem; font-weight: 700; background: transparent; color: var(--c-text); outline: none; }
+    .stepper input { width: 40px; border: 0; text-align: center; font: inherit; font-size: 0.84rem; font-weight: 600; background: transparent; color: var(--c-text); outline: none; }
     .refund { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--c-primary) 6%, var(--c-bg)); }
     .refund small { color: var(--c-text-2); }
-    .refund b { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--c-primary); }
+    .refund b { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-primary); }
   `,
 })
 export class SaleReturnDialog {

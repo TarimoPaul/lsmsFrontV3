@@ -53,12 +53,12 @@ export interface OrderPurchasedData {
     ul { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
     li { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(96px, auto); align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--c-border); }
     li.zero .nm b, li.zero .c { color: var(--c-text-2); }
-    .nm { display: flex; flex-direction: column; min-width: 0; b { font-size: 0.88rem; font-weight: 600; color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } small { font-size: 0.72rem; color: var(--c-text-2); } }
+    .nm { display: flex; flex-direction: column; min-width: 0; b { font-size: 0.88rem; font-weight: 500; color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } small { font-size: 0.72rem; color: var(--c-text-2); } }
     .step { display: inline-flex; align-items: center; border: 1px solid var(--c-border); border-radius: 10px; overflow: hidden; background: var(--c-surface); }
     .step button { width: 34px; height: 36px; border: 0; background: transparent; font-size: 1.1rem; color: var(--c-text); cursor: pointer; }
     .step button:disabled { color: var(--c-text-2); cursor: default; opacity: 0.5; }
     .step button:hover:not(:disabled) { background: var(--c-bg); }
-    .step input { width: 48px; height: 36px; border: 0; border-inline: 1px solid var(--c-border); text-align: center; font: inherit; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-text); background: transparent; -moz-appearance: textfield; }
+    .step input { width: 48px; height: 36px; border: 0; border-inline: 1px solid var(--c-border); text-align: center; font: inherit; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); background: transparent; -moz-appearance: textfield; }
     .step input::-webkit-outer-spin-button, .step input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .c { text-align: right; font-size: 0.84rem; font-variant-numeric: tabular-nums; color: var(--c-text); }
     .sum { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 2px 0; font-size: 0.86rem; color: var(--c-text-2); b { font-size: 1.15rem; color: var(--c-text); font-variant-numeric: tabular-nums; } }

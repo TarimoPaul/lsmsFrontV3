@@ -83,16 +83,16 @@ export interface SafeBoxDepositData {
     .left { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; background: var(--c-bg); }
     .left b { margin-left: auto; font-variant-numeric: tabular-nums; }
     .form { display: flex; flex-direction: column; gap: 12px; }
-    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.76rem; font-weight: 600; color: var(--c-text-2); }
-    .lbl { font-size: 0.76rem; font-weight: 600; color: var(--c-text-2); }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.76rem; font-weight: 500; color: var(--c-text-2); }
+    .lbl { font-size: 0.76rem; font-weight: 500; color: var(--c-text-2); }
     input { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.86rem; color: var(--c-text); outline: none; }
     input:focus { border-color: var(--c-primary); }
     .err { color: var(--c-error); font-weight: 500; }
     .seg { display: inline-flex; align-self: flex-start; padding: 3px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
-    .seg button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); cursor: pointer; }
+    .seg button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
     .seg button.on { color: var(--c-on-primary); background: var(--c-primary); }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chips button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-bg); font: inherit; font-size: 0.78rem; font-weight: 600; color: var(--c-text); cursor: pointer; }
+    .chips button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-bg); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
     .chips button.on { color: var(--c-on-primary); background: var(--c-primary); border-color: var(--c-primary); }
   `,
 })

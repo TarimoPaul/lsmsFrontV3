@@ -10,6 +10,7 @@ export * from './metric-card/metrics-grid';
 export * from './dashboard/dashboard-card';
 export * from './dashboard/dashboard-kpi';
 export * from './dashboard/dashboard-charts';
+export * from './dashboard/trend-chart';
 export * from './badges/status-badges';
 export * from './segmented-filter-bar/segmented-filter-bar';
 export * from './page/page-header';

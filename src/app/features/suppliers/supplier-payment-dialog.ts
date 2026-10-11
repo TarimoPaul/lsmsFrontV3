@@ -69,13 +69,13 @@ export interface SupplierPaymentData {
       display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; padding: 12px 14px; border-radius: 12px;
       color: var(--c-error); background: color-mix(in srgb, var(--c-error) 7%, var(--c-bg)); border: 1px solid color-mix(in srgb, var(--c-error) 25%, transparent);
       span { font-size: 0.8rem; color: var(--c-text-2); }
-      b { font-size: 1.2rem; font-weight: 800; }
+      b { font-size: 1.2rem; font-weight: 600; }
       &.zero { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 7%, var(--c-bg)); border-color: color-mix(in srgb, var(--c-success) 25%, transparent); }
     }
     .quick { display: flex; gap: 6px; margin: -6px 0 8px; }
     .quick button {
       padding: 2px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); cursor: pointer;
-      font: inherit; font-size: 0.74rem; font-weight: 700; color: var(--c-primary);
+      font: inherit; font-size: 0.74rem; font-weight: 600; color: var(--c-primary);
     }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }

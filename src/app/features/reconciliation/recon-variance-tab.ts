@@ -120,15 +120,15 @@ interface CashierGroup {
     .cashier { border-radius: 16px; background: var(--c-surface); border: 1px solid var(--c-border); overflow: hidden; }
     .head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border: 0; background: transparent; font: inherit; color: var(--c-text); cursor: pointer; text-align: left; }
     .head:hover { background: var(--c-hover); }
-    .av { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; font-size: 0.74rem; font-weight: 700; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, transparent); }
+    .av { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; font-size: 0.74rem; font-weight: 600; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, transparent); }
     .nm { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .nm b { font-weight: 600; }
+    .nm b { font-weight: 500; }
     .nm small { font-size: 0.74rem; color: var(--c-text-2); }
-    .nm em { font-style: normal; font-weight: 600; color: var(--c-warning); }
-    .neg { color: var(--c-error); font-weight: 700; font-variant-numeric: tabular-nums; }
-    .pos { color: var(--c-success); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .nm em { font-style: normal; font-weight: 500; color: var(--c-warning); }
+    .neg { color: var(--c-error); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .pos { color: var(--c-success); font-weight: 600; font-variant-numeric: tabular-nums; }
     .reasons { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 8px 14px; border-top: 1px solid var(--c-border); font-size: 0.78rem; background: var(--c-bg); }
-    .reasons small { color: var(--c-text-2); font-weight: 600; }
+    .reasons small { color: var(--c-text-2); font-weight: 500; }
     .items.flat { border: 0; border-top: 1px solid var(--c-border); border-radius: 0; }
     .clickable { cursor: pointer; }
     .clickable:hover { background: var(--c-hover); }

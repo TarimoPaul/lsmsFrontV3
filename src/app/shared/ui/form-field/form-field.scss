@@ -107,7 +107,7 @@ select {
 }
 .affix-text {
   @include t.body;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text-2);
   white-space: nowrap;
 }

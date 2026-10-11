@@ -87,9 +87,9 @@ interface Row {
   styles: `
     :host { display: block; padding: 16px; border-radius: 16px; background: var(--c-surface); border: 1px solid var(--c-border); }
     header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-    h3 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; }
+    h3 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; }
     h3 lsms-icon { color: var(--c-primary); }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
     .income, .result, .rows li { display: flex; align-items: center; gap: 12px; }
     .income { padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--c-success) 8%, transparent); border: 1px solid color-mix(in srgb, var(--c-success) 25%, transparent); }
     .ic { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; }
@@ -97,29 +97,29 @@ interface Row {
     .t { display: flex; flex-direction: column; flex: 1; min-width: 0; }
     .t b { font-size: 0.86rem; }
     .t small { font-size: 0.72rem; color: var(--c-text-2); }
-    .amt { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .amt { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .income .amt { color: var(--c-success); font-size: 1.05rem; }
-    .sect { display: flex; align-items: center; gap: 5px; margin: 14px 0 6px 2px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; color: var(--c-text-2); }
+    .sect { display: flex; align-items: center; gap: 5px; margin: 14px 0 6px 2px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; color: var(--c-text-2); }
     .rows { list-style: none; margin: 0; padding: 0; border-radius: 12px; border: 1px solid var(--c-border); overflow: hidden; }
     .rows li { padding: 10px 14px; border-top: 1px solid var(--c-border); }
     .rows li:first-child { border-top: 0; }
     .rows .ic { width: 30px; height: 30px; color: var(--rc); background: color-mix(in srgb, var(--rc) 11%, transparent); }
     .rows .amt { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.86rem; }
-    .rows .amt small { font-size: 0.7rem; font-weight: 600; color: var(--c-text-2); }
+    .rows .amt small { font-size: 0.7rem; font-weight: 500; color: var(--c-text-2); }
     .deducted { margin: 6px 2px 12px; text-align: right; font-size: 0.76rem; color: var(--c-text-2); }
     .result { --rc: var(--c-success); flex-wrap: wrap; padding: 14px 16px; border-radius: 12px; color: var(--rc); background: color-mix(in srgb, var(--rc) 10%, transparent); border: 1.5px solid color-mix(in srgb, var(--rc) 40%, transparent); }
     .result.short { --rc: var(--c-error); }
     .result.excess { --rc: var(--c-warning); }
     .result .ic { background: color-mix(in srgb, var(--rc) 15%, transparent); }
     .result .t small { color: color-mix(in srgb, var(--rc) 80%, var(--c-text)); }
-    .result .amt { font-size: 1.35rem; font-weight: 900; }
+    .result .amt { font-size: 1.35rem; font-weight: 600; }
     .why { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--rc) 20%, transparent); font-size: 0.78rem; color: var(--c-text-2); }
-    .tag { padding: 2px 8px; border-radius: 6px; font-weight: 700; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); }
+    .tag { padding: 2px 8px; border-radius: 6px; font-weight: 600; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); }
     .debts { margin-top: 12px; padding: 4px 14px 10px; border-radius: 12px; background: var(--c-bg); border: 1px dashed var(--c-border); }
     .dline { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.82rem; }
     .dline b { font-variant-numeric: tabular-nums; }
     .dline.sub { padding-left: 12px; color: var(--c-text-2); }
-    .dline.bad { color: var(--c-error); font-weight: 700; }
+    .dline.bad { color: var(--c-error); font-weight: 600; }
   `,
 })
 export class ReconStatement {

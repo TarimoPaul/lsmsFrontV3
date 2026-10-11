@@ -77,7 +77,7 @@ import { REPORTS, ReportDef } from './reports.models';
     @use 'list-page';
     @include list-page.base;
     .snap { display: flex; flex-direction: column; gap: 10px; }
-    .snap h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--c-text); lsms-icon { color: var(--c-primary); } }
+    .snap h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--c-text); lsms-icon { color: var(--c-primary); } }
     .snap h3 small { font-size: 0.72rem; font-weight: 500; color: var(--c-text-2); }
     .err { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.84rem; color: var(--c-error); }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
@@ -88,13 +88,13 @@ import { REPORTS, ReportDef } from './reports.models';
     .top { display: flex; align-items: flex-start; gap: 12px; }
     .ic { display: inline-grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); }
     .t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .t b { font-size: 0.95rem; font-weight: 600; color: var(--c-text); }
+    .t b { font-size: 0.95rem; font-weight: 500; color: var(--c-text); }
     .t small { font-size: 0.78rem; color: var(--c-text-2); }
     .go { color: var(--c-text-2); }
     .card:hover .go { color: var(--c); }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; }
     .chips span { padding: 3px 9px; border-radius: 100px; font-size: 0.72rem; color: var(--c-text-2); background: var(--c-bg); border: 1px solid var(--c-border); }
-    .src { display: flex; align-items: center; gap: 5px; margin-top: auto; font-size: 0.72rem; font-weight: 600; color: var(--c); }
+    .src { display: flex; align-items: center; gap: 5px; margin-top: auto; font-size: 0.72rem; font-weight: 500; color: var(--c); }
   `,
 })
 export class ReportsHub {

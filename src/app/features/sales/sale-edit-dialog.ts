@@ -101,20 +101,20 @@ interface EditLine {
     .nm { display: flex; flex-direction: column; flex: 1; min-width: 160px; }
     .nm b { font-size: 0.84rem; }
     .nm small { font-size: 0.7rem; color: var(--c-text-2); }
-    .tp { --pc: var(--c-primary); margin-right: 4px; padding: 0 6px; border-radius: 6px; font-weight: 700; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .tp { --pc: var(--c-primary); margin-right: 4px; padding: 0 6px; border-radius: 6px; font-weight: 600; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .stepper { display: inline-flex; align-items: center; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface); overflow: hidden; }
     .stepper button { display: inline-flex; padding: 4px 6px; border: 0; background: transparent; color: var(--c-text); cursor: pointer; }
-    .stepper input { width: 38px; border: 0; text-align: center; font: inherit; font-size: 0.84rem; font-weight: 700; background: transparent; color: var(--c-text); outline: none; }
+    .stepper input { width: 38px; border: 0; text-align: center; font: inherit; font-size: 0.84rem; font-weight: 600; background: transparent; color: var(--c-text); outline: none; }
     .x { color: var(--c-text-2); }
     .price, .fields input, .fields textarea { padding: 5px 8px; border: 1px solid var(--c-border); border-radius: 8px; font: inherit; font-size: 0.84rem; background: var(--c-surface); color: var(--c-text); outline: none; }
     .price { width: 90px; text-align: right; }
     .price:focus, .fields input:focus, .fields textarea:focus { border-color: var(--c-primary); }
     .sub { min-width: 80px; text-align: right; font-variant-numeric: tabular-nums; }
-    .rm, .undo { display: inline-flex; padding: 4px; border: 0; border-radius: 8px; background: transparent; color: var(--c-error); cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 700; }
+    .rm, .undo { display: inline-flex; padding: 4px; border: 0; border-radius: 8px; background: transparent; color: var(--c-error); cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 600; }
     .undo { color: var(--c-primary); }
-    .gone { font-size: 0.78rem; font-weight: 600; color: var(--c-error); }
+    .gone { font-size: 0.78rem; font-weight: 500; color: var(--c-error); }
     .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .fields label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+    .fields label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
     .fields .wide { grid-column: 1 / -1; }
     .fields textarea { resize: vertical; }
     @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
@@ -122,7 +122,7 @@ interface EditLine {
     .totals b { font-variant-numeric: tabular-nums; }
     .totals .up { color: var(--c-success); }
     .totals .down { color: var(--c-error); }
-    .totals .over { flex-basis: 100%; color: var(--c-error); font-weight: 600; }
+    .totals .over { flex-basis: 100%; color: var(--c-error); font-weight: 500; }
   `,
 })
 export class SaleEditDialog {

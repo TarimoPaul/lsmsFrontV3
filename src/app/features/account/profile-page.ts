@@ -71,19 +71,19 @@ import { ProfileDetails } from './profile-details';
   styles: `
     .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 24px; display: flex; flex-direction: column; gap: 20px; }
     .head { display: flex; align-items: center; gap: 20px; padding: 24px; border-radius: 20px; background: var(--c-surface); border: 1px solid var(--c-border); }
-    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; overflow: hidden; flex-shrink: 0; color: #fff; font-size: 1.4rem; font-weight: 800; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); }
+    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; overflow: hidden; flex-shrink: 0; color: #fff; font-size: 1.4rem; font-weight: 600; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    h1 { font-size: 1.4rem; font-weight: 800; }
+    h1 { font-size: 1.4rem; font-weight: 600; }
     p { color: var(--c-text-2); }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.4px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
+    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .chip.root { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .chip.branch { color: var(--c-text-2); background: var(--c-surface-variant); }
     .muted { margin-bottom: 12px; }
     .groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
     .group { padding: 12px; border-radius: 12px; background: var(--c-bg); }
-    .group h3 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
-    .group h3 small { color: var(--c-text-2); font-weight: 600; }
+    .group h3 { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .group h3 small { color: var(--c-text-2); font-weight: 500; }
     .perms { display: flex; flex-wrap: wrap; gap: 4px; }
     code { padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; background: var(--c-surface); border: 1px solid var(--c-border); }
   `,

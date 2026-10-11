@@ -185,18 +185,18 @@ import { ReportsService } from './reports.service';
     .big { --c: var(--c-success); display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border-radius: 18px; min-width: 0;
       background: color-mix(in srgb, var(--c) 7%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c) 30%, var(--c-border)); }
     .big.warn { --c: var(--c-warning); }
-    .big header { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--c-text-2); lsms-icon { color: var(--c); } }
-    .big > b { font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--c-text); line-height: 1.15; }
+    .big header { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--c-text-2); lsms-icon { color: var(--c); } }
+    .big > b { font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); line-height: 1.15; }
     .big p { margin: 0; font-size: 0.8rem; color: var(--c-text-2); }
     .big small { font-size: 0.74rem; color: var(--c-text-2); }
     .split { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.8rem; color: var(--c-text-2); b { color: var(--c-text); font-variant-numeric: tabular-nums; } }
-    .est { align-self: flex-start; padding: 2px 9px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; cursor: help;
+    .est { align-self: flex-start; padding: 2px 9px; border-radius: 100px; font-size: 0.72rem; font-weight: 500; cursor: help;
       color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .est.sm { padding: 0 6px; margin-right: 4px; }
-    tr.sub td { font-weight: 700; }
+    tr.sub td { font-weight: 600; }
     .two table.t td:first-child, section.card:last-of-type table.t td:first-child { white-space: normal; }
     .two table.t td.n { vertical-align: top; }
-    td.owed { color: var(--c-warning); font-weight: 600; }
+    td.owed { color: var(--c-warning); font-weight: 500; }
     table.days td:first-child { position: sticky; left: 0; background: var(--c-float); }
     table.days th:first-child { position: sticky; left: 0; z-index: 1; }
   `,

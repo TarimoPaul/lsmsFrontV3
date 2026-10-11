@@ -21,9 +21,9 @@ import { CountLine, formatQty, formatVariance } from './counting.models';
     :host { display: flex; flex-wrap: wrap; gap: 6px 22px; }
     span { display: flex; flex-direction: column; min-width: 70px; }
     small { font-size: 0.7rem; color: var(--c-text-2); }
-    b { font-size: 0.86rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    b { font-size: 0.86rem; font-weight: 500; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .var b, .var em { color: var(--vc); }
-    em { font-style: normal; font-size: 0.74rem; font-weight: 600; }
+    em { font-style: normal; font-size: 0.74rem; font-weight: 500; }
   `,
 })
 export class VarianceMetrics {

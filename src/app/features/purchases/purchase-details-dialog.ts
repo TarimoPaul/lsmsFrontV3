@@ -252,7 +252,7 @@ type Step = 'approve' | 'receive' | 'cancel';
     @media (max-width: 700px) { .cols { grid-template-columns: 1fr; gap: 0; } }
     dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0; font-size: 0.84rem; }
     dt { color: var(--c-text-2); }
-    dd { margin: 0; font-weight: 600; text-align: right; }
+    dd { margin: 0; font-weight: 500; text-align: right; }
     .notes { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--c-border); font-size: 0.82rem; color: var(--c-text-2); white-space: pre-wrap; }
     .timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--c-border); }
     .timeline li { position: relative; padding: 0 0 14px 12px; font-size: 0.82rem; color: var(--c-text-2); }
@@ -275,7 +275,7 @@ type Step = 'approve' | 'receive' | 'cancel';
     tr.me td { background: color-mix(in srgb, var(--c-primary) 8%, transparent); }
     .confirm { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--c-info) 7%, var(--c-bg)); border: 1px solid color-mix(in srgb, var(--c-info) 25%, transparent); }
     .confirm.danger { background: color-mix(in srgb, var(--c-error) 6%, var(--c-bg)); border-color: color-mix(in srgb, var(--c-error) 25%, transparent); }
-    .confirm p { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.84rem; font-weight: 600; }
+    .confirm p { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.84rem; font-weight: 500; }
     .del { --btn-fg: var(--c-error); margin-right: auto; }
   `,
 })

@@ -81,7 +81,7 @@ import { GlService } from './gl.service';
     :host { display: flex; flex-direction: column; gap: 12px; }
     .bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
     .sp { flex: 1; }
-    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 100px; font-size: 0.76rem; font-weight: 600; }
+    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 100px; font-size: 0.76rem; font-weight: 500; }
     .chip.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .chip.bad { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 12%, transparent); }
     .acc { display: inline-flex; align-items: center; gap: 10px; }

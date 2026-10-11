@@ -52,7 +52,7 @@ lsms-date-range-selector.on ::ng-deep .trigger {
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text-2);
 }
 // Cell typography comes from the shared styles/_table-cells.scss.
@@ -84,7 +84,7 @@ lsms-date-range-selector.on ::ng-deep .trigger {
   border-radius: 8px;
   text-align: center;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-primary);
   background: color-mix(in srgb, var(--c-primary) 10%, transparent);
 }
@@ -165,13 +165,13 @@ lsms-date-range-selector.on ::ng-deep .trigger {
   min-width: 0;
   @include t.ellipsis;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text);
 }
 .m-total {
   flex: none;
   font-size: 0.84rem;
-  font-weight: 700;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--c-text);
 }
@@ -208,7 +208,7 @@ lsms-date-range-selector.on ::ng-deep .trigger {
   gap: 6px;
   .owe {
     color: var(--c-error);
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 .m-items {

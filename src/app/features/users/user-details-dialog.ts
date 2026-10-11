@@ -114,25 +114,25 @@ export type UserDetailsResult = 'edit' | undefined;
     .head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
     .avatar {
       display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%;
-      flex-shrink: 0; color: #fff; font-size: 1.2rem; font-weight: 800;
+      flex-shrink: 0; color: #fff; font-size: 1.2rem; font-weight: 600;
       background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
     }
-    .who h3 { font-size: 1.2rem; font-weight: 800; }
+    .who h3 { font-size: 1.2rem; font-weight: 600; }
     .who p { color: var(--c-text-2); font-size: 0.85rem; }
     .status {
       display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 3px 10px; border-radius: 100px;
-      font-size: 0.72rem; font-weight: 700; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent);
+      font-size: 0.72rem; font-weight: 600; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent);
     }
     .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 600px) { .cols { grid-template-columns: 1fr; } }
     .block { padding: 14px 16px; margin-bottom: 12px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); }
-    h4 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
+    h4 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
     .count { padding: 1px 8px; border-radius: 100px; font-size: 0.7rem; letter-spacing: 0; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0; font-size: 0.85rem; }
     dt { display: flex; align-items: center; gap: 6px; color: var(--c-text-2); }
-    dd { margin: 0; font-weight: 600; text-align: right; word-break: break-word; }
+    dd { margin: 0; font-weight: 500; text-align: right; word-break: break-word; }
     .roles { display: flex; flex-wrap: wrap; gap: 6px; }
-    .role { padding: 4px 10px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; color: var(--role); background: color-mix(in srgb, var(--role) 12%, transparent); border: 1px solid color-mix(in srgb, var(--role) 30%, transparent); }
+    .role { padding: 4px 10px; border-radius: 100px; font-size: 0.78rem; font-weight: 600; color: var(--role); background: color-mix(in srgb, var(--role) 12%, transparent); border: 1px solid color-mix(in srgb, var(--role) 30%, transparent); }
     .muted { color: var(--c-text-2); font-size: 0.85rem; }
     .perm-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; max-height: 280px; overflow: auto; }
     .pg strong { font-size: 0.78rem; text-transform: capitalize; }

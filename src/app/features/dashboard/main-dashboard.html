@@ -241,36 +241,37 @@
       }
     </section>
 
-    <!-- ── 4. Today: hourly sales (not on phones — less scrolling) + stock health ── -->
+    <!-- ── 4. Daily sales trend (not on phones — less scrolling) + stock health ── -->
     <section class="today">
       @if (kpi.canSeeSales() && !phone()) {
         <article class="panel chart reveal" style="--d: 560ms">
           <header class="p-head">
             <div>
-              <h2>{{ i18n.t('Sales by hour', 'Mauzo kwa saa') }}</h2>
+              <h2>{{ i18n.t('Daily sales', 'Mauzo ya kila siku') }}</h2>
               <p>
-                {{ i18n.t('Today vs yesterday', 'Leo dhidi ya jana') }}
-                @if (peakHour()) {
-                  · {{ i18n.t('peak', 'kilele') }} {{ peakHour() }}
+                @if (trendStats(); as s) {
+                  {{ i18n.t('Total', 'Jumla') }} <b>{{ money(s.total) }}</b> · {{ i18n.t('average', 'wastani') }} {{ money(s.average) }} {{ i18n.t('a day', 'kwa siku') }}
+                  @if (s.best) {
+                    · {{ i18n.t('best day', 'siku bora') }} {{ s.best }}
+                  }
+                } @else {
+                  {{ i18n.t('Last ' + trendDays() + ' days', 'Siku ' + trendDays() + ' zilizopita') }}
                 }
               </p>
             </div>
-            <div class="legend">
-              <span><i class="dot today"></i>{{ i18n.t('Today', 'Leo') }} <b>{{ compact(kpi.today()?.totalRevenue) }}</b></span>
-              <span><i class="dot"></i>{{ i18n.t('Yesterday', 'Jana') }} <b>{{ compact(kpi.yesterday()?.totalRevenue) }}</b></span>
-            </div>
+            <lsms-segmented-filter-bar [options]="trendOptions()" [selected]="trendDays()" (selectedChange)="setTrendDays($event)" />
           </header>
-          <div class="chart-body">
-            @if (kpi.today(); as t) {
-              <lsms-comparison-bars
-                [primary]="t.hourlyRevenue"
-                [secondary]="kpi.yesterday()?.hourlyRevenue ?? []"
-                [labels]="hours"
-                [labelEvery]="3"
-              />
-              @if (!t.totalRevenue && !kpi.yesterday()?.totalRevenue) {
-                <p class="empty-note">{{ i18n.t('No sales recorded today or yesterday yet.', 'Hakuna mauzo yaliyorekodiwa leo wala jana.') }}</p>
+          <div class="chart-body" [class.busy]="kpi.trendLoading()">
+            @if (kpi.trend(); as days) {
+              <lsms-trend-chart [points]="trendPoints()" [format]="money" [axisFormat]="axisMoney" [summary]="trendSummary()" />
+              @if (!trendStats()?.total) {
+                <p class="empty-note">{{ i18n.t('No sales recorded in these ' + days.length + ' days.', 'Hakuna mauzo yaliyorekodiwa katika siku hizi ' + days.length + '.') }}</p>
               }
+            } @else if (kpi.trendFailed()) {
+              <p class="empty-note">
+                {{ i18n.t('Could not load the daily sales.', 'Imeshindikana kupakia mauzo ya kila siku.') }}
+                <button type="button" class="link retry" (click)="setTrendDays(trendDays())">{{ i18n.t('Try again', 'Jaribu tena') }}</button>
+              </p>
             } @else {
               <lsms-skeleton variant="card" [height]="180" />
             }

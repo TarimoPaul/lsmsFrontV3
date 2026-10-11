@@ -148,16 +148,16 @@ const TIERS: Array<{ type: DebtPriceType; en: string; sw: string; price: (p: Pro
     .who { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--c-bg); }
     .who small { color: var(--c-text-2); }
     .seg { display: inline-flex; align-self: flex-start; padding: 3px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
-    .seg button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); cursor: pointer; }
+    .seg button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
     .seg button.on { color: var(--c-on-primary); background: var(--c-primary); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid .wide { grid-column: 1 / -1; }
-    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.76rem; font-weight: 600; color: var(--c-text-2); }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.76rem; font-weight: 500; color: var(--c-text-2); }
     input { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.86rem; color: var(--c-text); outline: none; }
     input:focus { border-color: var(--c-primary); }
     .warn { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--c-warning); }
     .lines { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-bg); }
-    .lines h5 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.82rem; font-weight: 700; }
+    .lines h5 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.82rem; font-weight: 600; }
     .lines h5 small { font-weight: 400; color: var(--c-text-2); }
     .lines h5 lsms-icon { color: var(--c-primary); }
     .pick { display: flex; flex-direction: column; gap: 8px; }
@@ -173,11 +173,11 @@ const TIERS: Array<{ type: DebtPriceType; en: string; sw: string; price: (p: Pro
     li span { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     li small { color: var(--c-text-2); font-size: 0.72rem; }
     li b { font-variant-numeric: tabular-nums; }
-    li.sum { font-weight: 600; }
+    li.sum { font-weight: 500; }
     .x { display: inline-flex; padding: 2px; border: 0; background: transparent; color: var(--c-text-2); cursor: pointer; }
     .x:hover { color: var(--c-error); }
     .hint { display: flex; align-items: center; gap: 4px; font-size: 0.76rem; color: var(--c-text-2); }
-    .hint button { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .hint button { padding: 0; border: 0; background: none; font: inherit; font-weight: 500; color: var(--c-primary); cursor: pointer; }
     @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
   `,
 })

@@ -199,9 +199,9 @@ import type { SettingsFormData, SettingsSection } from './settings-form-dialog';
     @include list-page.base;
     .hero, .card { border-radius: 16px; background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: 0 1px 2px rgb(16 24 40 / 0.04); }
     .hero { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 20px; padding: 20px; }
-    .mark { display: grid; place-items: center; flex-shrink: 0; width: 64px; height: 64px; border-radius: 18px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; color: #fff; background: linear-gradient(135deg, var(--c-primary), color-mix(in srgb, var(--c-primary) 60%, #0b1b2b)); }
+    .mark { display: grid; place-items: center; flex-shrink: 0; width: 64px; height: 64px; border-radius: 18px; font-size: 1.4rem; font-weight: 600; letter-spacing: 1px; color: #fff; background: linear-gradient(135deg, var(--c-primary), color-mix(in srgb, var(--c-primary) 60%, #0b1b2b)); }
     .who { flex: 1 1 320px; min-width: 0; }
-    .who h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--c-text); }
+    .who h3 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--c-text); }
     .tag { margin: 2px 0 0; font-size: 0.85rem; color: var(--c-text-2); }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
     .chips span { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 100px; font-size: 0.76rem; color: var(--c-text); background: color-mix(in srgb, var(--c-primary) 7%, var(--c-bg)); lsms-icon { color: var(--c-primary); } }
@@ -210,9 +210,9 @@ import type { SettingsFormData, SettingsSection } from './settings-form-dialog';
     .ring { --p: 0; display: grid; place-items: center; flex-shrink: 0; width: 52px; height: 52px; border-radius: 50%;
       background: radial-gradient(closest-side, var(--c-bg) 76%, transparent 78%), conic-gradient(var(--c-warning) calc(var(--p) * 1%), color-mix(in srgb, var(--c-text-2) 14%, transparent) 0); }
     .complete.full .ring { background: radial-gradient(closest-side, var(--c-bg) 76%, transparent 78%), conic-gradient(var(--c-success) 100%, transparent 0); }
-    .ring b { font-size: 0.78rem; font-weight: 700; color: var(--c-text); }
+    .ring b { font-size: 0.78rem; font-weight: 600; color: var(--c-text); }
     .ctext { display: flex; flex-direction: column; min-width: 0; }
-    .ctext b { font-size: 0.84rem; font-weight: 600; color: var(--c-text); }
+    .ctext b { font-size: 0.84rem; font-weight: 500; color: var(--c-text); }
     .ctext small { font-size: 0.72rem; color: var(--c-text-2); }
 
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
@@ -220,15 +220,15 @@ import type { SettingsFormData, SettingsSection } from './settings-form-dialog';
     .card { display: flex; flex-direction: column; padding: 4px 18px 16px; }
     .card header { display: flex; align-items: center; gap: 8px; min-height: 48px; border-bottom: 1px solid var(--c-border); margin-bottom: 6px; }
     .card header > lsms-icon { color: var(--c-primary); }
-    .card h4 { flex: 1; margin: 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--c-text-2); }
+    .card h4 { flex: 1; margin: 0; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase; color: var(--c-text-2); }
     dl { display: flex; flex-direction: column; margin: 0; }
     dl > div { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px dashed var(--c-border); }
     dl > div:last-child { border-bottom: 0; }
     dt { display: flex; flex-direction: column; font-size: 0.84rem; color: var(--c-text-2); }
     dt small { font-size: 0.72rem; opacity: 0.85; }
-    dd { margin: 0; font-size: 0.88rem; font-weight: 600; color: var(--c-text); text-align: right; font-variant-numeric: tabular-nums; }
+    dd { margin: 0; font-size: 0.88rem; font-weight: 500; color: var(--c-text); text-align: right; font-variant-numeric: tabular-nums; }
     dd.none { font-weight: 400; font-style: italic; color: var(--c-text-2); }
-    dd em { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-size: 0.7rem; font-weight: 600; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text-2) 10%, transparent); }
+    dd em { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-size: 0.7rem; font-weight: 500; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text-2) 10%, transparent); }
     dl.tight > div { padding: 6px 0; }
     dl.tight dt { flex-direction: row; align-items: center; gap: 8px; }
     .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
@@ -238,16 +238,16 @@ import type { SettingsFormData, SettingsSection } from './settings-form-dialog';
     .paper .nm { font-size: 0.86rem; text-transform: uppercase; }
     .paper hr { align-self: stretch; margin: 6px 0; border: 0; border-top: 1px dashed #1f2933; }
     .paper p { display: flex; justify-content: space-between; align-self: stretch; margin: 0; }
-    .paper .tot { font-weight: 800; }
+    .paper .tot { font-weight: 600; }
 
     .cap { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
     .cap-total { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
     .cap-total small { font-size: 0.76rem; color: var(--c-text-2); }
-    .cap-total b { font-size: 1.2rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .cap-total b { font-size: 1.2rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .bar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: color-mix(in srgb, var(--c-text-2) 12%, transparent); }
     .bar i { display: block; height: 100%; }
     .src { margin: 0; font-size: 0.76rem; color: var(--c-text-2); }
-    .more { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; font-size: 0.8rem; font-weight: 600; color: var(--c-primary); text-decoration: none; }
+    .more { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; font-size: 0.8rem; font-weight: 500; color: var(--c-primary); text-decoration: none; }
     .setup { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 8px 0; }
     .setup p { margin: 0; font-size: 0.84rem; color: var(--c-text-2); }
     .stamp { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.74rem; color: var(--c-text-2); }
@@ -255,7 +255,7 @@ import type { SettingsFormData, SettingsSection } from './settings-form-dialog';
       background: color-mix(in srgb, var(--c-warning) 7%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 28%, transparent); }
     .pending > lsms-icon:first-child { color: var(--c-warning); }
     .pending span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    .pending b { font-size: 0.86rem; font-weight: 600; }
+    .pending b { font-size: 0.86rem; font-weight: 500; }
     .pending small { font-size: 0.74rem; color: var(--c-text-2); }
   `,
 })

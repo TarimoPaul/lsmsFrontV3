@@ -125,7 +125,7 @@ const STATUS: Record<ApprovalStatus, { en: string; sw: string; color: string; ic
     .req header { display: flex; align-items: center; gap: 12px; }
     .ic { --c: var(--c-primary); display: inline-grid; place-items: center; flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); }
     .who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    .who b { font-size: 0.92rem; font-weight: 600; color: var(--c-text); }
+    .who b { font-size: 0.92rem; font-weight: 500; color: var(--c-text); }
     .who small { font-size: 0.74rem; color: var(--c-text-2); }
     .note { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; color: var(--c-text); background: var(--c-bg); }
     .note lsms-icon { flex-shrink: 0; color: var(--c-text-2); margin-top: 1px; }

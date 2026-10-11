@@ -85,17 +85,17 @@ type ClassFilter = 'ALL' | 'DEAD' | 'SLOW' | 'NORMAL' | 'FAST';
     @media (max-width: 900px) { .top { grid-template-columns: 1fr; } }
     .tile { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); }
     .tile small { font-size: 0.74rem; color: var(--c-text-2); }
-    .tile b { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .tile b { font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .tile span { font-size: 0.78rem; color: var(--c-text-2); }
     .tile.dead { border-color: color-mix(in srgb, var(--c-error) 30%, transparent); background: color-mix(in srgb, var(--c-error) 5%, var(--c-bg)); b { color: var(--c-error); } }
     .seg { display: block; padding: 0 16px 12px; }
     lsms-data-table { border: 0; border-top: 1px solid var(--c-border); border-radius: 0; max-height: 60vh; }
     .prod { display: flex; flex-direction: column; }
-    .pill { display: inline-flex; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
+    .pill { display: inline-flex; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
     .num { font-variant-numeric: tabular-nums; }
     .muted { color: var(--c-text-2); }
     .recs { display: flex; flex-wrap: wrap; gap: 4px; }
-    .rec { padding: 1px 7px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; background: var(--c-bg); border: 1px solid var(--c-border); &.high { color: var(--c-error); border-color: color-mix(in srgb, var(--c-error) 35%, transparent); } }
+    .rec { padding: 1px 7px; border-radius: 6px; font-size: 0.7rem; font-weight: 500; background: var(--c-bg); border: 1px solid var(--c-border); &.high { color: var(--c-error); border-color: color-mix(in srgb, var(--c-error) 35%, transparent); } }
   `,
 })
 export class InsightsPanel {

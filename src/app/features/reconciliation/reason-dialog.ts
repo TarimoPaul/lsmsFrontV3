@@ -39,7 +39,7 @@ export interface ReasonDialogData {
     .msg.danger { background: color-mix(in srgb, var(--c-error) 7%, var(--c-bg)); }
     .msg lsms-icon { flex-shrink: 0; color: var(--c-info); }
     .msg.danger lsms-icon { color: var(--c-error); }
-    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
     textarea { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.86rem; color: var(--c-text); outline: none; resize: vertical; }
     textarea:focus { border-color: var(--c-primary); }
   `,

@@ -48,13 +48,13 @@ import { Button, Icon } from '@shared/ui';
       background: var(--c-surface); border: 1px solid var(--c-border); box-shadow: var(--shadow-md);
     }
     .ic { display: inline-flex; padding: 18px; border-radius: 22px; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
-    h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.4px; }
+    h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.4px; }
     .desc { color: var(--c-text-2); max-width: 440px; }
-    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 500; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .rights { width: 100%; margin: 16px 0 12px; padding: 16px; border-radius: 16px; background: var(--c-bg); }
-    .rights h2 { font-size: 0.8rem; font-weight: 700; color: var(--c-text-2); margin-bottom: 10px; }
+    .rights h2 { font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); margin-bottom: 10px; }
     .crud { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-    .right { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); background: var(--c-surface); border: 1px solid var(--c-border); }
+    .right { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); background: var(--c-surface); border: 1px solid var(--c-border); }
     .right.on { color: var(--c-success); border-color: color-mix(in srgb, var(--c-success) 35%, transparent); }
   `,
 })

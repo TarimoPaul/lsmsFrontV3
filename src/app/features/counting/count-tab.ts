@@ -125,7 +125,7 @@ import { RecountLineRow } from './recount-line';
     .hero { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 36px 20px; text-align: center; border-radius: 18px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .hero .badge { display: inline-flex; padding: 16px; border-radius: 20px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 11%, transparent); }
     .hero.done .badge { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
-    .hero h2 { margin: 4px 0 0; font-size: 1.25rem; font-weight: 700; color: var(--c-text); }
+    .hero h2 { margin: 4px 0 0; font-size: 1.25rem; font-weight: 600; color: var(--c-text); }
     .hero p { max-width: 560px; margin: 0; font-size: 0.88rem; color: var(--c-text-2); }
     .facts { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 12px; padding: 0; list-style: none; text-align: left; }
     .facts li { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: var(--c-text); }
@@ -137,7 +137,7 @@ import { RecountLineRow } from './recount-line';
     .banner.recount { color: var(--c-secondary); background: color-mix(in srgb, var(--c-secondary) 8%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-secondary) 30%, transparent); }
     .progress { position: sticky; top: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-float); box-shadow: 0 4px 14px rgb(16 24 40 / 0.06); }
     .p-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .p-top b { display: block; font-size: 1rem; font-weight: 700; color: var(--c-text); }
+    .p-top b { display: block; font-size: 1rem; font-weight: 600; color: var(--c-text); }
     .p-top small { font-size: 0.74rem; color: var(--c-text-2); }
     .bar { height: 8px; border-radius: 8px; background: color-mix(in srgb, var(--c-text-2) 14%, transparent); overflow: hidden; }
     .bar span { display: block; height: 100%; border-radius: 8px; background: var(--c-primary); transition: width 0.3s ease; }
@@ -151,7 +151,7 @@ import { RecountLineRow } from './recount-line';
     .foot { display: flex; justify-content: flex-end; }
     .sub { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.84rem; color: var(--c-text); }
     .sub lsms-icon { color: var(--c-warning); }
-    .sub em { margin-left: auto; font-style: normal; font-weight: 600; color: var(--c-text-2); }
+    .sub em { margin-left: auto; font-style: normal; font-weight: 500; color: var(--c-text-2); }
     .explain { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 12px; }
   `,
 })

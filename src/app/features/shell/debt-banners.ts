@@ -71,7 +71,7 @@ const MAX_VISIBLE = 3;
     .x { flex: none; width: 40px; border: 0; background: transparent; color: var(--c-text-2); cursor: pointer; display: grid; place-items: center; }
     .x:hover { color: var(--c-text); background: var(--c-surface-2, rgb(0 0 0 / 0.04)); }
     .foot { align-self: flex-end; display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px 12px; border-radius: 10px; background: var(--c-float); border: 1px solid var(--c-border); font-size: 0.78rem; color: var(--c-text-2); box-shadow: 0 6px 16px rgb(15 23 42 / 0.1); }
-    .foot button { border: 0; background: transparent; color: var(--c-primary); font: inherit; font-weight: 600; cursor: pointer; padding: 4px 6px; }
+    .foot button { border: 0; background: transparent; color: var(--c-primary); font: inherit; font-weight: 500; cursor: pointer; padding: 4px 6px; }
     @keyframes slide-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     @media (max-width: 600px) { :host { bottom: calc(8px + var(--nav-space)); right: 12px; width: calc(100vw - 24px); } }
   `,

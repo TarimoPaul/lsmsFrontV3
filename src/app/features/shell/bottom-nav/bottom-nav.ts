@@ -85,7 +85,7 @@ const SHORTCUTS: { id: string; icon: string }[] = [
     .it:active { background: rgb(255 255 255 / 0.1); }
     .lbl {
       max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
-      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1px;
       transition: max-width 0.28s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.2s ease, margin-left 0.28s ease;
     }
     .it.on { background: rgb(255 255 255 / 0.15); color: #fff; }

@@ -82,7 +82,7 @@ const TERMS = [7, 14, 30, 60];
     .terms { display: flex; gap: 4px; margin: -4px 0 8px; }
     .term {
       padding: 2px 10px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface);
-      font: inherit; font-size: 0.72rem; font-weight: 700; color: var(--c-text-2); cursor: pointer;
+      font: inherit; font-size: 0.72rem; font-weight: 600; color: var(--c-text-2); cursor: pointer;
       &.on, &:hover { color: var(--c-primary); border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, transparent); }
     }
     .owed { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 0.82rem; color: var(--c-warning); }

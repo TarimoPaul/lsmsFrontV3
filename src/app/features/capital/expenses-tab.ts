@@ -120,7 +120,7 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     }
     .what { display: inline-flex; align-items: center; gap: 10px; }
     .ic { display: inline-flex; padding: 7px; border-radius: 10px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .acts { display: inline-flex; gap: 4px; justify-content: flex-end; }
     .bulkbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c-success) 35%, var(--c-border)); background: color-mix(in srgb, var(--c-success) 6%, var(--c-surface)); font-size: 0.86rem; }
     .bulkbar > span:first-child { display: inline-flex; align-items: center; gap: 8px; }

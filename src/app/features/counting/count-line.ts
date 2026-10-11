@@ -75,13 +75,13 @@ const DEFAULT_TYPO = 500;
     .name { display: flex; flex-direction: column; min-width: 0; }
     .name b { font-size: 0.86rem; font-weight: 500; color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .name small { font-size: 0.7rem; color: var(--c-text-2); }
-    .sys { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-weight: 600; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 12%, transparent); }
+    .sys { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-weight: 500; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 12%, transparent); }
     .qty { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
     .hint { font-size: 0.7rem; font-style: italic; color: var(--c-text-2); }
     .confirm { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0 2px 72px; padding: 8px 10px; border-radius: 10px; font-size: 0.8rem; color: var(--c-text); background: color-mix(in srgb, var(--c-warning) 10%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent); }
     .confirm lsms-icon { color: var(--c-warning); }
     .confirm span { flex: 1; min-width: 160px; }
-    .confirm button { padding: 5px 12px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 600; color: var(--c-text); cursor: pointer; }
+    .confirm button { padding: 5px 12px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
     .confirm .yes-btn { border-color: var(--c-warning); background: var(--c-warning); color: #fff; }
     @media (max-width: 640px) {
       .row { grid-template-columns: 32px minmax(0, 1fr); row-gap: 8px; }

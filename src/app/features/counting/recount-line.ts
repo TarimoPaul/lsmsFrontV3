@@ -56,7 +56,7 @@ import { QtyInput } from './qty-input';
     .name { display: flex; flex-direction: column; min-width: 0; }
     .name b { font-size: 0.86rem; font-weight: 500; color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .name small { font-size: 0.7rem; color: var(--c-text-2); }
-    .name em { font-style: normal; font-weight: 600; color: var(--c-text); }
+    .name em { font-style: normal; font-weight: 500; color: var(--c-text); }
     .tick { color: var(--c-success); }
     .why { display: flex; gap: 8px; margin: 8px 0 2px 40px; }
     .why input { flex: 1; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.84rem; color: var(--c-text); outline: 0; }

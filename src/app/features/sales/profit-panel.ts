@@ -97,7 +97,7 @@ type By = 'product' | 'category' | 'type';
     :host { display: flex; flex-direction: column; gap: 16px; }
     .note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 14px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text-2); background: var(--c-surface); border: 1px solid var(--c-border); }
     .head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 14px 16px 6px; }
-    .head h3 { display: flex; align-items: center; gap: 6px; font-size: 0.95rem; font-weight: 800; margin: 0; }
+    .head h3 { display: flex; align-items: center; gap: 6px; font-size: 0.95rem; font-weight: 600; margin: 0; }
     .head h3 lsms-icon { color: var(--c-primary); }
     lsms-data-table { border: 0; border-radius: 0; }
     .nm { display: flex; flex-direction: column; min-width: 0; }
@@ -106,7 +106,7 @@ type By = 'product' | 'category' | 'type';
     .neg { color: var(--c-error); }
     .margin { --bar: var(--c-success); display: flex; align-items: center; gap: 8px; width: 100%; }
     .margin .track { flex: 1; height: 6px; }
-    .margin small { min-width: 42px; text-align: right; font-size: 0.74rem; font-weight: 600; }
+    .margin small { min-width: 42px; text-align: right; font-size: 0.74rem; font-weight: 500; }
     .margin.neg small { color: var(--c-error); }
   `,
 })

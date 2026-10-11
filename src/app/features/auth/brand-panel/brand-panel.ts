@@ -114,18 +114,18 @@ import { Icon } from '@shared/ui';
       width: 52px; height: 52px; border-radius: 16px;
       background: rgb(255 255 255 / 0.14); border: 1px solid rgb(255 255 255 / 0.22);
     }
-    .wordmark strong { display: block; font-size: 1.375rem; font-weight: 800; letter-spacing: 2px; }
-    .wordmark small { font-size: 0.7rem; font-weight: 600; letter-spacing: 1.6px; color: rgb(255 255 255 / 0.65); }
+    .wordmark strong { display: block; font-size: 1.375rem; font-weight: 600; letter-spacing: 2px; }
+    .wordmark small { font-size: 0.7rem; font-weight: 500; letter-spacing: 1.6px; color: rgb(255 255 255 / 0.65); }
 
     .trust {
       display: inline-flex; align-items: center; gap: 9px; margin-top: 56px;
       padding: 8px 14px; border-radius: 100px;
       background: rgb(255 255 255 / 0.12); border: 1px solid rgb(255 255 255 / 0.2);
-      font-size: 0.75rem; font-weight: 600; color: rgb(255 255 255 / 0.88);
+      font-size: 0.75rem; font-weight: 500; color: rgb(255 255 255 / 0.88);
     }
     .trust i { width: 7px; height: 7px; border-radius: 50%; background: #66bb6a; box-shadow: 0 0 0 4px rgb(102 187 106 / 0.25); }
 
-    .headline { margin-top: 22px; font-size: 2.5rem; line-height: 1.18; font-weight: 800; letter-spacing: -1px; }
+    .headline { margin-top: 22px; font-size: 2.5rem; line-height: 1.18; font-weight: 600; letter-spacing: -1px; }
     .headline.mini { margin-top: 30px; font-size: 1.5rem; line-height: 1.22; letter-spacing: -0.6px; }
     .lead { margin-top: 20px; font-size: 1.03rem; line-height: 1.6; color: rgb(255 255 255 / 0.8); max-width: 420px; }
     .lead.mini { margin-top: 14px; font-size: 0.9rem; }
@@ -133,11 +133,11 @@ import { Icon } from '@shared/ui';
     .features { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 28px 0 0; padding: 0; list-style: none; }
     .features li {
       display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 10px;
-      background: rgb(255 255 255 / 0.08); font-size: 0.78rem; font-weight: 600; color: rgb(255 255 255 / 0.9);
+      background: rgb(255 255 255 / 0.08); font-size: 0.78rem; font-weight: 500; color: rgb(255 255 255 / 0.9);
     }
     .rule { display: block; width: 56px; height: 2px; margin: 32px 0 24px; border-radius: 2px; background: rgb(255 255 255 / 0.28); }
     .contact { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .contact h3 { font-size: 0.875rem; font-weight: 700; letter-spacing: 0.4px; }
+    .contact h3 { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.4px; }
     .contact span { display: inline-flex; align-items: center; gap: 10px; font-size: 0.875rem; color: rgb(255 255 255 / 0.85); }
     .contact lsms-icon { color: rgb(255 255 255 / 0.75); }
 

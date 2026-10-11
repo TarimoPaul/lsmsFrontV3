@@ -156,7 +156,7 @@ export type SaleDetailsResult = 'changed' | undefined;
     @include detail-dialog.base;
     .head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     .head .grow { flex: 1; }
-    .who { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 12px; font-size: 0.86rem; font-weight: 600; }
+    .who { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 12px; font-size: 0.86rem; font-weight: 500; }
     .who span { display: inline-flex; align-items: center; gap: 6px; }
     .who lsms-icon { color: var(--c-primary); }
     .who small { color: var(--c-text-2); font-weight: 500; }

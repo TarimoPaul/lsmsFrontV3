@@ -77,12 +77,12 @@ export interface CustomerFormData {
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
     .span2 { grid-column: 1 / -1; }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-    .lbl { display: block; margin: 2px 0 6px; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); }
+    .lbl { display: block; margin: 2px 0 6px; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); }
     .types { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
     .type {
       --t: var(--c-text-2);
       display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 100px; cursor: pointer;
-      font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); background: var(--c-surface); border: 1px solid var(--c-border);
+      font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); background: var(--c-surface); border: 1px solid var(--c-border);
       &.on { color: var(--t); border-color: var(--t); background: color-mix(in srgb, var(--t) 10%, transparent); }
     }
   `,

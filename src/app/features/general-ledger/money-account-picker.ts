@@ -24,11 +24,11 @@ import { MONEY_ACCOUNTS } from './money-accounts';
   `,
   styles: `
     :host { display: block; margin-bottom: 12px; }
-    .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+    .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; }
     button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; color: var(--c-text); cursor: pointer; }
     button lsms-icon { color: var(--c-text-2); }
-    button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
+    button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 500; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
     button.on lsms-icon { color: var(--c-primary); }
   `,
 })

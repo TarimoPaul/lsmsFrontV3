@@ -12,7 +12,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { BreakpointService } from '@core/layout/breakpoint.service';
 import { APP_MODULES, AppModule, CATEGORY_LABELS, CATEGORY_ORDER, ModuleCategory } from '@core/navigation/app-modules';
 import { ModuleUsageService } from '@core/navigation/module-usage.service';
-import { ComparisonBars, CountUp, DialogService, Icon, Skeleton } from '@shared/ui';
+import { CountUp, DialogService, Icon, SegmentOption, SegmentedFilterBar, Skeleton, TrendChart, TrendPoint } from '@shared/ui';
 import { Money } from '@shared/utils/money';
 import { OrderBanner } from '../order-suggestion/order-banner';
 import { DashboardAlertsService } from './dashboard-alerts.service';
@@ -20,6 +20,19 @@ import { DashboardKpiService } from './dashboard-kpi.service';
 
 type Filter = 'ALL' | ModuleCategory;
 type AlertKey = 'recon' | 'liability' | 'debt';
+
+/** Ranges offered on the daily sales chart; the last choice is remembered on this device. */
+const TREND_RANGES = [7, 14, 30];
+const TREND_KEY = 'lsms.dashboard.trendDays';
+
+function savedTrendDays(): number {
+  try {
+    const n = Number(localStorage.getItem(TREND_KEY));
+    return TREND_RANGES.includes(n) ? n : TREND_RANGES[0];
+  } catch {
+    return TREND_RANGES[0];
+  }
+}
 
 /** Seconds a dashboard reminder stays before fading out (paused on hover). */
 const ALERT_SECONDS = 15;
@@ -48,13 +61,13 @@ interface QuickAction {
 /**
  * Home dashboard (v3). Keeps Flutter MainMenu's content — greeting,
  * permission-gated alerts, module launcher with RBAC locks — and adds a
- * business overview: KPI strip, hourly sales vs yesterday and stock health.
+ * business overview: KPI strip, daily sales trend and stock health.
  * Phones get their own first screen (hero with the day's figure, two actions,
  * a shortcut grid) instead of the desktop welcome row squeezed to fit.
  */
 @Component({
   selector: 'app-main-dashboard',
-  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatMenu, MatMenuItem, MatMenuTrigger, MatRipple, MatTooltip, Icon, Skeleton, ComparisonBars, CountUp, OrderBanner],
+  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatMenu, MatMenuItem, MatMenuTrigger, MatRipple, MatTooltip, Icon, Skeleton, SegmentedFilterBar, TrendChart, CountUp, OrderBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-dashboard.html',
   styleUrl: './main-dashboard.scss',
@@ -158,14 +171,55 @@ export class MainDashboard {
     if (this.kpi.canSeeDebts() && this.kpi.loading()) return null; // register still loading
     return this.kpi.today()?.allTimeOutstandingAmount ?? null;
   });
-  protected readonly hours = Array.from({ length: 24 }, (_, i) => String(i));
-  protected readonly peakHour = computed(() => {
-    const series = this.kpi.today()?.hourlyRevenue ?? [];
-    const max = Math.max(0, ...series);
-    if (!max) return null;
-    const h = series.indexOf(max);
-    return `${String(h).padStart(2, '0')}:00 – ${String(h + 1).padStart(2, '0')}:00`;
+
+  // ── Daily sales trend ─────────────────────────────────────────────────────
+  protected readonly trendDays = signal(savedTrendDays());
+  protected readonly trendOptions = computed<SegmentOption<number>[]>(() =>
+    TREND_RANGES.map((n) => ({ value: n, label: this.i18n.t(`${n} days`, `Siku ${n}`) })),
+  );
+  protected readonly axisMoney = (n: number) => Money.compact(n, { symbol: false });
+  private readonly locale = computed(() => (this.i18n.isSwahili() ? 'sw-TZ' : 'en-GB'));
+  protected readonly trendPoints = computed<TrendPoint[]>(() => {
+    const days = this.kpi.trend() ?? [];
+    const short: Intl.DateTimeFormatOptions = days.length > 7 ? { day: 'numeric', month: 'short' } : { weekday: 'short', day: 'numeric' };
+    return days.map((d) => ({
+      label: d.date.toLocaleDateString(this.locale(), short),
+      title: d.date.toLocaleDateString(this.locale(), { weekday: 'long', day: 'numeric', month: 'long' }),
+      value: d.revenue,
+      note: `${d.sales} ${this.i18n.t('sales', 'mauzo')}`,
+    }));
   });
+  protected readonly trendStats = computed(() => {
+    const days = this.kpi.trend();
+    if (!days?.length) return null;
+    const total = days.reduce((sum, d) => sum + d.revenue, 0);
+    const top = days.reduce((a, b) => (b.revenue > a.revenue ? b : a));
+    return {
+      total,
+      average: total / days.length,
+      best: top.revenue > 0 ? top.date.toLocaleDateString(this.locale(), { weekday: 'short', day: 'numeric', month: 'short' }) : null,
+    };
+  });
+  /** What a screen reader hears in place of the curve. */
+  protected readonly trendSummary = computed(() => {
+    const s = this.trendStats();
+    if (!s) return '';
+    return this.i18n.t(
+      `Daily sales, last ${this.trendDays()} days: total ${this.money(s.total)}, average ${this.money(s.average)} a day.`,
+      `Mauzo ya kila siku, siku ${this.trendDays()} zilizopita: jumla ${this.money(s.total)}, wastani ${this.money(s.average)} kwa siku.`,
+    );
+  });
+
+  /** Also the retry button: asking for the current range again reloads it. */
+  protected setTrendDays(days: number): void {
+    this.trendDays.set(days);
+    try {
+      localStorage.setItem(TREND_KEY, String(days));
+    } catch {
+      // private window / blocked storage: the choice simply is not remembered
+    }
+    void this.kpi.loadTrend(days);
+  }
   protected readonly stockHealth = computed(() => {
     const s = this.kpi.stock();
     if (!s) return null;
@@ -213,7 +267,10 @@ export class MainDashboard {
 
   ngOnInit(): void {
     this.alerts.load();
-    void this.kpi.load();
+    // The KPI call fetches today and yesterday; the chart reuses them and asks only for the older days.
+    void this.kpi.load().then(() => {
+      if (!this.phone()) void this.kpi.loadTrend(this.trendDays());
+    });
   }
 
   protected setFilter(value: Filter | null | undefined): void {

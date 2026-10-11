@@ -57,7 +57,7 @@ import { ReportId, reportDef } from './reports.models';
     .back:hover { color: var(--c-primary); border-color: var(--c-primary); }
     .mark { --c: var(--c-primary); display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); }
     .txt { flex: 1 1 220px; min-width: 0; }
-    h2 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--c-text); }
+    h2 { margin: 0; font-size: 1.2rem; font-weight: 600; color: var(--c-text); }
     .txt p { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 2px 0 0; font-size: 0.76rem; color: var(--c-text-2); }
     .dot { margin: 0 2px; }
     .actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }

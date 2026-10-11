@@ -83,10 +83,10 @@ const PRESETS: PresetItem[] = [
     .trigger.icon-only { width: 40px; padding: 0; justify-content: center; }
     .lead { color: var(--c-primary); }
     .chev { color: var(--c-text-2); }
-    .text { @include t.body-sm; @include t.ellipsis; font-weight: 600; color: var(--c-text); }
+    .text { @include t.body-sm; @include t.ellipsis; font-weight: 500; color: var(--c-text); }
     .menu-title {
       display: flex; align-items: center; gap: 8px;
-      padding: 10px 16px 6px; @include t.body; font-weight: 600; color: var(--c-text);
+      padding: 10px 16px 6px; @include t.body; font-weight: 500; color: var(--c-text);
     }
     .menu-title lsms-icon { color: var(--c-primary); }
     hr { border: 0; border-top: 1px solid var(--c-divider); margin: 4px 0; }

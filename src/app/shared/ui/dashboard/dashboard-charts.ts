@@ -180,7 +180,7 @@ export class DashboardRevenueCard {
   styles: `
     @use 'typography' as t;
     :host { display: block; height: 100%; min-width: 0; }
-    .window { @include t.h4; font-weight: 600; color: var(--c-text); }
+    .window { @include t.h4; font-weight: 500; color: var(--c-text); }
     .sub { @include t.caption; color: var(--c-text-2); margin: 4px 0 10px; }
     .mini { flex: 1; }
     .footer {

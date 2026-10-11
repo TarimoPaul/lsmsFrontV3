@@ -26,7 +26,7 @@
     flex: 1;
   }
   a {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-primary);
   }
 }
@@ -88,7 +88,7 @@
     padding: 2px 9px;
     border-radius: 100px;
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
     color: var(--hc);
     background: color-mix(in srgb, var(--hc) 11%, transparent);
@@ -121,7 +121,7 @@
     border: 1px solid transparent;
     font: inherit;
     font-size: 0.76rem;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
   }
@@ -168,7 +168,7 @@
     background: transparent;
     font: inherit;
     font-size: 0.74rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text-2);
     cursor: pointer;
     &.on {
@@ -188,7 +188,7 @@
   gap: 2px;
   small {
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text-2);
   }
   input {
@@ -208,7 +208,7 @@
     }
   }
   &.total input {
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 .x-sign {
@@ -226,14 +226,14 @@
     display: none;
   }
   .chg {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--c-success);
     &.up {
       color: var(--c-error);
     }
   }
   .bad {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--c-error);
   }
 }
@@ -242,7 +242,7 @@
   align-items: center;
   gap: 4px;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-error);
 }
 
@@ -285,7 +285,7 @@
   padding-top: 6px;
   border-top: 1px dashed var(--c-border);
   span {
-    font-weight: 700;
+    font-weight: 600;
   }
   small {
     font-weight: 500;
@@ -293,14 +293,14 @@
   }
   b {
     font-size: 1.4rem;
-    font-weight: 800;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: var(--c-primary);
   }
 }
 .blocker {
   font-size: 0.76rem;
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
   color: var(--c-warning);
 }

@@ -2,8 +2,8 @@
 
 // Sidebar sits directly on the app frame (--c-sidebar-bg, painted by the shell).
 :host {
-  --sb-fg: rgb(226 238 246 / 0.82);
-  --sb-muted: rgb(163 190 210 / 0.62);
+  --sb-fg: rgb(236 244 250 / 0.9);
+  --sb-muted: rgb(196 216 231 / 0.74);
   --sb-hover: rgb(255 255 255 / 0.07);
   --sb-active-bg: color-mix(in srgb, var(--c-sidebar-accent) 16%, transparent);
   --sb-accent: var(--c-sidebar-accent);
@@ -73,7 +73,7 @@
   @include t.ellipsis;
   max-width: 100%;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 1.4px;
   text-transform: uppercase;
   color: var(--sb-muted);
@@ -137,7 +137,7 @@
   cursor: pointer;
   color: var(--sb-muted);
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 1.2px;
   text-transform: uppercase;
   &:hover {
@@ -192,7 +192,7 @@
   color: var(--sb-fg);
   text-decoration: none;
   font-size: 0.855rem;
-  font-weight: 500;
+  font-weight: 400;
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
@@ -215,7 +215,7 @@
   &.active {
     background: var(--sb-active-bg);
     color: #fff;
-    font-weight: 600;
+    font-weight: 500;
     lsms-icon {
       opacity: 1;
       color: var(--sb-accent);
@@ -270,7 +270,7 @@
   background: transparent;
   color: var(--sb-muted);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   &:hover {
     background: var(--sb-hover);

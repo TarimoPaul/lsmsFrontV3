@@ -155,21 +155,21 @@ const TAB_KEY = 'lsms.recon.tab';
     @include list-page.base;
     .bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
     .day { display: inline-flex; align-items: center; gap: 4px; }
-    .day button { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 36px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--c-text); cursor: pointer; }
+    .day button { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 36px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-text); cursor: pointer; }
     .day button:disabled { opacity: 0.4; cursor: default; }
     .day .today { color: var(--c-primary); }
     .day label, .who { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .day label lsms-icon, .who lsms-icon { color: var(--c-primary); }
-    .day input, .who select { border: 0; outline: 0; background: transparent; font: inherit; font-size: 0.86rem; font-weight: 600; color: var(--c-text); }
+    .day input, .who select { border: 0; outline: 0; background: transparent; font: inherit; font-size: 0.86rem; font-weight: 500; color: var(--c-text); }
     .who select { max-width: 260px; }
     .who small { font-size: 0.7rem; color: var(--c-text-2); white-space: nowrap; }
     .owner { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
-    .owner small { font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
+    .owner small { font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
     .reminder { display: flex; gap: 10px; padding: 12px 14px; border-radius: 14px; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 9%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent); }
     .reminder > span { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .reminder .days { display: flex; flex-wrap: wrap; gap: 6px; }
-    .reminder .days button { padding: 3px 9px; border-radius: 100px; border: 1px solid color-mix(in srgb, var(--c-warning) 40%, transparent); background: var(--c-surface); font: inherit; font-size: 0.74rem; font-weight: 600; color: var(--c-text); cursor: pointer; }
+    .reminder .days button { padding: 3px 9px; border-radius: 100px; border: 1px solid color-mix(in srgb, var(--c-warning) 40%, transparent); background: var(--c-surface); font: inherit; font-size: 0.74rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
     .reminder .x { align-self: flex-start; display: inline-flex; padding: 2px; border: 0; background: transparent; color: var(--c-text-2); cursor: pointer; }
     .tabs { display: flex; }
   `,

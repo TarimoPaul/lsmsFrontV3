@@ -105,15 +105,15 @@ type Filter = 'STUCK' | 'ALL' | SlowAction;
       background: color-mix(in srgb, var(--c-warning) 7%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 30%, var(--c-border)); }
     @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } }
     .sum { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .sum header { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--c-text-2); lsms-icon { color: var(--c-warning); } }
-    .sum > b { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--c-text); line-height: 1.15; }
+    .sum header { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--c-text-2); lsms-icon { color: var(--c-warning); } }
+    .sum > b { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); line-height: 1.15; }
     .sum p { margin: 0; font-size: 0.8rem; color: var(--c-text-2); }
     .acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
     .acts button { display: flex; flex-direction: column; gap: 3px; width: 100%; height: 100%; padding: 10px 12px; border-radius: 12px; text-align: left; cursor: pointer; font: inherit;
       color: var(--c-text); background: var(--c-surface); border: 1px solid var(--c-border); border-left: 4px solid var(--st); }
     .acts button:hover, .acts button.on { border-color: var(--st); }
-    .acts .lbl { font-size: 0.74rem; font-weight: 600; color: var(--c-text-2); }
-    .acts b { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .acts .lbl { font-size: 0.74rem; font-weight: 500; color: var(--c-text-2); }
+    .acts b { font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .acts small { font-size: 0.72rem; color: var(--c-text-2); }
     .num { font-variant-numeric: tabular-nums; }
     .cell-stack.end { align-items: flex-end; }

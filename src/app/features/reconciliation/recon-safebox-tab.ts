@@ -194,16 +194,16 @@ const MANAGER_POLL_MS = 30_000;
   styles: `
     .block { display: flex; flex-direction: column; gap: 8px; }
     .block header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .block h4 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.86rem; font-weight: 700; }
+    .block h4 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.86rem; font-weight: 600; }
     .block h4 lsms-icon { color: var(--c-primary); }
-    .warn { color: var(--c-warning); font-weight: 600; }
-    .good { color: var(--c-success); font-weight: 600; }
+    .warn { color: var(--c-warning); font-weight: 500; }
+    .good { color: var(--c-success); font-weight: 500; }
     .info { color: var(--c-info); }
-    .bad { color: var(--c-error); font-weight: 600; }
+    .bad { color: var(--c-error); font-weight: 500; }
     .del { color: var(--c-error); }
     .owe { border-radius: 14px; background: var(--c-surface); border: 1px solid var(--c-border); overflow: hidden; }
     .owe-head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border: 0; background: transparent; font: inherit; color: var(--c-text); cursor: pointer; }
-    .owe-head b { flex: 1; text-align: left; font-weight: 600; }
+    .owe-head b { flex: 1; text-align: left; font-weight: 500; }
     .owe-head:hover { background: var(--c-hover); }
     .items.flat { border: 0; border-top: 1px solid var(--c-border); border-radius: 0; }
   `,

@@ -137,7 +137,7 @@ export interface SupplierStatementData {
   styles: `
     @use 'detail-dialog';
     @include detail-dialog.base;
-    .kind { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--c-error); &.pay { color: var(--c-success); } }
+    .kind { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--c-error); &.pay { color: var(--c-success); } }
     .pays { list-style: none; margin: 0; padding: 0; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .pays li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--c-border); lsms-icon { color: var(--c-success); } }
     .pays li:last-child { border-bottom: 0; }

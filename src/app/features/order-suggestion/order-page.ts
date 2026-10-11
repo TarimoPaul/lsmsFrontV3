@@ -284,37 +284,37 @@ const HISTORY_DAYS = 14;
 
     .top { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 1.4fr); gap: 16px; }
     @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
-    .card > header span { flex: 1; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--c-text-2); }
+    .card > header span { flex: 1; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase; color: var(--c-text-2); }
     .card > header lsms-icon { color: var(--c-primary); }
     .total { gap: 6px; padding-bottom: 16px; }
-    .total > b { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--c-text); line-height: 1.15; }
+    .total > b { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); line-height: 1.15; }
     .total p { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin: 0; font-size: 0.8rem; color: var(--c-text-2); }
-    .total p.cut { color: var(--c-warning); } .total p.over { color: var(--c-error); font-weight: 600; }
-    .src { padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-style: normal; font-weight: 600; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 11%, transparent); }
+    .total p.cut { color: var(--c-warning); } .total p.over { color: var(--c-error); font-weight: 500; }
+    .src { padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-style: normal; font-weight: 500; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 11%, transparent); }
     .src.est { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .src.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .budget table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     .budget td { padding: 6px 0; border-bottom: 1px solid var(--c-border); color: var(--c-text); }
     .budget td.n, table.lines .n { text-align: right; font-variant-numeric: tabular-nums; }
-    .budget tr.sum td { font-weight: 700; border-bottom: 0; padding-top: 9px; }
+    .budget tr.sum td { font-weight: 600; border-bottom: 0; padding-top: 9px; }
     .budget tr.quiet td { color: var(--c-text-2); border-bottom: 0; padding-top: 0; }
 
     table.lines { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-    table.lines th { padding: 9px 12px; text-align: left; white-space: nowrap; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: color-mix(in srgb, var(--c-text) 72%, transparent); background: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface)); }
+    table.lines th { padding: 9px 12px; text-align: left; white-space: nowrap; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: color-mix(in srgb, var(--c-text) 72%, transparent); background: color-mix(in srgb, var(--c-primary) 7%, var(--c-surface)); }
     table.lines td { padding: 9px 12px; border-bottom: 1px solid var(--c-border); color: var(--c-text); vertical-align: middle; }
     table.lines .c { text-align: center; }
     table.lines tr.zero td { color: var(--c-text-2); } table.lines tr.zero .nm b { font-weight: 500; }
     table.lines tr.edited td { background: color-mix(in srgb, var(--c-info) 5%, transparent); }
     .pr { width: 34px; color: var(--c-text-2) !important; font-size: 0.76rem; }
-    .nm { min-width: 170px; } .nm b { display: block; font-weight: 600; } .nm small { display: block; font-size: 0.72rem; color: var(--c-text-2); }
-    .num { font-variant-numeric: tabular-nums; } .num.big { font-size: 1.05rem; } .strong { font-weight: 600; }
+    .nm { min-width: 170px; } .nm b { display: block; font-weight: 500; } .nm small { display: block; font-size: 0.72rem; color: var(--c-text-2); }
+    .num { font-variant-numeric: tabular-nums; } .num.big { font-size: 1.05rem; } .strong { font-weight: 500; }
     td small.tag, .nm small.tag { display: inline-flex; align-items: center; gap: 3px; margin-top: 2px; padding: 1px 7px; border-radius: 100px; font-size: 0.68rem; color: var(--c-text-2); background: var(--c-bg); white-space: nowrap; }
     td.n small.tag { display: flex; width: fit-content; margin-left: auto; }
     /* The leading td keeps these above the td small.tag rule: Angular scopes every compound, so element count decides. */
     td small.tag.count { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 11%, transparent); }
     td small.tag.est { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     td.n small.tag.stk { white-space: normal; text-align: right; max-width: 170px; line-height: 1.25; border-radius: 8px; }
-    .after { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 3px; margin-top: 4px; font-size: 0.72rem; color: var(--c-text-2); b { font-weight: 600; color: var(--c-text); } }
+    .after { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 3px; margin-top: 4px; font-size: 0.72rem; color: var(--c-text-2); b { font-weight: 500; color: var(--c-text); } }
     .after.low { color: var(--c-warning); b { color: var(--c-warning); } lsms-icon { color: var(--c-warning); } }
     .banner.todo { color: var(--c-text); background: color-mix(in srgb, var(--c-warning) 8%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent); > lsms-icon { color: var(--c-warning); } }
     td small.tag.warn, td small.tag.cut { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
@@ -322,7 +322,7 @@ const HISTORY_DAYS = 14;
     .step button { width: 32px; height: 34px; border: 0; background: transparent; font-size: 1.1rem; color: var(--c-text); cursor: pointer; }
     .step button:disabled { opacity: 0.4; cursor: default; }
     .step button:hover:not(:disabled) { background: var(--c-bg); }
-    .step input { width: 46px; height: 34px; border: 0; border-inline: 1px solid var(--c-border); text-align: center; font: inherit; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-text); background: transparent; -moz-appearance: textfield; }
+    .step input { width: 46px; height: 34px; border: 0; border-inline: 1px solid var(--c-border); text-align: center; font: inherit; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); background: transparent; -moz-appearance: textfield; }
     .step input::-webkit-outer-spin-button, .step input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     table.lines tr.added td { background: color-mix(in srgb, var(--c-primary) 4%, transparent); }
     td small.tag.add, .nm small.tag.add { color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 11%, transparent); }
@@ -342,11 +342,11 @@ const HISTORY_DAYS = 14;
     details.day summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 12px 18px; cursor: pointer; list-style: none; }
     details.day summary::-webkit-details-marker { display: none; }
     details.day summary b { min-width: 130px; font-size: 0.9rem; color: var(--c-text); }
-    .st { padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-style: normal; font-weight: 600; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 11%, transparent); }
+    .st { padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-style: normal; font-weight: 500; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 11%, transparent); }
     .st.done { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .v { display: flex; flex-direction: column; margin-left: auto; text-align: right; font-size: 0.84rem; font-variant-numeric: tabular-nums; color: var(--c-text); small { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--c-text-2); } }
     .v + .v { margin-left: 0; }
-    table.hist td.diff { color: var(--c-warning); font-weight: 700; }
+    table.hist td.diff { color: var(--c-warning); font-weight: 600; }
 
     /* Phones: the buyer edits packages at the market, so a line is a card — name, three
        labelled figures (data-label), then the package stepper with its cost. No sideways scroll. */
@@ -360,7 +360,7 @@ const HISTORY_DAYS = 14;
       table.lines:not(.hist) td.pr { display: none; }
       table.lines:not(.hist) td.nm { grid-column: 1 / -1; }
       table.lines:not(.hist) td.nm b { font-size: 0.92rem; }
-      table.lines:not(.hist) td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 1px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; color: var(--c-text-2); }
+      table.lines:not(.hist) td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 1px; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; color: var(--c-text-2); }
       table.lines:not(.hist) td.n small.tag { margin-left: 0; }
       table.lines:not(.hist) td.n small.tag.stk { text-align: left; }
       table.lines:not(.hist) td.c { grid-column: 1 / 3; }

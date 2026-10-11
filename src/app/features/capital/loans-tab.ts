@@ -86,13 +86,13 @@ import { CapitalService } from './capital.service';
     .nm { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .nm b { font-size: 0.9rem; font-weight: 500; color: var(--c-text); }
     .nm small { font-size: 0.72rem; color: var(--c-text-2); }
-    .pill { padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .bar2 { height: 7px; border-radius: 7px; background: color-mix(in srgb, var(--c-text-2) 14%, transparent); overflow: hidden; }
     .bar2 span { display: block; height: 100%; background: var(--c-success); }
     .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .nums span { display: flex; flex-direction: column; }
     .nums small { font-size: 0.7rem; color: var(--c-text-2); }
-    .nums b { font-size: 0.95rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .nums b { font-size: 0.95rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .nums b.warn { color: var(--c-warning); }
     .tx { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 8px 10px; border-radius: 10px; list-style: none; background: color-mix(in srgb, var(--c-text-2) 5%, transparent); }
     .tx li { display: flex; justify-content: space-between; gap: 10px; font-size: 0.76rem; color: var(--c-text-2); }

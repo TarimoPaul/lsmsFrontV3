@@ -70,7 +70,7 @@ export interface BranchPickerData {
       display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px;
       border-radius: 13px; color: #fff; background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
     }
-    h2 { font-size: 1.125rem; font-weight: 700; }
+    h2 { font-size: 1.125rem; font-weight: 600; }
     p { font-size: 0.8rem; color: var(--c-text-2); }
     .list { display: flex; flex-direction: column; gap: 10px; max-height: 50vh; overflow: auto; }
     .tile {
@@ -83,13 +83,13 @@ export interface BranchPickerData {
     .tile.current { border-color: var(--c-primary); }
     .tile lsms-icon { color: var(--c-primary); }
     .tile lsms-icon.main { color: var(--c-warning); }
-    .name { flex: 1; font-weight: 600; font-size: 0.94rem; display: flex; flex-direction: column; }
-    .name small { font-size: 0.72rem; font-weight: 600; color: var(--c-warning); }
+    .name { flex: 1; font-weight: 500; font-size: 0.94rem; display: flex; flex-direction: column; }
+    .name small { font-size: 0.72rem; font-weight: 500; color: var(--c-warning); }
     .chev { color: var(--c-text-2) !important; }
     .check { color: var(--c-success) !important; }
     .cancel {
       display: block; margin: 16px auto 0; padding: 6px 12px; border: 0; background: none;
-      color: var(--c-text-2); font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      color: var(--c-text-2); font-size: 0.8rem; font-weight: 500; cursor: pointer;
     }
     .cancel:hover { color: var(--c-error); }
     .busy { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 28px 0; color: var(--c-text-2); }

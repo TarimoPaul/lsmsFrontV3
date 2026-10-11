@@ -91,8 +91,8 @@ import { ToastService } from './toast.service';
       display: inline-flex; padding: 6px; border-radius: 10px;
       background: color-mix(in srgb, currentColor 18%, transparent);
     }
-    .msg { flex: 1; min-width: 0; @include t.body; font-weight: 600; line-height: 1.4; white-space: pre-line; }
-    .pct { @include t.body-sm; font-weight: 700; }
+    .msg { flex: 1; min-width: 0; @include t.body; font-weight: 500; line-height: 1.4; white-space: pre-line; }
+    .pct { @include t.body-sm; font-weight: 600; }
     .close {
       display: inline-flex; padding: 4px; border: 0; border-radius: 12px;
       background: none; color: inherit; cursor: pointer; opacity: 0.85;

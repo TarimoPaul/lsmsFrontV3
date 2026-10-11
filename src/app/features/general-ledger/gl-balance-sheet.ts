@@ -83,9 +83,9 @@ import { GlService } from './gl.service';
     @include statement.base;
     :host { display: flex; flex-direction: column; gap: 14px; }
     .bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .asof { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; font-weight: 600; color: var(--c-text); }
+    .asof { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; font-weight: 500; color: var(--c-text); }
     .asof lsms-icon { color: var(--c-primary); }
-    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 600; }
+    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 500; }
     .chip.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .chip.bad { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 12%, transparent); }
     .sp { flex: 1; }

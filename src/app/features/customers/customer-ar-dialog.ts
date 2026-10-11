@@ -68,11 +68,11 @@ type View = 'owing' | 'paid';
     .rows li + li { border-top: 1px solid var(--c-border); }
     .rows button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; background: var(--c-surface); font: inherit; color: var(--c-text); text-align: left; cursor: pointer; }
     .rows button:hover { background: var(--c-hover); }
-    .av { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; font-weight: 700; font-size: 0.84rem; color: var(--c-error); background: color-mix(in srgb, var(--c-error) 12%, transparent); }
+    .av { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; font-weight: 600; font-size: 0.84rem; color: var(--c-error); background: color-mix(in srgb, var(--c-error) 12%, transparent); }
     .t { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .t b { font-size: 0.86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .t b { font-size: 0.86rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .t small { font-size: 0.74rem; color: var(--c-text-2); }
-    .amt { font-weight: 700; color: var(--c-error); font-variant-numeric: tabular-nums; }
+    .amt { font-weight: 600; color: var(--c-error); font-variant-numeric: tabular-nums; }
     .rows button > lsms-icon { color: var(--c-text-2); }
   `,
 })

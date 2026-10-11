@@ -119,7 +119,7 @@ interface Day {
     .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--c-text-2); cursor: pointer; }
     .card { margin-top: 12px; border: 1px solid var(--c-border); border-radius: 16px; background: var(--c-surface); overflow: hidden; }
-    .day { margin: 0; padding: 10px 16px 6px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text) 3%, transparent); border-top: 1px solid var(--c-border); }
+    .day { margin: 0; padding: 10px 16px 6px; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text) 3%, transparent); border-top: 1px solid var(--c-border); }
     .day:first-child { border-top: 0; }
     .item { --tone: var(--c-primary); display: flex; align-items: stretch; border-top: 1px solid var(--c-border); }
     .item.unread { background: color-mix(in srgb, var(--tone) 5%, transparent); box-shadow: inset 3px 0 0 var(--tone); }
@@ -137,7 +137,7 @@ interface Day {
     .more { flex: none; width: 44px; border: 0; border-left: 1px solid var(--c-border); background: transparent; color: var(--c-text-2); cursor: pointer; }
     .sub { display: flex; flex-direction: column; padding: 4px 16px 10px 68px; border-top: 1px dashed var(--c-border); }
     .subitem { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--c-text-2); font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer; }
-    .subitem.unread { color: var(--c-text); font-weight: 600; }
+    .subitem.unread { color: var(--c-text); font-weight: 500; }
     .subitem:hover { background: color-mix(in srgb, var(--c-text) 5%, transparent); }
     .load { display: flex; justify-content: center; padding: 12px; border-top: 1px solid var(--c-border); }
     @media (max-width: 600px) { :host { padding: 8px 12px 24px; } .sub { padding-left: 16px; } }

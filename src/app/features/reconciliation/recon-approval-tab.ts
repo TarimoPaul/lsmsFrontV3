@@ -235,14 +235,14 @@ const ZERO_CASH_PRESETS = [
   `,
   styleUrl: './recon-tab.scss',
   styles: `
-    .later { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 600; cursor: help; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 12%, transparent); }
+    .later { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 500; cursor: help; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 12%, transparent); }
     .count { margin-left: auto; padding: 1px 8px; border-radius: 100px; font-size: 0.72rem; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
-    .vbtn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.76rem; font-weight: 700; color: var(--c-text-2); cursor: pointer; }
+    .vbtn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.76rem; font-weight: 600; color: var(--c-text-2); cursor: pointer; }
     .vbtn.on { color: var(--c-success); border-color: color-mix(in srgb, var(--c-success) 45%, transparent); background: color-mix(in srgb, var(--c-success) 8%, var(--c-surface)); }
     .bar { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
     .prompt { border-color: color-mix(in srgb, var(--c-primary) 40%, transparent); }
     .prompt.danger { border-color: color-mix(in srgb, var(--c-error) 40%, transparent); }
-    .warn { font-size: 0.78rem; font-weight: 600; color: var(--c-warning); }
+    .warn { font-size: 0.78rem; font-weight: 500; color: var(--c-warning); }
     .timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--c-border); }
     .timeline li { --tc: var(--c-primary); position: relative; display: flex; flex-direction: column; padding: 0 0 12px 12px; font-size: 0.82rem; }
     .timeline li:last-child { padding-bottom: 0; }
@@ -266,7 +266,7 @@ const ZERO_CASH_PRESETS = [
     .audit-head lsms-icon:last-child { margin-left: auto; }
     .audit { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
     .audit li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 8px 0; border-top: 1px dashed var(--c-border); font-size: 0.8rem; }
-    .audit .act { padding: 1px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
+    .audit .act { padding: 1px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.3px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .audit .who { display: flex; flex-direction: column; flex: 1; min-width: 0; }
     .audit .who small { color: var(--c-text-2); }
     .audit code { flex-basis: 100%; font-size: 0.72rem; color: var(--c-text-2); word-break: break-all; }

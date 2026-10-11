@@ -212,9 +212,9 @@ type Span = 6 | 12 | 24;
     .bs dl { display: flex; flex-direction: column; margin: 0; }
     .bs dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--c-border); font-size: 0.84rem; }
     .bs dt { color: var(--c-text-2); }
-    .bs dt.h { margin: 10px 0 2px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; }
+    .bs dt.h { margin: 10px 0 2px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase; }
     .bs dd { margin: 0; font-weight: 500; color: var(--c-text); font-variant-numeric: tabular-nums; }
-    .bs .sum dt, .bs .sum dd { font-weight: 700; color: var(--c-text); }
+    .bs .sum dt, .bs .sum dd { font-weight: 600; color: var(--c-text); }
     .foot { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: 0.8rem; color: var(--c-success); }
     .foot.bad { color: var(--c-error); }
     .checks { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
@@ -222,7 +222,7 @@ type Span = 6 | 12 | 24;
     .checks li:last-child { border-bottom: 0; }
     .checks lsms-icon { color: var(--c-success); }
     .checks li.bad lsms-icon, .checks li.bad b { color: var(--c-error); }
-    .checks b { font-size: 0.84rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); }
+    .checks b { font-size: 0.84rem; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--c-text); }
   `,
 })
 export class FinancialReport {

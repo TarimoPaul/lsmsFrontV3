@@ -78,17 +78,17 @@ export interface SalePaymentData {
     .due small { font-size: 0.72rem; color: var(--c-text-2); }
     .due b { font-size: 0.92rem; }
     .due .amt { align-items: flex-end; }
-    .due .amt b { font-size: 1.2rem; font-weight: 800; color: var(--c-error); font-variant-numeric: tabular-nums; }
+    .due .amt b { font-size: 1.2rem; font-weight: 600; color: var(--c-error); font-variant-numeric: tabular-nums; }
     .quick { display: flex; gap: 6px; margin: -6px 0 2px; }
-    .quick button { padding: 2px 10px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.72rem; font-weight: 700; color: var(--c-primary); cursor: pointer; }
-    .lbl { font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); }
+    .quick button { padding: 2px 10px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.72rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .lbl { font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); }
     .methods { display: flex; flex-wrap: wrap; gap: 6px; }
-    .methods button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-text); cursor: pointer; }
+    .methods button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
     .methods button lsms-icon { color: var(--c-text-2); }
     .methods button.on { color: #fff; background: var(--c-primary); border-color: var(--c-primary); }
     .methods button.on lsms-icon { color: #fff; }
     .after { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; background: color-mix(in srgb, var(--c-warning) 9%, var(--c-bg)); }
-    .after.done { background: color-mix(in srgb, var(--c-success) 9%, var(--c-bg)); color: var(--c-success); font-weight: 600; }
+    .after.done { background: color-mix(in srgb, var(--c-success) 9%, var(--c-bg)); color: var(--c-success); font-weight: 500; }
   `,
 })
 export class SalePaymentDialog {

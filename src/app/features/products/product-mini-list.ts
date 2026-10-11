@@ -53,7 +53,7 @@ import { Product } from './products.models';
     .products li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 0.84rem; border-bottom: 1px solid var(--c-border); }
     .products li:last-child { border-bottom: 0; }
     .n { width: 22px; flex-shrink: 0; color: var(--c-text-2); font-size: 0.72rem; text-align: right; }
-    .pn { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pn { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pp { color: var(--c-text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .none { justify-content: center; color: var(--c-text-2); }
   `,

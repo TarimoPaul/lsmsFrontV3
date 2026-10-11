@@ -30,7 +30,7 @@
   }
   b {
     font-size: 0.98rem;
-    font-weight: 800;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: var(--tc);
   }
@@ -49,7 +49,7 @@
     gap: 6px;
     margin: 0;
     font-size: 0.86rem;
-    font-weight: 800;
+    font-weight: 600;
     lsms-icon {
       color: var(--c-primary);
     }
@@ -69,7 +69,7 @@
     background: var(--c-bg);
     font: inherit;
     font-size: 0.76rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text);
     cursor: pointer;
     lsms-icon {
@@ -94,7 +94,7 @@
     flex-direction: column;
     gap: 4px;
     font-size: 0.76rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text-2);
   }
   .wide {
@@ -105,7 +105,7 @@
     flex-direction: column;
     gap: 6px;
     font-size: 0.76rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text-2);
   }
   input,
@@ -281,7 +281,7 @@
         display: inline;
         font-size: 0.72rem;
         font-style: normal;
-        font-weight: 600;
+        font-weight: 500;
       }
     }
   }
@@ -292,7 +292,7 @@
   padding: 1px 7px;
   border-radius: 6px;
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.3px;
   color: var(--tc);
   background: color-mix(in srgb, var(--tc) 12%, transparent);

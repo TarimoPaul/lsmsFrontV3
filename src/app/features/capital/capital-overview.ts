@@ -99,26 +99,26 @@ import { GlService } from '../general-ledger/gl.service';
     .alert small { font-size: 0.76rem; color: var(--c-text-2); }
     .hero { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; padding: 18px 20px; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--c-primary) 30%, var(--c-border)); background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface)); }
     .eqt { display: flex; flex-direction: column; gap: 2px; min-width: 240px; }
-    .eqt small { font-size: 0.76rem; font-weight: 600; color: var(--c-text-2); }
-    .eqt b { font-size: 1.6rem; font-weight: 700; color: var(--c-primary); font-variant-numeric: tabular-nums; }
+    .eqt small { font-size: 0.76rem; font-weight: 500; color: var(--c-text-2); }
+    .eqt b { font-size: 1.6rem; font-weight: 600; color: var(--c-primary); font-variant-numeric: tabular-nums; }
     .formula { font-size: 0.74rem; color: var(--c-text-2); }
     .comp { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 260px; margin: 0; padding: 0; list-style: none; }
     .comp li, .card li { display: flex; gap: 10px; font-size: 0.86rem; color: var(--c-text); }
     .comp li span, .card li span { flex: 1; }
-    .comp b, .card b { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .comp b, .card b { font-weight: 500; font-variant-numeric: tabular-nums; }
     .neg { color: var(--c-error) !important; }
     .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 14px; }
     .card { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; border: 1px solid var(--c-border); background: var(--c-surface); }
-    .card h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--c-text); }
+    .card h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
     .card h3 lsms-icon { color: var(--c-primary); }
     .card ul { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .card li.bad b, .card li.bad span { color: var(--c-error); }
-    .tot { display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid var(--c-border); font-size: 0.9rem; font-weight: 700; color: var(--c-text); }
+    .tot { display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid var(--c-border); font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
     .tot span { flex: 1; }
     .ratios, .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
     .ratios span, .kpis span { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--c-text-2) 6%, transparent); }
     .ratios small, .kpis small { font-size: 0.7rem; color: var(--c-text-2); }
-    .ratios b, .kpis b { font-size: 0.95rem; font-weight: 700; color: var(--c-text); }
+    .ratios b, .kpis b { font-size: 0.95rem; font-weight: 600; color: var(--c-text); }
     .kpis em { font-style: normal; font-size: 0.72rem; color: var(--c-text-2); }
     .kpis .net b { color: var(--c-success); }
     .kpis .net.loss b { color: var(--c-error); }

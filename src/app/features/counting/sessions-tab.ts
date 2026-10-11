@@ -120,13 +120,13 @@ type Filter = 'ALL' | SessionStatus;
     @include list-page.base;
     :host { display: flex; flex-direction: column; gap: 12px; }
     .pills { display: inline-flex; flex-wrap: wrap; gap: 6px; }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .pill.mode { --pc: var(--c-success); }
     .pill.mode.sighted { --pc: var(--c-warning); }
     .neg { color: var(--c-error); }
     .pos { color: var(--c-success); }
     .outcome small { white-space: nowrap; }
-    .outcome b { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .outcome b { font-weight: 500; font-variant-numeric: tabular-nums; }
     .outcome .warn { color: var(--c-warning); }
     .err { display: -webkit-box; max-width: 280px; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--c-error); }
   `,

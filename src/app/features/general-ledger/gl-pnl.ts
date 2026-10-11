@@ -74,14 +74,14 @@ import { GlService } from './gl.service';
     @include statement.base;
     :host { display: flex; flex-direction: column; gap: 14px; }
     .bar { display: flex; align-items: center; gap: 10px; }
-    .asof { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; font-weight: 600; color: var(--c-text); }
+    .asof { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; font-weight: 500; color: var(--c-text); }
     .asof lsms-icon { color: var(--c-primary); }
     .sp { flex: 1; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
     .kpis > div { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .kpis small { font-size: 0.72rem; color: var(--c-text-2); }
-    .kpis b { font-size: 1.05rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
-    .kpis em { font-style: normal; font-size: 0.74rem; font-weight: 600; color: var(--c-text-2); }
+    .kpis b { font-size: 1.05rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .kpis em { font-style: normal; font-size: 0.74rem; font-weight: 500; color: var(--c-text-2); }
     .kpis .net { border-color: color-mix(in srgb, var(--c-success) 40%, var(--c-border)); }
     .kpis .net b { color: var(--c-success); }
     .kpis .net.loss { border-color: color-mix(in srgb, var(--c-error) 40%, var(--c-border)); }

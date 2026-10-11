@@ -21,7 +21,7 @@
   height: 34px;
   border-radius: 50%;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
 }
@@ -40,7 +40,7 @@
   padding: 0 7px;
   border-radius: 100px;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--t);
   background: color-mix(in srgb, var(--t) 12%, transparent);
 }
@@ -59,7 +59,7 @@
   }
 }
 .owed {
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--c-error);
   white-space: nowrap;

@@ -36,10 +36,10 @@ type Tab = 'overview' | 'purchases' | 'history';
     .head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
     .avatar {
       display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%;
-      font-size: 1.1rem; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+      font-size: 1.1rem; font-weight: 600; color: #fff; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
     }
     .who { flex: 1; min-width: 0; }
-    .who h3 { font-size: 1.2rem; font-weight: 800; }
+    .who h3 { font-size: 1.2rem; font-weight: 600; }
     .who p { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 4px; font-size: 0.82rem; color: var(--c-text-2); }
     .who p span { display: inline-flex; align-items: center; gap: 4px; }
     .who a { color: inherit; }
@@ -48,7 +48,7 @@ type Tab = 'overview' | 'purchases' | 'history';
     @media (max-width: 700px) { .kpis { grid-template-columns: 1fr 1fr; } }
     .kpis div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--c-bg); border: 1px solid var(--c-border); }
     .kpis small { font-size: 0.7rem; color: var(--c-text-2); }
-    .kpis b { font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .kpis b { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .kpis .owe b { color: var(--c-error); }
     .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
     .meter { margin-top: 6px; }
@@ -57,7 +57,7 @@ type Tab = 'overview' | 'purchases' | 'history';
     .meter small { display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.72rem; color: var(--c-text-2); }
     dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0; font-size: 0.84rem; }
     dt { color: var(--c-text-2); }
-    dd { margin: 0; font-weight: 600; text-align: right; }
+    dd { margin: 0; font-weight: 500; text-align: right; }
     .timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--c-border); }
     .timeline li { position: relative; padding: 0 0 12px 12px; font-size: 0.82rem; }
     .timeline li::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--c-primary); box-shadow: 0 0 0 3px var(--c-surface); }

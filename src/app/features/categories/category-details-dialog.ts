@@ -64,18 +64,18 @@ export type CategoryDetailsResult = 'edit' | undefined;
     .head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .badge {
       display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 56px; height: 56px;
-      border-radius: 16px; color: #fff; font-size: 1.1rem; font-weight: 800; background: var(--cat);
+      border-radius: 16px; color: #fff; font-size: 1.1rem; font-weight: 600; background: var(--cat);
       box-shadow: 0 6px 16px color-mix(in srgb, var(--cat) 30%, transparent);
     }
     .who { flex: 1; min-width: 0; }
-    .who h3 { font-size: 1.2rem; font-weight: 800; word-break: break-word; }
+    .who h3 { font-size: 1.2rem; font-weight: 600; word-break: break-word; }
     .who p { color: var(--c-text); font-size: 0.86rem; word-break: break-word; }
     .stat { display: flex; flex-direction: column; align-items: center; padding: 6px 14px; border-radius: 12px; background: var(--c-bg); border: 1px solid var(--c-border); }
-    .stat b { font-size: 1.3rem; font-weight: 800; color: var(--cat); line-height: 1.1; }
+    .stat b { font-size: 1.3rem; font-weight: 600; color: var(--cat); line-height: 1.1; }
     .stat small { font-size: 0.7rem; color: var(--c-text-2); }
     .block { padding: 14px 16px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); }
     h4 {
-      display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 800;
+      display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 600;
       letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2);
       lsms-icon { color: var(--c-primary); }
     }

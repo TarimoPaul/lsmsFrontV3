@@ -18,15 +18,15 @@ const parseMoney = (t: string) => Money.parse(t) ?? 0;
 
 const FORM_STYLES = `
   .who { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--c-primary) 7%, var(--c-bg)); font-size: 0.84rem; }
-  .who b { font-weight: 600; }
-  .who em { font-style: normal; font-weight: 700; color: var(--c-primary); }
-  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+  .who b { font-weight: 500; }
+  .who em { font-style: normal; font-weight: 600; color: var(--c-primary); }
+  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   label small { font-weight: 400; }
   input, textarea { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: none; }
   input:focus, textarea:focus { border-color: var(--c-primary); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .chips button { display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; color: var(--c-text); cursor: pointer; }
-  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
+  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 500; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
   .bad { color: var(--c-error); font-size: 0.76rem; font-weight: 500; }
   .info { display: flex; align-items: flex-start; gap: 6px; margin: 0 0 12px; padding: 8px 10px; border-radius: 10px; font-size: 0.8rem; color: var(--c-text); background: color-mix(in srgb, var(--c-info) 8%, transparent); }
   .info lsms-icon { color: var(--c-info); flex-shrink: 0; }

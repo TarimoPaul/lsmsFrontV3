@@ -25,7 +25,7 @@ import {
 import { AssetService } from './asset.service';
 
 const FORM = `
-  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   label small { font-weight: 400; }
   input { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: none; }
   input:focus { border-color: var(--c-primary); }
@@ -33,10 +33,10 @@ const FORM = `
   .info { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text); background: color-mix(in srgb, var(--c-info) 8%, transparent); }
   .info lsms-icon { color: var(--c-info); flex-shrink: 0; }
   .err { margin: 0; font-size: 0.82rem; color: var(--c-error); }
-  .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+  .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   .chips button { padding: 7px 13px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; color: var(--c-text); cursor: pointer; }
-  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
+  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 500; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
 `;
 
 // ── Add / edit one asset ───────────────────────────────────────────────────
@@ -284,14 +284,14 @@ type Draft = { decision: AssetDecision; note: string; amount: string; userUid: s
     .bad { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 8%, transparent); }
     .warn { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 9%, transparent); }
     .head { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--c-border); }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 600; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 500; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .facts { display: flex; flex-wrap: wrap; gap: 8px 24px; }
     .facts span, .nums span { display: flex; flex-direction: column; }
     .facts small, .nums small { font-size: 0.7rem; color: var(--c-text-2); }
-    .facts b { font-size: 0.86rem; font-weight: 600; color: var(--c-text); }
+    .facts b { font-size: 0.86rem; font-weight: 500; color: var(--c-text); }
     .seg { display: inline-flex; margin: 12px 0 8px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--c-text-2) 10%, transparent); }
     .seg button { padding: 6px 12px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
-    .seg button.on { background: var(--c-surface); color: var(--c-text); font-weight: 600; box-shadow: 0 1px 2px rgb(16 24 40 / 0.08); }
+    .seg button.on { background: var(--c-surface); color: var(--c-text); font-weight: 500; box-shadow: 0 1px 2px rgb(16 24 40 / 0.08); }
     .seg em { font-style: normal; font-size: 0.72rem; opacity: 0.8; }
     .lines { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .lines li { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
@@ -299,12 +299,12 @@ type Draft = { decision: AssetDecision; note: string; amount: string; userUid: s
     .lines li.var.short { border-color: color-mix(in srgb, var(--c-error) 40%, var(--c-border)); }
     .lines li.empty { align-items: center; color: var(--c-text-2); font-size: 0.84rem; }
     .l-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
-    .l-head b { font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
+    .l-head b { font-size: 0.9rem; font-weight: 500; color: var(--c-text); }
     .l-head small { flex: 1; font-size: 0.74rem; color: var(--c-text-2); }
-    .state { margin-left: auto; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    .state { margin-left: auto; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .state.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .nums { display: flex; gap: 24px; }
-    .nums b { font-size: 1rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .nums b { font-size: 1rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .neg { color: var(--c-error) !important; }
     .pos { color: var(--c-success) !important; }
     .note { display: flex; align-items: flex-start; gap: 6px; margin: 0; padding: 6px 9px; border-radius: 8px; font-size: 0.76rem; background: color-mix(in srgb, currentColor 8%, transparent); }
@@ -313,13 +313,13 @@ type Draft = { decision: AssetDecision; note: string; amount: string; userUid: s
     .note.warn-t { color: var(--c-warning); }
     .decide { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
     .decide button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 6px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
-    .decide button.on { border-color: var(--dc); color: var(--dc); font-weight: 600; background: color-mix(in srgb, var(--dc) 12%, var(--c-surface)); }
+    .decide button.on { border-color: var(--dc); color: var(--dc); font-weight: 500; background: color-mix(in srgb, var(--dc) 12%, var(--c-surface)); }
     .extra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .extra input { flex: 1 1 200px; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.82rem; color: var(--c-text); outline: 0; }
-    .extra input.amt { flex: 0 1 170px; font-weight: 600; }
+    .extra input.amt { flex: 0 1 170px; font-weight: 500; }
     .extra lsms-select-field { flex: 1 1 200px; }
     .hint, .who { width: 100%; font-size: 0.74rem; color: var(--c-text-2); }
-    .hint.c { color: var(--c-error); font-weight: 600; }
+    .hint.c { color: var(--c-error); font-weight: 500; }
     .who { width: auto; }
     .spacer { flex: 1; }
   `,

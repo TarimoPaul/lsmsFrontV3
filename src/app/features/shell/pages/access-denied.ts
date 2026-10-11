@@ -33,7 +33,7 @@ import { Button, Icon } from '@shared/ui';
     :host { display: flex; justify-content: center; padding: 64px 20px; }
     .card { max-width: 480px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .ic { display: inline-flex; padding: 20px; border-radius: 50%; color: var(--c-error); background: color-mix(in srgb, var(--c-error) 10%, transparent); margin-bottom: 8px; }
-    h1 { font-size: 1.5rem; font-weight: 800; }
+    h1 { font-size: 1.5rem; font-weight: 600; }
     p { color: var(--c-text-2); }
     .hint { font-size: 0.85rem; }
     .row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }

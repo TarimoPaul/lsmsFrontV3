@@ -163,10 +163,10 @@ interface DayGroup {
     .mhead { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
     .mhead > lsms-icon { color: var(--c-error); }
     .mhead span { display: flex; flex-direction: column; flex: 1; min-width: 160px; }
-    .mhead b { font-size: 0.86rem; font-weight: 600; }
+    .mhead b { font-size: 0.86rem; font-weight: 500; }
     .mhead small { font-size: 0.74rem; color: var(--c-text-2); }
-    .mhead .amt { font-weight: 700; color: var(--c-error); }
-    .sync { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-primary); background: var(--c-primary); font: inherit; font-size: 0.76rem; font-weight: 600; color: #fff; cursor: pointer; }
+    .mhead .amt { font-weight: 600; color: var(--c-error); }
+    .sync { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-primary); background: var(--c-primary); font: inherit; font-size: 0.76rem; font-weight: 500; color: #fff; cursor: pointer; }
     .sync:disabled { opacity: 0.6; cursor: default; }
     .ic.bad { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 10%, transparent); }
     .items .t small.why { white-space: normal; color: var(--c-warning); }
@@ -178,14 +178,14 @@ interface DayGroup {
     .head:hover { background: var(--c-hover); }
     .head > lsms-icon:first-child { color: var(--c-primary); }
     .head span { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .head b { font-size: 0.86rem; font-weight: 600; }
+    .head b { font-size: 0.86rem; font-weight: 500; }
     .head small { font-size: 0.74rem; color: var(--c-text-2); }
-    .head em { font-style: normal; font-weight: 600; color: var(--c-warning); }
-    .head .amt { font-weight: 700; color: var(--c-info); }
-    .count { flex: 0 0 auto !important; padding: 1px 8px; border-radius: 100px; font-size: 0.74rem; font-weight: 700; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    .head em { font-style: normal; font-weight: 500; color: var(--c-warning); }
+    .head .amt { font-weight: 600; color: var(--c-info); }
+    .count { flex: 0 0 auto !important; padding: 1px 8px; border-radius: 100px; font-size: 0.74rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .cross .items, .day .items { border: 0; border-top: 1px solid var(--c-border); border-radius: 0; }
     .ic.muted { color: var(--c-text-2); background: color-mix(in srgb, var(--c-text-2) 10%, transparent); }
-    .vchip { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; padding: 3px 9px; border-radius: 100px; border: 1px solid color-mix(in srgb, var(--c-warning) 40%, transparent); background: color-mix(in srgb, var(--c-warning) 10%, transparent); font: inherit; font-size: 0.72rem; font-weight: 600; color: var(--c-warning); cursor: pointer; }
+    .vchip { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; padding: 3px 9px; border-radius: 100px; border: 1px solid color-mix(in srgb, var(--c-warning) 40%, transparent); background: color-mix(in srgb, var(--c-warning) 10%, transparent); font: inherit; font-size: 0.72rem; font-weight: 500; color: var(--c-warning); cursor: pointer; }
     .vchip.on { color: var(--c-success); border-color: color-mix(in srgb, var(--c-success) 40%, transparent); background: color-mix(in srgb, var(--c-success) 10%, transparent); }
     .vchip.ro { cursor: default; }
     .vchip:disabled { opacity: 0.6; }

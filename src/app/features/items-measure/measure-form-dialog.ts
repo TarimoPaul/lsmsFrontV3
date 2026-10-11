@@ -116,19 +116,19 @@ const same = (m: { packageType: string; unitType: string; abbreviation: string |
     }
     .unit {
       display: inline-flex; align-items: center; justify-content: center; min-width: 56px; height: 44px; padding: 0 10px; border-radius: 12px;
-      font-weight: 800; font-size: 0.9rem; color: #fff; background: var(--c-info);
+      font-weight: 600; font-size: 0.9rem; color: #fff; background: var(--c-info);
     }
     .txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
     .txt strong { font-size: 0.95rem; }
     .txt small { font-size: 0.74rem; color: var(--c-text-2); }
-    .abbr { padding: 2px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; background: var(--c-surface); border: 1px solid var(--c-border); }
+    .abbr { padding: 2px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 600; background: var(--c-surface); border: 1px solid var(--c-border); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     .warn { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; padding: 10px 12px; border-radius: 12px; font-size: 0.82rem; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 8%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-warning) 28%, var(--c-border)); }
     .picks { display: flex; flex-wrap: wrap; gap: 4px; margin: -6px 0 8px; }
     .pick {
       padding: 2px 9px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface);
-      font: inherit; font-size: 0.72rem; font-weight: 600; color: var(--c-text-2); cursor: pointer;
+      font: inherit; font-size: 0.72rem; font-weight: 500; color: var(--c-text-2); cursor: pointer;
       &:hover { color: var(--c-primary); border-color: var(--c-primary); }
     }
   `,

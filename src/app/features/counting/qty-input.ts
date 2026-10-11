@@ -43,7 +43,7 @@ import { Icon } from '@shared/ui';
     button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 100%; border: 0; background: transparent; color: var(--c-text-2); cursor: pointer; }
     button:hover:not(:disabled) { color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, transparent); }
     button:disabled { opacity: 0.4; cursor: default; }
-    input { width: 52px; height: 100%; border: 0; outline: 0; background: transparent; text-align: center; font: inherit; font-size: 0.95rem; font-weight: 600; color: var(--tone); font-variant-numeric: tabular-nums; }
+    input { width: 52px; height: 100%; border: 0; outline: 0; background: transparent; text-align: center; font: inherit; font-size: 0.95rem; font-weight: 500; color: var(--tone); font-variant-numeric: tabular-nums; }
     input::placeholder { font-size: 0.74rem; font-weight: 500; color: var(--c-text-2); opacity: 0.8; }
     .plus { font-size: 0.9rem; color: var(--c-text-2); }
     @media (max-width: 420px) { input { width: 42px; } button { width: 32px; } }

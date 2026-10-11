@@ -32,7 +32,7 @@ import { MoneyPipe } from '@shared/utils/money';
     .main { flex: 1; }
     small { font-size: 0.74rem; color: var(--c-text-2); }
     .q { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    b { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    b { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .n { align-items: flex-end; }
     .n b { color: var(--c-text); }
   `,

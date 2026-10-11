@@ -113,8 +113,8 @@ const RECON: Record<string, { en: string; sw: string; color: string; icon: strin
       font: inherit; color: var(--c-text); text-align: left; cursor: pointer; transition: border-color 0.15s, background 0.15s;
       &:hover { border-color: color-mix(in srgb, var(--tone) 50%, var(--c-border)); }
       &.on { border-color: var(--tone); background: color-mix(in srgb, var(--tone) 7%, var(--c-surface)); box-shadow: inset 3px 0 0 var(--tone); }
-      .lbl { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 600; color: var(--c-text-2); lsms-icon { color: var(--tone); } }
-      strong { font-size: 1.02rem; font-weight: 600; }
+      .lbl { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 500; color: var(--c-text-2); lsms-icon { color: var(--tone); } }
+      strong { font-size: 1.02rem; font-weight: 500; }
       small { font-size: 0.7rem; color: var(--c-text-2); }
     }
     lsms-data-table { border: 0; border-top: 1px solid var(--c-border); border-radius: 0; max-height: 64vh; }
@@ -124,7 +124,7 @@ const RECON: Record<string, { en: string; sw: string; color: string; icon: strin
     .pill {
       --tone: var(--c-text-2);
       display: inline-flex; align-items: center; gap: 4px; width: fit-content; padding: 2px 8px; border-radius: 999px;
-      font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+      font-size: 0.72rem; font-weight: 500; white-space: nowrap;
       color: var(--tone); background: color-mix(in srgb, var(--tone) 10%, transparent);
     }
     .more { display: flex; justify-content: center; padding: 12px; border-top: 1px solid var(--c-border); }

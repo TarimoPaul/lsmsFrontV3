@@ -48,7 +48,7 @@ export interface DatePickerDialogData {
     @use 'typography' as t;
     :host { display: flex; flex-direction: column; padding: 16px 16px 8px; }
     .help { @include t.badge-label-compact; color: var(--c-text-2); margin-bottom: 6px; }
-    .summary { @include t.body; font-weight: 700; color: var(--c-primary); margin-bottom: 8px; }
+    .summary { @include t.body; font-weight: 600; color: var(--c-primary); margin-bottom: 8px; }
     .actions {
       display: flex; justify-content: flex-end; gap: 8px;
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--c-divider);

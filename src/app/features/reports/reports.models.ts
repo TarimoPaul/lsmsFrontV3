@@ -45,7 +45,7 @@ export const REPORTS: ReportDef[] = [
     title: { en: 'Daily profit & cash', sw: 'Faida ya kila siku' },
     description: { en: 'Net profit per day, profit already collected, money with debtors and operating cash flow', sw: 'Faida halisi kwa siku, faida iliyokusanywa, pesa iliyokwama kwa wadeni na mtiririko wa pesa' },
     source: { en: 'Sales, recon, expenses, stock', sw: 'Mauzo, recon, gharama, stoki' },
-    permissions: ['SALES_ANALYTICS'],
+    permissions: ['PROFIT_REPORT'],
     topics: [
       { en: 'Net by day', sw: 'Faida kwa siku' },
       { en: 'Collected profit', sw: 'Faida iliyokusanywa' },

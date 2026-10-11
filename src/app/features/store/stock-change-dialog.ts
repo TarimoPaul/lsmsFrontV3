@@ -90,8 +90,8 @@ const KINDS: Record<ChangeKind, { en: string; sw: string; hint: { en: string; sw
       background: var(--c-bg); border: 1px solid var(--c-border);
       span { display: flex; flex-direction: column; }
       small { font-size: 0.7rem; color: var(--c-text-2); }
-      b { font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-      .delta { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; }
+      b { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .delta { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
       lsms-icon { color: var(--c-text-2); }
       &.bad { border-color: color-mix(in srgb, var(--c-error) 40%, transparent); background: color-mix(in srgb, var(--c-error) 6%, var(--c-bg)); }
     }

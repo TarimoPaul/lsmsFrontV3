@@ -147,20 +147,20 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
     :host(.disputed) { border-color: color-mix(in srgb, var(--c-error) 45%, var(--c-border)); }
     .top { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 0; background: transparent; font: inherit; text-align: left; color: var(--c-text); cursor: pointer; }
     .top:hover { background: color-mix(in srgb, var(--c-primary) 4%, transparent); }
-    .av { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; font-size: 0.78rem; font-weight: 700; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, transparent); }
+    .av { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; font-size: 0.78rem; font-weight: 600; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, transparent); }
     .who { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .who b { font-size: 0.9rem; font-weight: 500; }
     .who small { font-size: 0.72rem; color: var(--c-text-2); }
-    .who em { font-style: normal; font-weight: 600; }
+    .who em { font-style: normal; font-weight: 500; }
     .red { color: var(--c-error); }
     .amber { color: var(--c-warning); }
-    .pill { padding: 2px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { padding: 2px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .amt { display: flex; flex-direction: column; align-items: flex-end; }
-    .amt b { font-size: 1rem; font-weight: 700; color: var(--c-primary); font-variant-numeric: tabular-nums; }
+    .amt b { font-size: 1rem; font-weight: 600; color: var(--c-primary); font-variant-numeric: tabular-nums; }
     :host(.disputed) .amt b { color: var(--c-error); }
     .amt small { font-size: 0.7rem; color: var(--c-text-2); }
     .body { display: flex; flex-direction: column; gap: 10px; padding: 4px 16px 16px; border-top: 1px solid var(--c-border); }
-    h4 { margin: 8px 0 0; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-text-2); }
+    h4 { margin: 8px 0 0; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-text-2); }
     .disputes { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; color: var(--c-error); background: color-mix(in srgb, var(--c-error) 7%, transparent); border: 1px solid color-mix(in srgb, var(--c-error) 35%, transparent); }
     .disputes b { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; letter-spacing: 0.4px; text-transform: uppercase; }
     .disputes p { margin: 0; font-size: 0.82rem; color: var(--c-text); }
@@ -171,9 +171,9 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
     .items li.bad { border-color: color-mix(in srgb, var(--c-error) 35%, transparent); background: color-mix(in srgb, var(--c-error) 5%, var(--c-bg)); }
     .i-top { display: flex; justify-content: space-between; gap: 10px; }
     .i-top b { font-size: 0.86rem; font-weight: 500; }
-    .i-top span { font-size: 0.86rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .i-top span { font-size: 0.86rem; font-weight: 500; font-variant-numeric: tabular-nums; }
     .facts { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.76rem; color: var(--c-text-2); }
-    .facts b { font-weight: 600; color: var(--c-text); }
+    .facts b { font-weight: 500; color: var(--c-text); }
     .facts b.red { color: var(--c-error); }
     .said { font-size: 0.74rem; color: var(--c-text-2); }
     .i-state { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; }
@@ -186,9 +186,9 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
     .pays li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--c-success) 6%, transparent); }
     .pays lsms-icon { color: var(--c-success); }
     .pays span { flex: 1; display: flex; flex-direction: column; }
-    .pays b { font-size: 0.82rem; font-weight: 600; }
+    .pays b { font-size: 0.82rem; font-weight: 500; }
     .pays small { font-size: 0.72rem; color: var(--c-text-2); }
-    .pays em { font-style: normal; font-weight: 600; color: var(--c-success); font-variant-numeric: tabular-nums; }
+    .pays em { font-style: normal; font-weight: 500; color: var(--c-success); font-variant-numeric: tabular-nums; }
     .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
     @media (max-width: 560px) {
       .top { flex-wrap: wrap; }

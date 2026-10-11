@@ -75,16 +75,16 @@ export interface MeasureDetailsData {
     .head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .unit {
       display: inline-flex; align-items: center; justify-content: center; min-width: 64px; height: 56px; padding: 0 12px;
-      border-radius: 16px; color: #fff; font-weight: 800; background: var(--c-info);
+      border-radius: 16px; color: #fff; font-weight: 600; background: var(--c-info);
       box-shadow: 0 6px 16px color-mix(in srgb, var(--c-info) 30%, transparent);
     }
     .who { flex: 1; min-width: 0; }
-    .who h3 { font-size: 1.15rem; font-weight: 800; }
+    .who h3 { font-size: 1.15rem; font-weight: 600; }
     .who p { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.85rem; }
-    .abbr { padding: 1px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: var(--c-bg); border: 1px solid var(--c-border); }
+    .abbr { padding: 1px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; background: var(--c-bg); border: 1px solid var(--c-border); }
     .muted { color: var(--c-text-2); }
     .stat { display: flex; flex-direction: column; align-items: center; padding: 6px 14px; border-radius: 12px; background: var(--c-bg); border: 1px solid var(--c-border); }
-    .stat b { font-size: 1.3rem; font-weight: 800; color: var(--c-info); line-height: 1.1; }
+    .stat b { font-size: 1.3rem; font-weight: 600; color: var(--c-info); line-height: 1.1; }
     .stat small { font-size: 0.7rem; color: var(--c-text-2); }
     .block { padding: 14px 16px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); }
     .log { margin-top: 12px; }
@@ -93,7 +93,7 @@ export interface MeasureDetailsData {
     .log .when, .log small { font-size: 0.72rem; color: var(--c-text-2); }
     .log s { color: var(--c-text-2); }
     h4 {
-      display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 800;
+      display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 0.72rem; font-weight: 600;
       letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2);
       lsms-icon { color: var(--c-primary); }
     }

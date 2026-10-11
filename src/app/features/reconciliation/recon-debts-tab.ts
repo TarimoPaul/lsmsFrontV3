@@ -138,8 +138,8 @@ type StatusFilter = '' | 'UNPAID' | 'PARTIAL';
   styles: `
     .arbar { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 12px; padding: 10px 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--c-error) 30%, var(--c-border)); background: color-mix(in srgb, var(--c-error) 6%, var(--c-surface)); font: inherit; font-size: 0.84rem; color: var(--c-error); text-align: left; cursor: pointer; }
     .arbar:hover { background: color-mix(in srgb, var(--c-error) 10%, var(--c-surface)); }
-    .arbar span { flex: 1; min-width: 0; font-weight: 600; }
-    .arbar b { font-weight: 700; }
+    .arbar span { flex: 1; min-width: 0; font-weight: 500; }
+    .arbar b { font-weight: 600; }
     .bar-add { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface)); border: 1px dashed color-mix(in srgb, var(--c-primary) 35%, var(--c-border)); }
     .bar-add span { display: inline-flex; align-items: center; gap: 8px; font-size: 0.84rem; color: var(--c-text-2); }
     .bar-add lsms-icon { color: var(--c-primary); }
@@ -158,10 +158,10 @@ type StatusFilter = '' | 'UNPAID' | 'PARTIAL';
     .ic { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .ic.manual { color: var(--c-info); background: color-mix(in srgb, var(--c-info) 10%, transparent); }
     .t { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .t b { font-size: 0.86rem; font-weight: 600; }
+    .t b { font-size: 0.86rem; font-weight: 500; }
     .t small { font-size: 0.72rem; color: var(--c-text-2); }
     .money { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
-    .money b { font-size: 0.92rem; font-weight: 700; color: var(--c-error); font-variant-numeric: tabular-nums; }
+    .money b { font-size: 0.92rem; font-weight: 600; color: var(--c-error); font-variant-numeric: tabular-nums; }
     .money small { font-size: 0.72rem; color: var(--c-text-2); white-space: nowrap; }
     .d2 { display: flex; flex-direction: column; gap: 2px; padding-left: 44px; font-size: 0.76rem; color: var(--c-text-2); }
     .d2 span { display: inline-flex; align-items: center; gap: 5px; }
@@ -170,7 +170,7 @@ type StatusFilter = '' | 'UNPAID' | 'PARTIAL';
     .pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
     .pager small { margin-right: auto; color: var(--c-text-2); }
     .err { color: var(--c-error); }
-    .empty button { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .empty button { padding: 0; border: 0; background: none; font: inherit; font-weight: 500; color: var(--c-primary); cursor: pointer; }
     @media (max-width: 600px) { .d1 { flex-wrap: wrap; } .d2 { padding-left: 0; } }
   `,
 })

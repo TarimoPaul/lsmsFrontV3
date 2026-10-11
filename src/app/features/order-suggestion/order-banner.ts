@@ -73,7 +73,7 @@ import { OrderService } from './order.service';
     .ob.none > lsms-icon:first-child { color: var(--c-text-2); }
     a.go { display: inline-flex; }
     .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: inherit; }
-    .txt b { font-size: 0.92rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .txt b { font-size: 0.92rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .txt small { font-size: 0.76rem; color: var(--c-text-2); }
     .go { color: var(--c-text-2); }
     a.ob:hover .go { color: var(--c-primary); }

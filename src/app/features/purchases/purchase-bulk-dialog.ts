@@ -126,7 +126,7 @@ const TEXT: Record<BulkStep, { title: [string, string]; icon: string; go: [strin
     .sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
     .sum div { display: flex; flex-direction: column; padding: 8px 12px; border-radius: 12px; background: var(--c-bg); border: 1px solid var(--c-border); }
     .sum small { font-size: 0.72rem; color: var(--c-text-2); }
-    .sum b { font-size: 1.05rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .sum b { font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .list { list-style: none; margin: 0 0 12px; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--c-border); max-height: 220px; overflow: auto; }
     .list li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 0.84rem; }
     .list li + li { border-top: 1px dashed var(--c-border); }
@@ -136,12 +136,12 @@ const TEXT: Record<BulkStep, { title: [string, string]; icon: string; go: [strin
     .list .more { justify-content: center; color: var(--c-text-2); font-size: 0.78rem; }
     .confirm { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--c-info) 7%, var(--c-bg)); border: 1px solid color-mix(in srgb, var(--c-info) 25%, transparent); }
     .confirm.danger { background: color-mix(in srgb, var(--c-error) 6%, var(--c-bg)); border-color: color-mix(in srgb, var(--c-error) 25%, transparent); }
-    .confirm p { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.84rem; font-weight: 600; }
+    .confirm p { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.84rem; font-weight: 500; }
     .err { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 0.82rem; color: var(--c-error); }
     .hero { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0 14px; }
     .tick { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; color: #fff; background: var(--c-success); box-shadow: 0 0 0 8px color-mix(in srgb, var(--c-success) 16%, transparent); }
     .hero.part .tick { background: var(--c-warning); box-shadow: 0 0 0 8px color-mix(in srgb, var(--c-warning) 16%, transparent); }
-    .hero b { font-size: 1.15rem; font-weight: 800; }
+    .hero b { font-size: 1.15rem; font-weight: 600; }
     .failed { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 9%, transparent); max-height: 260px; overflow: auto; }
     .failed p { display: flex; align-items: center; gap: 6px; font-size: 0.84rem; }
     .failed small { font-size: 0.76rem; color: var(--c-text); }

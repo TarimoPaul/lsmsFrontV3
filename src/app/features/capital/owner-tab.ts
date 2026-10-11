@@ -69,7 +69,7 @@ import { CapitalService } from './capital.service';
     .nm { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .nm b { font-size: 0.88rem; font-weight: 500; color: var(--c-text); }
     .nm small { font-size: 0.72rem; color: var(--c-text-2); }
-    em { font-style: normal; font-weight: 700; color: var(--c-success); font-variant-numeric: tabular-nums; }
+    em { font-style: normal; font-weight: 600; color: var(--c-success); font-variant-numeric: tabular-nums; }
     em.out { color: var(--c-error); }
   `,
 })

@@ -74,9 +74,9 @@ export interface RepurchaseDoneData {
   styles: `
     .hero { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 14px; text-align: center; }
     .tick { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin-bottom: 6px; border-radius: 50%; color: #fff; background: var(--c-success); box-shadow: 0 0 0 8px color-mix(in srgb, var(--c-success) 16%, transparent); }
-    .hero b { font-size: 1.7rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .hero b { font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .hero small { font-size: 0.78rem; color: var(--c-text-2); }
-    .state { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; font-weight: 600; }
+    .state { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; font-weight: 500; }
     .state span { flex: 1; display: flex; flex-direction: column; }
     .state small { font-weight: 400; color: var(--c-text-2); }
     .state.info { color: var(--c-text-2); background: var(--c-bg); }

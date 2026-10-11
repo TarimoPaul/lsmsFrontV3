@@ -44,10 +44,10 @@ import { VarianceMetrics } from './variance-metrics';
     .head { display: flex; align-items: center; gap: 8px; }
     .head b { flex: 1; font-size: 0.9rem; font-weight: 500; color: var(--c-text); }
     .no { font-size: 0.74rem; color: var(--c-text-2); }
-    .pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .reasons { display: flex; flex-wrap: wrap; gap: 6px; }
     .reasons button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
-    .reasons button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, var(--c-surface)); color: var(--c-primary); font-weight: 600; }
+    .reasons button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, var(--c-surface)); color: var(--c-primary); font-weight: 500; }
     .note { display: flex; gap: 8px; }
     .note input { flex: 1; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.84rem; color: var(--c-text); outline: 0; }
     .note input:focus { border-color: var(--c-primary); }

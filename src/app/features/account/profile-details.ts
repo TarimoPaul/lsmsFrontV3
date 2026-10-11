@@ -81,14 +81,14 @@ async function toSquareJpeg(file: File): Promise<Blob> {
   styles: `
     .photo { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
     .photo small { display: block; margin-top: 6px; font-size: 0.72rem; color: var(--c-text-2); }
-    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; color: #fff; font-size: 1.2rem; font-weight: 800; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); }
+    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; color: #fff; font-size: 1.2rem; font-weight: 600; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
     .gender { display: flex; flex-direction: column; gap: 6px; }
-    .lbl { font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); }
+    .lbl { font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); }
     .seg { display: inline-flex; gap: 6px; }
     .seg button { padding: 8px 16px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text); font: inherit; font-size: 0.85rem; cursor: pointer; }
-    .seg button.on { border-color: var(--c-primary); color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface)); font-weight: 600; }
+    .seg button.on { border-color: var(--c-primary); color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface)); font-weight: 500; }
     .acts { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
     .muted { color: var(--c-text-2); font-size: 0.82rem; overflow-wrap: anywhere; }
     @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }

@@ -210,13 +210,13 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
     .done p { margin: 0; font-size: 0.86rem; color: var(--c-text-2); }
     .head { display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--c-border); }
     .badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .mode { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.4px; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c-success) 40%, transparent); }
+    .mode { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.4px; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c-success) 40%, transparent); }
     .mode.sighted { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); border-color: color-mix(in srgb, var(--c-warning) 40%, transparent); }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 600; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 500; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .facts { display: flex; flex-wrap: wrap; gap: 8px 24px; }
     .facts span { display: flex; flex-direction: column; }
     .facts small, .sum small { font-size: 0.7rem; color: var(--c-text-2); }
-    .facts b, .sum b { font-size: 0.86rem; font-weight: 600; color: var(--c-text); }
+    .facts b, .sum b { font-size: 0.86rem; font-weight: 500; color: var(--c-text); }
     .neg { color: var(--c-error) !important; }
     .pos { color: var(--c-success) !important; }
     .warn, .bad { display: flex; align-items: center; gap: 6px; margin: 0; padding: 8px 10px; border-radius: 10px; font-size: 0.8rem; }
@@ -225,13 +225,13 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
     .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 8px; }
     .seg { display: inline-flex; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--c-text-2) 10%, transparent); }
     .seg button { padding: 6px 12px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
-    .seg button.on { background: var(--c-surface); color: var(--c-text); font-weight: 600; box-shadow: 0 1px 2px rgb(16 24 40 / 0.08); }
+    .seg button.on { background: var(--c-surface); color: var(--c-text); font-weight: 500; box-shadow: 0 1px 2px rgb(16 24 40 / 0.08); }
     .seg em { font-style: normal; font-size: 0.72rem; opacity: 0.8; }
     .tools input { flex: 1 1 180px; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.84rem; color: var(--c-text); outline: 0; }
     .bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px 12px; border-radius: 12px; background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface)); }
     .bulk b { font-size: 0.82rem; }
     .bulk lsms-select-field { flex: 1 1 220px; }
-    .bulk .clear { border: 0; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .bulk .clear { border: 0; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-primary); cursor: pointer; }
     .lines { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .lines li { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .lines li.var { border-color: color-mix(in srgb, var(--c-success) 40%, var(--c-border)); }
@@ -241,21 +241,21 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
     .l-head input { width: 16px; height: 16px; accent-color: var(--c-primary); }
     .l-head b { flex: 1; font-size: 0.88rem; font-weight: 500; color: var(--c-text); }
     .no { font-size: 0.72rem; color: var(--c-text-2); }
-    .state { padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    .state { padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
     .state.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .note { display: flex; align-items: flex-start; gap: 6px; margin: 0; padding: 6px 9px; border-radius: 8px; font-size: 0.76rem; }
     .note lsms-icon { flex-shrink: 0; margin-top: 1px; }
-    .note b { font-weight: 600; }
+    .note b { font-weight: 500; }
     .note.info { color: var(--c-info); background: color-mix(in srgb, var(--c-info) 8%, transparent); }
     .note.warn-t { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 9%, transparent); }
     .note.re { color: var(--c-secondary); background: color-mix(in srgb, var(--c-secondary) 8%, transparent); }
     .decide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .decide button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 6px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
-    .decide button.on { border-color: var(--dc); color: var(--dc); font-weight: 600; background: color-mix(in srgb, var(--dc) 12%, var(--c-surface)); }
+    .decide button.on { border-color: var(--dc); color: var(--dc); font-weight: 500; background: color-mix(in srgb, var(--dc) 12%, var(--c-surface)); }
     .reason { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .reason lsms-select-field { flex: 1 1 220px; }
     .reason input { flex: 1 1 220px; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.82rem; color: var(--c-text); outline: 0; }
-    .charge { width: 100%; font-size: 0.76rem; font-weight: 600; color: var(--c-error); }
+    .charge { width: 100%; font-size: 0.76rem; font-weight: 500; color: var(--c-error); }
     .charge .cost { font-weight: 500; color: var(--c-text-2); }
     .decide.two { grid-template-columns: repeat(2, 1fr); }
     .sum { position: sticky; bottom: -1px; display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }

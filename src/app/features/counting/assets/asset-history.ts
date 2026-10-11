@@ -70,7 +70,7 @@ type Filter = 'ALL' | AssetSessionStatus;
     @use 'list-page';
     @include list-page.base;
     :host { display: flex; flex-direction: column; gap: 12px; }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .neg { color: var(--c-error); }
   `,
 })

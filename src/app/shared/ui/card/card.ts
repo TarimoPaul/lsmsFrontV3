@@ -52,7 +52,7 @@ export type CardVariant = 'standard' | 'info' | 'success' | 'error' | 'warning' 
     :host(.clickable:hover) { box-shadow: var(--shadow-md); }
     .head { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
     .head-icon { color: var(--card-accent); }
-    .title { flex: 1; min-width: 0; font-size: 1rem; font-weight: 600; }
+    .title { flex: 1; min-width: 0; font-size: 1rem; font-weight: 500; }
 
     :host([data-variant='success']) { --card-accent: var(--c-success); }
     :host([data-variant='error']) { --card-accent: var(--c-error); }

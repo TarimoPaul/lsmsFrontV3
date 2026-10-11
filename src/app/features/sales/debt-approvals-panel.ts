@@ -67,14 +67,14 @@ import { DEBT_TYPES, DebtAdjustment, DebtAdjustmentType, DebtService } from './d
   styles: `
     .card { border-radius: 16px; background: var(--c-surface); border: 1px solid var(--c-border); padding: 14px 16px; }
     header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-    h3 { display: flex; align-items: center; gap: 6px; font-size: 0.95rem; font-weight: 800; margin: 0; }
+    h3 { display: flex; align-items: center; gap: 6px; font-size: 0.95rem; font-weight: 600; margin: 0; }
     h3 lsms-icon { color: var(--c-primary); }
     ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
     li { padding: 12px 14px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); }
     .top { display: flex; justify-content: space-between; gap: 12px; }
     .who, .amt { display: flex; flex-direction: column; }
     .amt { align-items: flex-end; }
-    .amt b { font-size: 1.05rem; font-weight: 800; color: var(--c-error); font-variant-numeric: tabular-nums; }
+    .amt b { font-size: 1.05rem; font-weight: 600; color: var(--c-error); font-variant-numeric: tabular-nums; }
     small { font-size: 0.72rem; color: var(--c-text-2); }
     .reason { margin: 8px 0; font-size: 0.84rem; }
     .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }

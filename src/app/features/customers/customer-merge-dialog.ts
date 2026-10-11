@@ -101,8 +101,8 @@ export interface CustomerMergeData {
     .card small { color: var(--c-text-2); }
     .card.src { border-color: color-mix(in srgb, var(--c-error) 35%, transparent); }
     .card.dst { border-color: color-mix(in srgb, var(--c-success) 35%, transparent); }
-    .owe { color: var(--c-error); font-weight: 700; }
-    .after { margin-top: 4px; font-weight: 700; color: var(--c-success); }
+    .owe { color: var(--c-error); font-weight: 600; }
+    .after { margin-top: 4px; font-weight: 600; color: var(--c-success); }
     .warn { display: flex; align-items: center; gap: 6px; margin: 10px 0; font-size: 0.82rem; color: var(--c-warning); }
   `,
 })

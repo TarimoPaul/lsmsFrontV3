@@ -10,19 +10,19 @@
 
 @mixin h1 {
   font-size: rem(32);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.8px;
 }
 @mixin h2 {
   font-size: rem(24);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.5px;
 }
 @mixin dashboard-title {
   font-size: rem(22);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   letter-spacing: -0.4px;
 }
@@ -70,19 +70,19 @@
 }
 @mixin button {
   font-size: rem(15);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   letter-spacing: 0.2px;
 }
 @mixin button-lg {
   font-size: rem(17);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   letter-spacing: 0.2px;
 }
 @mixin button-sm {
   font-size: rem(13);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   letter-spacing: 0.1px;
 }
@@ -90,43 +90,43 @@
 // KPI / metric tiles
 @mixin metric-value {
   font-size: rem(20);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.5px;
 }
 @mixin metric-value-compact {
   font-size: rem(14);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.3px;
 }
 @mixin metric-label {
   font-size: rem(11);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: 0.3px;
 }
 @mixin metric-label-compact {
   font-size: rem(9);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: 0.2px;
 }
 @mixin metric-caption {
   font-size: rem(11);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
 }
 @mixin metric-caption-compact {
   font-size: rem(9);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
 }
 
 // Tables
 @mixin table-header {
   font-size: rem(11);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: 0.6px;
 }
@@ -137,7 +137,7 @@
 }
 @mixin table-cell-strong {
   font-size: rem(12);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.3;
 }
 @mixin table-cell-md {
@@ -154,13 +154,13 @@
 // Badges / pills
 @mixin badge-label {
   font-size: rem(11);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: 0.2px;
 }
 @mixin badge-label-compact {
   font-size: rem(9);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: 0.2px;
 }

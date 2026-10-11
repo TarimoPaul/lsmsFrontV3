@@ -121,27 +121,27 @@ interface Cell {
   `,
   styles: `
     .sum { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 9%, transparent); border: 1px solid color-mix(in srgb, var(--c-warning) 25%, transparent); }
-    .sum > b { font-size: 1.6rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-    .sum span { display: flex; flex-direction: column; font-size: 0.84rem; font-weight: 600; }
+    .sum > b { font-size: 1.6rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+    .sum span { display: flex; flex-direction: column; font-size: 0.84rem; font-weight: 500; }
     .sum small { font-size: 0.72rem; font-weight: 500; color: var(--c-text-2); }
 
     .cal { margin-top: 14px; padding: 12px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); }
-    .month { margin: 0 0 8px; font-size: 0.84rem; font-weight: 700; text-align: center; }
+    .month { margin: 0 0 8px; font-size: 0.84rem; font-weight: 600; text-align: center; }
     .wk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .wk + .wk { margin-top: 4px; }
-    .wk span[role='columnheader'] { padding-bottom: 4px; font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; color: var(--c-text-2); }
+    .wk span[role='columnheader'] { padding-bottom: 4px; font-size: 0.7rem; font-weight: 600; text-align: center; text-transform: uppercase; color: var(--c-text-2); }
     .d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-height: 44px; padding: 2px; border-radius: 10px; border: 1px solid transparent; font: inherit; color: var(--c-text); background: transparent; }
-    .d b { font-size: 0.86rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
-    .d small { font-size: 0.7rem; font-weight: 700; line-height: 1; color: var(--c-primary); }
+    .d b { font-size: 0.86rem; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .d small { font-size: 0.7rem; font-weight: 600; line-height: 1; color: var(--c-primary); }
     .d i { width: 5px; height: 5px; border-radius: 50%; }
     .d.out { color: color-mix(in srgb, var(--c-text-2) 55%, transparent); }
     .d.out b { font-weight: 400; }
     .d.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 8%, transparent); }
     .d.miss { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent); border-color: color-mix(in srgb, var(--c-warning) 35%, transparent); }
-    .d.miss b { font-weight: 800; }
+    .d.miss b { font-weight: 600; }
     .d.miss i { background: var(--c-warning); }
     .d.today { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, transparent); }
-    .d.today b { color: var(--c-primary); font-weight: 800; }
+    .d.today b { color: var(--c-primary); font-weight: 600; }
     .d.sel { color: #fff; background: var(--c-primary); border-color: var(--c-primary); }
     .d.sel i { background: #fff; }
     button.d { cursor: pointer; transition: transform 0.08s ease, background 0.15s ease; }
@@ -160,7 +160,7 @@ interface Cell {
     .note { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; font-size: 0.78rem; color: var(--c-text-2); background: var(--c-bg); }
     .note lsms-icon { flex-shrink: 0; margin-top: 1px; }
     .note.info { color: var(--c-info); background: color-mix(in srgb, var(--c-info) 8%, transparent); }
-    .ask { margin: 14px 0 0; font-size: 0.9rem; font-weight: 600; }
+    .ask { margin: 14px 0 0; font-size: 0.9rem; font-weight: 500; }
   `,
 })
 export class MissingDaysDialog {

@@ -69,7 +69,7 @@ import { Card, Icon } from '@shared/ui';
     .themes { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
     .theme {
       display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px;
-      border: 1.5px solid var(--c-border); background: var(--c-surface); color: var(--c-text); font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--c-border); background: var(--c-surface); color: var(--c-text); font-weight: 500; cursor: pointer;
     }
     .theme.on { border-color: var(--c-primary); color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, transparent); }
     .swatch { display: inline-flex; width: 28px; height: 18px; border-radius: 5px; overflow: hidden; border: 1px solid var(--c-border); }
@@ -81,7 +81,7 @@ import { Card, Icon } from '@shared/ui';
     .row div:first-child { display: flex; flex-direction: column; }
     .row small { color: var(--c-text-2); font-size: 0.78rem; }
     .stepper { display: inline-flex; border: 1px solid var(--c-border); border-radius: 10px; overflow: hidden; }
-    .stepper button { display: inline-flex; align-items: center; padding: 8px 12px; border: 0; background: var(--c-surface); color: var(--c-text); cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .stepper button { display: inline-flex; align-items: center; padding: 8px 12px; border: 0; background: var(--c-surface); color: var(--c-text); cursor: pointer; font-weight: 500; font-size: 0.8rem; }
     .stepper button + button { border-left: 1px solid var(--c-border); }
     .stepper button:hover { color: var(--c-primary); }
   `,

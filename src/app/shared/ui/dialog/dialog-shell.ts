@@ -61,7 +61,7 @@ import { Icon } from '../icon/icon';
       display: inline-flex; padding: 8px; border-radius: 10px;
       color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, transparent);
     }
-    .title { @include t.h4; font-weight: 600; flex: 1; min-width: 0; @include t.ellipsis; }
+    .title { @include t.h4; font-weight: 500; flex: 1; min-width: 0; @include t.ellipsis; }
     .body { flex: 1; min-height: 0; overflow: auto; padding: 20px; }
     .foot {
       display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;

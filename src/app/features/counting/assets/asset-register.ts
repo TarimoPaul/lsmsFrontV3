@@ -132,9 +132,9 @@ const key = (i: AssetItem) => i.uid ?? 'cap:' + i.capitalExpenditureUid;
     .row:last-child { border-bottom: 0; }
     .row.off { opacity: 0.6; }
     .what { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-    .what b { font-size: 0.9rem; font-weight: 600; color: var(--c-text); overflow-wrap: anywhere; }
+    .what b { font-size: 0.9rem; font-weight: 500; color: var(--c-text); overflow-wrap: anywhere; }
     .what small { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.74rem; color: var(--c-text-2); }
-    .chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 600; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text-2) 12%, transparent); }
+    .chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 500; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text-2) 12%, transparent); }
     .chip.cap { color: var(--c-secondary); background: color-mix(in srgb, var(--c-secondary) 11%, transparent); }
     .chip.gone { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 10%, transparent); }
     .why { color: var(--c-error) !important; }
@@ -143,9 +143,9 @@ const key = (i: AssetItem) => i.uid ?? 'cap:' + i.capitalExpenditureUid;
     .qty span { display: flex; flex-direction: column; gap: 3px; }
     .qty small { font-size: 0.68rem; color: var(--c-text-2); }
     .official { min-width: 74px; }
-    .official b { height: 40px; display: inline-flex; align-items: center; font-size: 1.05rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .official b { height: 40px; display: inline-flex; align-items: center; font-size: 1.05rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .official.prop b { color: var(--c-warning); }
-    .pill { justify-self: start; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { justify-self: start; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .acts { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 76px; }
     .ib { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 0; border-radius: 10px; background: transparent; color: var(--c-text-2); cursor: pointer; }
     .ib:hover { color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 9%, transparent); }

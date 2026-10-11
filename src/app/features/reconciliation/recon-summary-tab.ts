@@ -82,7 +82,7 @@ import { ReconStore } from './recon.store';
     .hero > div { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--c-surface); border: 1px solid var(--c-border); }
     .hero .main { background: color-mix(in srgb, var(--c-success) 8%, var(--c-surface)); border-color: color-mix(in srgb, var(--c-success) 25%, transparent); }
     .hero small, .card small { font-size: 0.72rem; color: var(--c-text-2); }
-    .hero b { font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .hero b { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .hero .main b { font-size: 1.5rem; color: var(--c-success); }
     @media (max-width: 760px) { .hero { grid-template-columns: 1fr 1fr; } .hero .main { grid-column: 1 / -1; } }
     .info { color: var(--c-info); }
@@ -93,7 +93,7 @@ import { ReconStore } from './recon.store';
     .start lsms-icon { color: color-mix(in srgb, var(--c-primary) 50%, transparent); }
     .start small { color: var(--c-text-2); margin-bottom: 8px; }
     .card { padding: 12px 14px; border-radius: 14px; background: var(--c-surface); border: 1px solid var(--c-border); }
-    .card h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 0.8rem; font-weight: 800; }
+    .card h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 0.8rem; font-weight: 600; }
     .card h4 lsms-icon { color: var(--c-info); }
     .provs { display: flex; flex-wrap: wrap; gap: 8px; }
     .provs span, .split span { display: flex; flex-direction: column; padding: 6px 10px; border-radius: 10px; background: var(--c-bg); }

@@ -79,8 +79,8 @@ type Filter = 'ALL' | MovementGroup;
     :host { display: block; }
     lsms-data-table { border: 0; border-top: 1px solid var(--c-border); border-radius: 0; max-height: 64vh; }
     .prod { display: flex; flex-direction: column; min-width: 0; }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--st); background: color-mix(in srgb, var(--st) 11%, transparent); }
-    .chg { font-weight: 600; font-variant-numeric: tabular-nums; &.in { color: var(--c-success); } &.out { color: var(--c-error); } }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--st); background: color-mix(in srgb, var(--st) 11%, transparent); }
+    .chg { font-weight: 500; font-variant-numeric: tabular-nums; &.in { color: var(--c-success); } &.out { color: var(--c-error); } }
     .num { font-variant-numeric: tabular-nums; }
     .muted { color: var(--c-text-2); }
     .small { font-size: 0.72rem; }

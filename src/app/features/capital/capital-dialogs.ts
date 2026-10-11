@@ -23,16 +23,16 @@ const stamp = (d: string) => {
 };
 
 const FORM = `
-  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   label small { font-weight: 400; }
   input, textarea { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: none; }
   input:focus, textarea:focus { border-color: var(--c-primary); }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+  .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin-bottom: 12px; }
   .cats button { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.8rem; text-align: left; color: var(--c-text); cursor: pointer; }
   .cats button lsms-icon { color: var(--c-text-2); }
-  .cats button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 9%, var(--c-surface)); font-weight: 600; }
+  .cats button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 9%, var(--c-surface)); font-weight: 500; }
   .cats button.on lsms-icon { color: var(--c-primary); }
   .info { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text); background: color-mix(in srgb, var(--c-info) 8%, transparent); }
   .info lsms-icon { color: var(--c-info); flex-shrink: 0; }
@@ -40,7 +40,7 @@ const FORM = `
   .err { margin: 0; font-size: 0.82rem; color: var(--c-error); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .chips button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; color: var(--c-text); cursor: pointer; }
-  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
+  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 500; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
   label.repeat { flex-direction: row; align-items: center; gap: 8px; font-size: 0.84rem; color: var(--c-text); cursor: pointer; }
   label.repeat input { width: 16px; height: 16px; padding: 0; }
 `;
@@ -578,7 +578,7 @@ export interface RecurringBudgetsData {
     .main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .main small { font-size: 0.74rem; color: var(--c-text-2); }
     .amt { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .pill { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text) 6%, transparent); }
+    .pill { font-size: 0.7rem; font-weight: 500; padding: 2px 8px; border-radius: 999px; color: var(--c-text-2); background: color-mix(in srgb, var(--c-text) 6%, transparent); }
     .pill.on { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .acts, .inline { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .inline input { width: 160px; }

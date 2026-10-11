@@ -35,7 +35,7 @@
   min-width: 0;
   @include t.body;
   @include t.ellipsis;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-primary);
 }
 .meta {
@@ -96,7 +96,7 @@ th {
   white-space: nowrap;
   @include t.table-header;
   // A touch heavier / darker than the cells so headings stand apart from the data.
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--c-text) 72%, var(--c-text-2));
   &.sortable {
@@ -236,7 +236,7 @@ input[type='checkbox'] {
   padding: 0 12px;
   border-radius: 12px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text);
   background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface));
   border: 1px dashed color-mix(in srgb, var(--c-primary) 35%, var(--c-border));
@@ -290,7 +290,7 @@ input[type='checkbox'] {
   @include t.body;
   @include t.ellipsis;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text);
 }
 .compact-cell {
@@ -357,7 +357,7 @@ input[type='checkbox'] {
   font-size: 0.8rem;
   color: var(--c-text-2);
   b {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text);
     font-variant-numeric: tabular-nums;
   }
@@ -406,7 +406,7 @@ input[type='checkbox'] {
     border-color: var(--c-primary);
     background: var(--c-primary);
     color: var(--c-on-primary);
-    font-weight: 600;
+    font-weight: 500;
   }
   &:disabled {
     opacity: 0.45;

@@ -58,7 +58,7 @@ type View = 'count' | 'register' | 'history';
     .strip { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-primary); }
     .strip.due { color: var(--c-warning); border-color: color-mix(in srgb, var(--c-warning) 40%, transparent); background: color-mix(in srgb, var(--c-warning) 7%, var(--c-surface)); }
     .strip div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    .strip b { font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
+    .strip b { font-size: 0.9rem; font-weight: 500; color: var(--c-text); }
     .strip small { font-size: 0.78rem; color: var(--c-text-2); }
   `,
 })

@@ -108,24 +108,24 @@ import { GlService } from './gl.service';
     .status span { display: flex; flex-direction: column; }
     .status b { font-size: 0.9rem; color: var(--c-text); }
     .status small { font-size: 0.74rem; color: var(--c-text-2); }
-    .status em { font-style: normal; color: var(--c-error); font-weight: 600; }
+    .status em { font-style: normal; color: var(--c-error); font-weight: 500; }
     .eq { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .eq > div { display: flex; flex-direction: column; }
     .eq small { font-size: 0.72rem; color: var(--c-text-2); }
-    .eq b { font-size: 1.05rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .eq b { font-size: 1.05rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .op { font-size: 1.2rem; color: var(--c-text-2); }
-    .chip { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; padding: 4px 11px; border-radius: 100px; font-size: 0.76rem; font-weight: 600; }
+    .chip { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; padding: 4px 11px; border-radius: 100px; font-size: 0.76rem; font-weight: 500; }
     .chip.ok { color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .chip.bad { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 12%, transparent); }
     .checks header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 10px; }
-    .checks h3 { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--c-text); }
+    .checks h3 { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--c-text); }
     .checks h3 lsms-icon { color: var(--c-primary); }
     .checks header small { font-size: 0.76rem; color: var(--c-text-2); }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
     article { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); }
     article.bad { border-color: color-mix(in srgb, var(--c-error) 40%, var(--c-border)); }
     .top { display: flex; align-items: center; gap: 8px; }
-    .top b { flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--c-text); }
+    .top b { flex: 1; font-size: 0.88rem; font-weight: 500; color: var(--c-text); }
     article.ok .top lsms-icon { color: var(--c-success); }
     article.bad .top lsms-icon { color: var(--c-error); }
     .code { font-size: 0.72rem; color: var(--c-text-2); }
@@ -133,19 +133,19 @@ import { GlService } from './gl.service';
     dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0; }
     dl div { display: flex; flex-direction: column; }
     dt { font-size: 0.68rem; color: var(--c-text-2); }
-    dd { margin: 0; font-size: 0.82rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    dd { margin: 0; font-size: 0.82rem; font-weight: 500; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .diff dd { color: var(--c-error); }
     article.ok .diff dd { color: var(--c-success); }
     .neg { color: var(--c-error) !important; }
     .acts { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .link { padding: 0; border: 0; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .link { padding: 0; border: 0; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-primary); cursor: pointer; }
     .cash { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
     .c { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .c.bad { border-color: color-mix(in srgb, var(--c-error) 40%, var(--c-border)); }
     .c span { flex: 1; display: flex; flex-direction: column; }
     .c b { font-size: 0.84rem; font-weight: 500; color: var(--c-text); }
     .c small { font-size: 0.7rem; color: var(--c-text-2); }
-    .c em { font-style: normal; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .c em { font-style: normal; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .c.bad em { color: var(--c-error); }
   `,
 })

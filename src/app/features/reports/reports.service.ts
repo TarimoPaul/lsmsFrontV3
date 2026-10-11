@@ -47,7 +47,7 @@ export class ReportsService {
   }
 
   /**
-   * Day-by-day profit with the cash view (GET /api/reports/daily-pnl, SALES_ANALYTICS).
+   * Day-by-day profit with the cash view (GET /api/reports/daily-pnl, PROFIT_REPORT).
    * Built server-side from the registers, not the GL — see DailyPnlService.
    */
   async dailyPnl(from: string, to: string): Promise<DailyPnl> {

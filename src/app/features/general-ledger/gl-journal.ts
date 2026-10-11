@@ -94,10 +94,10 @@ const PAGE = 30;
     .what { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .what b { font-size: 0.86rem; font-weight: 500; }
     .what small { font-size: 0.7rem; color: var(--c-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .tag { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-size: 0.68rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 14%, transparent); }
-    .amt { font-size: 0.86rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .tag { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-size: 0.68rem; font-weight: 500; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 14%, transparent); }
+    .amt { font-size: 0.86rem; font-weight: 500; font-variant-numeric: tabular-nums; }
     .lines { width: calc(100% - 32px); margin: 0 16px 12px; border-collapse: collapse; font-size: 0.8rem; }
-    .lines th { padding: 6px 8px; text-align: left; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--c-text-2); border-bottom: 1px solid var(--c-border); }
+    .lines th { padding: 6px 8px; text-align: left; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: var(--c-text-2); border-bottom: 1px solid var(--c-border); }
     .lines td { padding: 6px 8px; border-bottom: 1px solid color-mix(in srgb, var(--c-border) 50%, transparent); color: var(--c-text); }
     .lines .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .lines .desc { color: var(--c-text-2); }

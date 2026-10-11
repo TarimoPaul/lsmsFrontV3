@@ -151,8 +151,8 @@ const STEPS = [
     .steps li { flex: 1; min-width: 0; }
     .steps button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; color: var(--c-text-2); cursor: pointer; text-align: left; }
     .steps button:disabled { cursor: default; opacity: 0.6; }
-    .dot { display: inline-grid; place-items: center; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; font-size: 0.74rem; font-weight: 700; background: color-mix(in srgb, var(--c-text-2) 12%, transparent); }
-    .lbl { font-size: 0.78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dot { display: inline-grid; place-items: center; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; font-size: 0.74rem; font-weight: 600; background: color-mix(in srgb, var(--c-text-2) 12%, transparent); }
+    .lbl { font-size: 0.78rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .steps li.on button { border-color: var(--c-primary); color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface)); }
     .steps li.on .dot { color: #fff; background: var(--c-primary); }
     .steps li.done .dot { color: #fff; background: var(--c-success); }
@@ -165,9 +165,9 @@ const STEPS = [
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     .note { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text-2); background: color-mix(in srgb, var(--c-info) 7%, var(--c-bg)); lsms-icon { flex-shrink: 0; color: var(--c-info); } }
     .hint-btn { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--c-info) 50%, transparent); background: color-mix(in srgb, var(--c-info) 6%, var(--c-bg)); font: inherit; font-size: 0.8rem; color: var(--c-text); text-align: left; cursor: pointer; lsms-icon { flex-shrink: 0; color: var(--c-info); } }
-    .link { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 0; border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .link { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 0; border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-primary); cursor: pointer; }
     .total { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; border-radius: 14px; color: #fff; background: linear-gradient(135deg, var(--c-primary), color-mix(in srgb, var(--c-primary) 75%, #000)); }
-    .total span { font-size: 0.8rem; font-weight: 600; opacity: 0.9; }
+    .total span { font-size: 0.8rem; font-weight: 500; opacity: 0.9; }
     .total b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
     .total.soft { color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, var(--c-bg)); }
     .alloc { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-bg); }
@@ -176,7 +176,7 @@ const STEPS = [
     .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.76rem; color: var(--c-text-2); }
     .legend span { display: inline-flex; align-items: center; gap: 6px; }
     .legend i, .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
-    .legend b { font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .legend b { font-weight: 500; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .remain { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: var(--c-warning); }
     .remain span { flex: 1; min-width: 180px; }
     .remain.over { color: var(--c-error); }
@@ -185,13 +185,13 @@ const STEPS = [
     .review > div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--c-border); font-size: 0.85rem; }
     .review > div:last-child { border-bottom: 0; }
     .review dt { display: inline-flex; align-items: center; gap: 8px; color: var(--c-text-2); }
-    .review dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); }
+    .review dd { margin: 0; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--c-text); }
     .review dd small { margin-left: 6px; font-weight: 400; color: var(--c-text-2); }
     .review .head { flex-direction: column; gap: 2px; padding: 10px 0; }
-    .review .head dt { font-size: 1rem; font-weight: 700; color: var(--c-text); }
+    .review .head dt { font-size: 1rem; font-weight: 600; color: var(--c-text); }
     .review .head dd { font-weight: 400; font-size: 0.78rem; color: var(--c-text-2); }
     .review .sum dd { color: var(--c-primary); }
-    .review h5 { margin: 10px 0 2px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
+    .review h5 { margin: 10px 0 2px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
   `,
 })
 export class OpeningCapitalDialog {

@@ -64,11 +64,11 @@ export interface SegmentOption<T> {
     .chip:hover:not(.on) { border-color: var(--c-primary); color: var(--c-primary); }
     .chip.on {
       background: var(--c-primary); border-color: var(--c-primary);
-      color: var(--c-on-primary); font-weight: 700;
+      color: var(--c-on-primary); font-weight: 600;
     }
     .count {
       padding: 1px 6px; border-radius: 10px;
-      font-size: 0.7rem; font-weight: 700;
+      font-size: 0.7rem; font-weight: 600;
       background: color-mix(in srgb, var(--c-primary) 12%, transparent); color: var(--c-primary);
     }
     .on .count { background: color-mix(in srgb, currentColor 25%, transparent); color: inherit; }

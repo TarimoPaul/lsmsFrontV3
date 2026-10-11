@@ -35,7 +35,7 @@
     background: none;
     cursor: pointer;
     color: var(--c-primary);
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.8rem;
     &:hover {
       text-decoration: underline;
@@ -77,7 +77,7 @@
   text-align: left;
   .name {
     flex: 1;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.9rem;
   }
 }
@@ -85,7 +85,7 @@
   padding: 2px 8px;
   border-radius: 100px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--c-text-2);
   background: var(--c-surface-variant);
   &.full {
@@ -104,14 +104,14 @@
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--c-text-2);
   lsms-icon {
     color: var(--c-primary);
   }
   small {
     margin-left: auto;
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 .perms {
@@ -144,7 +144,7 @@
   padding-top: 9px;
   strong {
     font-size: 0.82rem;
-    font-weight: 600;
+    font-weight: 500;
   }
   code {
     font-size: 0.7rem;

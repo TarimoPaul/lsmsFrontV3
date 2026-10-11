@@ -19,7 +19,7 @@
   background: var(--c-surface);
   font: inherit;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text-2);
   cursor: pointer;
   &.on {
@@ -71,7 +71,7 @@ lsms-date-range-selector.on ::ng-deep .trigger {
   padding: 0 5px;
   border-radius: 9px;
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 18px;
   text-align: center;
   color: #fff;

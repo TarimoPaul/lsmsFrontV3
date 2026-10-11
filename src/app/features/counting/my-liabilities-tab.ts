@@ -60,9 +60,9 @@ import { LiabilityCard } from './liability-card';
     .day { display: flex; flex-direction: column; gap: 10px; }
     .d-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; text-align: left; color: var(--c-text); cursor: pointer; }
     .d-head lsms-icon:first-child { color: var(--c-primary); }
-    .d-head b { font-size: 0.92rem; font-weight: 600; }
+    .d-head b { font-size: 0.92rem; font-weight: 500; }
     .d-head small { flex: 1; font-size: 0.76rem; color: var(--c-text-2); }
-    .d-head em { font-style: normal; font-weight: 700; color: var(--c-primary); }
+    .d-head em { font-style: normal; font-weight: 600; color: var(--c-primary); }
     .d-head em.red { color: var(--c-error); }
     .d-head em { white-space: nowrap; }
     @media (max-width: 480px) { .d-head small { display: none; } .d-head b { flex: 1; } }

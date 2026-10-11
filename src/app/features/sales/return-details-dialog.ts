@@ -117,11 +117,11 @@ export interface ReturnDetailsData {
     .mono { font-family: ui-monospace, monospace; font-size: 0.8rem !important; }
     .txt { font-size: 0.86rem; white-space: pre-wrap; }
     .txt + .txt { margin-top: 6px; }
-    .txt.err { color: var(--c-error); font-weight: 600; }
+    .txt.err { color: var(--c-error); font-weight: 500; }
     .txt.small { font-size: 0.74rem; }
     .confirm { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--c-success) 7%, var(--c-bg)); border: 1px solid color-mix(in srgb, var(--c-success) 25%, transparent); }
     .confirm.danger { background: color-mix(in srgb, var(--c-error) 6%, var(--c-bg)); border-color: color-mix(in srgb, var(--c-error) 25%, transparent); }
-    .confirm p { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.84rem; font-weight: 600; }
+    .confirm p { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.84rem; font-weight: 500; }
   `,
 })
 export class ReturnDetailsDialog {

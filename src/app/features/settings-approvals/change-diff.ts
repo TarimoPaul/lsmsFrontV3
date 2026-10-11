@@ -37,7 +37,7 @@ import { BusinessSettings, BusinessSettingsUpdate, SETTINGS_FIELDS } from '../bu
     .f { color: var(--c-text-2); }
     .v { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
     s { color: var(--c-text-2); text-decoration-color: color-mix(in srgb, var(--c-error) 60%, transparent); }
-    b { font-weight: 600; color: var(--c-text); }
+    b { font-weight: 500; color: var(--c-text); }
     lsms-icon { color: var(--c-text-2); flex-shrink: 0; }
     .drift { grid-column: 2; display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--c-warning); }
     @media (max-width: 520px) { li { grid-template-columns: 1fr; } .drift { grid-column: 1; } }

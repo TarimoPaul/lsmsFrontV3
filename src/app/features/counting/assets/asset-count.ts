@@ -124,14 +124,14 @@ import { AssetService } from './asset.service';
     .hero.ok { --hc: var(--c-success); }
     .hero.warn { --hc: var(--c-warning); padding: 22px 20px; }
     .hero .badge { display: inline-flex; padding: 16px; border-radius: 20px; color: var(--hc); background: color-mix(in srgb, var(--hc) 11%, transparent); }
-    .hero h2 { margin: 4px 0 0; font-size: 1.2rem; font-weight: 700; color: var(--c-text); }
+    .hero h2 { margin: 4px 0 0; font-size: 1.2rem; font-weight: 600; color: var(--c-text); }
     .hero p { max-width: 560px; margin: 0; font-size: 0.88rem; color: var(--c-text-2); }
     .facts { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 12px; padding: 0; list-style: none; text-align: left; }
     .facts li { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: var(--c-text); }
     .facts lsms-icon { color: var(--c-primary); }
     .progress { position: sticky; top: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--c-border); background: var(--c-float); box-shadow: 0 4px 14px rgb(16 24 40 / 0.06); }
     .p-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .p-top b { display: block; font-size: 1rem; font-weight: 700; color: var(--c-text); }
+    .p-top b { display: block; font-size: 1rem; font-weight: 600; color: var(--c-text); }
     .p-top small { font-size: 0.74rem; color: var(--c-text-2); }
     .bar { height: 8px; border-radius: 8px; background: color-mix(in srgb, var(--c-text-2) 14%, transparent); overflow: hidden; }
     .bar span { display: block; height: 100%; border-radius: 8px; background: var(--c-primary); transition: width 0.3s ease; }
@@ -152,17 +152,17 @@ import { AssetService } from './asset.service';
     article { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--c-border); border-radius: 14px; background: var(--c-surface); }
     article.ok { border-color: color-mix(in srgb, var(--c-success) 45%, transparent); }
     article header { display: flex; align-items: center; gap: 8px; }
-    article header b { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--c-text); }
-    .pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
+    article header b { flex: 1; font-size: 0.9rem; font-weight: 500; color: var(--c-text); }
+    .pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 12%, transparent); }
     .nums { display: flex; gap: 22px; }
     .nums span { display: flex; flex-direction: column; }
     .nums small { font-size: 0.7rem; color: var(--c-text-2); }
-    .nums b { font-size: 1rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .nums b { font-size: 1rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .neg { color: var(--c-error) !important; }
     .pos { color: var(--c-success) !important; }
     .reasons { display: flex; flex-wrap: wrap; gap: 6px; }
     .reasons button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--c-text); cursor: pointer; }
-    .reasons button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, var(--c-surface)); color: var(--c-primary); font-weight: 600; }
+    .reasons button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 12%, var(--c-surface)); color: var(--c-primary); font-weight: 500; }
     .note { display: flex; gap: 8px; }
     .note input { flex: 1; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.84rem; color: var(--c-text); outline: 0; }
     .note input:focus { border-color: var(--c-primary); }

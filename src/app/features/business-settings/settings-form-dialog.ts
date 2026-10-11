@@ -101,7 +101,7 @@ export interface SettingsFormData {
   styles: `
     form { display: flex; flex-direction: column; gap: 12px; }
     .sec { padding: 12px 14px 6px; border-radius: 14px; background: var(--c-bg); border: 1px solid var(--c-border); scroll-margin-top: 8px; }
-    h4 { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); lsms-icon { color: var(--c-primary); } }
+    h4 { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); lsms-icon { color: var(--c-primary); } }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
     .span2 { grid-column: 1 / -1; }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }

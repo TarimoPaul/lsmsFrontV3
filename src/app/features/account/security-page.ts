@@ -51,7 +51,7 @@ import { Button, Card, Icon, TextField, ToastService } from '@shared/ui';
     .checklist li.ok { color: var(--c-success); }
     .info { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0 0 16px; font-size: 0.875rem; }
     dt { color: var(--c-text-2); }
-    dd { margin: 0; font-weight: 600; }
+    dd { margin: 0; font-weight: 500; }
   `,
 })
 export class SecurityPage {

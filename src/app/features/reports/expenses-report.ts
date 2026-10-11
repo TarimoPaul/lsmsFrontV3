@@ -153,7 +153,7 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     ul.rows .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     ul.rows .nm b { font-weight: 500; color: var(--c-text); }
     ul.rows .nm small { font-size: 0.72rem; color: var(--c-text-2); }
-    ul.rows > li > b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-text); }
+    ul.rows > li > b { font-weight: 500; font-variant-numeric: tabular-nums; color: var(--c-text); }
     ul.rows li.void { opacity: 0.55; text-decoration: line-through; }
   `,
 })

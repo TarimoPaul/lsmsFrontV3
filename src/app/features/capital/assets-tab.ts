@@ -99,7 +99,7 @@ import { CapitalService } from './capital.service';
     .track { height: 6px; border-radius: 6px; background: color-mix(in srgb, var(--c-text-2) 14%, transparent); overflow: hidden; }
     .track span { display: block; height: 100%; background: var(--c-warning); }
     .life small { font-size: 0.7rem; color: var(--c-text-2); }
-    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
     .acts { display: inline-flex; gap: 4px; justify-content: flex-end; }
   `,
 })

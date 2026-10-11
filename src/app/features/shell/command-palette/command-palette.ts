@@ -67,7 +67,7 @@ interface Entry {
     :host { display: flex; flex-direction: column; max-height: 70vh; }
     .field { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--c-divider); color: var(--c-text-2); }
     input { flex: 1; border: 0; outline: 0; background: none; font-size: 1rem; color: var(--c-text); }
-    kbd { padding: 2px 6px; border-radius: 6px; border: 1px solid var(--c-border); font: 600 0.68rem var(--font-family); }
+    kbd { padding: 2px 6px; border-radius: 6px; border: 1px solid var(--c-border); font: 500 0.68rem var(--font-family); }
     .results { list-style: none; margin: 0; padding: 8px; overflow: auto; }
     li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
     li.active { background: color-mix(in srgb, var(--c-primary) 10%, transparent); }

@@ -99,9 +99,9 @@ type State = 'validating' | 'invalid' | 'form' | 'done' | 'network';
       animation: in 0.4s ease-out both;
     }
     .brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; }
-    .brand strong { font-size: 1.125rem; font-weight: 800; letter-spacing: 2px; }
+    .brand strong { font-size: 1.125rem; font-weight: 600; letter-spacing: 2px; }
     .mark { display: inline-flex; padding: 9px; border-radius: 12px; background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light)); }
-    h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; text-align: center; }
+    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; text-align: center; }
     .sub, .status p { margin: 8px 0 20px; text-align: center; color: var(--c-text-2); font-size: 0.9rem; }
     .status { display: flex; flex-direction: column; align-items: center; }
     .badge { display: inline-flex; padding: 14px; border-radius: 50%; margin-bottom: 16px; }
@@ -115,7 +115,7 @@ type State = 'validating' | 'invalid' | 'form' | 'done' | 'network';
     .checklist { list-style: none; margin: -4px 0 10px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
     .checklist li { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--c-text-2); }
     .checklist li.ok { color: var(--c-success); }
-    .back { display: block; margin-top: 16px; text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--c-primary); }
+    .back { display: block; margin-top: 16px; text-align: center; font-size: 0.85rem; font-weight: 500; color: var(--c-primary); }
     @keyframes in { from { opacity: 0; transform: translateY(12px); } }
   `,
 })

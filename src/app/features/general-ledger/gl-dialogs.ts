@@ -15,7 +15,7 @@ const parse = (t: string) => Money.parse(t) ?? 0;
 const today = () => toIsoDate(new Date());
 
 const FORM = `
-  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+  label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   label small { font-weight: 400; }
   input, textarea { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: none; }
   input:focus, textarea:focus { border-color: var(--c-primary); }
@@ -27,7 +27,7 @@ const FORM = `
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .chips button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; color: var(--c-text); cursor: pointer; }
-  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
+  .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 500; background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); }
 `;
 
 // ── Account ledger ─────────────────────────────────────────────────────────
@@ -81,12 +81,12 @@ export interface LedgerDialogData {
     .sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 12px; }
     .sum span { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--c-text-2) 6%, transparent); }
     .sum small { font-size: 0.7rem; color: var(--c-text-2); }
-    .sum b { font-size: 0.92rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .sum b { font-size: 0.92rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .sum .close { background: color-mix(in srgb, var(--c-primary) 9%, transparent); }
     .neg { color: var(--c-error) !important; }
     .scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    th { padding: 7px 8px; text-align: left; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--c-text-2); border-bottom: 1px solid var(--c-border); }
+    th { padding: 7px 8px; text-align: left; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: var(--c-text-2); border-bottom: 1px solid var(--c-border); }
     td { padding: 7px 8px; border-bottom: 1px solid color-mix(in srgb, var(--c-border) 50%, transparent); color: var(--c-text); vertical-align: top; }
     td b { display: block; font-weight: 500; }
     td small { font-size: 0.7rem; color: var(--c-text-2); }
@@ -171,7 +171,7 @@ interface Draft {
     .lines { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .ln { display: grid; grid-template-columns: minmax(0, 1fr) 120px 120px 32px; gap: 6px; align-items: center; }
     .ln input { width: 100%; text-align: right; }
-    .x, .add { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .x, .add { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; background: transparent; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--c-primary); cursor: pointer; }
     .x { color: var(--c-text-2); }
     .x:disabled { opacity: 0.3; cursor: default; }
     .add { align-self: flex-start; padding: 4px 0; }
@@ -275,7 +275,7 @@ export class ManualJournalDialog {
     </lsms-dialog>
   `,
   styles: FORM + `
-    .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+    .lbl { display: block; margin-bottom: 6px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
     .chips button:disabled { opacity: 0.35; cursor: default; }
   `,
 })
@@ -359,12 +359,12 @@ export interface TrueUpDialogData {
     .cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 12px; }
     .cmp span { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--c-text-2) 6%, transparent); }
     .cmp small { font-size: 0.7rem; color: var(--c-text-2); }
-    .cmp b { font-size: 0.92rem; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+    .cmp b { font-size: 0.92rem; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
     .cmp .d { background: color-mix(in srgb, var(--c-warning) 10%, transparent); }
     .opts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
     .opts button { display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; text-align: left; color: var(--c-text); cursor: pointer; }
     .opts button.on { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface)); }
-    .opts b { font-size: 0.84rem; font-weight: 600; }
+    .opts b { font-size: 0.84rem; font-weight: 500; }
     .opts small { font-size: 0.74rem; color: var(--c-text-2); }
   `,
 })

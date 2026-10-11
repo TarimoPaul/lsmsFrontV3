@@ -90,24 +90,24 @@ export interface DebtAdjustData {
     .due span { display: flex; flex-direction: column; }
     .due small { font-size: 0.72rem; color: var(--c-text-2); }
     .due .amt { align-items: flex-end; }
-    .due .amt b { font-size: 1.2rem; font-weight: 800; color: var(--c-error); font-variant-numeric: tabular-nums; }
-    .lbl { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); }
+    .due .amt b { font-size: 1.2rem; font-weight: 600; color: var(--c-error); font-variant-numeric: tabular-nums; }
+    .lbl { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 500; color: var(--c-text-2); }
     .types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
     .types button { display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; text-align: left; color: var(--c-text); cursor: pointer; }
     .types button small { font-size: 0.7rem; color: var(--c-text-2); }
     .types button.on { border-color: var(--c-primary); box-shadow: 0 0 0 1px var(--c-primary); background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface)); }
     @media (max-width: 560px) { .types { grid-template-columns: 1fr; } }
     .quick { display: flex; gap: 6px; margin: -4px 0 8px; }
-    .quick button { padding: 2px 10px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.72rem; font-weight: 700; color: var(--c-primary); cursor: pointer; }
-    .flow { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 8%, transparent); }
+    .quick button { padding: 2px 10px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.72rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
+    .flow { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; font-size: 0.82rem; font-weight: 500; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 8%, transparent); }
     .flow.wait { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 10%, transparent); }
     .hist { margin-top: 14px; }
-    .hist h4 { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
+    .hist h4 { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
     .h { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--c-border); font-size: 0.82rem; }
     .h span { display: flex; flex-direction: column; min-width: 0; }
     .h small { font-size: 0.7rem; color: var(--c-text-2); }
     .h .r { align-items: flex-end; }
-    .pill { padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 700; color: var(--st); background: color-mix(in srgb, var(--st) 11%, transparent); }
+    .pill { padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--st); background: color-mix(in srgb, var(--st) 11%, transparent); }
     .muted { color: var(--c-text-2); font-size: 0.86rem; }
   `,
 })

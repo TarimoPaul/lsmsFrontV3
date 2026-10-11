@@ -50,13 +50,13 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text-2);
 }
 .hello h1 {
   margin-top: 6px;
   font-size: 1.75rem;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.6px;
   line-height: 1.2;
   span {
@@ -77,7 +77,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   padding: 0 10px;
   border-radius: 100px;
   font-size: 0.74rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-text-2);
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -99,7 +99,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   --mat-button-outlined-container-shape: 10px;
   --mat-button-filled-container-shape: 10px;
   height: 40px;
-  font-weight: 600;
+  font-weight: 500;
   lsms-icon {
     margin-right: 6px;
   }
@@ -204,7 +204,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   flex-direction: column;
   strong {
     font-size: 0.87rem;
-    font-weight: 600;
+    font-weight: 500;
   }
   small {
     font-size: 0.75rem;
@@ -216,7 +216,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   align-items: center;
   gap: 4px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-warning);
   white-space: nowrap;
 }
@@ -244,12 +244,12 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     align-items: center;
     gap: 10px;
     font-size: 0.82rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--c-text-2);
   }
   .value {
     font-size: 1.6rem;
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: -0.6px;
     line-height: 1.1;
     font-variant-numeric: tabular-nums;
@@ -258,7 +258,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     small {
       margin-left: 6px;
       font-size: 0.85rem;
-      font-weight: 600;
+      font-weight: 500;
       letter-spacing: 0;
       color: var(--c-text-2);
     }
@@ -285,7 +285,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   gap: 3px;
   padding: 2px 8px;
   border-radius: 100px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-success);
   background: color-mix(in srgb, var(--c-success) 12%, transparent);
   &.down {
@@ -307,7 +307,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }
 .link {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--c-primary);
   text-decoration: none;
   &:hover {
@@ -316,7 +316,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .danger {
   color: var(--c-error);
-  font-weight: 600;
+  font-weight: 500;
 }
 .muted {
   color: var(--c-text-2);
@@ -358,7 +358,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   margin-bottom: 16px;
   h2 {
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
   }
   p {
     margin-top: 2px;
@@ -366,41 +366,20 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     color: var(--c-text-2);
   }
 }
-.legend {
-  display: flex;
-  gap: 16px;
-  font-size: 0.78rem;
-  color: var(--c-text-2);
-  span {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  b {
-    color: var(--c-text);
-  }
-}
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--c-border);
-  &.today {
-    background: var(--c-primary);
-  }
+.p-head b {
+  font-weight: 500;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
 }
 .chart-body {
   position: relative;
   flex: 1;
   display: flex;
-  min-height: 200px;
-  // Tint the shared comparison bars with the brand colour.
-  ::ng-deep .main {
-    background: linear-gradient(
-      180deg,
-      var(--c-primary),
-      color-mix(in srgb, var(--c-primary) 35%, transparent)
-    ) !important;
+  min-height: 220px;
+  transition: opacity 0.2s ease;
+  // A new range is loading: the old curve stays, dimmed, until the new one arrives.
+  &.busy {
+    opacity: 0.55;
   }
 }
 .empty-note {
@@ -409,14 +388,23 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   font-size: 0.85rem;
   color: var(--c-text-2);
+}
+.retry {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
 }
 .status {
   padding: 4px 10px;
   border-radius: 100px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.6px;
   color: var(--c-success);
   background: color-mix(in srgb, var(--c-success) 12%, transparent);
@@ -472,6 +460,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     }
     b {
       margin-left: auto;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
   }
@@ -487,6 +476,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   color: var(--c-text-2);
   strong {
     font-size: 1.05rem;
+    font-weight: 600;
     color: var(--c-text);
   }
 }
@@ -504,7 +494,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     align-items: center;
     gap: 8px;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     lsms-icon {
       color: var(--c-primary);
     }
@@ -528,7 +518,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   border: 1px solid var(--c-border);
   background: var(--c-surface);
   color: var(--c-text);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.87rem;
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.15s ease;
@@ -558,8 +548,8 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   --mdc-chip-with-icon-selected-icon-color: var(--c-on-primary);
   --mat-chip-with-icon-selected-icon-color: var(--c-on-primary);
   --mat-chip-selected-trailing-icon-color: var(--c-on-primary);
-  --mdc-chip-label-text-weight: 600;
-  --mat-chip-label-text-weight: 600;
+  --mdc-chip-label-text-weight: 500;
+  --mat-chip-label-text-weight: 500;
   .cnt {
     margin-left: 6px;
     font-size: 0.72em;
@@ -643,7 +633,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   strong {
     @include t.ellipsis;
     font-size: 0.92rem;
-    font-weight: 700;
+    font-weight: 500;
   }
   small {
     font-size: 0.75rem;
@@ -762,7 +752,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     margin-left: auto;
     padding: 3px 9px;
     border-radius: 100px;
-    font-weight: 600;
+    font-weight: 500;
     background: rgb(255 255 255 / 0.14);
   }
   .h-label {
@@ -780,7 +770,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
   .h-value {
     font-size: clamp(1.7rem, 8.4vw, 2.3rem);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.8px;
     line-height: 1.15;
     font-variant-numeric: tabular-nums;
@@ -795,7 +785,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     padding: 4px 10px;
     border-radius: 100px;
     font-size: 0.76rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #d8f5dc;
     background: rgb(86 211 100 / 0.24);
     &.down {
@@ -806,7 +796,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   .h-title {
     margin-top: 18px;
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.5px;
     line-height: 1.2;
   }
@@ -837,7 +827,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     background: rgb(255 255 255 / 0.12);
     color: inherit;
     font-size: 0.86rem;
-    font-weight: 700;
+    font-weight: 600;
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;
@@ -890,7 +880,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     h2 {
       margin: 0 10px 14px;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 600;
     }
   }
 
@@ -937,7 +927,7 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
       overflow: hidden;
       white-space: normal;
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 1.25;
       letter-spacing: -0.1px;
     }
@@ -1034,9 +1024,5 @@ $ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
     padding: 16px;
     border-radius: 22px;
     min-height: 0;
-  }
-  .legend {
-    gap: 12px;
-    font-size: 0.72rem;
   }
 }

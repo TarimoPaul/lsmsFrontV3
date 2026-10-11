@@ -105,9 +105,9 @@ export interface UserFormData {
     </lsms-dialog>
   `,
   styles: `
-    .section { display: flex; align-items: center; gap: 6px; margin: 4px 0 10px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
+    .section { display: flex; align-items: center; gap: 6px; margin: 4px 0 10px; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-text-2); }
     .section .req { color: var(--c-error); }
-    .section .count { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 700; color: var(--c-primary); }
+    .section .count { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--c-primary); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     .gen { display: inline-flex; padding: 4px; border: 0; border-radius: 6px; background: none; color: var(--c-text-2); cursor: pointer; }
@@ -121,7 +121,7 @@ export interface UserFormData {
       --mdc-chip-selected-label-text-color: var(--c-text);
       --mat-chip-with-icon-selected-icon-color: var(--role);
       --mdc-chip-with-icon-selected-icon-color: var(--c-primary);
-      --mat-chip-label-text-weight: 600;
+      --mat-chip-label-text-weight: 500;
     }
     .perm { margin-left: 6px; font-size: 0.72em; opacity: 0.6; }
   `,

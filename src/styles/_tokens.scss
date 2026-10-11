@@ -92,12 +92,14 @@ $sidebar-expanded: 280px;
   --c-input-fill: #f5f8fc;
   // App frame (sidebar + gutter around the content panel): a softer, less
   // saturated steel blue than Flutter's navy — easier next to the light page.
-  --c-sidebar: #294760;
-  --c-sidebar-bg: linear-gradient(180deg, #2e4e68 0%, #294760 45%, #243f56 100%);
-  --c-sidebar-accent: #7cc4e4;
+  // Lightened 2026-10-11 (user: colours too heavy, the sidebar most of all) —
+  // same hue, about two steps up; white labels still read at 6:1.
+  --c-sidebar: #3a617d;
+  --c-sidebar-bg: linear-gradient(180deg, #416b88 0%, #3a617d 45%, #345872 100%);
+  --c-sidebar-accent: #a5dcf3;
   // Phone dashboard hero (and the app bar above it): the frame's steel blue
   // running into the brand blue, with the bone accent for the main action.
-  --hero-a: #2b4a63;
+  --hero-a: #3a617d;
   --hero-b: #3b7597;
   --hero-ink: #ffffff;
   --hero-accent: #f1e4d1;
