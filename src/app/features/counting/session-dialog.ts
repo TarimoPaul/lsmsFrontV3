@@ -21,8 +21,10 @@ import {
   LineDecision,
   LineDecisionDraft,
   SESSION_STATUS,
+  chargeOf,
   formatQty,
   hasVariance,
+  isShortage,
 } from './counting.models';
 import { CountingService } from './counting.service';
 import { VarianceMetrics } from './variance-metrics';
@@ -70,8 +72,14 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
             @if (s.itemsWithVariance !== null) {
               <span><small>{{ i18n.t('With difference', 'Zenye tofauti') }}</small><b>{{ s.itemsWithVariance }}</b></span>
             }
-            @if (s.totalVarianceValue !== null) {
-              <span><small>{{ i18n.t('Difference value', 'Thamani ya tofauti') }}</small><b [class.neg]="s.totalVarianceValue < 0" [class.pos]="s.totalVarianceValue > 0">{{ s.totalVarianceValue | money: { decimals: 0 } }}</b></span>
+            @if (s.itemsWithVariance !== null) {
+              <span><small>{{ i18n.t('Shortage (cost)', 'Upungufu (gharama)') }}</small><b [class.neg]="split().shortage < 0">{{ split().shortage | money: { decimals: 0 } }}</b></span>
+              <span><small>{{ i18n.t('Surplus (cost)', 'Ziada (gharama)') }}</small><b [class.pos]="split().surplus > 0">{{ split().surplus > 0 ? '+' : '' }}{{ split().surplus | money: { decimals: 0 } }}</b></span>
+            }
+            @if (s.status === 'APPROVED' && s.adjustedValue !== null) {
+              <span><small>{{ i18n.t('Stock corrected', 'Stoku imerekebishwa') }}</small><b [class.neg]="s.adjustedValue < 0" [class.pos]="s.adjustedValue > 0">{{ s.adjustedValue > 0 ? '+' : '' }}{{ s.adjustedValue | money: { decimals: 0 } }}</b></span>
+              <span><small>{{ i18n.t('Charged to staff', 'Ametozwa mfanyakazi') }}</small><b [class.neg]="!!s.chargedValue">{{ s.chargedValue | money: { decimals: 0 } }}</b></span>
+              <span><small>{{ i18n.t('No action', 'Bila hatua') }}</small><b>{{ s.noActionCount ?? 0 }}</b></span>
             }
             <span><small>{{ i18n.t('Counted by', 'Aliyehesabu') }}</small><b>{{ name(s.startedByUid) }}</b></span>
             @if (s.approvedByUid) {
@@ -80,6 +88,9 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
           </div>
           @if (s.countMode === 'SIGHTED') {
             <p class="warn"><lsms-icon name="visibility" [size]="16" />{{ i18n.t('Sighted count — the counter could see system quantities, so a zero difference proves nothing.', 'Kuhesabu kwa kuona — mhesabu aliona idadi ya mfumo, hivyo tofauti sifuri haithibitishi kitu.') }}</p>
+          }
+          @if (s.status === 'APPROVED' && s.noActionCount) {
+            <p class="warn"><lsms-icon name="info" [size]="16" />{{ i18n.t(s.noActionCount + ' differences were left with no action — stock was not corrected, so they come back at the next count.', 'Tofauti ' + s.noActionCount + ' ziliachwa bila hatua — stoku haikurekebishwa, kwa hiyo zitarudi kwenye zoezi lijalo.') }}</p>
           }
           @if (s.status === 'FORCE_CLOSED' && s.forceClosedReason) {
             <p class="bad"><lsms-icon name="block" [size]="16" />{{ i18n.t('Force-closed', 'Imefungwa kwa nguvu') }}: {{ s.forceClosedReason }}</p>
@@ -132,8 +143,8 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
                 <p class="note re"><lsms-icon name="replay" [size]="14" /><span>{{ i18n.t('Count 1', 'Kuhesabu 1') }}: <b>{{ fmt(l, l.firstCountQty) }}</b> · {{ i18n.t('Count 2', 'Kuhesabu 2') }}: <b>{{ fmt(l, l.recountQty) }}</b>@if (l.recountReason) { — {{ l.recountReason }} }</span></p>
               }
               @if (deciding() && v) {
-                <div class="decide" role="radiogroup" [attr.aria-label]="i18n.t('Decision', 'Uamuzi')">
-                  @for (k of decisionKeys; track k) {
+                <div class="decide" [class.two]="!short(l)" role="radiogroup" [attr.aria-label]="i18n.t('Decision', 'Uamuzi')">
+                  @for (k of keysFor(l); track k) {
                     <button type="button" role="radio" [attr.aria-checked]="d?.decision === k" [class.on]="d?.decision === k" [style.--dc]="DECISIONS[k].color" (click)="decide(l.uid, k)">
                       <lsms-icon [name]="DECISIONS[k].icon" [size]="16" />{{ i18n.isSwahili() ? DECISIONS[k].sw : DECISIONS[k].en }}
                     </button>
@@ -151,7 +162,7 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
                     />
                     @if (d.decision === 'CHARGE_TO_CASHIER') {
                       <input type="text" maxlength="300" [value]="d.notes ?? ''" (input)="setNotes(l.uid, $any($event.target).value)" [placeholder]="i18n.t('Note to the staff member (optional)', 'Maelezo kwa mfanyakazi (hiari)')" />
-                      <small class="charge">{{ i18n.t('Debt to record', 'Deni litakaloandikwa') }}: {{ abs(l.varianceValue) | money: { decimals: 0 } }}</small>
+                      <small class="charge">{{ i18n.t('Debt to record (selling price)', 'Deni litakaloandikwa (bei ya kuuzia)') }}: {{ charge(l) | money: { decimals: 0 } }}@if (charge(l) > abs(l.varianceValue)) { <span class="cost">· {{ i18n.t('cost', 'gharama') }} {{ abs(l.varianceValue) | money: { decimals: 0 } }}</span> }</small>
                     }
                   </div>
                 }
@@ -245,6 +256,8 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
     .reason lsms-select-field { flex: 1 1 220px; }
     .reason input { flex: 1 1 220px; height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.82rem; color: var(--c-text); outline: 0; }
     .charge { width: 100%; font-size: 0.76rem; font-weight: 600; color: var(--c-error); }
+    .charge .cost { font-weight: 500; color: var(--c-text-2); }
+    .decide.two { grid-template-columns: repeat(2, 1fr); }
     .sum { position: sticky; bottom: -1px; display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface); }
     .sum span { display: flex; flex-direction: column; }
     .sum .c b { color: var(--c-error); }
@@ -265,7 +278,9 @@ export class SessionDialog {
 
   protected readonly SESSION_STATUS = SESSION_STATUS;
   protected readonly DECISIONS = DECISIONS;
-  protected readonly decisionKeys = Object.keys(DECISIONS) as LineDecision[];
+  private readonly decisionKeys = Object.keys(DECISIONS) as LineDecision[];
+  /** A surplus is never owed by anyone — it can only be adjusted or left. */
+  private readonly surplusKeys = this.decisionKeys.filter((k) => k !== 'CHARGE_TO_CASHIER');
   protected readonly needsReason = needsReason;
 
   protected readonly session = signal<CountSession | null>(null);
@@ -309,6 +324,19 @@ export class SessionDialog {
     return [...rows].sort((a, b) => a.productName.localeCompare(b.productName, undefined, { sensitivity: 'base' }));
   });
 
+  /** Shortage and surplus apart (cost) — a net total lets one hide the other. */
+  protected readonly split = computed(() => {
+    const s = this.session();
+    if (s?.shortageValue != null && s.surplusValue != null) return { shortage: s.shortageValue, surplus: s.surplusValue };
+    let shortage = 0;
+    let surplus = 0;
+    for (const l of this.varianceLines()) {
+      if ((l.varianceValue ?? 0) < 0) shortage += l.varianceValue ?? 0;
+      else surplus += l.varianceValue ?? 0;
+    }
+    return { shortage, surplus };
+  });
+
   protected readonly decidedCount = computed(() => this.varianceLines().filter((l) => this.complete(l.uid)).length);
   protected readonly allDecided = computed(() => this.decidedCount() === this.varianceLines().length);
 
@@ -323,7 +351,7 @@ export class SessionDialog {
       } else if (d?.decision === 'NO_ACTION') t.none++;
       else if (d?.decision === 'CHARGE_TO_CASHIER') {
         t.charge++;
-        t.chargeValue += Math.abs(l.varianceValue ?? 0);
+        t.chargeValue += chargeOf(l);
       }
     }
     return t;
@@ -486,6 +514,18 @@ export class SessionDialog {
 
   protected name(uid: string | null): string {
     return this.api.staffName(uid) ?? '—';
+  }
+
+  protected short(l: CountLine): boolean {
+    return isShortage(l);
+  }
+
+  protected keysFor(l: CountLine): LineDecision[] {
+    return isShortage(l) ? this.decisionKeys : this.surplusKeys;
+  }
+
+  protected charge(l: CountLine): number {
+    return chargeOf(l);
   }
 
   protected abs(v: number | null): number {

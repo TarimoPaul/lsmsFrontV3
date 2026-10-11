@@ -42,8 +42,8 @@ type Filter = 'ALL' | SessionStatus;
           [loading]="loading()"
           [pageSize]="15"
           [mobileTitle]="dateLabel"
-          [mobileColumns]="['status', 'counted', 'variance', 'by']"
-          [mobileCompactColumns]="['variance']"
+          [mobileColumns]="['status', 'counted', 'shortage', 'surplus', 'outcome', 'by']"
+          [mobileCompactColumns]="['shortage', 'surplus']"
           [emptyTitle]="i18n.t('No counts with this status', 'Hakuna mazoezi yenye hali hii')"
           emptyIcon="filter_alt_off"
           (rowClick)="open($event)"
@@ -67,9 +67,36 @@ type Filter = 'ALL' | SessionStatus;
           <ng-template lsmsColumn="items" [label]="i18n.t('Products with difference', 'Bidhaa zenye tofauti')" align="end" [sortBy]="itemsKey" let-row>
             <span class="num">{{ row.itemsWithVariance ?? '—' }}</span>
           </ng-template>
-          <ng-template lsmsColumn="variance" [label]="i18n.t('Difference value', 'Thamani ya tofauti')" align="end" [sortBy]="valueKey" let-row>
-            @if (row.totalVarianceValue !== null) {
-              <span class="num strong" [class.neg]="row.totalVarianceValue < 0" [class.pos]="row.totalVarianceValue > 0">{{ row.totalVarianceValue > 0 ? '+' : '' }}{{ row.totalVarianceValue | money: { decimals: 0 } }}</span>
+          <ng-template lsmsColumn="shortage" [label]="i18n.t('Shortage', 'Upungufu')" align="end" [sortBy]="shortageKey" let-row>
+            @if (row.shortageValue !== null) {
+              <span class="num strong" [class.neg]="row.shortageValue < 0" [class.muted]="!row.shortageValue">{{ row.shortageValue | money: { decimals: 0 } }}</span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </ng-template>
+          <ng-template lsmsColumn="surplus" [label]="i18n.t('Surplus', 'Ziada')" align="end" [sortBy]="surplusKey" let-row>
+            @if (row.surplusValue !== null) {
+              <span class="num strong" [class.pos]="row.surplusValue > 0" [class.muted]="!row.surplusValue">{{ row.surplusValue > 0 ? '+' : '' }}{{ row.surplusValue | money: { decimals: 0 } }}</span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </ng-template>
+          <ng-template lsmsColumn="outcome" [label]="i18n.t('What was done', 'Kilichofanyika')" let-row>
+            @if (row.status === 'APPROVED' && row.adjustedValue !== null) {
+              <span class="cell-stack outcome">
+                @if (row.adjustedValue) {
+                  <small>{{ i18n.t('Stock corrected', 'Stoku imerekebishwa') }} <b [class.neg]="row.adjustedValue < 0" [class.pos]="row.adjustedValue > 0">{{ row.adjustedValue > 0 ? '+' : '' }}{{ row.adjustedValue | money: { decimals: 0 } }}</b></small>
+                }
+                @if (row.chargedValue) {
+                  <small>{{ i18n.t('Charged to staff', 'Ametozwa mfanyakazi') }} <b class="neg">{{ row.chargedValue | money: { decimals: 0 } }}</b></small>
+                }
+                @if (row.noActionCount) {
+                  <small class="warn" [title]="noActionHint(row)">{{ i18n.t('No action', 'Bila hatua') }} <b>{{ row.noActionCount }}</b> · {{ row.noActionShortage | money: { decimals: 0 } }}@if (row.noActionSurplus) { / +{{ row.noActionSurplus | money: { decimals: 0 } }} }</small>
+                }
+                @if (!row.adjustedValue && !row.chargedValue && !row.noActionCount) {
+                  <small class="muted">{{ i18n.t('No difference', 'Hakuna tofauti') }}</small>
+                }
+              </span>
             } @else {
               <span class="muted">—</span>
             }
@@ -98,6 +125,9 @@ type Filter = 'ALL' | SessionStatus;
     .pill.mode.sighted { --pc: var(--c-warning); }
     .neg { color: var(--c-error); }
     .pos { color: var(--c-success); }
+    .outcome small { white-space: nowrap; }
+    .outcome b { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .outcome .warn { color: var(--c-warning); }
     .err { display: -webkit-box; max-width: 280px; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--c-error); }
   `,
 })
@@ -133,7 +163,13 @@ export class SessionsTab implements OnInit {
   protected readonly statusKey = (r: CountSession) => r.status;
   protected readonly countedKey = (r: CountSession) => r.itemsCounted;
   protected readonly itemsKey = (r: CountSession) => r.itemsWithVariance ?? -1;
-  protected readonly valueKey = (r: CountSession) => r.totalVarianceValue ?? 0;
+  protected readonly shortageKey = (r: CountSession) => r.shortageValue ?? 0;
+  protected readonly surplusKey = (r: CountSession) => r.surplusValue ?? 0;
+  protected readonly noActionHint = (r: CountSession) =>
+    this.i18n.t(
+      `${r.noActionCount} differences were left with no action. Stock was not corrected, so they return at the next count.`,
+      `Tofauti ${r.noActionCount} ziliachwa bila hatua. Stoku haikurekebishwa, kwa hiyo zitarudi kwenye zoezi lijalo.`,
+    );
 
   /** Not in the constructor: `mode` is only bound once inputs are set. */
   ngOnInit(): void {

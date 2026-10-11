@@ -61,10 +61,13 @@ import { CapitalService } from './capital.service';
                 }
               </ul>
             }
-            @if (canWrite() && l.outstandingBalance > 0 && l.status !== 'RECLASSIFIED') {
+            @if (canWrite() && l.status !== 'RECLASSIFIED') {
               <div class="acts">
-                <button lsmsButton="text" size="sm" (click)="convert(l)">{{ i18n.t('Convert to capital', 'Geuza kuwa mtaji') }}</button>
-                <button lsmsButton="primary" size="sm" icon="payments" (click)="repay(l)">{{ i18n.t('Repay', 'Lipa') }}</button>
+                <button lsmsButton="text" size="sm" icon="edit" (click)="edit(l)">{{ i18n.t('Correct', 'Rekebisha') }}</button>
+                @if (l.outstandingBalance > 0) {
+                  <button lsmsButton="text" size="sm" (click)="convert(l)">{{ i18n.t('Convert to capital', 'Geuza kuwa mtaji') }}</button>
+                  <button lsmsButton="primary" size="sm" icon="payments" (click)="repay(l)">{{ i18n.t('Repay', 'Lipa') }}</button>
+                }
               </div>
             }
           </article>
@@ -93,7 +96,7 @@ import { CapitalService } from './capital.service';
     .nums b.warn { color: var(--c-warning); }
     .tx { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 8px 10px; border-radius: 10px; list-style: none; background: color-mix(in srgb, var(--c-text-2) 5%, transparent); }
     .tx li { display: flex; justify-content: space-between; gap: 10px; font-size: 0.76rem; color: var(--c-text-2); }
-    .acts { display: flex; justify-content: flex-end; gap: 6px; }
+    .acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
   `,
 })
 export class LoansTab {
@@ -134,6 +137,15 @@ export class LoansTab {
     if (ok) {
       await this.api.loans.load(true);
       this.toast.success(this.i18n.t('Loan recorded', 'Mkopo umerekodiwa'));
+    }
+  }
+
+  protected async edit(l: Loan): Promise<void> {
+    const { MovementDialog } = await import('./capital-dialogs');
+    const ok = await this.dialogs.openAsync<boolean, MovementDialogData>(MovementDialog, { size: 'md', data: { kind: 'LOAN', loan: l }, disableClose: true });
+    if (ok) {
+      await this.api.loans.load(true);
+      this.toast.success(this.i18n.t('Loan corrected', 'Mkopo umerekebishwa'));
     }
   }
 

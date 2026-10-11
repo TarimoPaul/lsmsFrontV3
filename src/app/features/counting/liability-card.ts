@@ -81,8 +81,10 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
                 <span>{{ i18n.t('System', 'Mfumo') }}: <b>{{ i.expectedQty ?? '—' }}</b></span>
                 <span>{{ i18n.t('Counted', 'Imehesabiwa') }}: <b>{{ i.countedQty ?? '—' }}</b></span>
                 <span>{{ i18n.t('Difference', 'Tofauti') }}: <b class="red">{{ i.varianceQty ?? '—' }}</b></span>
-                @if (i.unitCostUsed !== null) {
-                  <span>{{ i18n.t('Cost/piece', 'Bei/kipande') }}: <b>{{ i.unitCostUsed | money: { decimals: 0 } }}</b></span>
+                @if (i.unitPriceUsed !== null) {
+                  <span>{{ i18n.t('Selling price/piece', 'Bei ya kuuzia/kipande') }}: <b>{{ i.unitPriceUsed | money: { decimals: 0 } }}</b></span>
+                } @else if (i.unitCostUsed !== null) {
+                  <span>{{ i18n.t('Cost/piece', 'Gharama/kipande') }}: <b>{{ i.unitCostUsed | money: { decimals: 0 } }}</b></span>
                 }
               </div>
               @if (i.cashierReason || i.cashierNote) {

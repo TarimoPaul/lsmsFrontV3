@@ -131,6 +131,16 @@ export class CapitalService {
     return r;
   }
 
+  /** Corrects a loan recorded wrongly; the GL journal is reversed and posted again. Fields left out stay. */
+  async updateLoan(
+    uid: string,
+    body: { amount?: number; reason?: string; notes?: string; transaction_date?: string; payment_method?: string },
+  ): Promise<Loan> {
+    const r = await this.api.put<Loan>(`${CM}/loans/${uid}`, body);
+    this.changed();
+    return r;
+  }
+
   async reclassifyLoan(uid: string, newSourceType: string, reason: string): Promise<Loan> {
     const r = await this.api.post<Loan>(`${CM}/loans/${uid}/reclassify`, { new_source_type: newSourceType, reason });
     this.changed();

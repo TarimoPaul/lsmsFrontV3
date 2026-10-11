@@ -55,6 +55,8 @@ export interface Loan {
   injectionDate: string | null;
   reason: string;
   notes: string | null;
+  /** Account the loan money was received into. */
+  paymentMethod?: string | null;
   status: 'ACTIVE' | 'PARTIALLY_REPAID' | 'FULLY_REPAID' | 'RECLASSIFIED' | string;
   totalRepaid: number;
   outstandingBalance: number;

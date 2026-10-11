@@ -317,6 +317,8 @@ export class DisposeDialog {
 
 export interface MovementDialogData {
   kind: 'IN' | 'OUT' | 'LOAN';
+  /** With kind 'LOAN': correct this loan instead of recording a new one. */
+  loan?: Loan;
 }
 
 @Component({
@@ -326,6 +328,9 @@ export interface MovementDialogData {
   template: `
     <lsms-dialog [title]="title()" [icon]="data.kind === 'OUT' ? 'north_east' : data.kind === 'LOAN' ? 'request_quote' : 'south_west'">
       <p class="info"><lsms-icon name="info" [size]="16" />{{ help() }}</p>
+      @if (belowRepaid()) {
+        <p class="err">{{ i18n.t('The amount cannot be less than the principal already repaid', 'Kiasi hakiwezi kuwa chini ya principal iliyokwisha kulipwa') }} ({{ repaidText }}).</p>
+      }
       @if (data.kind !== 'LOAN') {
         <div class="chips">
           @for (s of sources(); track s.v) { <button type="button" [class.on]="source() === s.v" (click)="source.set(s.v)">{{ i18n.isSwahili() ? s.sw : s.en }}</button> }
@@ -341,7 +346,7 @@ export interface MovementDialogData {
       @if (error()) { <p class="err">{{ error() }}</p> }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ i18n.t('Record', 'Rekodi') }}</button>
+        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ editing ? i18n.t('Save changes', 'Hifadhi mabadiliko') : i18n.t('Record', 'Rekodi') }}</button>
       </ng-container>
     </lsms-dialog>
   `,
@@ -354,12 +359,17 @@ export class MovementDialog {
   private readonly api = inject(CapitalService);
 
   protected readonly today = today();
+  /** The loan being corrected, if any. */
+  private readonly loan = this.data.kind === 'LOAN' ? (this.data.loan ?? null) : null;
+  protected readonly editing = !!this.loan;
+  private readonly loanDay = (this.loan?.injectionDate ?? '').slice(0, 10);
+  protected readonly repaidText = Money.format(this.loan?.totalRepaid ?? 0, { decimals: 0 });
   protected readonly source = signal(this.data.kind === 'OUT' ? 'OWNER_DRAW' : this.data.kind === 'LOAN' ? 'LOAN' : 'OWNER_EQUITY');
-  protected readonly amount = signal('');
-  protected readonly date = signal(today());
-  protected readonly reason = signal('');
-  protected readonly notes = signal('');
-  protected readonly method = signal('CASH');
+  protected readonly amount = signal(this.loan ? Money.group(String(this.loan.loanAmount)) : '');
+  protected readonly date = signal(this.loanDay || today());
+  protected readonly reason = signal(this.loan?.reason ?? '');
+  protected readonly notes = signal(this.loan?.notes ?? '');
+  protected readonly method = signal(this.loan?.paymentMethod || 'CASH');
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
 
@@ -377,24 +387,41 @@ export class MovementDialog {
   protected readonly title = computed(() =>
     this.data.kind === 'OUT'
       ? this.i18n.t('Owner withdrawal', 'Mmiliki kutoa pesa')
-      : this.data.kind === 'LOAN'
+      : this.editing
+        ? this.i18n.t('Correct loan', 'Rekebisha mkopo')
+        : this.data.kind === 'LOAN'
         ? this.i18n.t('Loan received', 'Mkopo umepokelewa')
         : this.i18n.t('Add capital', 'Ongeza mtaji'),
   );
   protected readonly help = computed(() =>
     this.data.kind === 'OUT'
       ? this.i18n.t('Money taken out of the business for personal use. Reduces equity — it is not an expense.', 'Pesa iliyotolewa kwenye biashara kwa matumizi binafsi. Inapunguza mtaji — si gharama.')
+      : this.editing
+        ? this.i18n.t('Fix what was entered wrongly. If the amount, date or account changes, the old entry is reversed in the books and a correct one is posted.', 'Rekebisha kilichokosewa. Kiasi, tarehe au akaunti vikibadilika, ingizo la zamani linarudishwa kwenye vitabu na jipya sahihi linaandikwa.')
       : this.data.kind === 'LOAN'
         ? this.i18n.t('Borrowed money is a liability: it must be repaid. It is not income and not capital.', 'Pesa ya mkopo ni deni: lazima ilipwe. Si mapato wala mtaji.')
         : this.i18n.t('Only NEW money put into the business. Profit already earned is in retained earnings — never record it here.', 'Pesa MPYA tu inayowekwa kwenye biashara. Faida iliyopatikana tayari iko kwenye faida iliyobaki — usiiandike hapa.'),
   );
-  protected readonly valid = computed(() => parse(this.amount()) > 0 && this.reason().trim().length >= 3);
+  protected readonly belowRepaid = computed(() => !!this.loan && parse(this.amount()) > 0 && parse(this.amount()) < this.loan.totalRepaid);
+  protected readonly valid = computed(() => parse(this.amount()) > 0 && this.reason().trim().length >= 3 && !this.belowRepaid());
 
   protected async save(): Promise<void> {
     if (!this.valid()) return;
     this.saving.set(true);
     this.error.set(null);
     try {
+      if (this.loan) {
+        await this.api.updateLoan(this.loan.uid, {
+          amount: parse(this.amount()),
+          reason: this.reason().trim(),
+          notes: this.notes().trim(),
+          // An untouched day keeps its original time of day.
+          ...(this.date() !== this.loanDay ? { transaction_date: stamp(this.date()) } : {}),
+          payment_method: this.method(),
+        });
+        this.ref.close(true);
+        return;
+      }
       await this.api.recordMovement({
         injection_type: this.data.kind === 'OUT' ? 'WITHDRAWAL' : 'INJECTION',
         source_type: this.source(),

@@ -28,7 +28,10 @@ export interface CountLine {
   systemQtySnapshot: number | null;
   unitCostSnapshot: number | null;
   varianceQty: number | null;
+  /** Stock value of the variance, at COST. */
   varianceValue: number | null;
+  /** What a shortage is charged to staff: selling price, never below cost. Null = no shortage. */
+  chargeValue: number | null;
   cashierReason: string | null;
   cashierNote: string | null;
   explainedAt: string | null;
@@ -64,7 +67,17 @@ export interface CountSession {
   totalItems: number;
   itemsCounted: number;
   itemsWithVariance: number | null;
+  /** Net of shortage + surplus — a surplus hides a shortage, so never shown alone. */
   totalVarianceValue: number | null;
+  /** ≤ 0 and ≥ 0, at cost. */
+  shortageValue: number | null;
+  surplusValue: number | null;
+  /** What the approval did (APPROVED only): stock corrected (signed), debt raised on staff, left as is. */
+  adjustedValue: number | null;
+  chargedValue: number | null;
+  noActionShortage: number | null;
+  noActionSurplus: number | null;
+  noActionCount: number | null;
   lines: CountLine[];
 }
 
@@ -76,6 +89,9 @@ export interface LineDecisionDraft {
 }
 
 export const hasVariance = (l: CountLine) => l.varianceQty != null && l.varianceQty !== 0;
+export const isShortage = (l: CountLine) => (l.varianceQty ?? 0) < 0;
+/** Debt "Charge staff" raises for this line — only a shortage can be owed. */
+export const chargeOf = (l: CountLine) => (isShortage(l) ? (l.chargeValue ?? Math.abs(l.varianceValue ?? 0)) : 0);
 
 // ── Labels ──
 
@@ -162,6 +178,8 @@ export interface LiabilityItem {
   countedQty: number | null;
   varianceQty: number | null;
   unitCostUsed: number | null;
+  /** Selling price per piece the line was charged at; null on older debts (charged at cost). */
+  unitPriceUsed: number | null;
   lineAmount: number;
   cashierReason: string | null;
   cashierNote: string | null;
@@ -229,6 +247,7 @@ export function toLine(r: Raw): CountLine {
     unitCostSnapshot: num(r['unitCostSnapshot']),
     varianceQty: num(r['varianceQty']),
     varianceValue: num(r['varianceValue']),
+    chargeValue: num(r['chargeValue']),
     cashierReason: str(r['cashierReason']),
     cashierNote: str(r['cashierNote']),
     explainedAt: str(r['explainedAt']),
@@ -268,6 +287,13 @@ export function toSession(r: Raw): CountSession {
     itemsCounted: num(r['itemsCounted']) ?? 0,
     itemsWithVariance: num(r['itemsWithVariance']),
     totalVarianceValue: num(r['totalVarianceValue']),
+    shortageValue: num(r['shortageValue']),
+    surplusValue: num(r['surplusValue']),
+    adjustedValue: num(r['adjustedValue']),
+    chargedValue: num(r['chargedValue']),
+    noActionShortage: num(r['noActionShortage']),
+    noActionSurplus: num(r['noActionSurplus']),
+    noActionCount: num(r['noActionCount']),
     lines: ((r['lines'] as Raw[] | null) ?? []).map(toLine),
   };
 }
@@ -281,6 +307,7 @@ export function toLiabilityItem(r: Raw): LiabilityItem {
     countedQty: num(r['countedQty']),
     varianceQty: num(r['varianceQty']),
     unitCostUsed: num(r['unitCostUsed']),
+    unitPriceUsed: num(r['unitPriceUsed']),
     lineAmount: num(r['lineAmount']) ?? 0,
     cashierReason: str(r['cashierReason']),
     cashierNote: str(r['cashierNote']),
