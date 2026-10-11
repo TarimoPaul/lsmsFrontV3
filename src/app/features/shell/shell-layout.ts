@@ -13,7 +13,7 @@ import { APP_MODULES, AppModule, findModule } from '@core/navigation/app-modules
 import { ModuleUsageService } from '@core/navigation/module-usage.service';
 import { safeStorage } from '@core/utils/safe-storage';
 import { DialogService, ToastService } from '@shared/ui';
-import { environment } from '../../../environments/environment';
+import { AppUpdateService } from '@core/update/app-update.service';
 import { BranchPickerData, BranchPickerDialog } from '../auth/branch-picker/branch-picker-dialog';
 import { CommandPalette } from './command-palette/command-palette';
 import { BottomNav } from './bottom-nav/bottom-nav';
@@ -88,7 +88,7 @@ export interface PageMeta {
             </main>
             <footer class="footer">
               <span>© {{ year }} Elikom Group Company Limited</span>
-              <span>LSMS v{{ version }}</span>
+              <span>LSMS v{{ version() }}</span>
             </footer>
           </div>
           @if (!desktop()) {
@@ -191,7 +191,7 @@ export class ShellLayout {
   protected readonly theme = inject(ThemeService);
   private readonly shellTitle = inject(ShellTitle);
 
-  protected readonly version = environment.appVersion;
+  protected readonly version = inject(AppUpdateService).version;
   /** Flutter `_ShapeData(baseX, baseY, radius, phaseOffset)` — positions in % of the panel. */
   protected readonly bubbles = [
     { x: 10, y: 15, r: 80, phase: 0 },

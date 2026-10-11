@@ -14,7 +14,7 @@ import { BreakpointService } from '@core/layout/breakpoint.service';
 import { ThemeService } from '@core/theme/theme.service';
 import { LsmsValidators, passwordRules } from '@shared/forms/validators';
 import { Button, DialogService, Icon, TextField, ToastService } from '@shared/ui';
-import { environment } from '../../../../environments/environment';
+import { AppUpdateService } from '@core/update/app-update.service';
 import { AuthBackground } from '../auth-background';
 import { BranchPickerData, BranchPickerDialog } from '../branch-picker/branch-picker-dialog';
 import { BrandPanel } from '../brand-panel/brand-panel';
@@ -54,7 +54,8 @@ export class LoginPage {
   readonly returnUrl = input<string | undefined>(undefined);
   readonly view = input<AuthView | undefined>(undefined);
 
-  protected readonly version = environment.appVersion;
+  private readonly updates = inject(AppUpdateService);
+  protected readonly version = this.updates.version;
   protected readonly wide = computed(() => this.bp.width() >= 1040);
   protected readonly activeView = signal<AuthView>('login');
   protected readonly busy = signal(false);
@@ -98,6 +99,8 @@ export class LoginPage {
   private readonly passwordField = viewChild<TextField>('passwordField');
 
   constructor() {
+    // Reads version.json so the footer shows the deployed version before sign-in too.
+    this.updates.start();
     const reason = this.auth.lastLogoutReason();
     if (reason === 'expired' || reason === 'unauthorized') {
       this.error.set('SESSION_EXPIRED');

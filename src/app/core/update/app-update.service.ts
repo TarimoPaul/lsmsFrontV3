@@ -1,5 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
+import { environment } from '../../../environments/environment';
+
 interface BuildInfo {
   version: string;
   buildTime: string;
@@ -23,6 +25,13 @@ export class AppUpdateService {
   /** The newer build waiting, or null. */
   readonly available = signal<BuildInfo | null>(null);
 
+  /**
+   * The version this tab runs: the deployed image tag, stamped into version.json by the
+   * build (deploy-v3.ps1 picks the number). Until that file is read — and on the dev
+   * server, which has none — the placeholder from the environment file.
+   */
+  readonly version = signal(environment.appVersion);
+
   start(): void {
     if (this.started) return;
     this.started = true;
@@ -41,6 +50,7 @@ export class AppUpdateService {
       if (!info?.buildTime) return;
       if (!this.current) {
         this.current = info;
+        if (info.version) this.version.set(info.version);
         return;
       }
       if (info.buildTime !== this.current.buildTime && info.buildTime !== this.dismissedBuild) this.available.set(info);
