@@ -2,6 +2,9 @@
 #
 #   .\deploy\deploy-v3.ps1                 # bump patch, build, push, deploy
 #   .\deploy\deploy-v3.ps1 -Bump minor     # or: major
+#                                          # The number is worked out here, never typed: patch 1..99, then the
+#                                          # minor moves up (3.1.99 -> 3.2.1); minor 1..9, then the major
+#                                          # (3.9.99 -> 4.1.1). A number already on Docker Hub is skipped.
 #   .\deploy\deploy-v3.ps1 -Bump none      # deploy the version in .frontend-v3-version as is (first deploy)
 #   .\deploy\deploy-v3.ps1 -BuildOnly      # bump patch, build, push - and STOP. The server is never
 #                                          # contacted. Test that image on staging, then deploy the
@@ -53,6 +56,36 @@ function Test-ImageOnHub([string]$Image) {
     docker manifest inspect $Image 2>&1 | Out-Null
     return ($LASTEXITCODE -eq 0)
 }
+# The next version number. A patch runs 1..99: after x.y.99 comes x.(y+1).1. A minor runs 1..9:
+# after x.9.* the next minor is (x+1).1.1. So a new minor or major always starts at 1, never 0.
+function Get-NextVersion([string]$Version, [string]$Kind) {
+    if ($Version -notmatch '^(\d+)\.(\d+)\.(\d+)$') { Fail "Si semver: '$Version'" }
+    $major = [int]$Matches[1]; $minor = [int]$Matches[2]; $patch = [int]$Matches[3]
+    switch ($Kind) {
+        'major' { $major++; $minor = 1; $patch = 1 }
+        'minor' { $minor++; $patch = 1 }
+        'patch' { if ($patch -ge 99) { $minor++; $patch = 1 } else { $patch++ } }
+        'none'  { }
+    }
+    if ($minor -gt 9) { $major++; $minor = 1; $patch = 1 }
+    "$major.$minor.$patch"
+}
+# A pushed tag is never rebuilt, and $VersionFile only moves after a successful DEPLOY - so the
+# next number may already be on Docker Hub (built with -BuildOnly for staging, or by a deploy that
+# failed after the push). Returns the first number, from $Version on, that is still free.
+function Get-FreeVersion([string]$Version) {
+    $taken = @()
+    while (Test-ImageOnHub "${ImageName}:${Version}") {
+        if ($taken.Count -ge 20) { Fail "Matoleo 20 mfululizo tayari yako Docker Hub kuanzia $($taken[0]) - kagua $VersionFile." }
+        $taken += $Version
+        $Version = Get-NextVersion $Version 'patch'
+    }
+    if ($taken.Count) {
+        Write-Host "  Tayari ziko Docker Hub (hazitaandikwa upya): $($taken -join ', ')  ->  toleo jipya ni $Version." -ForegroundColor Yellow
+        Write-Host "  Kama ulitaka kudeploy ile iliyojaribiwa staging bila kujenga upya: -DeployOnly $($taken[-1])" -ForegroundColor Yellow
+    }
+    $Version
+}
 # sha256 digest of a local image that has been pushed or pulled ('' when it has none).
 # No quotes inside the Go template: Windows PowerShell 5.1 strips them from native arguments.
 function Get-ImageDigest([string]$Image) {
@@ -101,20 +134,18 @@ try {
     if (-not (Test-Path $VersionFile)) { Fail "$VersionFile haipo (inatakiwa iwe na semver, mfano 3.0.0)." }
     $current = (Get-Content $VersionFile -Raw).Trim()
     if ($current -notmatch '^(\d+)\.(\d+)\.(\d+)$') { Fail "$VersionFile si semver: '$current'" }
-    $major = [int]$Matches[1]; $minor = [int]$Matches[2]; $patch = [int]$Matches[3]
-    switch ($Bump) {
-        'major' { $major++; $minor = 0; $patch = 0 }
-        'minor' { $minor++; $patch = 0 }
-        'patch' { $patch++ }
-        'none'  { }
-    }
-    $newVersion = "$major.$minor.$patch"
+    $newVersion = Get-NextVersion $current $Bump
     if ($DeployOnly) { $newVersion = $DeployOnly }
     $image = "${ImageName}:${newVersion}"
 
     Assert-CleanTree $RepoRoot
 
     Invoke-Checked "Docker haipatikani - washa Docker Desktop" { docker version --format '{{.Server.Version}}' | Out-Null }
+    # A build takes the first version number that is not on Docker Hub yet (see Get-FreeVersion).
+    if (-not $DeployOnly -and $Bump -ne 'none') {
+        $newVersion = Get-FreeVersion $newVersion
+        $image = "${ImageName}:${newVersion}"
+    }
     if ($BuildOnly) {
         # Nothing on the server is read or changed. A tag that is already published is never rebuilt:
         # what was tested on staging must be byte-for-byte what -DeployOnly later puts on prod.
