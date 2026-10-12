@@ -1,0 +1,283 @@
+diff --git a/src/main/java/com/Lsms/Reconciliation/Controller/SafeBoxController.java b/src/main/java/com/Lsms/Reconciliation/Controller/SafeBoxController.java
+index ae9698d..a427783 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Controller/SafeBoxController.java
++++ b/src/main/java/com/Lsms/Reconciliation/Controller/SafeBoxController.java
+@@ -2,6 +2,7 @@ package com.Lsms.Reconciliation.Controller;
+ 
+ import com.Lsms.Reconciliation.Dto.SafeBoxCashierOutstandingDto;
+ import com.Lsms.Reconciliation.Dto.SafeBoxDepositDto;
++import com.Lsms.Reconciliation.Dto.SafeBoxOutstandingEntryDto;
+ import com.Lsms.Reconciliation.Dto.SafeBoxRecipientDto;
+ import com.Lsms.Reconciliation.Dto.SafeBoxUnconfirmedSummaryDto;
+ import com.Lsms.Reconciliation.Services.SafeBoxService;
+@@ -55,6 +56,14 @@ public class SafeBoxController {
+         return ResponseEntity.ok(safeBoxService.getPendingForCashier(LoggedUser.getUid()));
+     }
+ 
++    @GetMapping("/my-outstanding")
++    @PreAuthorize("hasAuthority('RECONCILIATION_CREATE')")
++    @Operation(summary = "Cashier's own SAFE_BOX balances not yet fully confirmed on APPROVED/CLOSED recons")
++    public ResponseEntity<Response<List<SafeBoxOutstandingEntryDto>>> myOutstanding() {
++        return ResponseEntity.ok(safeBoxService.getOutstandingForCashier(
++                LoggedUser.getActiveBranchUid(), LoggedUser.getUid()));
++    }
++
+     @PutMapping("/{depositUid}")
+     @PreAuthorize("hasAuthority('RECONCILIATION_CREATE')")
+     @Operation(summary = "Cashier edits their own still-PENDING safe-box deposit")
+diff --git a/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxDepositDto.java b/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxDepositDto.java
+index 873e1de..d7e563b 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxDepositDto.java
++++ b/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxDepositDto.java
+@@ -59,4 +59,7 @@ public class SafeBoxDepositDto {
+     private String cancelledByName;
+     private LocalDateTime cancelledAt;
+     private String cancellationReason;
++
++    /** Why only part of the safe-box money was submitted (e.g. "chenchi"); optional. */
++    private String remainderReason;
+ }
+diff --git a/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxOutstandingEntryDto.java b/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxOutstandingEntryDto.java
+index 40cbf99..e757de0 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxOutstandingEntryDto.java
++++ b/src/main/java/com/Lsms/Reconciliation/Dto/SafeBoxOutstandingEntryDto.java
+@@ -24,4 +24,7 @@ public class SafeBoxOutstandingEntryDto {
+     private BigDecimal amount;
+     private BigDecimal confirmedTotal;
+     private BigDecimal remaining;
++    /** Submitted and waiting for a manager — part of "remaining" until it is confirmed.
++     *  remaining − pendingTotal is what the cashier has not submitted at all yet. */
++    private BigDecimal pendingTotal;
+ }
+diff --git a/src/main/java/com/Lsms/Reconciliation/Entity/SafeBoxDeposit.java b/src/main/java/com/Lsms/Reconciliation/Entity/SafeBoxDeposit.java
+index c3d9492..5fd2048 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Entity/SafeBoxDeposit.java
++++ b/src/main/java/com/Lsms/Reconciliation/Entity/SafeBoxDeposit.java
+@@ -102,6 +102,11 @@ public class SafeBoxDeposit extends BaseEntity {
+     @Column(name = "cancellation_reason", columnDefinition = "TEXT")
+     private String cancellationReason;
+ 
++    /** Why the cashier submitted only part of what is in the safe (e.g. "chenchi") —
++     *  shown to the manager who confirms. Null when nothing was kept back. */
++    @Column(name = "remainder_reason", columnDefinition = "TEXT")
++    private String remainderReason;
++
+     /** Optimistic lock — guards concurrent confirm/reject races on the same deposit. */
+     @Version
+     @Column(name = "version", nullable = false)
+diff --git a/src/main/java/com/Lsms/Reconciliation/Repository/ReconciliationCashEntryRepository.java b/src/main/java/com/Lsms/Reconciliation/Repository/ReconciliationCashEntryRepository.java
+index e568be8..a924078 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Repository/ReconciliationCashEntryRepository.java
++++ b/src/main/java/com/Lsms/Reconciliation/Repository/ReconciliationCashEntryRepository.java
+@@ -35,14 +35,16 @@ public interface ReconciliationCashEntryRepository extends JpaRepository<Reconci
+      * manager's cross-day "deni la cashier" view (SafeBoxService.getOutstandingByBranch).
+      * Native (not JPQL) because of the aggregating LEFT JOIN subquery.
+      * Row layout: [0]=cashEntryUid [1]=amount [2]=depositDate [3]=reconciliationDate
+-     * [4]=reconUid [5]=cashierUid [6]=cashierName [7]=confirmedTotal [8]=remaining.
++     * [4]=reconUid [5]=cashierUid [6]=cashierName [7]=confirmedTotal [8]=remaining
++     * [9]=pendingTotal (submitted, waiting for a manager — still inside "remaining").
+      */
+-    @Query(value = """
++    String OUTSTANDING_SAFE_BOX_SQL = """
+             SELECT rce.uid, rce.amount, rce.deposit_date,
+                    dr.reconciliation_date, dr.uid, dr.user_uid,
+                    CONCAT(u.first_name, ' ', u.last_name),
+                    COALESCE(confirmed.total, 0),
+-                   (rce.amount - COALESCE(confirmed.total, 0))
++                   (rce.amount - COALESCE(confirmed.total, 0)),
++                   COALESCE(pending.total, 0)
+             FROM reconciliation_cash_entries rce
+             JOIN daily_reconciliation dr ON dr.uid = rce.reconciliation_uid
+             JOIN users u ON u.uid = dr.user_uid
+@@ -52,12 +54,26 @@ public interface ReconciliationCashEntryRepository extends JpaRepository<Reconci
+                 WHERE sbd.status = 'CONFIRMED' AND sbd.is_deleted = false
+                 GROUP BY sbd.cash_entry_uid
+             ) confirmed ON confirmed.cash_entry_uid = rce.uid
++            LEFT JOIN (
++                SELECT sbd.cash_entry_uid, SUM(sbd.submitted_amount) AS total
++                FROM safe_box_deposits sbd
++                WHERE sbd.status = 'PENDING' AND sbd.is_deleted = false
++                GROUP BY sbd.cash_entry_uid
++            ) pending ON pending.cash_entry_uid = rce.uid
+             WHERE rce.entry_type = 'SAFE_BOX'
+               AND rce.is_deleted = false
+               AND dr.status IN ('APPROVED', 'CLOSED')
+               AND dr.branch_uid = :branchUid
+               AND (rce.amount - COALESCE(confirmed.total, 0)) > 0
+-            ORDER BY dr.reconciliation_date ASC
+-            """, nativeQuery = true)
++            """;
++
++    @Query(value = OUTSTANDING_SAFE_BOX_SQL + " ORDER BY dr.reconciliation_date ASC", nativeQuery = true)
+     List<Object[]> findOutstandingSafeBoxByBranch(@Param("branchUid") String branchUid);
++
++    /** Same rows as {@link #findOutstandingSafeBoxByBranch}, for one cashier's own days —
++     *  the cashier's "bado unadaiwa" list and login reminder (SafeBoxService.getOutstandingForCashier). */
++    @Query(value = OUTSTANDING_SAFE_BOX_SQL
++            + " AND dr.user_uid = :cashierUid ORDER BY dr.reconciliation_date ASC", nativeQuery = true)
++    List<Object[]> findOutstandingSafeBoxByCashier(@Param("branchUid") String branchUid,
++                                                   @Param("cashierUid") String cashierUid);
+ }
+diff --git a/src/main/java/com/Lsms/Reconciliation/Services/SafeBoxService.java b/src/main/java/com/Lsms/Reconciliation/Services/SafeBoxService.java
+index 6ec84e6..b8ee7d0 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Services/SafeBoxService.java
++++ b/src/main/java/com/Lsms/Reconciliation/Services/SafeBoxService.java
+@@ -117,6 +117,7 @@ public class SafeBoxService {
+             deposit.setDepositType(depositType);
+             deposit.setBankName("BANK_DEPOSIT".equals(depositType) ? request.getBankName() : null);
+             deposit.setReceiptNumber(request.getReceiptNumber());
++            deposit.setRemainderReason(blankToNull(request.getRemainderReason()));
+             deposit.setRecipientUid("HAND_OVER".equals(depositType) ? request.getRecipientUid() : null);
+             deposit.setStatus(PENDING);
+             deposit.setSubmittedAt(LocalDateTime.now());
+@@ -296,6 +297,7 @@ public class SafeBoxService {
+             deposit.setDepositType(depositType);
+             deposit.setBankName("BANK_DEPOSIT".equals(depositType) ? request.getBankName() : null);
+             deposit.setReceiptNumber(request.getReceiptNumber());
++            deposit.setRemainderReason(blankToNull(request.getRemainderReason()));
+             deposit.setRecipientUid("HAND_OVER".equals(depositType) ? request.getRecipientUid() : null);
+             SafeBoxDeposit saved = safeBoxDepositRepo.save(deposit);
+ 
+@@ -459,23 +461,10 @@ public class SafeBoxService {
+         Map<String, SafeBoxCashierOutstandingDto> byCashier = new LinkedHashMap<>();
+ 
+         for (Object[] row : rows) {
+-            String cashEntryUid = (String) row[0];
+-            BigDecimal amount = (BigDecimal) row[1];
+-            java.sql.Date reconDate = (java.sql.Date) row[3];
+-            String reconUid = (String) row[4];
+             String cashierUid = (String) row[5];
+             String cashierName = (String) row[6];
+-            BigDecimal confirmedTotal = (BigDecimal) row[7];
+-            BigDecimal remaining = (BigDecimal) row[8];
+-
+-            SafeBoxOutstandingEntryDto entryDto = SafeBoxOutstandingEntryDto.builder()
+-                    .cashEntryUid(cashEntryUid)
+-                    .reconUid(reconUid)
+-                    .reconciliationDate(reconDate != null ? reconDate.toLocalDate() : null)
+-                    .amount(amount)
+-                    .confirmedTotal(confirmedTotal)
+-                    .remaining(remaining)
+-                    .build();
++            SafeBoxOutstandingEntryDto entryDto = toOutstandingEntry(row);
++            BigDecimal remaining = entryDto.getRemaining();
+ 
+             SafeBoxCashierOutstandingDto cashierDto = byCashier.computeIfAbsent(cashierUid, k ->
+                     SafeBoxCashierOutstandingDto.builder()
+@@ -491,6 +480,36 @@ public class SafeBoxService {
+         return new Response<>(ResponseStatus.Success, new ArrayList<>(byCashier.values()), "OK");
+     }
+ 
++    /**
++     * The cashier's own version of getOutstandingByBranch — their SAFE_BOX entries on
++     * APPROVED/CLOSED recons in this branch still not fully confirmed. Feeds the
++     * cashier's "bado unadaiwa" list and the reminder shown after login, so a part
++     * kept back (e.g. as change) is not forgotten once the day itself is closed.
++     */
++    @Transactional(readOnly = true)
++    public Response<List<SafeBoxOutstandingEntryDto>> getOutstandingForCashier(String branchUid,
++                                                                               String cashierUid) {
++        List<SafeBoxOutstandingEntryDto> entries = cashEntryRepo
++                .findOutstandingSafeBoxByCashier(branchUid, cashierUid).stream()
++                .map(this::toOutstandingEntry)
++                .collect(Collectors.toList());
++        return new Response<>(ResponseStatus.Success, entries, "OK");
++    }
++
++    /** Maps one row of ReconciliationCashEntryRepository.OUTSTANDING_SAFE_BOX_SQL. */
++    private SafeBoxOutstandingEntryDto toOutstandingEntry(Object[] row) {
++        java.sql.Date reconDate = (java.sql.Date) row[3];
++        return SafeBoxOutstandingEntryDto.builder()
++                .cashEntryUid((String) row[0])
++                .reconUid((String) row[4])
++                .reconciliationDate(reconDate != null ? reconDate.toLocalDate() : null)
++                .amount((BigDecimal) row[1])
++                .confirmedTotal((BigDecimal) row[7])
++                .remaining((BigDecimal) row[8])
++                .pendingTotal((BigDecimal) row[9])
++                .build();
++    }
++
+     /**
+      * Pre-approval warning data for ONE recon — SAFE_BOX entries on it not yet fully
+      * confirmed. "Not fully confirmed" (remaining > 0), matching getOutstandingByBranch's
+@@ -591,6 +610,10 @@ public class SafeBoxService {
+           .collect(Collectors.toList());
+     }
+ 
++    private static String blankToNull(String s) {
++        return s == null || s.isBlank() ? null : s.trim();
++    }
++
+     private Map<String, String> resolveNames(Set<String> uids) {
+         Set<String> filtered = uids.stream().filter(java.util.Objects::nonNull).collect(Collectors.toSet());
+         if (filtered.isEmpty()) return Map.of();
+@@ -625,6 +648,7 @@ public class SafeBoxService {
+                 .cancelledByName(names.get(d.getCancelledByUid()))
+                 .cancelledAt(d.getCancelledAt())
+                 .cancellationReason(d.getCancellationReason())
++                .remainderReason(d.getRemainderReason())
+                 .build();
+     }
+ 
+diff --git a/src/main/resources/db/migration/V132__Safe_Box_Deposit_Remainder_Reason.sql b/src/main/resources/db/migration/V132__Safe_Box_Deposit_Remainder_Reason.sql
+new file mode 100644
+index 0000000..1dc0beb
+--- /dev/null
++++ b/src/main/resources/db/migration/V132__Safe_Box_Deposit_Remainder_Reason.sql
+@@ -0,0 +1,7 @@
++-- V132: a cashier may submit only part of what is in the safe (the rest stays behind,
++-- e.g. as change, and keeps showing as owed until it is submitted). remainder_reason
++-- records why the rest was kept back, for the manager who confirms the deposit.
++-- Nullable, no default: existing rows and full deposits simply have none.
++
++ALTER TABLE safe_box_deposits
++    ADD COLUMN IF NOT EXISTS remainder_reason TEXT;
+diff --git a/src/test/java/com/Lsms/Reconciliation/SafeBoxOutstandingTest.java b/src/test/java/com/Lsms/Reconciliation/SafeBoxOutstandingTest.java
+index affe6f8..2a5c3b6 100644
+--- a/src/test/java/com/Lsms/Reconciliation/SafeBoxOutstandingTest.java
++++ b/src/test/java/com/Lsms/Reconciliation/SafeBoxOutstandingTest.java
+@@ -1,6 +1,7 @@
+ package com.Lsms.Reconciliation;
+ 
+ import com.Lsms.Reconciliation.Dto.SafeBoxCashierOutstandingDto;
++import com.Lsms.Reconciliation.Dto.SafeBoxOutstandingEntryDto;
+ import com.Lsms.Reconciliation.Repository.ReconciliationAuditLogRepository;
+ import com.Lsms.Reconciliation.Repository.ReconciliationCashEntryRepository;
+ import com.Lsms.Reconciliation.Repository.SafeBoxDepositRepository;
+@@ -78,9 +79,26 @@ class SafeBoxOutstandingTest {
+                 CASHIER_NAME,
+                 confirmedTotal,
+                 remaining,
++                BigDecimal.ZERO, // pendingTotal
+         };
+     }
+ 
++    @Test
++    @DisplayName("Cashier's own view: half submitted and waiting (10k of 20k) -> remaining 20k, pendingTotal 10k")
++    void cashierOwnView_carriesPendingTotal() {
++        Object[] row = row(new BigDecimal("20000"), BigDecimal.ZERO, new BigDecimal("20000"));
++        row[9] = new BigDecimal("10000");
++        Mockito.when(cashEntryRepo.findOutstandingSafeBoxByCashier(BRANCH_UID, CASHIER_UID))
++                .thenReturn(List.<Object[]>of(row));
++
++        Response<List<SafeBoxOutstandingEntryDto>> response = service.getOutstandingForCashier(BRANCH_UID, CASHIER_UID);
++
++        assertThat(response.getStatus()).isEqualTo(ResponseStatus.Success);
++        assertThat(response.getData()).hasSize(1);
++        assertThat(response.getData().get(0).getRemaining()).isEqualByComparingTo("20000");
++        assertThat(response.getData().get(0).getPendingTotal()).isEqualByComparingTo("10000");
++    }
++
+     @Test
+     @DisplayName("APPROVED recon, SAFE_BOX with no deposit at all -> appears, remaining = full amount")
+     void noDeposit_appearsWithFullAmountRemaining() {
+@@ -138,7 +156,7 @@ class SafeBoxOutstandingTest {
+         Object[] row2 = new Object[] {
+                 "cash-entry-uid-2", new BigDecimal("10000"), null,
+                 Date.valueOf(LocalDate.of(2026, 6, 21)), "recon-uid-2",
+-                CASHIER_UID, CASHIER_NAME, BigDecimal.ZERO, new BigDecimal("10000"),
++                CASHIER_UID, CASHIER_NAME, BigDecimal.ZERO, new BigDecimal("10000"), BigDecimal.ZERO,
+         };
+         Mockito.when(cashEntryRepo.findOutstandingSafeBoxByBranch(BRANCH_UID))
+                 .thenReturn(List.of(row1, row2));

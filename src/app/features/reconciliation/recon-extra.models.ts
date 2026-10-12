@@ -291,6 +291,8 @@ export interface SafeBoxDeposit {
   status: SafeBoxStatus;
   rejectionReason: string | null;
   cancellationReason: string | null;
+  /** Why only part was submitted (e.g. "chenchi"). */
+  remainderReason: string | null;
   submittedAt: string | null;
   confirmedByName: string | null;
   confirmedAt: string | null;
@@ -314,6 +316,7 @@ export function normalizeDeposit(x: Raw): SafeBoxDeposit {
     status: (str(x['status']) as SafeBoxStatus) ?? 'PENDING',
     rejectionReason: str(x['rejectionReason']),
     cancellationReason: str(x['cancellationReason']),
+    remainderReason: str(x['remainderReason']),
     submittedAt: str(x['submittedAt']),
     confirmedByName: str(x['confirmedByName']),
     confirmedAt: str(x['confirmedAt']),
@@ -326,17 +329,28 @@ export interface SafeBoxOutstandingEntry {
   date: string | null;
   amount: number;
   confirmed: number;
+  /** Not yet confirmed by a manager (amount − confirmed). */
   remaining: number;
+  /** Submitted and waiting for a manager. */
+  pending: number;
+  /** Not submitted at all yet (remaining − pending) — what the cashier still has to bring. */
+  unsubmitted: number;
 }
 
-const toOutstanding = (x: Raw): SafeBoxOutstandingEntry => ({
-  cashEntryUid: str(x['cashEntryUid']),
-  reconUid: str(x['reconUid']),
-  date: str(x['reconciliationDate']),
-  amount: num(x['amount']),
-  confirmed: num(x['confirmedTotal']),
-  remaining: num(x['remaining']),
-});
+export const toOutstanding = (x: Raw): SafeBoxOutstandingEntry => {
+  const remaining = num(x['remaining']);
+  const pending = num(x['pendingTotal']);
+  return {
+    cashEntryUid: str(x['cashEntryUid']),
+    reconUid: str(x['reconUid']),
+    date: str(x['reconciliationDate']),
+    amount: num(x['amount']),
+    confirmed: num(x['confirmedTotal']),
+    remaining,
+    pending,
+    unsubmitted: Math.max(0, remaining - pending),
+  };
+};
 
 export interface SafeBoxCashierOutstanding {
   cashierUid: string | null;

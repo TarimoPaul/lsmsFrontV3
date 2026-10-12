@@ -9,6 +9,7 @@ import { parseLocal } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { SAFE_BOX_STATUS, SafeBoxCashierOutstanding, SafeBoxDeposit, SafeBoxOutstandingEntry } from './recon-extra.models';
 import { ReconStore } from './recon.store';
+import { SafeBoxReminder } from './safe-box-reminder.service';
 import { CashEntry } from './reconciliation.models';
 import { ReconciliationService } from './reconciliation.service';
 import type { SafeBoxDepositData } from './safe-box-deposit-dialog';
@@ -31,9 +32,12 @@ const MANAGER_POLL_MS = 30_000;
   template: `
     <div class="totals">
       <div style="--tc: var(--c-info)"><small>{{ i18n.t('Put in the safe (this day)', 'Imewekwa safeni (siku hii)') }}</small><b>{{ store.current()?.safeBoxTotal ?? 0 | money }}</b></div>
-      <div style="--tc: var(--c-warning)"><small>{{ i18n.t('Still to bank / hand over', 'Bado kupelekwa / kukabidhiwa') }}</small><b>{{ todayRemaining() | money }}</b></div>
+      @if (todayPending() > 0.01) {
+        <div style="--tc: var(--c-info)"><small>{{ i18n.t('Submitted, waiting for a manager', 'Imewasilishwa, inasubiri meneja') }}</small><b>{{ todayPending() | money }}</b></div>
+      }
+      <div [style.--tc]="todayUnsubmitted() > 0.01 ? 'var(--c-error)' : 'var(--c-success)'"><small>{{ i18n.t('Still owed (not submitted)', 'Bado unadaiwa (haijawasilishwa)') }}</small><b>{{ todayUnsubmitted() | money }}</b></div>
       @if (canManage()) {
-        <div style="--tc: var(--c-error)"><small>{{ i18n.t('Owed by cashiers (approved days)', 'Deni la cashiers (siku zilizoidhinishwa)') }}</small><b>{{ outstandingTotal() | money }}</b></div>
+        <div style="--tc: var(--c-error)"><small>{{ i18n.t('Not yet confirmed from cashiers (approved days)', 'Bado kuthibitishwa kwa cashiers (siku zilizoidhinishwa)') }}</small><b>{{ outstandingTotal() | money }}</b></div>
       }
     </div>
 
@@ -78,13 +82,14 @@ const MANAGER_POLL_MS = 30_000;
               <span class="t">
                 <b>{{ e.amount | money }}</b>
                 <small>
-                  @if (left > 0.01) { <span class="warn">{{ i18n.t('Not yet confirmed', 'Bado kuthibitishwa') }}: {{ left | money }}</span> } @else { <span class="good">{{ i18n.t('Fully confirmed', 'Imethibitishwa yote') }}</span> }
-                  @if (pend > 0.01) { · <span class="info">{{ i18n.t('submitted, waiting', 'imewasilishwa, inasubiri') }} {{ pend | money }}</span> }
+                  @if (free > 0.01) { <span class="bad">{{ i18n.t('Still owed', 'Bado unadaiwa') }}: {{ free | money }}</span> } @else if (left > 0.01) { <span class="info">{{ i18n.t('All submitted', 'Yote imewasilishwa') }}</span> } @else { <span class="good">{{ i18n.t('Fully confirmed', 'Imethibitishwa yote') }}</span> }
+                  @if (pend > 0.01) { · <span class="info">{{ i18n.t('waiting for a manager', 'inasubiri meneja') }} {{ pend | money }}</span> }
+                  @if (left > 0.01 && e.amount - left > 0.01) { · <span class="good">{{ i18n.t('confirmed', 'imethibitishwa') }} {{ e.amount - left | money }}</span> }
                   @if (e.reference || e.notes) { · {{ [e.reference, e.notes].filter(truthy).join(' · ') }} }
                 </small>
               </span>
               @if (free > 0.01 && store.isMine()) {
-                <button lsmsButton size="sm" icon="upload" (click)="submit(e, free)">{{ i18n.t('Submit deposit', 'Wasilisha deposit') }}</button>
+                <button lsmsButton size="sm" icon="upload" (click)="submit(e, free)">{{ pend > 0.01 || e.amount - left > 0.01 ? i18n.t('Submit the rest', 'Wasilisha iliyobaki') : i18n.t('Submit deposit', 'Wasilisha deposit') }}</button>
               }
               @if (canEdit()) {
                 <button type="button" class="rm" (click)="removeEntry(e)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')"><lsms-icon name="delete" [size]="17" /></button>
@@ -96,6 +101,31 @@ const MANAGER_POLL_MS = 30_000;
         <p class="empty">{{ i18n.t('Nothing put in the safe on this day.', 'Hakuna kilichowekwa safeni siku hii.') }}</p>
       }
     </section>
+
+    <!-- What I still owe from days already approved -->
+    @if (carried().length) {
+      <section class="block">
+        <header><h4 class="bad"><lsms-icon name="warning" [size]="16" />{{ i18n.t('Still owed from approved days', 'Bado unadaiwa — siku zilizoidhinishwa') }}</h4></header>
+        <ul class="items">
+          @for (o of carried(); track o.cashEntryUid) {
+            <li>
+              <span class="ic"><lsms-icon name="lock" [size]="17" /></span>
+              <span class="t">
+                <b>{{ day(o.date) | date: 'dd MMM yyyy' }} · {{ o.amount | money }}</b>
+                <small>
+                  @if (o.unsubmitted > 0.01) { <span class="bad">{{ i18n.t('Still owed', 'Bado unadaiwa') }}: {{ o.unsubmitted | money }}</span> } @else { <span class="info">{{ i18n.t('All submitted', 'Yote imewasilishwa') }}</span> }
+                  @if (o.pending > 0.01) { · <span class="info">{{ i18n.t('waiting for a manager', 'inasubiri meneja') }} {{ o.pending | money }}</span> }
+                  @if (o.confirmed > 0.01) { · <span class="good">{{ i18n.t('confirmed', 'imethibitishwa') }} {{ o.confirmed | money }}</span> }
+                </small>
+              </span>
+              @if (o.unsubmitted > 0.01) {
+                <button lsmsButton size="sm" icon="upload" (click)="submitCarried(o)">{{ i18n.t('Submit the rest', 'Wasilisha iliyobaki') }}</button>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
 
     <!-- My deposits waiting / rejected (all days) -->
     <section class="block">
@@ -110,6 +140,7 @@ const MANAGER_POLL_MS = 30_000;
                 <b>{{ d.amount | money }} · {{ depositWhere(d) }}</b>
                 <small>
                   {{ day(d.submittedAt) | date: 'dd MMM yyyy, HH:mm' }}@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }
+                  @if (d.remainderReason) { · {{ i18n.t('rest kept', 'iliyobaki') }}: {{ d.remainderReason }} }
                   @if (d.rejectionReason) { · <span class="bad">{{ i18n.t('Reason', 'Sababu') }}: {{ d.rejectionReason }}</span> }
                 </small>
               </span>
@@ -141,7 +172,7 @@ const MANAGER_POLL_MS = 30_000;
                 <span class="ic"><lsms-icon [name]="d.type === 'HAND_OVER' ? 'handshake' : 'account_balance'" [size]="17" /></span>
                 <span class="t">
                   <b>{{ d.cashierName || '—' }} · {{ d.amount | money }}</b>
-                  <small>{{ depositWhere(d) }} · {{ day(d.submittedAt) | date: 'dd MMM, HH:mm' }}@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }</small>
+                  <small>{{ depositWhere(d) }} · {{ day(d.submittedAt) | date: 'dd MMM, HH:mm' }}@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }@if (d.remainderReason) { · <span class="warn">{{ i18n.t('rest kept', 'iliyobaki') }}: {{ d.remainderReason }}</span> }</small>
                 </span>
                 <button lsmsButton size="sm" icon="check" [loading]="busy() === d.uid" (click)="confirmDeposit(d)">{{ i18n.t('Confirm', 'Thibitisha') }}</button>
                 <button lsmsButton="text" size="sm" icon="close" class="del" (click)="rejectDeposit(d)">{{ i18n.t('Reject', 'Kataa') }}</button>
@@ -172,7 +203,12 @@ const MANAGER_POLL_MS = 30_000;
                     <li>
                       <span class="t">
                         <b>{{ day(o.date) | date: 'dd MMM yyyy' }}</b>
-                        <small>{{ i18n.t('Amount', 'Kiasi') }} {{ o.amount | money: { symbol: false } }} · {{ i18n.t('left', 'bado') }} <b>{{ o.remaining | money: { symbol: false } }}</b></small>
+                        <small>
+                          {{ i18n.t('In the safe', 'Kiasi cha sefu') }} {{ o.amount | money: { symbol: false } }}
+                          @if (o.confirmed > 0.01) { · <span class="good">{{ i18n.t('confirmed', 'imethibitishwa') }} {{ o.confirmed | money: { symbol: false } }}</span> }
+                          @if (o.pending > 0.01) { · <span class="info">{{ i18n.t('submitted, waiting', 'imewasilishwa, inasubiri') }} {{ o.pending | money: { symbol: false } }}</span> }
+                          · <span class="bad">{{ i18n.t('still to bring', 'bado kuleta') }} {{ o.unsubmitted | money: { symbol: false } }}</span>
+                        </small>
                       </span>
                       @if (age !== null) {
                         <span class="tag" [style.--tc]="age > 7 ? 'var(--c-error)' : age > 3 ? 'var(--c-warning)' : 'var(--c-text-2)'">{{ age }} {{ i18n.t('days', 'siku') }}</span>
@@ -196,6 +232,7 @@ const MANAGER_POLL_MS = 30_000;
     .block header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .block h4 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 0.86rem; font-weight: 600; }
     .block h4 lsms-icon { color: var(--c-primary); }
+    .block h4.bad lsms-icon { color: var(--c-error); }
     .warn { color: var(--c-warning); font-weight: 500; }
     .good { color: var(--c-success); font-weight: 500; }
     .info { color: var(--c-info); }
@@ -214,6 +251,7 @@ export class ReconSafeBoxTab {
   private readonly auth = inject(AuthService);
   private readonly api = inject(ReconciliationService);
   private readonly safe = inject(SafeBoxService);
+  private readonly reminder = inject(SafeBoxReminder);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
 
@@ -226,8 +264,8 @@ export class ReconSafeBoxTab {
   protected readonly busy = signal<string | null>(null);
   protected readonly refreshing = signal(false);
   protected readonly mine = signal<SafeBoxDeposit[]>([]);
-  protected readonly toConfirm = signal<SafeBoxDeposit[]>([]);
-  protected readonly outstanding = signal<SafeBoxCashierOutstanding[]>([]);
+  protected readonly toConfirm = this.reminder.toConfirm;
+  protected readonly outstanding = this.reminder.owed;
   protected readonly openOwe = signal<Set<string>>(new Set());
   private readonly history = signal<Map<string, SafeBoxDeposit[]>>(new Map());
   private recipients: Array<{ uid: string; name: string }> = [];
@@ -239,7 +277,13 @@ export class ReconSafeBoxTab {
   protected readonly canManage = computed(() => this.auth.isRoot() || this.auth.hasAnyPermission(['SAFE_BOX_CONFIRM', 'RECONCILIATION_APPROVE']));
   protected readonly amount = computed(() => Number(this.amountText().replace(/[^\d.]/g, '')) || 0);
   protected readonly entries = computed(() => (this.store.current()?.cashEntries ?? []).filter((e) => e.type === 'SAFE_BOX'));
-  protected readonly todayRemaining = computed(() => this.entries().reduce((n, e) => n + this.remainingFor(e), 0));
+  protected readonly todayPending = computed(() => this.entries().reduce((n, e) => n + Math.min(this.pendingFor(e), this.remainingFor(e)), 0));
+  protected readonly todayUnsubmitted = computed(() => this.entries().reduce((n, e) => n + Math.max(0, this.remainingFor(e) - this.pendingFor(e)), 0));
+  /** My approved-day entries not confirmed in full yet — minus the ones listed under "This day". */
+  protected readonly carried = computed(() => {
+    const shown = new Set(this.entries().map((e) => e.uid));
+    return this.reminder.mine().filter((o) => !shown.has(o.cashEntryUid ?? ''));
+  });
   protected readonly outstandingTotal = computed(() => this.outstanding().reduce((n, c) => n + c.total, 0));
 
   constructor() {
@@ -276,12 +320,9 @@ export class ReconSafeBoxTab {
     await this.loadManager();
   }
 
-  /** Manager lists. A failed call keeps what is on screen (the poll must never blank the list). */
-  private async loadManager(): Promise<void> {
-    if (!this.canManage()) return;
-    const [pending, owed] = await Promise.all([this.safe.pendingForManager().catch(() => null), this.safe.outstanding().catch(() => null)]);
-    if (pending) this.toConfirm.set(pending);
-    if (owed) this.outstanding.set(owed);
+  /** Manager lists and my own carried-over entries (shared with the shell banner). A failed call keeps what is on screen. */
+  private loadManager(): Promise<void> {
+    return this.reminder.refresh();
   }
 
   protected async reloadManager(): Promise<void> {
@@ -349,6 +390,10 @@ export class ReconSafeBoxTab {
     if (!ok) return;
     const res = await this.store.act((uid) => this.api.removeCash(uid, e.uid), this.i18n.t('Removed', 'Imeondolewa'));
     if (res.error) this.toast.error(res.error);
+  }
+
+  protected submitCarried(o: SafeBoxOutstandingEntry): Promise<void> {
+    return this.openDeposit({ cashEntryUid: o.cashEntryUid, remaining: o.unsubmitted, recipients: this.recipients });
   }
 
   protected submit(e: CashEntry, free: number): Promise<void> {

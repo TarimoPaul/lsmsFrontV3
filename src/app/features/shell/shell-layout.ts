@@ -19,6 +19,7 @@ import { CommandPalette } from './command-palette/command-palette';
 import { BottomNav } from './bottom-nav/bottom-nav';
 import { Sidebar } from './sidebar/sidebar';
 import { DebtBanners } from './debt-banners';
+import { SafeBoxBanner } from './safe-box-banner';
 import { UpdateBanner } from './update-banner';
 import { Topbar } from './topbar/topbar';
 
@@ -37,7 +38,7 @@ export interface PageMeta {
  */
 @Component({
   selector: 'app-shell-layout',
-  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, BottomNav, DebtBanners, UpdateBanner],
+  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, BottomNav, DebtBanners, UpdateBanner, SafeBoxBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-sidenav-container class="shell" [hasBackdrop]="!desktop()" [autosize]="true">
@@ -73,6 +74,7 @@ export interface PageMeta {
             (switchBranch)="switchBranch()"
             (logout)="logout()"
           />
+          <app-safe-box-banner />
           <app-debt-banners />
           <app-update-banner />
           @if (theme.ambientMotion() && isHome()) {

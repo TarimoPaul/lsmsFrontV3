@@ -5,10 +5,12 @@ import {
   SafeBoxCashierOutstanding,
   SafeBoxDeposit,
   SafeBoxDepositType,
+  SafeBoxOutstandingEntry,
   SafeBoxUnconfirmed,
   normalizeDeposit,
   normalizeOutstanding,
   normalizeUnconfirmed,
+  toOutstanding,
 } from './recon-extra.models';
 
 const BASE = '/api/v1/safe-box';
@@ -21,6 +23,8 @@ export interface DepositRequest {
   bankName?: string | null;
   receiptNumber?: string | null;
   recipientUid?: string | null;
+  /** Why the rest stays in the safe, when only part is submitted. */
+  remainderReason?: string | null;
 }
 
 /**
@@ -38,7 +42,12 @@ export class SafeBoxService {
     return ((await this.api.get<Raw[] | null>(`${BASE}/my-pending`)) ?? []).map(normalizeDeposit);
   }
 
-  async recipients(): Promise<Array<{ uid: string; name: string }>> {
+  /** My own safe-box money on approved days that a manager has not confirmed in full yet. */
+  async myOutstanding(): Promise<SafeBoxOutstandingEntry[]> {
+    return ((await this.api.get<Raw[] | null>(`${BASE}/my-outstanding`)) ?? []).map(toOutstanding);
+  }
+
+  async recipients():Promise<Array<{ uid: string; name: string }>> {
     const rows = (await this.api.get<Raw[] | null>(`${BASE}/eligible-recipients`).catch(() => null)) ?? [];
     return rows.map((r) => ({ uid: String(r['uid'] ?? ''), name: String(r['name'] ?? r['uid'] ?? '') }));
   }

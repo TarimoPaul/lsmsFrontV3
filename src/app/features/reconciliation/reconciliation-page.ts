@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
 import { LanguageService } from '@core/i18n/language.service';
@@ -203,7 +204,12 @@ export class ReconciliationPage {
 
   constructor() {
     // ?date=YYYY-MM-DD opens that day (the order screen links to yesterday's reconciliation).
-    const asked = inject(ActivatedRoute).snapshot.queryParamMap.get('date');
+    const route = inject(ActivatedRoute);
+    // ?tab=safebox — the safe-box reminder banner links here, also while this page is open.
+    route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((q) => {
+      if (q.get('tab') === 'safebox') this.setTab('safebox');
+    });
+    const asked = route.snapshot.queryParamMap.get('date');
     const saved = asked && /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : read(DATE_KEY);
     const date = saved && saved <= this.today ? saved : this.today;
     void this.store.load(date);

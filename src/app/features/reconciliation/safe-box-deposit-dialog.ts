@@ -35,8 +35,16 @@ export interface SafeBoxDepositData {
           <input lsmsMoneyInput type="text" inputmode="numeric" [value]="amountText()" (input)="amountText.set($any($event.target).value)" />
           @if (tooMuch()) {
             <small class="err">{{ i18n.t('More than what is left', 'Kinazidi kilichobaki') }} ({{ data.remaining | money }})</small>
+          } @else if (leftAfter() > 0.01 && amount() > 0) {
+            <small class="err">{{ i18n.t('Left in the safe: ', 'Kitabaki sefu: ') }}{{ leftAfter() | money }}{{ i18n.t(' — you will still owe it until you submit it.', ' — utaendelea kudaiwa mpaka ukiwasilishe.') }}</small>
           }
         </label>
+        @if (leftAfter() > 0.01 && amount() > 0 && !tooMuch()) {
+          <label>
+            <span>{{ i18n.t('Why is the rest staying? (optional)', 'Kwa nini iliyobaki inabaki? (hiari)') }}</span>
+            <input type="text" maxlength="200" [value]="reason()" (input)="reason.set($any($event.target).value)" [placeholder]="i18n.t('e.g. change', 'mfano: chenchi')" />
+          </label>
+        }
 
         <div class="seg" role="radiogroup">
           <button type="button" role="radio" [class.on]="type() === 'BANK_DEPOSIT'" (click)="type.set('BANK_DEPOSIT')"><lsms-icon name="account_balance" [size]="16" />{{ i18n.t('Bank deposit', 'Deposit benki') }}</button>
@@ -109,9 +117,11 @@ export class SafeBoxDepositDialog {
   protected readonly otherBank = signal(this.e?.bankName && !RECON_BANKS.includes(this.e.bankName) ? this.e.bankName : '');
   protected readonly receipt = signal(this.e?.receipt ?? '');
   protected readonly recipient = signal<string | null>(this.e?.recipientUid ?? null);
+  protected readonly reason = signal(this.e?.remainderReason ?? '');
 
   protected readonly amount = computed(() => Number(this.amountText().replace(/[^\d.]/g, '')) || 0);
   protected readonly tooMuch = computed(() => this.amount() > this.data.remaining + 0.01);
+  protected readonly leftAfter = computed(() => Math.max(0, this.data.remaining - this.amount()));
   protected readonly valid = computed(() => {
     if (!(this.amount() > 0) || this.tooMuch()) return false;
     if (this.type() === 'HAND_OVER') return !!this.recipient();
@@ -128,6 +138,7 @@ export class SafeBoxDepositDialog {
       bankName: bankDeposit ? (this.bank() === 'OTHER' ? this.otherBank().trim() : this.bank()) : null,
       receiptNumber: bankDeposit ? this.receipt().trim() || null : null,
       recipientUid: bankDeposit ? null : this.recipient(),
+      remainderReason: this.leftAfter() > 0.01 ? this.reason().trim() || null : null,
     });
   }
 }

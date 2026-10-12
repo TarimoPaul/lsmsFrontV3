@@ -462,7 +462,8 @@ export class ReconApprovalTab {
 function buildChecks(r: Recon | null, sw: boolean): CheckItem[] {
   if (!r) return [];
   const out: CheckItem[] = [];
-  for (const e of r.cashEntries) out.push({ type: 'CASH', uid: e.uid, label: CASH_TYPES[e.type] ? (sw ? CASH_TYPES[e.type].sw : CASH_TYPES[e.type].en) : e.type, amount: e.amount, verified: e.verified });
+  // SAFE_BOX has no verify step (the server refuses it) — see pendingVerification.
+  for (const e of r.cashEntries.filter((x) => x.type !== 'SAFE_BOX')) out.push({ type: 'CASH', uid: e.uid, label: CASH_TYPES[e.type] ? (sw ? CASH_TYPES[e.type].sw : CASH_TYPES[e.type].en) : e.type, amount: e.amount, verified: e.verified });
   for (const e of r.mobileEntries) out.push({ type: 'MOBILE', uid: e.uid, label: e.provider, amount: e.amount, verified: e.verified });
   for (const e of r.collections) out.push({ type: 'COLLECTION', uid: e.uid, label: e.customerName ?? e.receipt ?? '—', amount: e.amount, verified: e.verified });
   for (const d of r.debts.filter((x) => !x.isPaid)) out.push({ type: 'DEBT', uid: d.uid, label: d.customerName ?? '—', amount: d.amount, verified: d.verified, paidLater: d.settledAfterDay });

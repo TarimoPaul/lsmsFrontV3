@@ -332,6 +332,8 @@ export function normalizeAutoSummary(d: Raw): AutoSummary {
 
 /** Items the approver must tick before approving (unpaid debts only). */
 export function pendingVerification(r: Recon): number {
-  const all = [...r.cashEntries, ...r.mobileEntries, ...r.expenses, ...r.purchases, ...r.collections];
+  // SAFE_BOX is left out, like the server's approval gate: it is confirmed through its
+  // deposits (which may come days later), never verified by hand.
+  const all = [...r.cashEntries.filter((e) => e.type !== 'SAFE_BOX'), ...r.mobileEntries, ...r.expenses, ...r.purchases, ...r.collections];
   return all.filter((x) => !x.verified).length + r.debts.filter((d) => !d.isPaid && !d.verified).length;
 }
