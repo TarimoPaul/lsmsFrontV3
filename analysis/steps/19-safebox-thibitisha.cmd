@@ -5,7 +5,7 @@ rem schema baada ya V132 na query mpya ya "bado unadaiwa" ikiendeshwa kwenye DB 
 rem ps ya prod na Flyway ya prod (haipaswi kuwa na 132).
 rem Lazima: Started LsmsApplication, FLYWAY_FAILED_MUST_BE_0 = 0, FLYWAY_132_MUST_BE_1 = 1,
 rem         REMAINDER_REASON_COL_MUST_BE_1 = 1, REMAINDER_REASON_FILLED_MUST_BE_0 = 0, PENDING_OVER_REMAINING_MUST_BE_0 = 0,
-rem         SAFE_BOX_DEPOSITS_BY_STATUS na SAFE_BOX_ENTRIES sawa na zile za 16-safebox-kabla.log (staging).
+rem         SAFE_BOX_DEPOSITS_BY_STATUS na SAFE_BOX_ENTRIES sawa na zile za 17c-safebox-rows.log (staging baada ya restore), na Flyway imeendesha 132 PEKE YAKE.
 rem Matokeo: analysis\steps\19-safebox-thibitisha.log
 cd /d "D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3"
 echo ---STAGING-LOG-YA-BACKEND--- > analysis\steps\19-safebox-thibitisha.log

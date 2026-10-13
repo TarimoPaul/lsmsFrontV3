@@ -1,0 +1,32 @@
+---PROD-PS-LAZIMA-IWE-2.2.68--- 
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED        STATUS                  PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.68   "sh -c 'java $JAVA_O…"   backend       26 hours ago   Up 26 hours             8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      10 days ago    Up 10 days              80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.9   "/docker-entrypoint.…"   frontend-v3   26 hours ago   Up 26 hours (healthy)   80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         10 days ago    Up 10 days              0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      10 days ago    Up 10 days (healthy)    5432/tcp
+BACKEND_VERSION=2.2.68
+PROD_2268_SAWA
+---PROD-FLYWAY-YA-MWISHO-LAZIMA-IWE-131--- 
+131|t|2026-10-11 14:54:54.345942
+130|t|2026-10-11 14:54:54.135922
+129|t|2026-10-08 13:34:27.354775
+PROD_FLYWAY_131_SAWA
+---DUMP-ZA-MWISHO-B2-NA-CONTABO--- 
+lsms_20261012_0200.dump
+lsms_20261012_1054.dump
+lsms_20261013_0200.dump
+-rw------- 1 chief chief 8320425 Oct 12 02:00 lsms_20261012_0200.dump
+-rw------- 1 chief chief 8340494 Oct 12 10:54 lsms_20261012_1054.dump
+-rw------- 1 chief chief 8370799 Oct 13 02:00 lsms_20261013_0200.dump
+---PAKUA-KUTOKA-B2--- 
+total 16016
+-rw-rw-r-- 1 chief chief 8025697 Oct  7 02:00 lsms_20261007_0200.dump
+-rw-rw-r-- 1 chief chief 8370799 Oct 13 02:00 lsms_20261013_0200.dump
+---SHA256-B2-NA-NAKALA-YA-CONTABO--- 
+b33071259753df2ccf17376d4f2287f4a0f682e6c23a5b647ad04fb62b89e771  /tmp/staging-restore/lsms_20261013_0200.dump
+b33071259753df2ccf17376d4f2287f4a0f682e6c23a5b647ad04fb62b89e771  /home/chief/backups/daily/lsms_20261013_0200.dump
+---DUMP-INASOMEKA-idadi-ya-TABLE-DATA--- 
+86
+---LINGANISHA-BYTE-KWA-BYTE--- 
+SHA_SAWA

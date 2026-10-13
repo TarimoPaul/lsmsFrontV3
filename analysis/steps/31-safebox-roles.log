@@ -1,0 +1,26 @@
+---PROD-ROLES-NA-RUHUSA--- 
+ROLE|CEO|HAI|1|Paul Tarimo
+ROLE|Executive CEO|HAI|1|Jess Saimon
+ROLE|MANAGER|HAI|4|Jesca Saimon, Jesca Saimon, Jess Saimon, macheda macheda
+ROLE|printer|HAI|1|printer printer
+ROLE|SALES|HAI|4|Jesca Saimon, Jesca Saimon, Jess Saimon, macheda macheda
+ROLE|Supplier|HAI|0|-
+ROLE|user|HAI|6|Jesca Saimon, Jesca Saimon, Jess Saimon, Jess Saimon, macheda macheda, Paul Tarimo
+ROLE_CEO_MUST_BE_1|1
+RUHUSA_KWA_ROLE|RECONCILIATION_APPROVE|CEO, Executive CEO
+RUHUSA_KWA_ROLE|RECONCILIATION_CREATE|CEO, Executive CEO, MANAGER, SALES
+RUHUSA_KWA_ROLE|SAFE_BOX_CONFIRM|CEO, Executive CEO, MANAGER
+ALIJITHIBITISHIA|2026-09-18 12:08|250000.00|macheda macheda|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-08-09 09:08|43000.00|Paul Tarimo|macheda macheda|HAND_OVER|Paul Tarimo
+ALIJITHIBITISHIA|2026-08-06 14:21|32000.00|Paul Tarimo|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-08-01 22:03|25000.00|macheda macheda|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-07-31 13:47|40000.00|Paul Tarimo|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-07-29 14:22|72200.00|Paul Tarimo|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-07-29 14:18|45000.00|Paul Tarimo|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-07-29 13:55|70000.00|Paul Tarimo|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-07-20 21:23|34000.00|Paul Tarimo|macheda macheda|BANK_DEPOSIT|-
+ALIJITHIBITISHIA|2026-07-17 13:48|35000.00|Paul Tarimo|macheda macheda|HAND_OVER|Paul Tarimo
+ALIJIKABIDHI|2026-10-08 10:03|102000.00|macheda macheda|macheda macheda|CONFIRMED|Paul Tarimo
+ALIJIKABIDHI|2026-08-09 09:08|43000.00|Paul Tarimo|macheda macheda|CONFIRMED|Paul Tarimo
+ALIJIKABIDHI|2026-07-17 13:48|35000.00|Paul Tarimo|macheda macheda|CONFIRMED|Paul Tarimo
+---MWISHO--- 

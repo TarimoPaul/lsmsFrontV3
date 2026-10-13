@@ -278,8 +278,14 @@ export type SafeBoxDepositType = 'BANK_DEPOSIT' | 'HAND_OVER';
 export interface SafeBoxDeposit {
   uid: string;
   cashEntryUid: string | null;
+  /** Who submitted it. */
   cashierUid: string | null;
   cashierName: string | null;
+  /** Whose safe-box money it is (the cashier of that day). */
+  ownerUid: string | null;
+  ownerName: string | null;
+  /** Submitted by someone else for the owner (SAFEBOX_DEPOSIT_ON_BEHALF). */
+  onBehalf: boolean;
   originalAmount: number | null;
   amount: number;
   remaining: number | null;
@@ -305,6 +311,9 @@ export function normalizeDeposit(x: Raw): SafeBoxDeposit {
     cashEntryUid: str(x['cashEntryUid']),
     cashierUid: str(x['cashierUid']),
     cashierName: str(x['cashierName']),
+    ownerUid: str(x['ownerUid']),
+    ownerName: str(x['ownerName']),
+    onBehalf: x['onBehalf'] === true,
     originalAmount: n(x['originalAmount']),
     amount: num(x['submittedAmount']),
     remaining: n(x['remainingAmount']),

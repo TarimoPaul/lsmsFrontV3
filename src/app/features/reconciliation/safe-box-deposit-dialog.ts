@@ -14,6 +14,8 @@ export interface SafeBoxDepositData {
   recipients: Array<{ uid: string; name: string }>;
   /** Edit this still-pending deposit. */
   editing?: SafeBoxDeposit;
+  /** The cashier whose money this is, when someone else submits it for them. */
+  onBehalfOf?: string | null;
 }
 
 /**
@@ -28,6 +30,9 @@ export interface SafeBoxDepositData {
   template: `
     <lsms-dialog [title]="data.editing ? i18n.t('Edit deposit', 'Hariri deposit') : i18n.t('Submit a deposit', 'Wasilisha deposit')" icon="lock_open">
       <p class="left"><lsms-icon name="lock" [size]="16" />{{ i18n.t('Not yet submitted', 'Bado kuwasilishwa') }} <b>{{ data.remaining | money }}</b></p>
+      @if (data.onBehalfOf) {
+        <p class="behalf"><lsms-icon name="supervisor_account" [size]="16" />{{ i18n.t('On behalf of ', 'Kwa niaba ya ') }}<b>{{ data.onBehalfOf }}</b>{{ i18n.t(' — recorded under your name.', ' — itarekodiwa kwa jina lako.') }}</p>
+      }
 
       <div class="form">
         <label>
@@ -90,6 +95,8 @@ export interface SafeBoxDepositData {
   styles: `
     .left { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; background: var(--c-bg); }
     .left b { margin-left: auto; font-variant-numeric: tabular-nums; }
+    .behalf { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.82rem; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 10%, var(--c-surface)); }
+    .behalf b { margin: 0 2px; }
     .form { display: flex; flex-direction: column; gap: 12px; }
     label { display: flex; flex-direction: column; gap: 4px; font-size: 0.76rem; font-weight: 500; color: var(--c-text-2); }
     .lbl { font-size: 0.76rem; font-weight: 500; color: var(--c-text-2); }

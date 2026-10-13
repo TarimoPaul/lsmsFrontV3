@@ -90,6 +90,8 @@ const MANAGER_POLL_MS = 30_000;
               </span>
               @if (free > 0.01 && store.isMine()) {
                 <button lsmsButton size="sm" icon="upload" (click)="submit(e, free)">{{ pend > 0.01 || e.amount - left > 0.01 ? i18n.t('Submit the rest', 'Wasilisha iliyobaki') : i18n.t('Submit deposit', 'Wasilisha deposit') }}</button>
+              } @else if (free > 0.01 && canOnBehalf()) {
+                <button lsmsButton="secondary" size="sm" icon="supervisor_account" (click)="submit(e, free, store.current()?.userName)">{{ i18n.t('Submit on behalf', 'Wasilisha kwa niaba') }}</button>
               }
               @if (canEdit()) {
                 <button type="button" class="rm" (click)="removeEntry(e)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')"><lsms-icon name="delete" [size]="17" /></button>
@@ -139,7 +141,7 @@ const MANAGER_POLL_MS = 30_000;
               <span class="t">
                 <b>{{ d.amount | money }} · {{ depositWhere(d) }}</b>
                 <small>
-                  {{ day(d.submittedAt) | date: 'dd MMM yyyy, HH:mm' }}@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }
+                  {{ day(d.submittedAt) | date: 'dd MMM yyyy, HH:mm' }}@if (d.onBehalf) { · <span class="warn">{{ i18n.t('on behalf of', 'kwa niaba ya') }} {{ d.ownerName || '—' }}</span> }@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }
                   @if (d.remainderReason) { · {{ i18n.t('rest kept', 'iliyobaki') }}: {{ d.remainderReason }} }
                   @if (d.rejectionReason) { · <span class="bad">{{ i18n.t('Reason', 'Sababu') }}: {{ d.rejectionReason }}</span> }
                 </small>
@@ -171,10 +173,14 @@ const MANAGER_POLL_MS = 30_000;
               <li>
                 <span class="ic"><lsms-icon [name]="d.type === 'HAND_OVER' ? 'handshake' : 'account_balance'" [size]="17" /></span>
                 <span class="t">
-                  <b>{{ d.cashierName || '—' }} · {{ d.amount | money }}</b>
-                  <small>{{ depositWhere(d) }} · {{ day(d.submittedAt) | date: 'dd MMM, HH:mm' }}@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }@if (d.remainderReason) { · <span class="warn">{{ i18n.t('rest kept', 'iliyobaki') }}: {{ d.remainderReason }}</span> }</small>
+                  <b>{{ (d.onBehalf ? d.ownerName : d.cashierName) || '—' }} · {{ d.amount | money }}</b>
+                  <small>@if (d.onBehalf) { <span class="warn">{{ i18n.t('on behalf — submitted by', 'kwa niaba — amewasilisha') }} {{ d.cashierName || '—' }}</span> · }{{ depositWhere(d) }} · {{ day(d.submittedAt) | date: 'dd MMM, HH:mm' }}@if (d.receipt) { · {{ i18n.t('receipt', 'risiti') }} {{ d.receipt }} }@if (d.remainderReason) { · <span class="warn">{{ i18n.t('rest kept', 'iliyobaki') }}: {{ d.remainderReason }}</span> }</small>
                 </span>
-                <button lsmsButton size="sm" icon="check" [loading]="busy() === d.uid" (click)="confirmDeposit(d)">{{ i18n.t('Confirm', 'Thibitisha') }}</button>
+                @if ((d.cashierUid === me() || d.ownerUid === me()) && !canOnBehalf()) {
+                  <span class="tag" style="--tc: var(--c-text-2)">{{ i18n.t('Yours — someone else confirms', 'Yako — athibitishe mwingine') }}</span>
+                } @else {
+                  <button lsmsButton size="sm" icon="check" [loading]="busy() === d.uid" (click)="confirmDeposit(d)">{{ i18n.t('Confirm', 'Thibitisha') }}</button>
+                }
                 <button lsmsButton="text" size="sm" icon="close" class="del" (click)="rejectDeposit(d)">{{ i18n.t('Reject', 'Kataa') }}</button>
               </li>
             }
@@ -212,6 +218,9 @@ const MANAGER_POLL_MS = 30_000;
                       </span>
                       @if (age !== null) {
                         <span class="tag" [style.--tc]="age > 7 ? 'var(--c-error)' : age > 3 ? 'var(--c-warning)' : 'var(--c-text-2)'">{{ age }} {{ i18n.t('days', 'siku') }}</span>
+                      }
+                      @if (canOnBehalf() && o.unsubmitted > 0.01 && c.cashierUid !== me()) {
+                        <button lsmsButton="secondary" size="sm" icon="supervisor_account" (click)="submitCarried(o, c.cashierName || c.cashierUid)">{{ i18n.t('Submit on behalf', 'Wasilisha kwa niaba') }}</button>
                       }
                       <button lsmsButton="secondary" size="sm" icon="campaign" (click)="requestDeposit(o, c)">{{ i18n.t('Ask to bring it', 'Omba alete') }}</button>
                     </li>
@@ -275,6 +284,9 @@ export class ReconSafeBoxTab {
     return this.store.canEdit() && (!r || r.editable);
   });
   protected readonly canManage = computed(() => this.auth.isRoot() || this.auth.hasAnyPermission(['SAFE_BOX_CONFIRM', 'RECONCILIATION_APPROVE']));
+  /** May submit another cashier's safe-box money; the deposit keeps both names. */
+  protected readonly canOnBehalf = computed(() => this.auth.hasPermission('SAFEBOX_DEPOSIT_ON_BEHALF'));
+  protected readonly me = computed(() => this.auth.user()?.uid ?? null);
   protected readonly amount = computed(() => Number(this.amountText().replace(/[^\d.]/g, '')) || 0);
   protected readonly entries = computed(() => (this.store.current()?.cashEntries ?? []).filter((e) => e.type === 'SAFE_BOX'));
   protected readonly todayPending = computed(() => this.entries().reduce((n, e) => n + Math.min(this.pendingFor(e), this.remainingFor(e)), 0));
@@ -392,12 +404,13 @@ export class ReconSafeBoxTab {
     if (res.error) this.toast.error(res.error);
   }
 
-  protected submitCarried(o: SafeBoxOutstandingEntry): Promise<void> {
-    return this.openDeposit({ cashEntryUid: o.cashEntryUid, remaining: o.unsubmitted, recipients: this.recipients });
+  /** `onBehalfOf` = the cashier's name when a SAFEBOX_DEPOSIT_ON_BEHALF holder submits for them. */
+  protected submitCarried(o: SafeBoxOutstandingEntry, onBehalfOf?: string | null): Promise<void> {
+    return this.openDeposit({ cashEntryUid: o.cashEntryUid, remaining: o.unsubmitted, recipients: this.recipients, onBehalfOf });
   }
 
-  protected submit(e: CashEntry, free: number): Promise<void> {
-    return this.openDeposit({ cashEntryUid: e.uid, remaining: free, recipients: this.recipients });
+  protected submit(e: CashEntry, free: number, onBehalfOf?: string | null): Promise<void> {
+    return this.openDeposit({ cashEntryUid: e.uid, remaining: free, recipients: this.recipients, onBehalfOf });
   }
 
   protected async resubmit(d: SafeBoxDeposit): Promise<void> {
@@ -430,6 +443,8 @@ export class ReconSafeBoxTab {
   }
 
   private async openDeposit(data: SafeBoxDepositData): Promise<void> {
+    // Cash is never handed over to the person submitting it (the server refuses it too).
+    if (!this.canOnBehalf()) data = { ...data, recipients: data.recipients.filter((r) => r.uid !== this.me()) };
     const { SafeBoxDepositDialog } = await import('./safe-box-deposit-dialog');
     const req = await this.dialogs.openAsync<DepositRequest>(SafeBoxDepositDialog, { size: 'sm', data });
     if (!req) return;
