@@ -45,7 +45,7 @@ const PAGE = 30;
             <button type="button" class="head" (click)="toggle(e.uid)" [attr.aria-expanded]="open().has(e.uid)">
               <span class="date">{{ day(e.entryDate) | date: 'dd MMM yy' }}</span>
               <span class="what">
-                <b>{{ label(e.referenceType) }}@if (e.isReversal) { <em class="tag">{{ i18n.t('Reversal', 'Reversal') }}</em> }</b>
+                <b>{{ label(e.referenceType) }}@if (e.isReversal) { <em class="tag">{{ i18n.t('Reversal', 'Reversal') }}</em> }@if (e.isLateEntry) { <em class="tag late" [title]="i18n.t('Its month was closed, so it was booked on the first open day', 'Mwezi wake ulikuwa umefungwa, kwa hiyo iliandikwa siku ya kwanza iliyo wazi')">{{ i18n.t('Late · event ', 'Imechelewa · tukio la ') }}{{ day(e.eventDate ?? e.entryDate) | date: 'dd/MM' }}</em> }</b>
                 <small>{{ e.entryNumber }}@if (e.referenceNumber) { · {{ e.referenceNumber }} }@if (e.postedBy) { · {{ e.postedBy }} }</small>
               </span>
               <span class="amt">{{ e.totalDebit | money: { decimals: 0 } }}</span>
@@ -95,6 +95,7 @@ const PAGE = 30;
     .what b { font-size: 0.86rem; font-weight: 500; }
     .what small { font-size: 0.7rem; color: var(--c-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tag { margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-style: normal; font-size: 0.68rem; font-weight: 500; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 14%, transparent); }
+    .tag.late { color: var(--c-info); background: color-mix(in srgb, var(--c-info) 14%, transparent); }
     .amt { font-size: 0.86rem; font-weight: 500; font-variant-numeric: tabular-nums; }
     .lines { width: calc(100% - 32px); margin: 0 16px 12px; border-collapse: collapse; font-size: 0.8rem; }
     .lines th { padding: 6px 8px; text-align: left; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: var(--c-text-2); border-bottom: 1px solid var(--c-border); }

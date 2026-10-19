@@ -4,10 +4,10 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, ou
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, EmptyState, Icon, Skeleton } from '@shared/ui';
+import { Button, EmptyState, Icon, Skeleton, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
-import { CONTROL_HELP, ControlCheck, FinancialPosition, GlStatus } from './gl.models';
+import { CONTROL_HELP, ControlCheck, FinancialPosition, GlStatus, PostingFailure } from './gl.models';
 import { GlService } from './gl.service';
 
 /**
@@ -34,6 +34,32 @@ import { GlService } from './gl.service';
             <small>{{ i18n.t(s.totalEntriesPosted + ' entries · last posting ', 'Maingizo ' + s.totalEntriesPosted + ' · la mwisho ') }}{{ day(s.lastPostingDate) | date: 'd MMM yyyy' }}@if (s.unbalancedEntries) { · <em>{{ i18n.t(s.unbalancedEntries + ' unbalanced', s.unbalancedEntries + ' hazilingani') }}</em> }</small>
           </span>
         </div>
+      }
+
+      @if (failures().length) {
+        <section class="fails">
+          <header>
+            <lsms-icon name="report" [size]="20" />
+            <span>
+              <b>{{ i18n.t('Unresolved GL errors (' + failures().length + ')', 'Makosa ya GL yasiyotatuliwa (' + failures().length + ')') }}</b>
+              <small>{{ i18n.t('These records were saved but have no journal yet, so the statements miss them.', 'Rekodi hizi zilihifadhiwa lakini hazina journal bado, kwa hiyo taarifa hazizioni.') }}</small>
+            </span>
+          </header>
+          <ul>
+            @for (f of failures(); track f.uid) {
+              <li>
+                <span class="what">
+                  <b>{{ sourceLabel(f.sourceType) }}@if (f.sourceNumber) { · {{ f.sourceNumber }} }</b>
+                  <small>@if (f.entryDate) { {{ day(f.entryDate) | date: 'd MMM yyyy' }} · }{{ i18n.t('attempts ', 'majaribio ') }}{{ f.attempts }}</small>
+                  <small class="err" [title]="f.error ?? ''">{{ f.error }}</small>
+                </span>
+                @if (canWrite()) {
+                  <button lsmsButton="secondary" size="sm" icon="refresh" [loading]="retrying() === f.uid" [disabled]="!!retrying()" (click)="retry(f)">{{ i18n.t('Retry', 'Jaribu tena') }}</button>
+                }
+              </li>
+            }
+          </ul>
+        </section>
       }
 
       @if (position(); as p) {
@@ -102,6 +128,17 @@ import { GlService } from './gl.service';
   `,
   styles: `
     :host { display: flex; flex-direction: column; gap: 14px; }
+    .fails { padding: 12px 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--c-error) 45%, var(--c-border)); background: color-mix(in srgb, var(--c-error) 6%, var(--c-surface)); }
+    .fails header { display: flex; align-items: flex-start; gap: 10px; color: var(--c-error); }
+    .fails header span { display: flex; flex-direction: column; }
+    .fails header b { font-size: 0.9rem; color: var(--c-text); }
+    .fails header small { font-size: 0.74rem; color: var(--c-text-2); }
+    .fails ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    .fails li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--c-surface); border: 1px solid var(--c-border); }
+    .fails .what { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .fails .what b { font-size: 0.84rem; font-weight: 500; color: var(--c-text); }
+    .fails .what small { font-size: 0.72rem; color: var(--c-text-2); }
+    .fails .err { color: var(--c-error) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .status { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; color: var(--c-success); background: color-mix(in srgb, var(--c-success) 8%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-success) 30%, transparent); }
     .status.shadow { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 8%, var(--c-surface)); border-color: color-mix(in srgb, var(--c-warning) 30%, transparent); }
     .status.off { color: var(--c-text-2); background: var(--c-surface); border-color: var(--c-border); }
@@ -153,6 +190,7 @@ export class GlOverview {
   protected readonly i18n = inject(LanguageService);
   private readonly gl = inject(GlService);
   private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
 
   readonly asOf = input.required<string>();
   readonly openAccount = output<string>();
@@ -162,6 +200,8 @@ export class GlOverview {
   protected readonly status = signal<GlStatus | null>(null);
   protected readonly position = signal<FinancialPosition | null>(null);
   protected readonly checks = signal<ControlCheck[]>([]);
+  protected readonly failures = signal<PostingFailure[]>([]);
+  protected readonly retrying = signal<string | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 
@@ -184,11 +224,49 @@ export class GlOverview {
       this.status.set(s);
       this.position.set(p);
       this.checks.set(c);
+      // Failures are a separate, optional read: an older backend without the endpoint must not break the page.
+      this.failures.set((await this.gl.postingFailures(true).catch(() => null))?.items ?? []);
     } catch (e) {
       this.error.set(ApiError.from(e).message);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  protected async retry(f: PostingFailure): Promise<void> {
+    // One retry at a time: a second click (or a click on another row) before the answer
+    // arrives is ignored, not just greyed out on the next render.
+    if (this.retrying()) return;
+    this.retrying.set(f.uid);
+    try {
+      await this.gl.retryFailure(f.uid);
+      this.toast.success(this.i18n.t('Posted to the GL', 'Imepostiwa kwenye GL'));
+    } catch (e) {
+      this.toast.error(ApiError.from(e).message);
+      void this.load();
+    } finally {
+      this.retrying.set(null);
+    }
+  }
+
+  protected sourceLabel(type: string): string {
+    const sw = this.i18n.isSwahili();
+    const map: Record<string, [string, string]> = {
+      SALE: ['Sale', 'Mauzo'],
+      PAYMENT_RECEIVED: ['Debt payment', 'Malipo ya deni'],
+      WALKIN_DEBT: ['Walk-in debt', 'Deni la walk-in'],
+      WALKIN_DEBT_REVERSAL: ['Walk-in debt reversal', 'Kufuta deni la walk-in'],
+      DAY_CLOSE: ['Day close variance', 'Variance ya kufunga siku'],
+      DAY_CLOSE_REVERSAL: ['Day close reversal', 'Kugeuza variance ya siku'],
+      PURCHASE: ['Purchase', 'Ununuzi'],
+      SUPPLIER_PAYMENT: ['Supplier payment', 'Malipo ya msambazaji'],
+      STOCK_ADJUSTMENT: ['Stock adjustment', 'Marekebisho ya stock'],
+      SHRINKAGE: ['Damage / loss', 'Uharibifu / hasara'],
+      COUNT_ADJUSTMENT: ['Count adjustment', 'Marekebisho ya counting'],
+      SALE_DELETE_REVERSAL: ['Deleted sale', 'Sale iliyofutwa'],
+    };
+    const m = map[type];
+    return m ? (sw ? m[1] : m[0]) : type;
   }
 
   protected help(c: ControlCheck): string {

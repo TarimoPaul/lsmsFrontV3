@@ -101,6 +101,31 @@ const ZERO_CASH_PRESETS = [
         </section>
       }
 
+      <!-- What approval will write to the books (MPANGO-PAMOJA §1.2) -->
+      @if (glPreview(); as g) {
+        <p class="glp" [class.short]="g.kind === 'SHORTAGE'" [class.over]="g.kind === 'OVER_DEDUCTION'">
+          <lsms-icon [name]="g.kind === 'SHORTAGE' ? 'trending_down' : g.kind === 'SURPLUS' ? 'trending_up' : 'info'" [size]="17" />
+          <span>
+            @switch (g.kind) {
+              @case ('SHORTAGE') {
+                {{ i18n.t('On approval the books record a cash shortage of ', 'Ukiidhinisha, vitabu vitaandika upungufu wa pesa wa ') }}<b>{{ g.posted | money }}</b>.
+              }
+              @case ('SURPLUS') {
+                {{ i18n.t('Real surplus: ', 'Ziada ya kweli: ') }}<b>{{ g.posted | money }}</b>
+                @if (g.over > 0.01) {
+                  · {{ i18n.t('Over-deduction: ', 'Makato yaliyozidi: ') }}<b>{{ g.over | money }}</b>
+                  <small>{{ i18n.t('A surplus can never be more than the cash counted; the rest is deductions above the day's sales and is not posted.', 'Ziada haiwezi kuzidi pesa iliyohesabiwa; kilichobaki ni makato yaliyozidi mauzo ya siku na hakiandikwi.') }}</small>
+                }
+              }
+              @case ('OVER_DEDUCTION') {
+                {{ i18n.t('Over-deduction: ', 'Makato yaliyozidi: ') }}<b>{{ g.over | money }}</b>
+                <small>{{ i18n.t('No cash was counted, so this is not money: deductions (bank, debts, expenses) exceeded the day's sales. Nothing is posted as cash over.', 'Hakuna pesa iliyohesabiwa, kwa hiyo hii si pesa: makato (benki, madeni, gharama) yalizidi mauzo ya siku. Haiandikwi kama ziada.') }}</small>
+              }
+            }
+          </span>
+        </p>
+      }
+
       <!-- Notes for review / approve -->
       @if (canApprove() && (r.status === 'SUBMITTED' || r.status === 'REVIEWED')) {
         <div class="grid">
@@ -235,6 +260,13 @@ const ZERO_CASH_PRESETS = [
   `,
   styleUrl: './recon-tab.scss',
   styles: `
+    .glp { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 10px 12px; border-radius: 12px; font-size: 0.82rem; color: var(--c-text); background: color-mix(in srgb, var(--c-success) 7%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-success) 25%, var(--c-border)); }
+    .glp lsms-icon { flex-shrink: 0; color: var(--c-success); }
+    .glp.short { background: color-mix(in srgb, var(--c-error) 6%, var(--c-surface)); border-color: color-mix(in srgb, var(--c-error) 25%, var(--c-border)); }
+    .glp.short lsms-icon { color: var(--c-error); }
+    .glp.over { background: color-mix(in srgb, var(--c-info) 7%, var(--c-surface)); border-color: color-mix(in srgb, var(--c-info) 25%, var(--c-border)); }
+    .glp.over lsms-icon { color: var(--c-info); }
+    .glp small { display: block; margin-top: 3px; font-size: 0.74rem; color: var(--c-text-2); }
     .later { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 100px; font-size: 0.68rem; font-weight: 500; cursor: help; color: var(--c-info); background: color-mix(in srgb, var(--c-info) 12%, transparent); }
     .count { margin-left: auto; padding: 1px 8px; border-radius: 100px; font-size: 0.72rem; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .vbtn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.76rem; font-weight: 600; color: var(--c-text-2); cursor: pointer; }
@@ -308,6 +340,17 @@ export class ReconApprovalTab {
   protected readonly canExplain = computed(() => {
     const s = this.store.current()?.status;
     return !!s && s !== 'APPROVED' && s !== 'CLOSED' && (this.store.isMine() || this.canApprove());
+  });
+  /** Mirrors PostingEngine.classifyDayCloseVariance: result > 0 = shortage; a surplus is capped at the cash counted. */
+  protected readonly glPreview = computed(() => {
+    const r = this.store.current();
+    if (!r || r.status === 'APPROVED' || r.status === 'CLOSED' || Math.abs(r.result) <= 0.01) return null;
+    if (r.result > 0) return { kind: 'SHORTAGE' as const, posted: r.result, over: 0 };
+    const surplus = -r.result;
+    const counted = Math.max(0, r.accountedCash);
+    if (counted <= 0.01) return { kind: 'OVER_DEDUCTION' as const, posted: 0, over: surplus };
+    const posted = Math.min(surplus, counted);
+    return { kind: 'SURPLUS' as const, posted, over: surplus - posted };
   });
   protected readonly needsExplanation = computed(() => {
     const r = this.store.current();

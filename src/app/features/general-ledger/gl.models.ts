@@ -166,7 +166,51 @@ export interface JournalEntry {
   postedBy: string | null;
   postedAt: string | null;
   isReversal: boolean;
+  /** Real event date of a late entry (its month was closed, so it was booked on the first open day). */
+  eventDate?: string | null;
+  isLateEntry?: boolean;
   lines: JournalLine[];
+}
+
+/** A GL posting that failed while the business event itself was kept (gl_posting_failure, V134). */
+export interface PostingFailure {
+  uid: string;
+  sourceType: string;
+  sourceUid: string;
+  sourceNumber: string | null;
+  eventType: string | null;
+  referenceUid: string | null;
+  entryDate: string | null;
+  error: string | null;
+  attempts: number;
+  lastAttemptAt: string | null;
+  resolvedAt: string | null;
+  resolution: string | null;
+  createdAt: string;
+}
+
+export interface PostingFailures {
+  openCount: number;
+  items: PostingFailure[];
+}
+
+export interface GlPeriodRow {
+  year: number;
+  month: number;
+  status: 'OPEN' | 'CLOSED' | 'LOCKED' | string;
+  closedAt: string | null;
+  closedBy: string | null;
+  current: boolean;
+}
+
+export interface GlPeriodAudit {
+  uid: string;
+  periodYear: number;
+  periodMonth: number;
+  action: 'CLOSE' | 'REOPEN';
+  reason: string | null;
+  byName: string | null;
+  at: string;
 }
 
 export interface LedgerRow {

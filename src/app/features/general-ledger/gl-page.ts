@@ -9,13 +9,14 @@ import { GlBalanceSheet } from './gl-balance-sheet';
 import type { LedgerDialogData, TrueUpDialogData } from './gl-dialogs';
 import { GlJournal } from './gl-journal';
 import { GlOverview } from './gl-overview';
+import { GlPeriods } from './gl-periods';
 import { GlPnl } from './gl-pnl';
 import { GlTrialBalance } from './gl-trial-balance';
 import { ControlCheck } from './gl.models';
 import { GlService } from './gl.service';
 
-type Tab = 'overview' | 'balance-sheet' | 'pnl' | 'trial-balance' | 'journal' | 'accounts';
-const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journal', 'accounts'];
+type Tab = 'overview' | 'balance-sheet' | 'pnl' | 'trial-balance' | 'journal' | 'accounts' | 'periods';
+const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journal', 'accounts', 'periods'];
 
 /**
  * General Ledger — the accountant's workspace. One period drives every tab:
@@ -24,7 +25,7 @@ const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journ
  */
 @Component({
   selector: 'app-gl-page',
-  imports: [PageHeader, SegmentedFilterBar, DateRangeSelector, GlOverview, GlBalanceSheet, GlPnl, GlTrialBalance, GlJournal, GlAccounts],
+  imports: [PageHeader, SegmentedFilterBar, DateRangeSelector, GlOverview, GlBalanceSheet, GlPnl, GlTrialBalance, GlJournal, GlAccounts, GlPeriods],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="wrap">
@@ -46,6 +47,7 @@ const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journ
         @case ('trial-balance') { <app-gl-trial-balance [start]="start()" [end]="end()" (openAccount)="ledger($event)" /> }
         @case ('journal') { <app-gl-journal [start]="start()" [end]="end()" (openAccount)="ledger($event)" (manual)="manual()" (transfer)="transfer()" /> }
         @case ('accounts') { <app-gl-accounts [start]="start()" [end]="end()" (openAccount)="ledger($event)" /> }
+        @case ('periods') { <app-gl-periods /> }
       }
     </div>
   `,
@@ -79,6 +81,7 @@ export class GlPage {
       { value: 'trial-balance', label: t('Trial balance', 'Trial balance'), icon: 'table_rows' },
       { value: 'journal', label: t('Journal', 'Journal'), icon: 'receipt_long' },
       { value: 'accounts', label: t('Accounts', 'Akaunti'), icon: 'account_tree' },
+      { value: 'periods', label: t('Periods', 'Vipindi'), icon: 'event_available' },
     ];
   });
 

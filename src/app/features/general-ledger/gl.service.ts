@@ -13,7 +13,11 @@ import {
   GlStatus,
   IncomeStatement,
   JournalEntry,
+  GlPeriodAudit,
+  GlPeriodRow,
   ManualLine,
+  PostingFailure,
+  PostingFailures,
   TrialBalance,
 } from './gl.models';
 
@@ -90,6 +94,35 @@ export class GlService {
     const r = await this.api.post<Record<string, unknown>>(`${BASE}/true-up`, body);
     this.touch();
     return r;
+  }
+
+  postingFailures(open = true): Promise<PostingFailures> {
+    return this.api.get<PostingFailures>(`${BASE}/posting-failures`, { params: { open } });
+  }
+
+  /** Throws (ApiError) when the posting still fails; the message carries the new error. */
+  async retryFailure(uid: string): Promise<PostingFailure> {
+    const f = await this.api.post<PostingFailure>(`${BASE}/posting-failures/${uid}/retry`, {});
+    this.touch();
+    return f;
+  }
+
+  periods(): Promise<GlPeriodRow[]> {
+    return this.api.get<GlPeriodRow[]>(`${BASE}/periods`);
+  }
+
+  periodAudit(): Promise<GlPeriodAudit[]> {
+    return this.api.get<GlPeriodAudit[]>(`${BASE}/periods/audit`);
+  }
+
+  async closePeriod(year: number, month: number, reason: string): Promise<void> {
+    await this.api.post(`${BASE}/periods/${year}/${month}/close`, { reason });
+    this.touch();
+  }
+
+  async reopenPeriod(year: number, month: number, reason: string): Promise<void> {
+    await this.api.post(`${BASE}/periods/${year}/${month}/reopen`, { reason });
+    this.touch();
   }
 
   async trueUpCash(body: { accountCode: string; actualBalance: number; asOfDate: string; offsetAccount: string; reason: string }): Promise<Record<string, unknown>> {
