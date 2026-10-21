@@ -1,0 +1,127 @@
+---MWENDESHO-40--- 
+---STAGING-LAZIMA-2.2.71--- 
+TOLEO_ENV_2271
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---PROD-PS-KABLA--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 2 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 days
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 Up 2 days (healthy)
+nginx nginx:1.31.2 Up 2 days
+postgres postgres:15 Up 2 days (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---STAGING-KABLA-READ-ONLY--- 
+FLYWAY_YA_MWISHO|134
+GL_CONFIG|posting_enabled=true|shadow_mode=false
+T1DATA|aef4d66c-951e-4707-8416-485875852e55|COCA && FANTA|1000.00|533.33|24|202
+T1CUST|f7de5003-ddb4-4539-b814-e69d10dc9d59|REGULAR
+RECON|072fbb59-3125-4735-b518-65815b0c6666|2026-10-17|0e70d5c1-f83f-4ca4-bf4f-249139c6b69d|4800.00
+RECONSEP|4611f113-53ca-467a-bb98-1b8267a8b6e8|2026-09-30|91fa48ac-cf39-4135-8a05-c5e3694d8453|500.00
+Q9SNAP|6c9e781d-4e31-4696-9247-9f23c2da4b07|2026-06-24|-210500.00|1100000.00
+Q9SNAP|850ff8e2-7393-4af1-b830-48a9a8c06d10|2026-07-04|-542000.00|532000.00
+AR_GL|2165000.00
+AR_SUBLEDGER|2165000.00
+GL_1000|12586508.52
+FAILURES_OPEN|0
+M7J|3c1c71b1-df17-44f2-9cd1-0ee992be805a|JE-2026-239197056850732|51000.00
+M7J|7313d208-64ce-4da7-a90d-c36c2b8d9a12|JE-2026-239120281877328|52183.33
+M7J|7a4c1ff4-4631-4b14-b0ad-09f10d8bafd3|JE-2026-239183099772759|245333.33
+M7J|90a63ae6-09c9-45c3-82a4-053dcfe0bdde|JE-2026-239137266820070|59600.00
+M7J|b9714ebd-f538-4912-86d6-ada47972bbb7|JE-2026-239223143712071|85200.00
+M7J|c1a69c19-5d7b-4361-ba3a-f840b92bd224|JE-2026-239210046785928|6258126.33
+M7J|c3587eae-ac0e-48f7-87ef-4f3e57d90738|JE-2026-239155535163862|0.40
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---TUNNEL-LAZIMA-400--- 
+400 
+---NODE-AWAMU-B--- 
+GL: posting=true shadow=false journals=5452
+PASS 1.g-halisi: done 95 / 95, errors 0, 1000 mabadiliko 338,899.95 
+  matokeo kamili: analysis\steps\40-marekebisho-halisi.json
+PASS 1.g-mara-ya-pili: dryRun ya pili: toChange 0 (lazima 0)
+PASS 1.g-mizania: mali 32,416,326.58 = madeni 2,386,000 + mtaji 30,030,326.58
+PASS 1.g-TB: TB Dr 283,044,905.42 Cr 283,044,905.42
+  check INVENTORY: GL 5,220,727.35 kumbukumbu 5,220,722.06 tofauti -5.29 SI SAWA
+  check RECEIVABLES: GL 2,165,000 kumbukumbu 2,165,000 tofauti 0 sawa
+  check PAYABLES: GL 0 kumbukumbu 0 tofauti 0 sawa
+  check STAFF_RECEIVABLES: GL 926,801.88 kumbukumbu 926,801.88 tofauti 0 sawa
+  check LOANS: GL 2,386,000 kumbukumbu 2,386,000 tofauti 0 sawa
+PASS 1.f: reco 2026-10-17 (snapshot 0e70d5c1-f83f-4ca4-bf4f-249139c6b69d, variance 4,800) reopen -> sawa; reversal inakaguliwa na SQL ya baada
+PASS 1.f-correct: rows za snapshot 0e70d5c1-f83f-4ca4-bf4f-249139c6b69d: hakuna; journal hai (asili - reversal) = 0 (lazima 0); toChange 0
+  M-7 kabla: 30/09 1000 24,235,903.94, 2000 -6,751,443.39; 2026-10-20 1000 12,930,208.47, 2000 0; Septemba OPEN; entry numbers: JE-2026-239197056850732, JE-2026-239120281877328, JE-2026-239183099772759, JE-2026-239137266820070, JE-2026-239223143712071, JE-2026-239210046785928, JE-2026-239155535163862
+PASS M-7-journals: 04/10 MJ:5c3d317d-189e-480c-be8c-8d6f40e8faa5; 30/09 MJ:1efc0b38-6be3-4d64-a06b-e973c1fc61b2
+PASS M-7-30/09: 1000: 24,235,903.94 -> 17,484,460.55 (lazima -6,751,443.39); 2000: -6,751,443.39 -> 0 (lazima 0)
+PASS M-7-leo: 2026-10-20: 1000 12,930,208.47 -> 12,930,208.47, 2000 0 -> 0 (lazima visibadilike); matokeo: analysis/steps/40-m7-journals.json
+PASS 1.9-funga: miezi iliyofungwa Jan-Sep: 9/9
+PASS 1.j-kataa: ikiwa Sep imefungwa: "Kipindi 2026-09 kimefungwa. Kifungue upya kwanza (kwa sababu) ili kuandika journal ya tarehe 2026-09-20. / Period 2026-09 is closed; reopen it first to post a manual journal dated 2026-09-20."
+PASS 1.j-reopen: reopen true, journal MJ:483011ef-92ef-4184-a599-0c6ab58495b6, kurudisha true, kufunga tena true
+PASS 1.j-audit: audit ya 2026-09: CLOSE,REOPEN,CLOSE (lazima CLOSE,REOPEN,CLOSE)
+PASS 1.i: reco 2026-09-30 reopen sawa -> reversal entry 2026-10-01 tukio 2026-09-30 late true
+PASS makosa-wazi: posting-failures openCount=0
+MUHTASARI awamu B: PASS 15, FAIL 0, SKIP 0
+---STAGING-BAADA-READ-ONLY--- 
+SALE|H-2|101026-2202|jumla=54500.00|deni=41000.00|aina=SALE_MIXED 2026-10-10|AR=41000.00
+SALE|H-2|121026-2249|jumla=275000.00|deni=0.00|aina=SALE_MIXED 2026-10-12|AR=175000.00
+SALE|H-2|131026-2227|jumla=83000.00|deni=5000.00|aina=SALE_MIXED 2026-10-13|AR=5000.00
+SALE|QA-T1 B|201026-1543|jumla=2000.00|deni=1000.00|aina=SALE_MIXED 2026-10-20|AR=1000.00
+SALE|QA-T1 C|201026-1543-2|jumla=2000.00|deni=2000.00|aina=SALE_CREDIT 2026-10-20|AR=2000.00
+DAY_CLOSE_LIVE|68
+DAY_CLOSE_LIVE_ON_SUPERSEDED_MUST_BE_0|0
+VARIANCE_KIND|OVER_DEDUCTION|13
+VARIANCE_KIND|SHORTAGE|61
+VARIANCE_KIND|SURPLUS|9
+REOPENED_RECON|2026-10-17|REOPENED|journal_hai_MUST_BE_0=0
+REOPENED_RECON|2026-09-30|REOPENED|journal_hai_MUST_BE_0=0
+PERIOD|2026-01|CLOSED
+PERIOD|2026-02|CLOSED
+PERIOD|2026-03|CLOSED
+PERIOD|2026-04|CLOSED
+PERIOD|2026-05|CLOSED
+PERIOD|2026-06|CLOSED
+PERIOD|2026-07|CLOSED
+PERIOD|2026-08|CLOSED
+PERIOD|2026-09|CLOSED
+PERIOD_AUDIT|2026-01|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-02|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-03|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-04|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-05|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-06|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-07|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-08|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-09|CLOSE|QA Toleo 1 staging: baada ya marekebisho
+PERIOD_AUDIT|2026-09|REOPEN|QA Toleo 1: jaribio la kufungua upya Septemba
+PERIOD_AUDIT|2026-09|CLOSE|QA Toleo 1: kufunga tena
+LATE_ENTRY|DAY_CLOSE_VARIANCE|2026-10-01|tukio=2026-09-30|4611f113-53ca-467a-bb98-1b8267a8b6e8
+GL_1000|12930708.47
+GL_6700|-620150.00
+AR_GL|2165000.00
+AR_SUBLEDGER|2165000.00
+UNBALANCED_MUST_BE_0|0
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---STAGING-LOG-YA-GL--- 
+backend-1  | 2026-10-20 15:44:51 WARN  c.L.C.gl.GLController - Day-close variance correction requested by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e (dryRun=true, to 2900: [])
+backend-1  | 2026-10-20 15:44:53 INFO  c.L.C.gl.DayCloseVarianceService - Day-close variance correction (dryRun=true) by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e: 95 rows, 95 to change, 0 done, 0 errors, 0 to 2900 []
+backend-1  | 2026-10-20 15:44:58 WARN  c.L.C.gl.GLController - Day-close variance correction requested by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e (dryRun=true, to 2900: [850ff8e2-7393-4af1-b830-48a9a8c06d10, 6c9e781d-4e31-4696-9247-9f23c2da4b07])
+backend-1  | 2026-10-20 15:44:59 INFO  c.L.C.gl.DayCloseVarianceService - Day-close variance correction (dryRun=true) by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e: 95 rows, 95 to change, 0 done, 0 errors, 742500.00 to 2900 [850ff8e2-7393-4af1-b830-48a9a8c06d10, 6c9e781d-4e31-4696-9247-9f23c2da4b07]
+backend-1  | 2026-10-20 15:49:34 WARN  c.L.u.e.GlobalExceptionHandler - Validation failed: {password=***FICHWA***
+backend-1  | 2026-10-20 15:52:37 INFO  com.Lsms.uaa.config.AuthTokenFilter - ROOT authorities cache refreshed with 459 authorities
+backend-1  | 2026-10-20 15:52:37 WARN  c.L.C.gl.GLController - Day-close variance correction requested by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e (dryRun=false, to 2900: [])
+backend-1  | 2026-10-20 15:52:50 INFO  c.L.C.gl.DayCloseVarianceService - Day-close variance correction (dryRun=false) by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e: 95 rows, 95 to change, 95 done, 0 errors, 0 to 2900 []
+backend-1  | 2026-10-20 15:52:51 WARN  c.L.C.gl.GLController - Day-close variance correction requested by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e (dryRun=true, to 2900: [])
+backend-1  | 2026-10-20 15:52:52 INFO  c.L.C.gl.DayCloseVarianceService - Day-close variance correction (dryRun=true) by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e: 70 rows, 0 to change, 0 done, 0 errors, 0 to 2900 []
+backend-1  | 2026-10-20 15:52:59 WARN  c.L.C.gl.GLController - Day-close variance correction requested by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e (dryRun=false, to 2900: [])
+backend-1  | 2026-10-20 15:53:01 INFO  c.L.C.gl.DayCloseVarianceService - Day-close variance correction (dryRun=false) by 3359308f-8b7b-464c-8bee-3dfdc8b5a66e: 69 rows, 0 to change, 0 done, 0 errors, 0 to 2900 []
+backend-1  | 2026-10-20 15:53:30 INFO  c.L.C.gl.GlPeriodService - GL period 2026-01 CLOSED by System Root
+backend-1  | 2026-10-20 15:53:30 INFO  c.L.C.gl.GlPeriodService - GL period 2026-02 CLOSED by System Root
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 1
+---PROD-PS-BAADA--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 2 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 days
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 Up 2 days (healthy)
+nginx nginx:1.31.2 Up 2 days
+postgres postgres:15 Up 2 days (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---OK--- 

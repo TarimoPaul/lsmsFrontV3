@@ -1,0 +1,44 @@
+     m      |     reference_type      |    dr    |    cr    
+------------+-------------------------+----------+----------
+ 2026-06-01 | DAY_CLOSE_VARIANCE      |     2500 |   282500
+ 2026-06-01 | DEBT_RECLASSIFICATION   |        0 |    15000
+ 2026-06-01 | EXPENSE_DIRECT          |        0 |    33000
+ 2026-06-01 | LOAN_REPAYMENT          |        0 |   244985
+ 2026-06-01 | PURCHASE_INVENTORY      |        0 | 34623200
+ 2026-06-01 | SALE_CASH               | 38181700 |        0
+ 2026-06-01 | SALE_MIXED              |   111000 |        0
+ 2026-07-01 | DAY_CLOSE_VARIANCE      |    45000 |   623800
+ 2026-07-01 | DEBT_RECLASSIFICATION   |        0 |   488000
+ 2026-07-01 | EXPENSE_DIRECT          |        0 |   672300
+ 2026-07-01 | PURCHASE_INVENTORY      |        0 | 32394002
+ 2026-07-01 | PURCHASE_PAYMENT        |        0 |    95000
+ 2026-07-01 | SALE_CASH               | 34392400 |        0
+ 2026-07-01 | SALE_MIXED              |   637500 |        0
+ 2026-07-01 | STAFF_LIABILITY_PAYMENT |    57779 |        0
+ 2026-08-01 | DAY_CLOSE_VARIANCE      |    67250 |    60300
+ 2026-08-01 | DEBT_RECLASSIFICATION   |        0 |   332000
+ 2026-08-01 | EXPENSE_DIRECT          |        0 |   996500
+ 2026-08-01 | FUNDS_TRANSFER          |        0 |   264664
+ 2026-08-01 | PURCHASE_INVENTORY      |        0 | 26460700
+ 2026-08-01 | SALE_CASH               | 29869950 |        0
+ 2026-08-01 | SALE_MIXED              |   140000 |        0
+ 2026-08-01 | STAFF_LIABILITY_PAYMENT |    33000 |        0
+ 2026-09-01 | DAY_CLOSE_VARIANCE      |    60100 |     2200
+ 2026-09-01 | DEBT_RECLASSIFICATION   |        0 |   748500
+ 2026-09-01 | EXPENSE_DIRECT          |        0 |  1421000
+ 2026-09-01 | LOAN_RECEIVED           |  1200000 |        0
+ 2026-09-01 | PAYMENT_RECEIVED        |    20000 |        0
+ 2026-09-01 | PURCHASE_INVENTORY      |        0 | 34240450
+ 2026-09-01 | PURCHASE_PAYMENT        |        0 |   122000
+ 2026-09-01 | SALE_CASH               | 36150500 |        0
+ 2026-10-01 | ASSET_PURCHASE          |        0 |  5473000
+ 2026-10-01 | DAY_CLOSE_VARIANCE      |    31000 |    34000
+ 2026-10-01 | DEBT_CORRECTION         |     5000 |        0
+ 2026-10-01 | DEBT_RECLASSIFICATION   |        0 |   540500
+ 2026-10-01 | EXPENSE_DIRECT          |        0 |   753000
+ 2026-10-01 | PAYMENT_RECEIVED        |   426500 |        0
+ 2026-10-01 | PURCHASE_INVENTORY      |        0 | 17479552
+ 2026-10-01 | PURCHASE_PAYMENT        |        0 |  6751443
+ 2026-10-01 | SALE_CASH               | 19076000 |  1139500
+(40 rows)
+

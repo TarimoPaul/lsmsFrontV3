@@ -1,0 +1,19 @@
+SET
+ chanzo | uid | receipt_number | tarehe | amount | is_deleted | created_at | updated_at | owed_sasa 
+--------+-----+----------------+--------+--------+------------+------------+------------+-----------
+(0 rows)
+
+ chanzo | receipt_number | sale_date | total_amount | outstanding_balance | payment_status | updated_at | is_deleted 
+--------+----------------+-----------+--------------+---------------------+----------------+------------+------------
+(0 rows)
+
+ chanzo  | receipt_number | sale_date  | amount_paid | outstanding_balance | payment_status |    payment_date     |         created_at         |        updated_at         | is_active | is_deleted 
+---------+----------------+------------+-------------+---------------------+----------------+---------------------+----------------------------+---------------------------+-----------+------------
+ payment | 150826-0000-3  | 2026-08-15 |    11500.00 |            21000.00 | PAID           | 2026-10-05 18:58:48 | 2026-10-05 18:58:50.351065 | 2026-10-05 18:58:50.35107 | t         | f
+(1 row)
+
+ bila_payment_date | tzs 
+-------------------+-----
+                 0 |    
+(1 row)
+

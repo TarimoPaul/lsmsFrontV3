@@ -14,6 +14,11 @@ const call = async (method, u, body) => { const r = await fetch(API + u, { metho
 console.log(`user: ${email}`);
 console.log('token claims (bila siri):', JSON.stringify(Object.fromEntries(Object.entries(claims).filter(([k]) => !/pass|secret/i.test(k)))).slice(0, 600));
 if (JSON.stringify(claims).includes(MACHEDA)) { console.log('SIMAMA: huyu ni macheda mwenyewe - tumia user mwingine.'); process.exit(1); }
+// Step 27b sets QA_MODE=KAWAIDA: the run is worthless with an account that holds the CEO role (it has SAFEBOX_DEPOSIT_ON_BEHALF).
+if (process.env.QA_MODE === 'KAWAIDA' && (claims.roles ?? []).some((x) => String(x).toUpperCase() === 'CEO')) {
+  console.log('SIMAMA (27b): akaunti hii ina role CEO - si user wa kawaida. Tumia cashier/meneja mwingine (si wewe, si macheda).'); process.exit(1);
+}
+if (process.env.QA_MODE === 'KAWAIDA') console.log('27b: user wa KAWAIDA, roles:', JSON.stringify(claims.roles ?? []));
 
 const r = await call('POST', '/api/v1/safe-box/deposit', { cashEntryUid: ENTRY, submittedAmount: 1000, depositType: 'BANK_DEPOSIT', bankName: 'NMB', receiptNumber: 'QA-MMILIKI', recipientUid: null, remainderReason: null });
 console.log(`\nPOST /api/v1/safe-box/deposit kwenye entry ya macheda -> HTTP ${r.status}`);

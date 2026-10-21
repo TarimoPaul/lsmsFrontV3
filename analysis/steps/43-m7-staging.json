@@ -1,0 +1,87 @@
+{
+  "m7": [
+    [
+      "M7J",
+      "3c1c71b1-df17-44f2-9cd1-0ee992be805a",
+      "JE-2026-239197056850732",
+      "51000"
+    ],
+    [
+      "M7J",
+      "7313d208-64ce-4da7-a90d-c36c2b8d9a12",
+      "JE-2026-239120281877328",
+      "52183.33"
+    ],
+    [
+      "M7J",
+      "7a4c1ff4-4631-4b14-b0ad-09f10d8bafd3",
+      "JE-2026-239183099772759",
+      "245333.33"
+    ],
+    [
+      "M7J",
+      "90a63ae6-09c9-45c3-82a4-053dcfe0bdde",
+      "JE-2026-239137266820070",
+      "59600"
+    ],
+    [
+      "M7J",
+      "b9714ebd-f538-4912-86d6-ada47972bbb7",
+      "JE-2026-239223143712071",
+      "85200"
+    ],
+    [
+      "M7J",
+      "c1a69c19-5d7b-4361-ba3a-f840b92bd224",
+      "JE-2026-239210046785928",
+      "6258126.33"
+    ],
+    [
+      "M7J",
+      "c3587eae-ac0e-48f7-87ef-4f3e57d90738",
+      "JE-2026-239155535163862",
+      "0.4"
+    ]
+  ],
+  "m7Sum": 6751443.39,
+  "j1": {
+    "http": 200,
+    "ok": true,
+    "status": "Success",
+    "data": "MJ:862838de-80de-4e6a-b616-54fc79e47b65",
+    "message": "Journal imeandikwa",
+    "raw": {
+      "status": "Success",
+      "data": "MJ:862838de-80de-4e6a-b616-54fc79e47b65",
+      "message": "Journal imeandikwa",
+      "warnings": null,
+      "errorCode": null
+    }
+  },
+  "j2": {
+    "http": 200,
+    "ok": true,
+    "status": "Success",
+    "data": "MJ:21b26293-0a68-464b-9329-bd4afa55d45c",
+    "message": "Journal imeandikwa",
+    "raw": {
+      "status": "Success",
+      "data": "MJ:21b26293-0a68-464b-9329-bd4afa55d45c",
+      "message": "Journal imeandikwa",
+      "warnings": null,
+      "errorCode": null
+    }
+  },
+  "before": {
+    "c30": 24235903.94,
+    "a30": -6751443.39,
+    "cT": 12747308.47,
+    "aT": 0
+  },
+  "after": {
+    "c30": 17484460.55,
+    "a30": 0,
+    "cT": 12747308.47,
+    "aT": 0
+  }
+}

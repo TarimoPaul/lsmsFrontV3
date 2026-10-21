@@ -1,0 +1,178 @@
+SET
+           aina           | idadi |     tzs      | bila_journal | tzs_bila_journal | bila_journal_baada_t0 
+--------------------------+-------+--------------+--------------+------------------+-----------------------
+ capital_injection        |     5 |  13474725.00 |            0 |                  |                     0
+ debt_adjustment APPROVED |     6 |    411500.00 |            2 |        103000.00 |                     0
+ purchase RECEIVED        |  2055 | 242435392.76 |            0 |                  |                     0
+ sales_return APPROVED    |     1 |     31000.00 |            0 |                  |                     0
+ staff_liability_payment  |     5 |    156369.38 |            0 |                  |                     0
+ stock_adjustment (count) |   339 |   3517159.26 |            0 |                  |                     0
+ supplier_payment         |    12 |   7233107.39 |            0 |                  |                     0
+(7 rows)
+
+                 uid                  |    type    |  amount   |        approved_at         | receipt_number |      sale_source      
+--------------------------------------+------------+-----------+----------------------------+----------------+-----------------------
+ 74e44aaf-a85a-4314-a911-fa6ad9348cca | CORRECTION |   3000.00 | 2026-08-12 19:40:50.254469 | 240626-0000-6  | RECONCILIATION_MANUAL
+ c5ab2917-a0f9-49ae-a6ed-24f268c8ad83 | CORRECTION | 100000.00 | 2026-09-16 10:20:57.997945 | 230726-0000-4  | RECONCILIATION_MANUAL
+(2 rows)
+
+ payments_baada_t0_za_sale_za_zamani |    tzs    | bila_journal | tzs_bila_journal 
+-------------------------------------+-----------+--------------+------------------
+                                  14 | 510500.00 |            0 |                 
+(1 row)
+
+       entry_number       |  reference_type  | entry_date | total_debit 
+--------------------------+------------------+------------+-------------
+ JE-2026-1029440139787630 | PAYMENT_RECEIVED | 2026-10-13 |   175000.00
+(1 row)
+
+           rt            | journals | orphans 
+-------------------------+----------+---------
+ ASSET_DEPRECIATION      |       21 |       0
+ ASSET_PURCHASE          |        9 |       0
+ CAPITAL_INJECTION       |        1 |       0
+ DAY_CLOSE_VARIANCE      |       85 |       0
+ DEBT_CORRECTION         |        3 |       0
+ DEBT_RECLASSIFICATION   |      128 |       0
+ DEBT_WAIVER             |        1 |       0
+ EXPENSE_DIRECT          |      439 |       0
+ FUNDS_TRANSFER          |        1 |       0
+ LOAN_RECEIVED           |        4 |       0
+ LOAN_REPAYMENT          |        1 |       0
+ OPENING_BALANCE         |        2 |       0
+ PAYMENT_RECEIVED        |       14 |       0
+ PURCHASE_INVENTORY      |     2055 |       0
+ PURCHASE_PAYMENT        |       12 |       0
+ SALE_CASH               |     2049 |       0
+ SALE_CREDIT             |        2 |       0
+ SALE_MIXED              |        7 |       0
+ SALE_RETURN_CASH        |        1 |       0
+ SHRINKAGE_LOSS          |        1 |       0
+ STAFF_LIABILITY_CHARGE  |      220 |       0
+ STAFF_LIABILITY_PAYMENT |        3 |       0
+ STAFF_LIABILITY_WAIVER  |        2 |       0
+ STOCK_ADJUSTMENT        |      119 |       0
+(24 rows)
+
+ entry_number | rt | ru | total_debit | entry_date 
+--------------+----+----+-------------+------------
+(0 rows)
+
+     reference_type      |          umbo          | count 
+-------------------------+------------------------+-------
+ ASSET_DEPRECIATION      | <uid>-DEP-202605       |     3
+ ASSET_DEPRECIATION      | <uid>-DEP-202609       |     3
+ ASSET_DEPRECIATION      | <uid>-DEP-202607       |     3
+ ASSET_DEPRECIATION      | <uid>-DEP-202608       |     3
+ ASSET_DEPRECIATION      | <uid>-DEP-202606       |     3
+ ASSET_DEPRECIATION      | <uid>-DEP-202602       |     2
+ ASSET_DEPRECIATION      | <uid>-DEP-202603       |     2
+ ASSET_DEPRECIATION      | <uid>-DEP-202604       |     2
+ ASSET_PURCHASE          | <uid>                  |     9
+ CAPITAL_INJECTION       | INJ-<uid>              |     1
+ DAY_CLOSE_VARIANCE      | <uid>                  |    85
+ DEBT_CORRECTION         | <uid>                  |     3
+ DEBT_RECLASSIFICATION   | <uid>:DEBT             |   128
+ DEBT_WAIVER             | <uid>                  |     1
+ EXPENSE_DIRECT          | <uid>                  |   439
+ FUNDS_TRANSFER          | TRF:<uid>              |     1
+ LOAN_RECEIVED           | INJ-<uid>              |     5
+ LOAN_REPAYMENT          | INJ-<uid>              |     1
+ OPENING_BALANCE         | TRUEUP:INVENTORY:<uid> |     2
+ PAYMENT_RECEIVED        | <uid>:RCPT:20000       |     2
+ PAYMENT_RECEIVED        | <uid>:RCPT:15000       |     2
+ PAYMENT_RECEIVED        | <uid>:RCPT:85000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:40000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:37000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:9000        |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:30000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:18000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:11000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:11500       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:24000       |     1
+ PAYMENT_RECEIVED        | <uid>:RCPT:175000      |     1
+ PURCHASE_INVENTORY      | <uid>                  |  2055
+ PURCHASE_PAYMENT        | <uid>                  |    12
+ SALE_CASH               | <uid>                  |  2062
+ SALE_CREDIT             | <uid>                  |     2
+ SALE_MIXED              | <uid>                  |     7
+ SALE_RETURN_CASH        | <uid>                  |     1
+ SHRINKAGE_LOSS          | <uid>                  |     1
+ STAFF_LIABILITY_CHARGE  | COUNT:<uid>            |   220
+ STAFF_LIABILITY_PAYMENT | LIABPAY:<uid>          |     3
+ STAFF_LIABILITY_WAIVER  | LIABPAY:<uid>          |     2
+ STOCK_ADJUSTMENT        | COUNT:<uid>            |   119
+(42 rows)
+
+     reference_type     | journals_live | zimerudishwa_nyuma | siku_nyingi_zaidi | za_mbele 
+------------------------+---------------+--------------------+-------------------+----------
+ EXPENSE_DIRECT         |            80 |                 74 |                64 |        0
+ DEBT_RECLASSIFICATION  |            30 |                 29 |                 1 |        0
+ DAY_CLOSE_VARIANCE     |            23 |                 23 |                24 |        0
+ SALE_CASH              |           205 |                 10 |                 1 |        0
+ ASSET_PURCHASE         |             6 |                  4 |                 5 |        0
+ ASSET_DEPRECIATION     |             3 |                  3 |                 2 |        0
+ LOAN_RECEIVED          |             4 |                  2 |                17 |        0
+ PAYMENT_RECEIVED       |            14 |                  0 |                 0 |        0
+ SHRINKAGE_LOSS         |             1 |                  0 |                 0 |        0
+ DEBT_CORRECTION        |             1 |                  0 |                 0 |        0
+ PURCHASE_PAYMENT       |             7 |                  0 |                 0 |        0
+ STOCK_ADJUSTMENT       |            24 |                  0 |                 0 |        0
+ DEBT_WAIVER            |             1 |                  0 |                 0 |        0
+ PURCHASE_INVENTORY     |           158 |                  0 |                 0 |        0
+ OPENING_BALANCE        |             2 |                  0 |                 0 |        0
+ STAFF_LIABILITY_CHARGE |            49 |                  0 |                 0 |        0
+(16 rows)
+
+ siku_za_kuchelewa | count |     sum     
+-------------------+-------+-------------
+                 1 |   882 | 81684400.00
+                 2 |    56 | 11333300.00
+                 3 |    27 |  6631100.58
+                 4 |    20 |  9387800.00
+                 5 |    14 |  8756700.12
+                 6 |     8 |  5032700.01
+                 7 |     3 |  1557500.09
+                 8 |     2 |  1061700.00
+                 9 |     1 |   764700.00
+                10 |     1 |   616400.00
+                11 |     2 |  1988600.00
+                12 |     2 |   877400.00
+                13 |     1 |   512900.00
+                17 |     2 |    20000.00
+                18 |     7 |   153000.00
+                19 |     4 |    29000.00
+                20 |     1 |    25000.00
+                36 |     1 |    31000.00
+(18 rows)
+
+    reference_type     | count |    sum     
+-----------------------+-------+------------
+ LOAN_RECEIVED         |     1 | 1200000.00
+ EXPENSE_DIRECT        |    23 |  139000.00
+ ASSET_DEPRECIATION    |     3 |   74888.89
+ DEBT_RECLASSIFICATION |     4 |   69000.00
+ DAY_CLOSE_VARIANCE    |    10 |   16600.00
+(5 rows)
+
+ gl_period_rows 
+----------------
+              0
+(1 row)
+
+ gl_cogs_sales_net | items_cost_sales_zenye_journal | items_cost_sales_zote | gl_5000_jumla 
+-------------------+--------------------------------+-----------------------+---------------
+      235790808.19 |                   235790808.19 |          236192307.85 |  235761308.19
+(1 row)
+
+ mistari_gharama_0 | mauzo_yake 
+-------------------+------------
+                 1 |   96000.00
+(1 row)
+
+ cost_source | count |    min     |    max     
+-------------+-------+------------+------------
+ (null)      | 11762 | 2026-02-05 | 2026-10-14
+ UNKNOWN     |     5 | 2026-06-24 | 2026-08-07
+(2 rows)
+

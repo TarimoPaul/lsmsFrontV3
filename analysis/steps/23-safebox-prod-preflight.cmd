@@ -3,13 +3,13 @@ rem HATUA 23 - PREFLIGHT YA PROD, KUSOMA TU: deploy\deploy-backend.ps1 -DeployOn
 rem Inavuta image 2.2.70 kwenye PC hii, inasoma migrations ndani ya jar yake, inasoma hali ya prod (--status) na kusimama.
 rem Hakuna deploy, hakuna swali. Kitu pekee kinachoandikwa kwenye Contabo ni nakala ya script /tmp/deploy-backend.sh.
 rem Kisha inakagua log (kila sharti SAWA au SIYO):
-rem   - digest ya image ni ile iliyojaribiwa staging (BADO haijawekwa: 2.2.70 haijajengwa; mpaka hapo faili hili linaishia IMESHINDWA)
+rem   - digest ya image ni ile iliyojaribiwa staging: sha256:e88c5cdc6e7c148c2ba10cf89ad1012b672892ba32e724e9b6184de42fb52b20
 rem   - migrations zinazosubiri ni MBILI tu, V132 na V133
 rem   - prod sasa inaendesha 2.2.68
 rem Mstari wa mwisho uwe PREFLIGHT_SAWA; vinginevyo hatua ya 24 itakataa. Matokeo: analysis\steps\23-safebox-prod-preflight.log
 setlocal
 set "LOG=D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3\analysis\steps\23-safebox-prod-preflight.log"
-set "DIGEST=BADO-digest-ya-2.2.70-itawekwa-baada-ya-hatua-28-na-29"
+set "DIGEST=sha256:e88c5cdc6e7c148c2ba10cf89ad1012b672892ba32e724e9b6184de42fb52b20"
 set "BAD=0"
 cd /d "D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms"
 if errorlevel 1 goto fail

@@ -1,0 +1,3657 @@
+commit 91c5f0b0c6b0028f12f68d9820670d5cd4e4942a
+Author: TarimoPaul <chiefmaster7066@gmail>
+Date:   Mon Oct 19 15:09:12 2026 +0300
+
+    GL Toleo 1 (2.2.71, V134): posting failures, H-1/H-2/H-5 fixes, period close
+    
+    - gl_posting_failure: every swallowed GL post is kept and can be retried
+    - H-2: POS sale journal posted after commit, from the sale as stored
+    - H-1: day-close variance sign fixed (SHORTAGE / SURPLUS capped / OVER_DEDUCTION /
+      NOT_COUNTED) + one-off correction endpoint with dry run; Q9 surplus to 2900 Suspense,
+      kept on daily_financial_snapshot.variance_target and carried to re-approvals
+    - H-5: reopen / supersede reverse the variance journal on the original date;
+      only APPROVED reconciliations are posted
+    - idempotent re-posts (typed live-journal check, ALREADY_POSTED) and a per-reference
+      pg_advisory_xact_lock in executePost (two simultaneous posts -> one journal)
+    - GL periods: close / reopen with reason and audit, late entries booked on the first
+      open day with event_date
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java
+new file mode 100644
+index 0000000..ac3c725
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java
+@@ -0,0 +1,387 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.Lsms.Reconciliation.Entity.DailyFinancialSnapshot;
++import com.Lsms.Reconciliation.Entity.DailyReconciliation;
++import com.Lsms.Reconciliation.Enums.ReconciliationStatus;
++import com.Lsms.Reconciliation.Repository.DailyFinancialSnapshotRepository;
++import com.Lsms.Reconciliation.Repository.DailyReconciliationRepository;
++import lombok.Builder;
++import lombok.Data;
++import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.stereotype.Service;
++
++import java.math.BigDecimal;
++import java.time.LocalDate;
++import java.util.ArrayList;
++import java.util.HashSet;
++import java.util.List;
++import java.util.Map;
++import java.util.Set;
++import java.util.TreeMap;
++
++/**
++ * Day-close variance in the GL (MPANGO-PAMOJA §1.2, §1.3):
++ *  - {@link #postForApproval}: the approval hook — posts the current snapshot with the
++ *    corrected rule, stamps its variance_kind, and records a failure instead of losing it;
++ *  - {@link #reverseFor}: a superseded or reopened snapshot gives its journal back,
++ *    dated like the original (RIPOTI H-5: re-approval used to post the variance twice);
++ *  - {@link #correct}: the one-off data fix of the journals posted with the old,
++ *    inverted sign (RIPOTI H-1), with a dry run that writes nothing.
++ *
++ * Only an APPROVED reconciliation's current snapshot is ever posted: a reopened day
++ * has had its journal reversed and gets a new snapshot when it is approved again.
++ * A snapshot's {@code variance_target} ('2900') keeps the owner's suspense decision
++ * (RIPOTI Q9) on the snapshot itself, so every later post (approval, retry,
++ * correction, and the next version after a reopen) goes to the same account.
++ */
++@Service
++@RequiredArgsConstructor
++@Slf4j
++public class DayCloseVarianceService {
++
++    private final PostingEngine postingEngine;
++    private final DailyFinancialSnapshotRepository snapshotRepository;
++    private final JournalEntryRepository journalEntryRepository;
++    private final JournalEntryLineRepository journalEntryLineRepository;
++    private final GlPostingFailureService failureService;
++    private final GlConfigService glConfigService;
++    private final DailyReconciliationRepository reconciliationRepository;
++
++    private static final String CASH = "1000";
++    public static final String SOURCE_CORRECTION = "DAY_CLOSE_CORRECTION";
++    private static final String TYPE = JournalEventType.DAY_CLOSE_VARIANCE.name();
++
++    /** The snapshot's surplus belongs in 2900 Suspense (variance_target = '2900'). */
++    public static boolean toSuspense(DailyFinancialSnapshot snap) {
++        return snap != null && PostingEngine.SUSPENSE.equals(snap.getVarianceTarget());
++    }
++
++    /**
++     * Approval hook. Sets {@code snapshot.varianceKind} on the caller's (managed)
++     * entity and posts. Never throws: a failed post is kept in gl_posting_failure.
++     */
++    public PostingEngine.DayCloseVariance postForApproval(DailyFinancialSnapshot snapshot, String postedBy) {
++        if (snapshot == null) return null;
++        PostingEngine.DayCloseVariance v = PostingEngine.classifyDayCloseVariance(snapshot);
++        snapshot.setVarianceKind(v != null ? v.kind().name() : null);
++        try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++            postingEngine.postDayCloseVariance(snapshot, postedBy, toSuspense(snapshot));
++        } catch (Exception e) {
++            log.error("GL postDayCloseVariance failed for snapshot {}: {}", snapshot.getUid(),
++                    GlPostingFailureService.messageChain(e));
++            failureService.record(GlPostingFailureService.SOURCE_DAY_CLOSE, snapshot.getUid(),
++                    snapshot.getReconciliationUid(), e);
++        }
++        return v;
++    }
++
++    /**
++     * Retry path: re-posts the CURRENT snapshot by uid; throws on a failed post.
++     * Posts nothing when the snapshot was superseded, its reconciliation is not
++     * APPROVED (reopened), or a live unreversed DAY_CLOSE_VARIANCE journal already
++     * exists for it, so a retry run twice still leaves one journal.
++     */
++    public GlPostOutcome postCurrent(String snapshotUid, String postedBy) {
++        DailyFinancialSnapshot snap = snapshotRepository.findByUid(snapshotUid)
++                .orElseThrow(() -> new IllegalStateException("Snapshot haipo: " + snapshotUid));
++        if (!Boolean.TRUE.equals(snap.getIsCurrent())) {
++            log.info("Day close {} is superseded - not posted", snapshotUid);
++            return GlPostOutcome.SUPERSEDED;
++        }
++        if (!isApproved(snap)) {
++            log.info("Day close {}: reconciliation {} is not APPROVED - not posted", snapshotUid, snap.getReconciliationUid());
++            return GlPostOutcome.NOT_APPROVED;
++        }
++        if (postingEngine.hasActivePosting(TYPE, snapshotUid)) {
++            log.info("Day close {} already has a live journal - not posted again", snapshotUid);
++            failureService.resolveBySource(snapshotUid, postedBy, GlPostOutcome.ALREADY_POSTED.name());
++            return GlPostOutcome.ALREADY_POSTED;
++        }
++        PostingEngine.DayCloseVariance v;
++        try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++            v = postingEngine.postDayCloseVariance(snap, postedBy, toSuspense(snap));
++        } catch (RuntimeException e) {
++            throw e;
++        } catch (Exception e) {
++            throw new IllegalStateException(e.getMessage(), e);
++        }
++        snap.setVarianceKind(v != null ? v.kind().name() : null);
++        snapshotRepository.save(snap);
++        return v == null || v.postedAmount().signum() <= 0 ? GlPostOutcome.NOTHING_TO_POST : GlPostOutcome.POSTED;
++    }
++
++    /** True when the snapshot's reconciliation is APPROVED now (not reopened / resubmitted). */
++    private boolean isApproved(DailyFinancialSnapshot snap) {
++        if (snap.getReconciliationUid() == null) return false;
++        return reconciliationRepository.findByUid(snap.getReconciliationUid())
++                .map(DailyReconciliation::getStatus)
++                .filter(st -> st == ReconciliationStatus.APPROVED)
++                .isPresent();
++    }
++
++    /**
++     * Reverses every live journal of a snapshot (reopen / supersede), on the original
++     * date. Never throws; a failure is recorded so the double posting can be fixed.
++     */
++    public void reverseFor(String snapshotUid, String postedBy, String reason) {
++        if (snapshotUid == null) return;
++        try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++            postingEngine.reverseActiveByReference(snapshotUid, postedBy, reason, true);
++        } catch (Exception e) {
++            log.error("GL reversal of day close {} failed: {}", snapshotUid, GlPostingFailureService.messageChain(e));
++            failureService.record("DAY_CLOSE_REVERSAL", snapshotUid, null, e);
++        }
++    }
++
++    // ── One-off correction (H-1 + H-5) ───────────────────────────────────────
++
++    @Data
++    @Builder
++    public static class CorrectionRow {
++        private String snapshotUid;
++        private String journalUid;
++        private String journalNumber;
++        private LocalDate date;
++        private String userName;
++        private Integer snapshotVersion;
++        private Boolean current;
++        private BigDecimal variance;
++        private BigDecimal declared;
++        /** SHORTAGE / SURPLUS / OVER_DEDUCTION / SUPERSEDED / ZERO. */
++        private String group;
++        /** REVERSE_AND_REPOST / REVERSE_ONLY / POST_MISSING / ALREADY_CORRECT. */
++        private String action;
++        /** Effect on account 1000 (Dr − Cr) of the live journal now, and after the fix. */
++        private BigDecimal cashBefore;
++        private BigDecimal cashAfter;
++        private BigDecimal overDeducted;
++        /** The non-cash account of the live journal now, and after the fix (6700 / 2900; null = none). */
++        private String counterBefore;
++        private String counterAfter;
++        private String error;
++    }
++
++    @Data
++    @Builder
++    public static class CorrectionResult {
++        private boolean dryRun;
++        private int journals;
++        private int toChange;
++        private int done;
++        private int errors;
++        /** Per group: count and TZS of the variance. */
++        private Map<String, BigDecimal[]> groups;
++        private BigDecimal cashBefore;
++        private BigDecimal cashAfter;
++        /** cashAfter − cashBefore: what account 1000 moves by (6700 moves the opposite way). */
++        private BigDecimal cashChange;
++        /** What goes to 2900 Suspense instead of 6700 (the snapshots named in the request). */
++        private BigDecimal suspenseAmount;
++        /** Requested suspense snapshots that are not a current SURPLUS row; a real run refuses them. */
++        private List<String> suspenseNotApplicable;
++        private List<CorrectionRow> rows;
++    }
++
++    /**
++     * Finds every live DAY_CLOSE_VARIANCE journal and every current snapshot with a
++     * variance, and brings each to the corrected rule:
++     *  - current snapshot, journal differs from the rule: reverse (on the original
++     *    date) and repost; OVER_DEDUCTION: reverse only, nothing reposted;
++     *  - superseded snapshot that still has a live journal (H-5): reverse only;
++     *  - current snapshot with a variance and no live journal: post it, only when
++     *    its reconciliation is APPROVED;
++     *  - current snapshot of a reconciliation that is not APPROVED (reopened) that
++     *    still has a live journal: reverse only (group NOT_APPROVED), as reopen does;
++     *  - journal already as the rule says: left alone, so a second run changes nothing.
++     * With {@code dryRun} nothing is written; the rows show what would happen.
++     */
++    public CorrectionResult correct(boolean dryRun, String by) {
++        return correct(dryRun, by, Set.of());
++    }
++
++    /**
++     * As above; the SURPLUS of each snapshot in {@code suspenseSnapshotUids} is posted
++     * Dr 1000 / Cr 2900 instead of Cr 6700, until the owner decides where that money
++     * came from (RIPOTI Q9: 24/06 and 04/07). Account 1000 moves the same either way.
++     * A real run refuses a uid that is not a current SURPLUS, so a typo never passes
++     * silently; a dry run lists it in {@code suspenseNotApplicable}.
++     *
++     * A real run writes variance_target = '2900' on those snapshots, and every run
++     * also treats a snapshot that already carries it as named, so the choice survives
++     * later runs, retries and re-approval. A row that fails is kept in
++     * gl_posting_failure (source DAY_CLOSE_CORRECTION); a row that succeeds resolves
++     * the snapshot's open failures.
++     */
++    public CorrectionResult correct(boolean dryRun, String by, Set<String> suspenseSnapshotUids) {
++        if (!glConfigService.isPostingEnabled()) {
++            throw new IllegalStateException("GL posting imezimwa.");
++        }
++        Set<String> requested = suspenseSnapshotUids != null ? suspenseSnapshotUids : Set.of();
++        Set<String> suspense = new HashSet<>(requested);
++        String reason = "Marekebisho ya H-1/H-5: alama ya variance ya kufunga siku";
++        List<CorrectionRow> rows = new ArrayList<>();
++        Set<String> snapshotsWithJournal = new HashSet<>();
++
++        for (JournalEntry j : journalEntryRepository
++                .findByReferenceTypeAndIsReversalFalseAndIsDeletedFalseOrderByEntryDateAscIdAsc(
++                        JournalEventType.DAY_CLOSE_VARIANCE.name())) {
++            if (journalEntryRepository.existsByReversedEntryUidAndIsDeletedFalse(j.getUid())) continue;
++            DailyFinancialSnapshot snap = snapshotRepository.findByUid(j.getReferenceUid()).orElse(null);
++            List<JournalEntryLine> jl = journalEntryLineRepository.findByJournalEntryUid(j.getUid());
++            BigDecimal before = cashEffect(jl);
++            String counterBefore = counterAccount(jl);
++            CorrectionRow.CorrectionRowBuilder row = CorrectionRow.builder()
++                    .snapshotUid(j.getReferenceUid()).journalUid(j.getUid()).journalNumber(j.getEntryNumber())
++                    .date(j.getEntryDate()).cashBefore(before).counterBefore(counterBefore);
++            if (snap == null) {
++                // Not a case seen in the data; never touched without a person looking at it.
++                rows.add(row.group("ORPHAN").action("NONE").cashAfter(before).counterAfter(counterBefore)
++                        .overDeducted(BigDecimal.ZERO).build());
++                continue;
++            }
++            row.userName(snap.getUserName()).snapshotVersion(snap.getSnapshotVersion())
++                    .current(Boolean.TRUE.equals(snap.getIsCurrent()))
++                    .variance(snap.getVarianceAmount()).declared(snap.getDeclaredCash()).date(snap.getSnapshotDate());
++            if (!Boolean.TRUE.equals(snap.getIsCurrent())) {
++                rows.add(row.group("SUPERSEDED").action("REVERSE_ONLY").cashAfter(BigDecimal.ZERO)
++                        .overDeducted(BigDecimal.ZERO).build());
++                continue;
++            }
++            snapshotsWithJournal.add(snap.getUid());
++            if (toSuspense(snap)) suspense.add(snap.getUid());
++            if (!isApproved(snap)) {
++                // Reopened: its money is not known until it is approved again (reopen()
++                // reverses the journal now; this catches one reopened before that).
++                rows.add(row.group("NOT_APPROVED").action("REVERSE_ONLY").cashAfter(BigDecimal.ZERO)
++                        .overDeducted(BigDecimal.ZERO).build());
++                continue;
++            }
++            PostingEngine.DayCloseVariance v = PostingEngine.classifyDayCloseVariance(snap);
++            BigDecimal after = cashEffect(v);
++            String counterAfter = counterAccount(v, suspense.contains(snap.getUid()));
++            String group = v == null ? "ZERO" : v.kind().name();
++            String action;
++            if (after.compareTo(before) == 0 && java.util.Objects.equals(counterAfter, counterBefore)) action = "ALREADY_CORRECT";
++            else if (after.signum() == 0) action = "REVERSE_ONLY";
++            else action = "REVERSE_AND_REPOST";
++            rows.add(row.group(group).action(action).cashAfter(after).counterAfter(counterAfter)
++                    .overDeducted(v != null ? v.overDeducted() : BigDecimal.ZERO).build());
++        }
++
++        for (DailyFinancialSnapshot snap : snapshotRepository.findAll()) {
++            if (!Boolean.TRUE.equals(snap.getIsCurrent()) || snapshotsWithJournal.contains(snap.getUid())) continue;
++            PostingEngine.DayCloseVariance v = PostingEngine.classifyDayCloseVariance(snap);
++            if (v == null || v.postedAmount().signum() <= 0) continue;
++            if (!isApproved(snap)) continue; // reopened: posted again on re-approval
++            if (toSuspense(snap)) suspense.add(snap.getUid());
++            rows.add(CorrectionRow.builder().snapshotUid(snap.getUid()).date(snap.getSnapshotDate())
++                    .userName(snap.getUserName()).snapshotVersion(snap.getSnapshotVersion()).current(true)
++                    .variance(snap.getVarianceAmount()).declared(snap.getDeclaredCash())
++                    .group(v.kind().name()).action("POST_MISSING").cashBefore(BigDecimal.ZERO)
++                    .cashAfter(cashEffect(v)).counterAfter(counterAccount(v, suspense.contains(snap.getUid())))
++                    .overDeducted(v.overDeducted()).build());
++        }
++
++        Set<String> applicable = new HashSet<>();
++        BigDecimal suspenseAmount = BigDecimal.ZERO;
++        for (CorrectionRow r : rows) {
++            if (PostingEngine.SUSPENSE.equals(r.getCounterAfter())) {
++                applicable.add(r.getSnapshotUid());
++                suspenseAmount = suspenseAmount.add(nz(r.getCashAfter()));
++            }
++        }
++        List<String> notApplicable = requested.stream().filter(u -> !applicable.contains(u)).sorted().toList();
++        if (!dryRun && !notApplicable.isEmpty()) {
++            throw new IllegalStateException("Snapshot hizi si ziada (SURPLUS) hai, haziwezi kwenda 2900: " + notApplicable);
++        }
++        if (!dryRun) {
++            // The owner's decision is kept on the snapshot before anything is posted.
++            for (String uid : applicable) {
++                snapshotRepository.findByUid(uid).ifPresent(snap -> {
++                    if (!toSuspense(snap)) {
++                        snap.setVarianceTarget(PostingEngine.SUSPENSE);
++                        snapshotRepository.save(snap);
++                    }
++                });
++            }
++        }
++
++        int done = 0, errors = 0, toChange = 0;
++        for (CorrectionRow r : rows) {
++            if ("ALREADY_CORRECT".equals(r.getAction()) || "NONE".equals(r.getAction())) continue;
++            toChange++;
++            if (dryRun) continue;
++            try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++                if (r.getJournalUid() != null) {
++                    JournalEntry j = journalEntryRepository.findByUid(r.getJournalUid()).orElseThrow();
++                    LocalDate original = j.getEventDate() != null ? j.getEventDate() : j.getEntryDate();
++                    postingEngine.reverse(r.getJournalUid(), by, reason, original);
++                }
++                if (Boolean.TRUE.equals(r.getCurrent()) && !"NOT_APPROVED".equals(r.getGroup())) {
++                    DailyFinancialSnapshot snap = snapshotRepository.findByUid(r.getSnapshotUid()).orElseThrow();
++                    PostingEngine.DayCloseVariance v = postingEngine.postDayCloseVariance(snap, by,
++                            PostingEngine.SUSPENSE.equals(r.getCounterAfter()));
++                    snap.setVarianceKind(v != null ? v.kind().name() : null);
++                    snapshotRepository.save(snap);
++                }
++                done++;
++                failureService.resolveBySource(r.getSnapshotUid(), by, "CORRECTED");
++            } catch (Exception e) {
++                errors++;
++                r.setError(GlPostingFailureService.messageChain(e));
++                log.error("Day-close correction of snapshot {} failed: {}", r.getSnapshotUid(), r.getError());
++                failureService.record(SOURCE_CORRECTION, r.getSnapshotUid(), r.getJournalNumber(), e);
++            }
++        }
++
++        Map<String, BigDecimal[]> groups = new TreeMap<>();
++        BigDecimal cashBefore = BigDecimal.ZERO, cashAfter = BigDecimal.ZERO;
++        for (CorrectionRow r : rows) {
++            BigDecimal[] g = groups.computeIfAbsent(r.getGroup(), k -> new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO});
++            g[0] = g[0].add(BigDecimal.ONE);
++            g[1] = g[1].add(r.getVariance() != null ? r.getVariance().abs() : BigDecimal.ZERO);
++            cashBefore = cashBefore.add(nz(r.getCashBefore()));
++            cashAfter = cashAfter.add(nz(r.getCashAfter()));
++        }
++        log.info("Day-close variance correction (dryRun={}) by {}: {} rows, {} to change, {} done, {} errors, {} to 2900 {}",
++                dryRun, by, rows.size(), toChange, done, errors, suspenseAmount, applicable);
++        return CorrectionResult.builder().dryRun(dryRun).journals(rows.size()).toChange(toChange)
++                .done(done).errors(errors).groups(groups).cashBefore(cashBefore).cashAfter(cashAfter)
++                .cashChange(cashAfter.subtract(cashBefore)).suspenseAmount(suspenseAmount)
++                .suspenseNotApplicable(notApplicable).rows(rows).build();
++    }
++
++    /** Dr − Cr on account 1000 of one journal's lines. */
++    private static BigDecimal cashEffect(List<JournalEntryLine> lines) {
++        BigDecimal e = BigDecimal.ZERO;
++        for (JournalEntryLine l : lines) {
++            if (CASH.equals(l.getAccountCode())) e = e.add(nz(l.getDebitAmount())).subtract(nz(l.getCreditAmount()));
++        }
++        return e;
++    }
++
++    /** The first non-cash account of a journal (a variance journal has exactly one). */
++    private static String counterAccount(List<JournalEntryLine> lines) {
++        for (JournalEntryLine l : lines) {
++            if (!CASH.equals(l.getAccountCode())) return l.getAccountCode();
++        }
++        return null;
++    }
++
++    /** The non-cash account the corrected rule posts to. */
++    private static String counterAccount(PostingEngine.DayCloseVariance v, boolean toSuspense) {
++        if (v == null || v.postedAmount().signum() <= 0) return null;
++        return v.kind() == PostingEngine.VarianceKind.SURPLUS && toSuspense ? PostingEngine.SUSPENSE : "6700";
++    }
++
++    /** Dr − Cr on account 1000 the corrected rule posts. */
++    private static BigDecimal cashEffect(PostingEngine.DayCloseVariance v) {
++        if (v == null || v.postedAmount().signum() <= 0) return BigDecimal.ZERO;
++        return v.kind() == PostingEngine.VarianceKind.SHORTAGE ? v.postedAmount().negate() : v.postedAmount();
++    }
++
++    private static BigDecimal nz(BigDecimal v) {
++        return v != null ? v : BigDecimal.ZERO;
++    }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java
+index 56916c6..76c98a7 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java
+@@ -39,6 +39,10 @@ public class GLController {
+     private final GlBackfillService glBackfillService;
+     private final PostingEngine postingEngine;
+     private final GlReconciliationService reconciliationService;
++    private final GlPostingFailureService glPostingFailureService;
++    private final SaleGlPostingService saleGlPostingService;
++    private final DayCloseVarianceService dayCloseVarianceService;
++    private final GlPeriodService glPeriodService;
+ 
+     @Operation(summary = "Trial balance for a date range")
+     @GetMapping("/trial-balance")
+@@ -268,4 +272,111 @@ public class GLController {
+         }
+         return new Response<>(ResponseStatus.Success, null, "Reversal attempted for ref=" + referenceUid);
+     }
++
++    // ── Posting failures, corrections, periods (Toleo 1, V134) ───────────────
++
++    @Operation(summary = "GL postings that failed while the business event was kept")
++    @GetMapping("/posting-failures")
++    @PreAuthorize("hasPermission(null, 'FINANCE_READ')")
++    public Response<java.util.Map<String, Object>> postingFailures(@RequestParam(defaultValue = "true") boolean open) {
++        java.util.Map<String, Object> body = new java.util.LinkedHashMap<>();
++        body.put("openCount", glPostingFailureService.countOpen());
++        body.put("items", glPostingFailureService.list(open));
++        return new Response<>(body);
++    }
++
++    @Operation(summary = "Retry one failed GL posting")
++    @PostMapping("/posting-failures/{uid}/retry")
++    @PreAuthorize("hasPermission(null, 'FINANCE_WRITE')")
++    public Response<GlPostingFailure> retryPostingFailure(@PathVariable String uid) {
++        try {
++            GlPostingFailure f = glPostingFailureService.retry(uid, com.Lsms.uaa.utils.LoggedUser.getUid());
++            boolean ok = f.getResolvedAt() != null;
++            return new Response<>(ok ? ResponseStatus.Success : ResponseStatus.Error, f,
++                    ok ? "Imepostiwa" : "Bado inashindwa: " + f.getError());
++        } catch (IllegalArgumentException e) {
++            return new Response<>(ResponseStatus.Error, null, e.getMessage());
++        }
++    }
++
++    @Operation(summary = "Re-post one sale's journal from the sale as stored (H-2)")
++    @PostMapping("/corrections/repost-sale/{saleUid}")
++    @PreAuthorize("hasPermission(null, 'FINANCE_WRITE')")
++    public Response<Boolean> repostSale(@PathVariable String saleUid) {
++        try {
++            GlPostOutcome o = saleGlPostingService.postFromDb(saleUid, com.Lsms.uaa.utils.LoggedUser.getUid());
++            return new Response<>(ResponseStatus.Success, o != GlPostOutcome.NOTHING_TO_POST,
++                    switch (o) {
++                        case POSTED -> "Imepostiwa: sale ina journal hai";
++                        case ALREADY_POSTED -> "Tayari imepostiwa: hakuna journal mpya";
++                        default -> "Hakuna cha kupost (deni la walk-in)";
++                    });
++        } catch (RuntimeException e) {
++            return new Response<>(ResponseStatus.Error, false, GlPostingFailureService.messageChain(e));
++        }
++    }
++
++    @Operation(summary = "Bring day-close variance journals to the corrected rule (H-1/H-5); dryRun writes nothing")
++    @PostMapping("/corrections/day-close-variance")
++    @PreAuthorize("hasPermission(null, 'FINANCE_WRITE')")
++    public Response<DayCloseVarianceService.CorrectionResult> correctDayCloseVariance(
++            @RequestParam(defaultValue = "true") boolean dryRun,
++            @RequestParam(required = false) List<String> suspenseSnapshotUid) {
++        try {
++            String by = com.Lsms.uaa.utils.LoggedUser.getUid();
++            java.util.Set<String> suspense = suspenseSnapshotUid != null
++                    ? new java.util.HashSet<>(suspenseSnapshotUid) : java.util.Set.of();
++            log.warn("Day-close variance correction requested by {} (dryRun={}, to 2900: {})", by, dryRun, suspense);
++            DayCloseVarianceService.CorrectionResult r = dayCloseVarianceService.correct(dryRun, by, suspense);
++            return new Response<>(r.getErrors() == 0 ? ResponseStatus.Success : ResponseStatus.Warning, r,
++                    dryRun ? "Hakiki tu: hakuna kilichoandikwa" : "Marekebisho: " + r.getDone() + " / " + r.getToChange());
++        } catch (IllegalStateException e) {
++            return new Response<>(ResponseStatus.Error, null, e.getMessage());
++        }
++    }
++
++    @Operation(summary = "GL months and their status")
++    @GetMapping("/periods")
++    @PreAuthorize("hasPermission(null, 'FINANCE_READ')")
++    public Response<List<java.util.Map<String, Object>>> periods() {
++        return new Response<>(glPeriodService.list());
++    }
++
++    @Operation(summary = "Close / reopen history of GL months")
++    @GetMapping("/periods/audit")
++    @PreAuthorize("hasPermission(null, 'FINANCE_READ')")
++    public Response<List<GlPeriodAudit>> periodAudit(@RequestParam(required = false) Integer year,
++                                                     @RequestParam(required = false) Integer month) {
++        return new Response<>(glPeriodService.audit(year, month));
++    }
++
++    @Operation(summary = "Close a past GL month")
++    @PostMapping("/periods/{year}/{month}/close")
++    @PreAuthorize("hasPermission(null, 'FINANCE_WRITE')")
++    public Response<java.util.Map<String, Object>> closePeriod(@PathVariable int year, @PathVariable int month,
++                                                               @RequestBody(required = false) java.util.Map<String, Object> body) {
++        try {
++            String reason = body != null && body.get("reason") != null ? String.valueOf(body.get("reason")) : null;
++            return new Response<>(ResponseStatus.Success, glPeriodService.close(year, month, reason,
++                    com.Lsms.uaa.utils.LoggedUser.getUid(), com.Lsms.uaa.utils.LoggedUser.getName()),
++                    "Mwezi umefungwa");
++        } catch (IllegalArgumentException | IllegalStateException | java.time.DateTimeException e) {
++            return new Response<>(ResponseStatus.Error, null, e.getMessage());
++        }
++    }
++
++    @Operation(summary = "Reopen a closed GL month (reason required, audited)")
++    @PostMapping("/periods/{year}/{month}/reopen")
++    @PreAuthorize("hasPermission(null, 'FINANCE_WRITE')")
++    public Response<Void> reopenPeriod(@PathVariable int year, @PathVariable int month,
++                                       @RequestBody java.util.Map<String, Object> body) {
++        try {
++            String reason = body != null && body.get("reason") != null ? String.valueOf(body.get("reason")) : null;
++            glPeriodService.reopen(year, month, reason,
++                    com.Lsms.uaa.utils.LoggedUser.getUid(), com.Lsms.uaa.utils.LoggedUser.getName());
++            return new Response<>(ResponseStatus.Success, null, "Mwezi umefunguliwa upya");
++        } catch (IllegalArgumentException | IllegalStateException | java.time.DateTimeException e) {
++            return new Response<>(ResponseStatus.Error, null, e.getMessage());
++        }
++    }
+ }
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLService.java
+index da7a633..8a847a1 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLService.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLService.java
+@@ -432,6 +432,8 @@ public class GLService {
+                 .branchUid(e.getBranchUid())
+                 .postedBy(e.getPostedBy())
+                 .postedAt(e.getPostedAt())
++                .eventDate(e.getEventDate())
++                .isLateEntry(Boolean.TRUE.equals(e.getIsLateEntry()))
+                 .isReversal(e.getIsReversal())
+                 .isBalanced(e.getIsBalanced())
+                 .lines(lines)
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlChartInitializer.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlChartInitializer.java
+index 228bdbe..7abebe8 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlChartInitializer.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlChartInitializer.java
+@@ -49,6 +49,7 @@ public class GlChartInitializer implements ApplicationRunner {
+             {"2000", "Accounts Payable", "Madeni ya Wasambazaji", "LIABILITY", "CURRENT_LIABILITY", "CREDIT"},
+             {"2100", "Loans Payable", "Mikopo", "LIABILITY", "LONG_TERM_LIABILITY", "CREDIT"},
+             {"2200", "Tax Payable", "Kodi Inayodaiwa", "LIABILITY", "CURRENT_LIABILITY", "CREDIT"},
++            {"2900", "Suspense", "Pesa Inayosubiri Uamuzi", "LIABILITY", "CURRENT_LIABILITY", "CREDIT"},
+             // ── EQUITY ──
+             {"3000", "Owner Capital", "Mtaji wa Mmiliki", "EQUITY", "EQUITY", "CREDIT"},
+             {"3100", "Owner Drawings", "Mmiliki Alichotoa", "EQUITY", "EQUITY", "DEBIT"},
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriod.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriod.java
+index 8c63ea4..77652b4 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriod.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriod.java
+@@ -51,6 +51,13 @@ public class GlPeriod {
+     @Column(name = "closed_by", length = 255)
+     private String closedBy;
+ 
++    @Column(name = "closed_by_uid", length = 255)
++    private String closedByUid;
++
++    /** The control checks as they stood when the period was closed (JSON). */
++    @Column(name = "checks_json", columnDefinition = "TEXT")
++    private String checksJson;
++
+     @Column(name = "created_at", updatable = false)
+     private LocalDateTime createdAt;
+ 
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodAudit.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodAudit.java
+new file mode 100644
+index 0000000..1a01e10
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodAudit.java
+@@ -0,0 +1,51 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import jakarta.persistence.*;
++import lombok.Data;
++import lombok.NoArgsConstructor;
++
++import java.time.LocalDateTime;
++import java.util.UUID;
++
++/** Who closed or reopened a GL period, when, and why (V134). Append-only. */
++@Entity
++@Table(name = "gl_period_audit")
++@Data
++@NoArgsConstructor
++public class GlPeriodAudit {
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    @Column(name = "uid", unique = true, nullable = false, updatable = false, length = 36)
++    private String uid;
++
++    @Column(name = "period_year", nullable = false)
++    private Integer periodYear;
++
++    @Column(name = "period_month", nullable = false)
++    private Integer periodMonth;
++
++    /** CLOSE or REOPEN. */
++    @Column(name = "action", nullable = false, length = 10)
++    private String action;
++
++    @Column(name = "reason", columnDefinition = "TEXT")
++    private String reason;
++
++    @Column(name = "by_uid")
++    private String byUid;
++
++    @Column(name = "by_name")
++    private String byName;
++
++    @Column(name = "at", nullable = false)
++    private LocalDateTime at;
++
++    @PrePersist
++    protected void onCreate() {
++        if (uid == null) uid = UUID.randomUUID().toString();
++        if (at == null) at = LocalDateTime.now();
++    }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodAuditRepository.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodAuditRepository.java
+new file mode 100644
+index 0000000..1a4daeb
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodAuditRepository.java
+@@ -0,0 +1,14 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.stereotype.Repository;
++
++import java.util.List;
++
++@Repository
++public interface GlPeriodAuditRepository extends JpaRepository<GlPeriodAudit, Long> {
++
++    List<GlPeriodAudit> findByPeriodYearAndPeriodMonthOrderByAtDesc(Integer periodYear, Integer periodMonth);
++
++    List<GlPeriodAudit> findTop100ByOrderByAtDesc();
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodRepository.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodRepository.java
+index bcdf0ee..bcdf42c 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodRepository.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodRepository.java
+@@ -1,6 +1,8 @@
+ package com.Lsms.CapitalAndExpenditure.gl;
+ 
+ import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.repository.query.Param;
+ import org.springframework.stereotype.Repository;
+ 
+ import java.util.List;
+@@ -16,4 +18,17 @@ public interface GlPeriodRepository extends JpaRepository<GlPeriod, Long> {
+ 
+     boolean existsByPeriodYearAndPeriodMonthAndBranchUid(
+             Integer periodYear, Integer periodMonth, String branchUid);
++
++    /** The business-wide period row (branch_uid NULL, V134). */
++    Optional<GlPeriod> findByPeriodYearAndPeriodMonthAndBranchUidIsNull(Integer periodYear, Integer periodMonth);
++
++    List<GlPeriod> findByBranchUidIsNullOrderByPeriodYearDescPeriodMonthDesc();
++
++    /** True when the business-wide period is CLOSED or LOCKED. Called on every posting. */
++    @Query("""
++            SELECT COUNT(p) > 0 FROM GlPeriod p
++            WHERE p.periodYear = :year AND p.periodMonth = :month
++              AND p.branchUid IS NULL AND p.status IN ('CLOSED', 'LOCKED')
++            """)
++    boolean isClosed(@Param("year") int year, @Param("month") int month);
+ }
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java
+new file mode 100644
+index 0000000..4c52bf5
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java
+@@ -0,0 +1,163 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++
++import java.time.LocalDate;
++import java.time.LocalDateTime;
++import java.time.YearMonth;
++import java.util.ArrayList;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.Map;
++
++/**
++ * Closing and reopening GL months (MPANGO-PAMOJA §1.9). A CLOSED month takes no new
++ * journal on its dates: a system event is booked on the first open day with its real
++ * date in event_date (PostingEngine.executePost), and a manual journal is refused
++ * until the month is reopened. Every close and reopen is written to gl_period_audit.
++ */
++@Service
++@RequiredArgsConstructor
++@Slf4j
++public class GlPeriodService {
++
++    public static final String OPEN = "OPEN";
++    public static final String CLOSED = "CLOSED";
++
++    private static final ObjectMapper JSON = new ObjectMapper().findAndRegisterModules();
++    private static final int MAX_MONTHS_LISTED = 36;
++
++    private final GlPeriodRepository periodRepository;
++    private final GlPeriodAuditRepository auditRepository;
++    private final GlPostingFailureRepository failureRepository;
++    private final GlReconciliationService glReconciliationService;
++    private final JournalEntryRepository journalEntryRepository;
++
++    /**
++     * Every month from the first journal's month to now (newest first, at most 36) with
++     * its status; months never closed are OPEN.
++     */
++    @Transactional(readOnly = true)
++    public List<Map<String, Object>> list() {
++        Map<YearMonth, GlPeriod> stored = new LinkedHashMap<>();
++        for (GlPeriod p : periodRepository.findByBranchUidIsNullOrderByPeriodYearDescPeriodMonthDesc()) {
++            stored.put(YearMonth.of(p.getPeriodYear(), p.getPeriodMonth()), p);
++        }
++        List<Map<String, Object>> out = new ArrayList<>();
++        LocalDate first = journalEntryRepository.findFirstEntryDate();
++        YearMonth oldest = first != null ? YearMonth.from(first) : YearMonth.now();
++        YearMonth m = YearMonth.now();
++        for (int i = 0; i < MAX_MONTHS_LISTED && !m.isBefore(oldest); i++, m = m.minusMonths(1)) {
++            GlPeriod p = stored.get(m);
++            Map<String, Object> row = new LinkedHashMap<>();
++            row.put("year", m.getYear());
++            row.put("month", m.getMonthValue());
++            row.put("status", p != null && p.getStatus() != null ? p.getStatus() : OPEN);
++            row.put("closedAt", p != null ? p.getClosedAt() : null);
++            row.put("closedBy", p != null ? p.getClosedBy() : null);
++            row.put("current", m.equals(YearMonth.now()));
++            out.add(row);
++        }
++        return out;
++    }
++
++    @Transactional(readOnly = true)
++    public List<GlPeriodAudit> audit(Integer year, Integer month) {
++        return year != null && month != null
++                ? auditRepository.findByPeriodYearAndPeriodMonthOrderByAtDesc(year, month)
++                : auditRepository.findTop100ByOrderByAtDesc();
++    }
++
++    /**
++     * Closes one past month. Refused for the current or a future month, and while a
++     * GL posting failure dated in that month is still open.
++     */
++    @Transactional
++    public Map<String, Object> close(int year, int month, String reason, String byUid, String byName) {
++        YearMonth ym = YearMonth.of(year, month);
++        if (!ym.isBefore(YearMonth.now())) {
++            throw new IllegalStateException("Mwezi " + ym + " bado haujaisha; unaweza kufunga mwezi uliopita tu.");
++        }
++        GlPeriod p = periodRepository.findByPeriodYearAndPeriodMonthAndBranchUidIsNull(year, month).orElse(null);
++        if (p != null && !OPEN.equals(p.getStatus())) {
++            throw new IllegalStateException("Mwezi " + ym + " tayari umefungwa.");
++        }
++        LocalDate from = ym.atDay(1), to = ym.atEndOfMonth();
++        long openFailures = failureRepository.findByResolvedAtIsNullOrderByCreatedAtDesc().stream()
++                .filter(f -> f.getEntryDate() != null && !f.getEntryDate().isBefore(from) && !f.getEntryDate().isAfter(to))
++                .count();
++        if (openFailures > 0) {
++            throw new IllegalStateException("Mwezi " + ym + " una makosa " + openFailures
++                    + " ya GL yasiyotatuliwa; yatatue kwanza (Jaribu tena).");
++        }
++
++        Map<String, Object> checks = new LinkedHashMap<>();
++        checks.put("asOf", to.toString());
++        checks.put("openPostingFailures", 0);
++        // Informational only, never a gate: controlChecks still has RIPOTI H-9 (GL as of the
++        // month end is compared with TODAY's sub-ledgers), so a difference here is expected.
++        checks.put("controlChecksNote", "informational; controlChecks ina H-9 (GL ya " + to
++                + " dhidi ya sub-ledger za leo) - haizuii kufunga");
++        try {
++            checks.put("controlChecks", glReconciliationService.controlChecks(to));
++        } catch (Exception e) {
++            checks.put("controlChecksError", e.getMessage());
++        }
++
++        if (p == null) {
++            p = new GlPeriod();
++            p.setPeriodYear(year);
++            p.setPeriodMonth(month);
++            p.setPeriodName(ym.toString());
++        }
++        p.setStatus(CLOSED);
++        p.setClosedAt(LocalDateTime.now());
++        p.setClosedBy(byName);
++        p.setClosedByUid(byUid);
++        p.setChecksJson(toJson(checks));
++        periodRepository.save(p);
++        writeAudit(year, month, "CLOSE", reason, byUid, byName);
++        log.info("GL period {} CLOSED by {}", ym, byName);
++        return checks;
++    }
++
++    /** Reopens a closed month; a reason of at least 10 characters is required. */
++    @Transactional
++    public void reopen(int year, int month, String reason, String byUid, String byName) {
++        YearMonth ym = YearMonth.of(year, month);
++        if (reason == null || reason.trim().length() < 10) {
++            throw new IllegalArgumentException("Sababu ya kufungua upya inahitajika (angalau herufi 10).");
++        }
++        GlPeriod p = periodRepository.findByPeriodYearAndPeriodMonthAndBranchUidIsNull(year, month)
++                .filter(x -> !OPEN.equals(x.getStatus()))
++                .orElseThrow(() -> new IllegalStateException("Mwezi " + ym + " haujafungwa."));
++        p.setStatus(OPEN);
++        p.setOpenedAt(LocalDateTime.now());
++        periodRepository.save(p);
++        writeAudit(year, month, "REOPEN", reason.trim(), byUid, byName);
++        log.warn("GL period {} REOPENED by {}: {}", ym, byName, reason.trim());
++    }
++
++    private void writeAudit(int year, int month, String action, String reason, String byUid, String byName) {
++        GlPeriodAudit a = new GlPeriodAudit();
++        a.setPeriodYear(year);
++        a.setPeriodMonth(month);
++        a.setAction(action);
++        a.setReason(reason != null && !reason.isBlank() ? reason.trim() : null);
++        a.setByUid(byUid);
++        a.setByName(byName);
++        auditRepository.save(a);
++    }
++
++    private static String toJson(Object o) {
++        try {
++            return JSON.writeValueAsString(o);
++        } catch (Exception e) {
++            return null;
++        }
++    }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostOutcome.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostOutcome.java
+new file mode 100644
+index 0000000..a93b0dc
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostOutcome.java
+@@ -0,0 +1,18 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++/**
++ * What a re-post from the source record did (sale repost, day-close retry). Every
++ * outcome except an exception leaves nothing for a retry to do.
++ */
++public enum GlPostOutcome {
++    /** A journal was posted now. */
++    POSTED,
++    /** A live, unreversed journal of this event type already existed; nothing was posted. */
++    ALREADY_POSTED,
++    /** The source needs no journal (walk-in debt, zero / over-deduction variance). */
++    NOTHING_TO_POST,
++    /** Day close only: the reconciliation is not APPROVED (reopened); re-approval posts a new snapshot. */
++    NOT_APPROVED,
++    /** Day close only: the snapshot was replaced by a newer version, which carries the posting. */
++    SUPERSEDED
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingException.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingException.java
+new file mode 100644
+index 0000000..a77c251
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingException.java
+@@ -0,0 +1,42 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import java.time.LocalDate;
++import java.util.List;
++
++/**
++ * Thrown by {@link PostingEngine#post} when a journal could not be written. Carries
++ * the whole posting request so a caller that continues without the journal can
++ * record it in gl_posting_failure with enough detail to retry it.
++ */
++public class GlPostingException extends RuntimeException {
++
++    private final JournalEventType eventType;
++    private final String referenceUid;
++    private final String referenceNumber;
++    private final LocalDate entryDate;
++    private final String branchUid;
++    private final String postedBy;
++    private final List<PostingEngine.JournalLine> lines;
++
++    public GlPostingException(JournalEventType eventType, String referenceUid, String referenceNumber,
++                              LocalDate entryDate, String branchUid, String postedBy,
++                              List<PostingEngine.JournalLine> lines, Throwable cause) {
++        super("GL post failed for " + eventType + " ref=" + referenceUid
++                + (cause != null && cause.getMessage() != null ? ": " + cause.getMessage() : ""), cause);
++        this.eventType = eventType;
++        this.referenceUid = referenceUid;
++        this.referenceNumber = referenceNumber;
++        this.entryDate = entryDate;
++        this.branchUid = branchUid;
++        this.postedBy = postedBy;
++        this.lines = lines != null ? List.copyOf(lines) : List.of();
++    }
++
++    public JournalEventType getEventType() { return eventType; }
++    public String getReferenceUid() { return referenceUid; }
++    public String getReferenceNumber() { return referenceNumber; }
++    public LocalDate getEntryDate() { return entryDate; }
++    public String getBranchUid() { return branchUid; }
++    public String getPostedBy() { return postedBy; }
++    public List<PostingEngine.JournalLine> getLines() { return lines; }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailure.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailure.java
+new file mode 100644
+index 0000000..338b5b4
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailure.java
+@@ -0,0 +1,93 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import jakarta.persistence.*;
++import lombok.Data;
++import lombok.NoArgsConstructor;
++
++import java.time.LocalDate;
++import java.time.LocalDateTime;
++import java.util.UUID;
++
++/**
++ * A GL posting that failed while the business event itself was kept (V134). Before
++ * this table such failures were only a log line, so a credit sale could live for days
++ * with no journal (RIPOTI H-2). Open rows (resolved_at IS NULL) are shown on the GL
++ * overview and can be retried.
++ */
++@Entity
++@Table(name = "gl_posting_failure")
++@Data
++@NoArgsConstructor
++public class GlPostingFailure {
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++
++    @Column(name = "uid", unique = true, nullable = false, updatable = false, length = 36)
++    private String uid;
++
++    /** What the failed posting was for: SALE, PAYMENT_RECEIVED, PURCHASE, DAY_CLOSE, ... */
++    @Column(name = "source_type", nullable = false, length = 40)
++    private String sourceType;
++
++    @Column(name = "source_uid", nullable = false)
++    private String sourceUid;
++
++    /** Receipt / reference number people recognise, when known. */
++    @Column(name = "source_number", length = 100)
++    private String sourceNumber;
++
++    /** The journal event type, when the failure happened inside PostingEngine.post. */
++    @Column(name = "event_type", length = 50)
++    private String eventType;
++
++    /** The journal reference_uid the posting used (may differ from source_uid, e.g. "<uid>:DEBT"). */
++    @Column(name = "reference_uid", length = 96)
++    private String referenceUid;
++
++    @Column(name = "entry_date")
++    private LocalDate entryDate;
++
++    @Column(name = "branch_uid")
++    private String branchUid;
++
++    @Column(name = "posted_by")
++    private String postedBy;
++
++    /** The journal lines that were attempted (JSON), so a retry can replay them. */
++    @Column(name = "lines_json", columnDefinition = "TEXT")
++    private String linesJson;
++
++    @Column(name = "error", columnDefinition = "TEXT")
++    private String error;
++
++    @Column(name = "stack_head", columnDefinition = "TEXT")
++    private String stackHead;
++
++    @Column(name = "attempts", nullable = false)
++    private Integer attempts = 1;
++
++    @Column(name = "last_attempt_at", nullable = false)
++    private LocalDateTime lastAttemptAt;
++
++    @Column(name = "resolved_at")
++    private LocalDateTime resolvedAt;
++
++    @Column(name = "resolved_by_uid")
++    private String resolvedByUid;
++
++    @Column(name = "resolution")
++    private String resolution;
++
++    @Column(name = "created_at", nullable = false, updatable = false)
++    private LocalDateTime createdAt;
++
++    @PrePersist
++    protected void onCreate() {
++        if (uid == null) uid = UUID.randomUUID().toString();
++        LocalDateTime now = LocalDateTime.now();
++        if (createdAt == null) createdAt = now;
++        if (lastAttemptAt == null) lastAttemptAt = now;
++    }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureRepository.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureRepository.java
+new file mode 100644
+index 0000000..2350d59
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureRepository.java
+@@ -0,0 +1,23 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.stereotype.Repository;
++
++import java.util.List;
++import java.util.Optional;
++
++@Repository
++public interface GlPostingFailureRepository extends JpaRepository<GlPostingFailure, Long> {
++
++    Optional<GlPostingFailure> findByUid(String uid);
++
++    List<GlPostingFailure> findByResolvedAtIsNullOrderByCreatedAtDesc();
++
++    List<GlPostingFailure> findTop200ByOrderByCreatedAtDesc();
++
++    Optional<GlPostingFailure> findFirstBySourceTypeAndSourceUidAndResolvedAtIsNull(String sourceType, String sourceUid);
++
++    List<GlPostingFailure> findBySourceUidAndResolvedAtIsNull(String sourceUid);
++
++    long countByResolvedAtIsNull();
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java
+new file mode 100644
+index 0000000..ed98b57
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java
+@@ -0,0 +1,226 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.fasterxml.jackson.core.type.TypeReference;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.context.ApplicationContext;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Propagation;
++import org.springframework.transaction.annotation.Transactional;
++
++import java.time.LocalDateTime;
++import java.util.List;
++
++/**
++ * Keeps a row for every GL posting a business flow caught and continued without
++ * (MPANGO-PAMOJA §1.1/§1.4). Before this, such failures were a log line only, which
++ * is how three credit sales lived for days without a journal (RIPOTI H-2).
++ *
++ * Retry re-derives the journal from the source record where the attempted lines can
++ * themselves be wrong (a sale, a day close); any other source replays the lines that
++ * were attempted.
++ */
++@Service
++@RequiredArgsConstructor
++@Slf4j
++public class GlPostingFailureService {
++
++    public static final String SOURCE_SALE = "SALE";
++    public static final String SOURCE_DAY_CLOSE = "DAY_CLOSE";
++
++    private static final ObjectMapper JSON = new ObjectMapper().findAndRegisterModules();
++    private static final int MAX_ERROR = 2000;
++
++    private final GlPostingFailureRepository repository;
++    private final ApplicationContext applicationContext;
++
++    /**
++     * Records (or bumps the attempt count of) the open failure for one source record.
++     * Runs in its own transaction and never throws: it is called from catch blocks
++     * whose whole point is that the business flow carries on.
++     */
++    @Transactional(propagation = Propagation.REQUIRES_NEW)
++    public void record(String sourceType, String sourceUid, String sourceNumber, Throwable error) {
++        try {
++            String type = sourceType != null ? sourceType : "UNKNOWN";
++            String uid = sourceUid != null ? sourceUid : "?";
++            GlPostingFailure f = repository.findFirstBySourceTypeAndSourceUidAndResolvedAtIsNull(type, uid)
++                    .orElse(null);
++            if (f == null) {
++                f = new GlPostingFailure();
++                f.setSourceType(type);
++                f.setSourceUid(uid);
++                f.setAttempts(1);
++            } else {
++                f.setAttempts((f.getAttempts() != null ? f.getAttempts() : 0) + 1);
++                f.setLastAttemptAt(LocalDateTime.now());
++            }
++            if (sourceNumber != null) f.setSourceNumber(sourceNumber);
++            fillFromError(f, error);
++            repository.save(f);
++            log.error("GL posting failure recorded: {} {} ({}) attempt {}: {}",
++                    type, uid, f.getSourceNumber(), f.getAttempts(), f.getError());
++        } catch (Exception e) {
++            log.error("Could not record GL posting failure for {} {}: {} (original: {})",
++                    sourceType, sourceUid, e.getMessage(), error != null ? error.getMessage() : null);
++        }
++    }
++
++    /** Marks every open failure of a source record resolved (it now has its journal). */
++    @Transactional(propagation = Propagation.REQUIRES_NEW)
++    public void resolveBySource(String sourceUid, String byUid, String resolution) {
++        if (sourceUid == null) return;
++        try {
++            for (GlPostingFailure f : repository.findBySourceUidAndResolvedAtIsNull(sourceUid)) {
++                markResolved(f, byUid, resolution);
++                repository.save(f);
++            }
++        } catch (Exception e) {
++            log.warn("Could not resolve GL posting failures for {}: {}", sourceUid, e.getMessage());
++        }
++    }
++
++    @Transactional(readOnly = true)
++    public List<GlPostingFailure> list(boolean openOnly) {
++        return openOnly ? repository.findByResolvedAtIsNullOrderByCreatedAtDesc()
++                : repository.findTop200ByOrderByCreatedAtDesc();
++    }
++
++    @Transactional(readOnly = true)
++    public long countOpen() {
++        return repository.countByResolvedAtIsNull();
++    }
++
++    /**
++     * Tries the posting again. Success (the reference now has a live journal, or the
++     * source needs none) resolves the row; failure bumps attempts and keeps the new
++     * error. Not transactional itself: each posting commits in its own transaction.
++     */
++    public GlPostingFailure retry(String failureUid, String byUid) {
++        GlPostingFailure f = repository.findByUid(failureUid)
++                .orElseThrow(() -> new IllegalArgumentException("Kosa la GL halipo: " + failureUid));
++        if (f.getResolvedAt() != null) return f;
++        PostingEngine engine = applicationContext.getBean(PostingEngine.class);
++        String reference = f.getReferenceUid() != null ? f.getReferenceUid() : f.getSourceUid();
++        try {
++            String resolution;
++            switch (f.getSourceType()) {
++                case SOURCE_SALE -> {
++                    GlPostOutcome o = applicationContext.getBean(SaleGlPostingService.class)
++                            .postFromDb(f.getSourceUid(), byUid);
++                    reference = f.getSourceUid();
++                    resolution = resolutionOf(o);
++                }
++                case SOURCE_DAY_CLOSE -> {
++                    GlPostOutcome o = applicationContext.getBean(DayCloseVarianceService.class)
++                            .postCurrent(f.getSourceUid(), byUid);
++                    reference = f.getSourceUid();
++                    resolution = resolutionOf(o);
++                }
++                case DayCloseVarianceService.SOURCE_CORRECTION ->
++                    // The failed step may be the reversal, so re-posting alone could leave the
++                    // wrong journal live. The correction itself is idempotent: run it again.
++                        throw new IllegalStateException("Rudia marekebisho: POST /api/v1/gl/corrections/day-close-variance "
++                                + "(dryRun=true kwanza). Safu hii itatatuliwa yenyewe snapshot ikirekebishwa.");
++                default -> {
++                    List<PostingEngine.JournalLine> lines = readLines(f.getLinesJson());
++                    if (lines.isEmpty() || f.getEventType() == null) {
++                        throw new IllegalStateException("Kosa hili halina mistari ya journal iliyohifadhiwa; "
++                                + "rekebisha kwa journal ya mkono. / No stored lines to replay.");
++                    }
++                    engine.replay(JournalEventType.valueOf(f.getEventType()), reference, f.getSourceNumber(),
++                            f.getEntryDate(), f.getBranchUid(), byUid, lines);
++                    resolution = "RETRIED";
++                }
++            }
++            if ("RETRIED".equals(resolution) && !engine.hasActivePosting(reference)) {
++                throw new IllegalStateException("Retry ilimalizika lakini hakuna journal hai ya " + reference);
++            }
++            markResolved(f, byUid, resolution);
++        } catch (Exception e) {
++            f.setAttempts((f.getAttempts() != null ? f.getAttempts() : 0) + 1);
++            f.setLastAttemptAt(LocalDateTime.now());
++            fillFromError(f, e);
++            log.warn("GL retry of {} {} failed: {}", f.getSourceType(), f.getSourceUid(), f.getError());
++        }
++        return repository.save(f);
++    }
++
++    // ── helpers ──────────────────────────────────────────────────────────────
++
++    /** POSTED is checked for a live journal by the caller; the rest need no journal. */
++    private static String resolutionOf(GlPostOutcome o) {
++        return o == GlPostOutcome.POSTED ? "RETRIED" : o.name();
++    }
++
++    private static void markResolved(GlPostingFailure f, String byUid, String resolution) {
++        f.setResolvedAt(LocalDateTime.now());
++        f.setResolvedByUid(byUid);
++        f.setResolution(resolution);
++    }
++
++    private static void fillFromError(GlPostingFailure f, Throwable error) {
++        if (error instanceof GlPostingException g) {
++            f.setEventType(g.getEventType() != null ? g.getEventType().name() : null);
++            f.setReferenceUid(g.getReferenceUid());
++            if (f.getSourceNumber() == null) f.setSourceNumber(g.getReferenceNumber());
++            f.setEntryDate(g.getEntryDate());
++            f.setBranchUid(g.getBranchUid());
++            f.setPostedBy(g.getPostedBy());
++            f.setLinesJson(writeLines(g.getLines()));
++        } else if (error != null && error.getCause() instanceof GlPostingException g) {
++            fillFromError(f, g);
++            f.setError(truncate(messageChain(error)));
++            f.setStackHead(stackHead(error));
++            return;
++        }
++        f.setError(truncate(messageChain(error)));
++        f.setStackHead(stackHead(error));
++    }
++
++    static String messageChain(Throwable error) {
++        if (error == null) return null;
++        StringBuilder sb = new StringBuilder();
++        Throwable t = error;
++        int depth = 0;
++        while (t != null && depth++ < 5) {
++            if (!sb.isEmpty()) sb.append(" <- ");
++            sb.append(t.getClass().getSimpleName()).append(": ").append(t.getMessage());
++            if (t.getCause() == t) break;
++            t = t.getCause();
++        }
++        return sb.toString();
++    }
++
++    private static String stackHead(Throwable error) {
++        if (error == null) return null;
++        Throwable root = error;
++        while (root.getCause() != null && root.getCause() != root) root = root.getCause();
++        StringBuilder sb = new StringBuilder(root.getClass().getName());
++        StackTraceElement[] st = root.getStackTrace();
++        for (int i = 0; i < Math.min(8, st.length); i++) sb.append("\n  at ").append(st[i]);
++        return truncate(sb.toString());
++    }
++
++    private static String truncate(String s) {
++        return s == null || s.length() <= MAX_ERROR ? s : s.substring(0, MAX_ERROR);
++    }
++
++    private static String writeLines(List<PostingEngine.JournalLine> lines) {
++        try {
++            return lines == null || lines.isEmpty() ? null : JSON.writeValueAsString(lines);
++        } catch (Exception e) {
++            return null;
++        }
++    }
++
++    static List<PostingEngine.JournalLine> readLines(String json) {
++        if (json == null || json.isBlank()) return List.of();
++        try {
++            return JSON.readValue(json, new TypeReference<List<PostingEngine.JournalLine>>() {});
++        } catch (Exception e) {
++            throw new IllegalStateException("lines_json haisomeki: " + e.getMessage(), e);
++        }
++    }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntry.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntry.java
+index 959a0af..0ca9ee9 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntry.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntry.java
+@@ -80,6 +80,16 @@ public class JournalEntry {
+     @Column(name = "posted_at")
+     private LocalDateTime postedAt;
+ 
++    /**
++     * The real date of the business event when it differs from entry_date: an event
++     * dated inside a CLOSED period is booked on the first open day (V134).
++     */
++    @Column(name = "event_date")
++    private LocalDate eventDate;
++
++    @Column(name = "is_late_entry", nullable = false)
++    private Boolean isLateEntry = false;
++
+     @Column(name = "created_at", updatable = false)
+     private LocalDateTime createdAt;
+ 
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryDto.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryDto.java
+index 4277e61..a3e52c7 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryDto.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryDto.java
+@@ -41,6 +41,11 @@ public class JournalEntryDto {
+     private String branchUid;
+     private String postedBy;
+     private LocalDateTime postedAt;
++    /** Real event date of a late entry (booked on the first open day of a closed period). */
++    private LocalDate eventDate;
++
++    @JsonProperty("isLateEntry")
++    private Boolean isLateEntry;
+ 
+     // Explicit keys so the JSON matches the Flutter model regardless of Lombok
+     // boolean getter naming.
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryRepository.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryRepository.java
+index 4f351c5..55b3185 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryRepository.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/JournalEntryRepository.java
+@@ -35,6 +35,13 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, Long
+ 
+     List<JournalEntry> findByReferenceTypeAndReferenceUid(String referenceType, String referenceUid);
+ 
++    /** Date of the first live journal (the GL period list starts at its month). */
++    @Query("SELECT MIN(e.entryDate) FROM JournalEntry e WHERE e.isDeleted = false")
++    LocalDate findFirstEntryDate();
++
++    /** Every original (non-reversal) entry of one event type, oldest first. */
++    List<JournalEntry> findByReferenceTypeAndIsReversalFalseAndIsDeletedFalseOrderByEntryDateAscIdAsc(String referenceType);
++
+     @Query("SELECT e FROM JournalEntry e " +
+            "WHERE e.isDeleted = false " +
+            "AND e.entryDate BETWEEN :startDate AND :endDate " +
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+index 6973338..287e4f5 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+@@ -45,13 +45,26 @@ public class PostingEngine {
+     private final AccountMapper accountMapper;
+     private final ApplicationContext applicationContext;
+     private final GlConfigService glConfigService;
++    private final GlPeriodRepository glPeriodRepository;
+ 
+     private static final BigDecimal CENT = new BigDecimal("0.01");
+ 
++    /** 2900 Suspense: money found whose source is not decided yet (V134). */
++    public static final String SUSPENSE = "2900";
++
++    // True while postManual runs: a person's journal (true-up, transfer, manual entry)
++    // into a CLOSED period is refused instead of being moved to the first open day.
++    private final ThreadLocal<Boolean> manualPost = ThreadLocal.withInitial(() -> false);
++
+     // Thread-safe flag: when true, post() throws instead of swallowing in shadow mode.
+     // Used by GlBackfillService via withThrowOnError() so backfill error counts are accurate.
+     private final ThreadLocal<Boolean> forceThrow = ThreadLocal.withInitial(() -> false);
+ 
++    // Field-injected so the constructor (and the unit tests that build this class by
++    // hand, where it stays null) are untouched. Used only for the per-reference lock.
++    @jakarta.persistence.PersistenceContext
++    private jakarta.persistence.EntityManager entityManager;
++
+     /** One side of a journal — exactly one of debit/credit is non-zero. */
+     public record JournalLine(String accountCode, BigDecimal debit, BigDecimal credit, String description) {}
+ 
+@@ -68,17 +81,42 @@ public class PostingEngine {
+             applicationContext.getBean(PostingEngine.class)
+                     .executePost(eventType, referenceUid, referenceNumber, entryDate, branchUid, postedBy, lines);
+         } catch (Exception e) {
++            GlPostingException failure = new GlPostingException(eventType, referenceUid, referenceNumber,
++                    entryDate, branchUid, postedBy, lines, e);
+             if (glConfigService.isShadowMode() && !forceThrow.get()) {
++                // Swallowed here, so this is the only place that can leave a trace of it.
+                 log.error("GL shadow post failed for {} ref={}: {}", eventType, referenceUid, e.getMessage());
++                applicationContext.getBean(GlPostingFailureService.class)
++                        .record(eventType.name(), referenceUid, referenceNumber, failure);
+             } else {
+-                throw new RuntimeException("GL post failed for " + eventType + " ref=" + referenceUid, e);
++                throw failure;
+             }
+         }
+     }
+ 
++    /**
++     * Re-posts the lines of a recorded failure (retry). Throws on failure; a closed
++     * period moves the entry to the first open day exactly as a live event would.
++     */
++    public void replay(JournalEventType eventType, String referenceUid, String referenceNumber,
++                       LocalDate entryDate, String branchUid, String postedBy, List<JournalLine> lines) {
++        try (AutoCloseable ignored = withThrowOnError()) {
++            post(eventType, referenceUid, referenceNumber, entryDate, branchUid, postedBy, lines);
++        } catch (RuntimeException e) {
++            throw e;
++        } catch (Exception e) {
++            throw new RuntimeException(e.getMessage(), e);
++        }
++    }
++
+     @Transactional(propagation = Propagation.REQUIRES_NEW)
+     public void executePost(JournalEventType eventType, String referenceUid, String referenceNumber,
+                             LocalDate entryDate, String branchUid, String postedBy, List<JournalLine> rawLines) {
++        // Two posts of the same reference at the same moment (the after-commit hook and a
++        // "Jaribu tena", a double click, two retries) would both pass the check below and
++        // both insert. The lock serialises them until this transaction ends, so the second
++        // one sees the first one's committed journal and skips.
++        lockReference(referenceUid);
+         if (referenceUid != null && hasActivePosting(referenceUid)) {
+             log.debug("GL already posted for ref={} — skipping {}", referenceUid, eventType);
+             return;
+@@ -112,9 +150,24 @@ public class PostingEngine {
+                     eventType, referenceUid, totalDebit, totalCredit));
+         }
+ 
++        LocalDate eventDate = entryDate != null ? entryDate : LocalDate.now();
++        LocalDate bookDate = firstOpenDate(eventDate);
++        if (!bookDate.equals(eventDate) && manualPost.get()) {
++            throw new IllegalStateException(String.format(
++                    "Kipindi %s kimefungwa. Kifungue upya kwanza (kwa sababu) ili kuandika journal ya tarehe %s. / "
++                            + "Period %s is closed; reopen it first to post a manual journal dated %s.",
++                    YearMonth.from(eventDate), eventDate, YearMonth.from(eventDate), eventDate));
++        }
++
+         LocalDateTime now = LocalDateTime.now();
+         JournalEntry entry = new JournalEntry();
+-        entry.setEntryDate(entryDate != null ? entryDate : LocalDate.now());
++        entry.setEntryDate(bookDate);
++        if (!bookDate.equals(eventDate)) {
++            entry.setEventDate(eventDate);
++            entry.setIsLateEntry(true);
++            log.info("GL {} ref={} dated {} falls in a closed period - booked on {}",
++                    eventType, referenceUid, eventDate, bookDate);
++        }
+         entry.setReferenceType(eventType.name());
+         entry.setReferenceUid(referenceUid);
+         entry.setReferenceNumber(referenceNumber);
+@@ -148,6 +201,24 @@ public class PostingEngine {
+         log.debug("GL posted: {} ref={} DR={} CR={}", eventType, referenceUid, totalDebit, totalCredit);
+     }
+ 
++    /**
++     * The date a journal for an event on {@code eventDate} is booked on: the event date
++     * itself, or — when its period is CLOSED — the first day of the first open period
++     * after it (MPANGO-PAMOJA §1.9, decision 4).
++     */
++    public LocalDate firstOpenDate(LocalDate eventDate) {
++        YearMonth month = YearMonth.from(eventDate);
++        if (!isPeriodClosed(month)) return eventDate;
++        do {
++            month = month.plusMonths(1);
++        } while (isPeriodClosed(month));
++        return month.atDay(1);
++    }
++
++    public boolean isPeriodClosed(YearMonth month) {
++        return glPeriodRepository.isClosed(month.getYear(), month.getMonthValue());
++    }
++
+     public boolean isPosted(String referenceUid) {
+         return referenceUid != null && journalEntryRepository.findFirstByReferenceUid(referenceUid).isPresent();
+     }
+@@ -170,19 +241,44 @@ public class PostingEngine {
+         return false;
+     }
+ 
++    /**
++     * As {@link #hasActivePosting(String)}, for one event type only: a live journal of
++     * that type for that reference that has not been reversed.
++     */
++    public boolean hasActivePosting(String referenceType, String referenceUid) {
++        if (referenceType == null || referenceUid == null) return false;
++        for (JournalEntry e : journalEntryRepository.findByReferenceTypeAndReferenceUid(referenceType, referenceUid)) {
++            if (Boolean.TRUE.equals(e.getIsReversal()) || Boolean.TRUE.equals(e.getIsDeleted())) continue;
++            if (!journalEntryRepository.existsByReversedEntryUidAndIsDeletedFalse(e.getUid())) return true;
++        }
++        return false;
++    }
++
+     /**
+      * Reverses every still-active entry posted under the given reference.
+      * Never throws in shadow mode — failures are logged so the operational
+      * transaction is never blocked.
+      */
+     public void reverseActiveByReference(String referenceUid, String postedBy, String reason) {
++        reverseActiveByReference(referenceUid, postedBy, reason, false);
++    }
++
++    /**
++     * @param onOriginalDate true when the event itself is being replaced (a superseded
++     *        or reopened day close): the reversal is dated like the original, so the day
++     *        it belongs to never shows both. A closed period moves it to the first open
++     *        day, with event_date = the original's date.
++     */
++    public void reverseActiveByReference(String referenceUid, String postedBy, String reason,
++                                         boolean onOriginalDate) {
+         if (!glConfigService.isPostingEnabled() || referenceUid == null) return;
+         try {
+             List<JournalEntry> entries =
+                     journalEntryRepository.findByReferenceUidAndIsReversalFalseAndIsDeletedFalse(referenceUid);
+             for (JournalEntry e : entries) {
+                 if (journalEntryRepository.existsByReversedEntryUidAndIsDeletedFalse(e.getUid())) continue;
+-                applicationContext.getBean(PostingEngine.class).reverse(e.getUid(), postedBy, reason);
++                applicationContext.getBean(PostingEngine.class).reverse(e.getUid(), postedBy, reason,
++                        onOriginalDate ? originalEventDate(e) : null);
+             }
+         } catch (Exception ex) {
+             if (glConfigService.isShadowMode() && !forceThrow.get()) {
+@@ -231,6 +327,16 @@ public class PostingEngine {
+ 
+     @Transactional(propagation = Propagation.REQUIRES_NEW)
+     public void reverse(String originalEntryUid, String postedBy, String reason) {
++        reverse(originalEntryUid, postedBy, reason, null);
++    }
++
++    /**
++     * @param onDate the event date of the reversal; null = today (or the original's
++     *        own date when that is in the future). A closed period moves it to the
++     *        first open day and keeps {@code onDate} as event_date.
++     */
++    @Transactional(propagation = Propagation.REQUIRES_NEW)
++    public void reverse(String originalEntryUid, String postedBy, String reason, LocalDate onDate) {
+         if (!glConfigService.isPostingEnabled()) return;
+         JournalEntry orig = journalEntryRepository.findByUid(originalEntryUid)
+                 .orElseThrow(() -> new IllegalStateException("Original entry not found: " + originalEntryUid));
+@@ -241,8 +347,14 @@ public class PostingEngine {
+         // A future-dated original (e.g. a pre-approved salary month) is reversed on
+         // its own date, so today's books never show a negative expense for it.
+         LocalDate today = LocalDate.now();
+-        rev.setEntryDate(orig.getEntryDate() != null && orig.getEntryDate().isAfter(today)
+-                ? orig.getEntryDate() : today);
++        LocalDate eventDate = onDate != null ? onDate
++                : (orig.getEntryDate() != null && orig.getEntryDate().isAfter(today) ? orig.getEntryDate() : today);
++        LocalDate bookDate = firstOpenDate(eventDate);
++        rev.setEntryDate(bookDate);
++        if (!bookDate.equals(eventDate)) {
++            rev.setEventDate(eventDate);
++            rev.setIsLateEntry(true);
++        }
+         rev.setReferenceType(orig.getReferenceType());
+         rev.setReferenceUid(orig.getReferenceUid());
+         rev.setReferenceNumber(orig.getReferenceNumber());
+@@ -778,22 +890,82 @@ public class PostingEngine {
+                 sale.getBranchUid(), postedBy, lines);
+     }
+ 
+-    public void postDayCloseVariance(DailyFinancialSnapshot snapshot, String postedBy) {
+-        if (snapshot == null) return;
+-        BigDecimal variance = nz(snapshot.getVarianceAmount());
+-        if (variance.compareTo(BigDecimal.ZERO) == 0) return;
++    /** What a day-close variance means and how much of it is real money. */
++    public enum VarianceKind { SHORTAGE, SURPLUS, OVER_DEDUCTION, NOT_COUNTED }
++
++    /**
++     * @param postedAmount what goes to the GL
++     * @param overDeducted the part of a negative variance that is not money (deductions
++     *        above the day's sales): the whole of it for OVER_DEDUCTION, the part above
++     *        the cash counted for a capped SURPLUS
++     */
++    public record DayCloseVariance(VarianceKind kind, BigDecimal postedAmount, BigDecimal overDeducted) {}
++
++    /**
++     * Classifies a snapshot's variance. The reco formula is
++     * {@code variance = expected − declared}, so POSITIVE = SHORTAGE (RIPOTI H-1: the
++     * old code posted it the other way round).
++     *  - variance > 0: SHORTAGE of {@code variance}.
++     *  - variance < 0 and money was counted (declared = CASH_IN_HAND + petty > 0):
++     *    SURPLUS, capped at the money counted — a surplus can never exceed the cash
++     *    actually found; anything above it is an over-deduction (decision 3).
++     *  - variance < 0 and nothing counted: OVER_DEDUCTION — deductions exceeded the
++     *    day's sales, no money exists, nothing is posted.
++     *  - declared cash missing (null, not 0): NOT_COUNTED — the money was never
++     *    counted, so neither a shortage nor a surplus is known; nothing is posted.
++     *    (declared_cash is NOT NULL in the table today; this guards a future form.)
++     * Returns null for a zero variance.
++     */
++    public static DayCloseVariance classifyDayCloseVariance(DailyFinancialSnapshot snapshot) {
++        if (snapshot == null) return null;
++        BigDecimal variance = nz(snapshot.getVarianceAmount()).setScale(2, RoundingMode.HALF_UP);
++        if (variance.signum() == 0) return null;
++        if (snapshot.getDeclaredCash() == null) {
++            return new DayCloseVariance(VarianceKind.NOT_COUNTED, BigDecimal.ZERO, BigDecimal.ZERO);
++        }
++        if (variance.signum() > 0) return new DayCloseVariance(VarianceKind.SHORTAGE, variance, BigDecimal.ZERO);
++        BigDecimal surplus = variance.abs();
++        BigDecimal declared = nz(snapshot.getDeclaredCash()).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
++        if (declared.signum() == 0) {
++            return new DayCloseVariance(VarianceKind.OVER_DEDUCTION, BigDecimal.ZERO, surplus);
++        }
++        BigDecimal posted = surplus.min(declared);
++        return new DayCloseVariance(VarianceKind.SURPLUS, posted, surplus.subtract(posted));
++    }
++
++    /**
++     * Posts the day-close cash variance (MPANGO-PAMOJA §1.2): SHORTAGE Dr 6700 / Cr 1000;
++     * SURPLUS Dr 1000 / Cr 6700, capped at the cash counted; OVER_DEDUCTION and
++     * NOT_COUNTED nothing.
++     * Returns the classification (null for a zero variance).
++     */
++    public DayCloseVariance postDayCloseVariance(DailyFinancialSnapshot snapshot, String postedBy) {
++        return postDayCloseVariance(snapshot, postedBy, false);
++    }
++
++    /**
++     * As above; with {@code surplusToSuspense} a SURPLUS is credited to 2900 Suspense
++     * instead of 6700: money found whose source the owner has not decided yet
++     * (RIPOTI Q9). A SHORTAGE ignores the flag.
++     */
++    public DayCloseVariance postDayCloseVariance(DailyFinancialSnapshot snapshot, String postedBy, boolean surplusToSuspense) {
++        DayCloseVariance v = classifyDayCloseVariance(snapshot);
++        if (v == null || v.postedAmount().signum() <= 0) return v;
++        BigDecimal amount = v.postedAmount();
+         List<JournalLine> lines = new ArrayList<>();
+-        if (variance.compareTo(BigDecimal.ZERO) > 0) {
+-            // Cash over: more cash than expected.
+-            lines.add(new JournalLine("1000", variance, BigDecimal.ZERO, "Cash over"));
+-            lines.add(new JournalLine("6700", BigDecimal.ZERO, variance, "Cash over (gain)"));
++        if (v.kind() == VarianceKind.SHORTAGE) {
++            lines.add(new JournalLine("6700", amount, BigDecimal.ZERO, "Cash short"));
++            lines.add(new JournalLine("1000", BigDecimal.ZERO, amount, "Cash short"));
++        } else if (surplusToSuspense) {
++            lines.add(new JournalLine("1000", amount, BigDecimal.ZERO, "Cash over"));
++            lines.add(new JournalLine(SUSPENSE, BigDecimal.ZERO, amount, "Cash over: inasubiri uamuzi wa mmiliki"));
+         } else {
+-            BigDecimal abs = variance.abs();
+-            lines.add(new JournalLine("6700", abs, BigDecimal.ZERO, "Cash short"));
+-            lines.add(new JournalLine("1000", BigDecimal.ZERO, abs, "Cash short"));
++            lines.add(new JournalLine("1000", amount, BigDecimal.ZERO, "Cash over"));
++            lines.add(new JournalLine("6700", BigDecimal.ZERO, amount, "Cash over (gain)"));
+         }
+         post(JournalEventType.DAY_CLOSE_VARIANCE, snapshot.getUid(), snapshot.getReconciliationUid(),
+                 snapshot.getSnapshotDate(), snapshot.getBranchUid(), postedBy, lines);
++        return v;
+     }
+ 
+     /**
+@@ -939,12 +1111,19 @@ public class PostingEngine {
+      */
+     public void postManual(JournalEventType type, String referenceUid, String referenceNumber, LocalDate date,
+                            String postedBy, List<JournalLine> lines) {
++        manualPost.set(true);
+         try (AutoCloseable ignored = withThrowOnError()) {
+             post(type, referenceUid, referenceNumber, date, null, postedBy, lines);
++        } catch (GlPostingException e) {
++            // The person needs the reason (e.g. "period closed"), not the wrapper.
++            Throwable cause = e.getCause() != null ? e.getCause() : e;
++            throw new IllegalStateException(cause.getMessage(), e);
+         } catch (RuntimeException e) {
+             throw e;
+         } catch (Exception e) {
+             throw new RuntimeException(e.getMessage(), e);
++        } finally {
++            manualPost.remove();
+         }
+     }
+ 
+@@ -960,6 +1139,23 @@ public class PostingEngine {
+ 
+     // ── Helpers ───────────────────────────────────────────────────────────────
+ 
++    /**
++     * Transaction-scoped PostgreSQL advisory lock on the reference (released on commit or
++     * rollback). hashtext can collide; a collision only makes two unrelated references
++     * wait for each other briefly, never skips a post.
++     */
++    private void lockReference(String referenceUid) {
++        if (referenceUid == null || entityManager == null) return;
++        entityManager.createNativeQuery("SELECT 1 FROM (SELECT pg_advisory_xact_lock(hashtext(:ref))) l")
++                .setParameter("ref", referenceUid)
++                .getSingleResult();
++    }
++
++    /** The date the original event happened: event_date for a late entry, else entry_date. */
++    private static LocalDate originalEventDate(JournalEntry e) {
++        return e.getEventDate() != null ? e.getEventDate() : e.getEntryDate();
++    }
++
+     private static BigDecimal nz(BigDecimal v) {
+         return v != null ? v : BigDecimal.ZERO;
+     }
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/SaleGlPostingService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/SaleGlPostingService.java
+new file mode 100644
+index 0000000..5fec824
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/SaleGlPostingService.java
+@@ -0,0 +1,182 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.Lsms.DebtAdjustment.Entity.DebtAdjustment;
++import com.Lsms.DebtAdjustment.Enums.DebtAdjustmentStatus;
++import com.Lsms.DebtAdjustment.Repository.DebtAdjustmentRepository;
++import com.Lsms.Enums.SaleSource;
++import com.Lsms.Payments.Entity.Payment;
++import com.Lsms.Payments.Repository.PaymentRepository;
++import com.Lsms.Sales.Entity.Sales;
++import com.Lsms.Sales.Repository.SalesRepository;
++import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.context.ApplicationContext;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Propagation;
++import org.springframework.transaction.annotation.Transactional;
++import org.springframework.transaction.support.TransactionSynchronization;
++import org.springframework.transaction.support.TransactionSynchronizationManager;
++
++import java.math.BigDecimal;
++import java.util.List;
++
++/**
++ * Posts a POS sale's journal from the sale AS STORED (RIPOTI H-2 fix).
++ *
++ * The old hook posted the in-memory Sales entity on another thread. Its
++ * outstandingBalance was still the default 0, because the real figure is written by
++ * {@code SalesRepository.syncPaymentStatusByUid}, a native UPDATE that never touches
++ * the managed entity. A credit or part-paid sale therefore lost its AR line, the
++ * journal did not balance, and the failure was only logged.
++ *
++ * Now the journal is posted after the sale's transaction commits, on the same
++ * thread, by re-reading the sale, its payments and its approved debt adjustments in
++ * a fresh transaction — the same figures the GL backfill uses. A failure is kept in
++ * gl_posting_failure and can be retried.
++ */
++@Service
++@RequiredArgsConstructor
++@Slf4j
++public class SaleGlPostingService {
++
++    private final SalesRepository salesRepository;
++    private final PaymentRepository paymentRepository;
++    private final DebtAdjustmentRepository debtAdjustmentRepository;
++    private final JournalEntryRepository journalEntryRepository;
++    private final PostingEngine postingEngine;
++    private final GlPostingFailureService failureService;
++    private final ApplicationContext applicationContext;
++
++    /**
++     * Posts the sale once the surrounding transaction has committed (immediately when
++     * there is none). Never throws: a failure is recorded and the sale stands.
++     */
++    public void postAfterCommit(String saleUid, String receiptNumber, String postedBy) {
++        if (saleUid == null) return;
++        Runnable task = () -> postOrRecord(saleUid, receiptNumber, postedBy);
++        if (TransactionSynchronizationManager.isSynchronizationActive()) {
++            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
++                @Override
++                public void afterCommit() {
++                    task.run();
++                }
++            });
++        } else {
++            task.run();
++        }
++    }
++
++    private void postOrRecord(String saleUid, String receiptNumber, String postedBy) {
++        try {
++            applicationContext.getBean(SaleGlPostingService.class).postFromDb(saleUid, postedBy);
++        } catch (Exception e) {
++            log.error("GL postSale failed for {}: {}", receiptNumber, GlPostingFailureService.messageChain(e));
++            failureService.record(GlPostingFailureService.SOURCE_SALE, saleUid, receiptNumber, e);
++        }
++    }
++
++    /** The event types a POS sale journal is posted under (PostingEngine.postSale). */
++    static final List<JournalEventType> SALE_TYPES =
++            List.of(JournalEventType.SALE_CASH, JournalEventType.SALE_CREDIT, JournalEventType.SALE_MIXED);
++
++    /**
++     * Posts one sale from the database; throws on failure. Approved debt adjustments
++     * are posted on top, as the backfill does.
++     *
++     * Idempotent: a sale that already has a live, unreversed SALE_* journal is never
++     * posted again — the open failure is resolved and ALREADY_POSTED returned, so a
++     * second retry (or a retry after the after-commit post did succeed) adds nothing.
++     *
++     * Walk-in debts (RECONCILIATION_MANUAL) are never posted as revenue here: their
++     * goods left through a normal POS sale already; they post only the AR reclass.
++     */
++    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 60)
++    public GlPostOutcome postFromDb(String saleUid, String postedBy) {
++        Sales sale = salesRepository.findByUidWithAllRelationships(saleUid)
++                .orElseThrow(() -> new IllegalStateException("Sale haipo au si active: " + saleUid));
++        if (Boolean.TRUE.equals(sale.getIsDeleted())) {
++            throw new IllegalStateException("Sale imefutwa: " + sale.getReceiptNumber());
++        }
++        if (sale.getSaleSource() == SaleSource.RECONCILIATION_MANUAL) {
++            log.info("Sale {} is a walk-in debt - only its AR reclass is posted, not revenue", sale.getReceiptNumber());
++            return GlPostOutcome.NOTHING_TO_POST;
++        }
++        String by = postedBy != null ? postedBy : "SYSTEM";
++        if (hasLiveSaleJournal(saleUid)) {
++            log.info("Sale {} already has a live journal - not posted again", sale.getReceiptNumber());
++            failureService.resolveBySource(saleUid, by, GlPostOutcome.ALREADY_POSTED.name());
++            return GlPostOutcome.ALREADY_POSTED;
++        }
++        // The sale is posted as it stood when it was made. Money collected later already has
++        // its own PAYMENT_RECEIVED journal (Dr cash / Cr AR, ref "<paymentUid>:RCPT:..."), so
++        // that part is taken out of the payment and put back on AR — otherwise reposting an
++        // old sale (H-2: 121026-2249, paid 175,000 on 13/10) would count that cash twice.
++        BigDecimal collectedLater = BigDecimal.ZERO;
++        List<Payment> payments = new java.util.ArrayList<>();
++        for (Payment p : paymentRepository.findBySaleUid(saleUid)) {
++            if (Boolean.FALSE.equals(p.getIsActive())) continue;
++            BigDecimal later = postedCollections(p.getUid());
++            if (later.signum() <= 0) {
++                payments.add(p);
++                continue;
++            }
++            collectedLater = collectedLater.add(later);
++            payments.add(saleTimeCopy(p, later));
++        }
++        BigDecimal corrected = debtAdjustmentRepository.sumApprovedAmountBySaleUid(saleUid);
++        if (corrected == null) corrected = BigDecimal.ZERO;
++
++        try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++            postingEngine.postSale(sale, payments, by, corrected.add(collectedLater));
++            if (corrected.signum() > 0) {
++                for (DebtAdjustment adj : debtAdjustmentRepository.findBySaleUidAndIsDeletedFalse(saleUid)) {
++                    if (adj.getStatus() == DebtAdjustmentStatus.APPROVED) postingEngine.postDebtAdjustment(adj, sale, by);
++                }
++            }
++        } catch (RuntimeException e) {
++            throw e;
++        } catch (Exception e) {
++            throw new IllegalStateException(e.getMessage(), e);
++        }
++        // postSale throws on a failed post, so no journal here means the sale produced no
++        // lines at all (a zero sale): nothing to post, as before.
++        if (!hasLiveSaleJournal(saleUid)) return GlPostOutcome.NOTHING_TO_POST;
++        failureService.resolveBySource(saleUid, by, "POSTED");
++        return GlPostOutcome.POSTED;
++    }
++
++    private boolean hasLiveSaleJournal(String saleUid) {
++        for (JournalEventType t : SALE_TYPES) {
++            if (postingEngine.hasActivePosting(t.name(), saleUid)) return true;
++        }
++        return false;
++    }
++
++    /** Cash already posted as later collections on one payment row (live, non-reversed RCPT journals). */
++    private BigDecimal postedCollections(String paymentUid) {
++        BigDecimal sum = BigDecimal.ZERO;
++        if (paymentUid == null) return sum;
++        for (JournalEntry e : journalEntryRepository
++                .findByReferenceUidStartingWithAndIsReversalFalseAndIsDeletedFalse(paymentUid + ":RCPT:")) {
++            if (journalEntryRepository.existsByReversedEntryUidAndIsDeletedFalse(e.getUid())) continue;
++            if (e.getTotalDebit() != null) sum = sum.add(e.getTotalDebit());
++        }
++        return sum;
++    }
++
++    /**
++     * A detached copy of a payment with what was collected later taken out. Never the
++     * managed entity: changing that would be flushed back to the payments table.
++     */
++    private static Payment saleTimeCopy(Payment p, BigDecimal collectedLater) {
++        Payment c = new Payment();
++        c.setUid(p.getUid());
++        c.setPaymentMethod(p.getPaymentMethod());
++        c.setPaymentStatus(p.getPaymentStatus());
++        c.setTotalAmount(p.getTotalAmount());
++        c.setIsDeleted(p.getIsDeleted());
++        BigDecimal paid = p.getAmountPaid() != null ? p.getAmountPaid() : BigDecimal.ZERO;
++        c.setAmountPaid(paid.subtract(collectedLater).max(BigDecimal.ZERO));
++        return c;
++    }
++}
+diff --git a/src/main/java/com/Lsms/Counting/Services/CountingApprovalService.java b/src/main/java/com/Lsms/Counting/Services/CountingApprovalService.java
+index 6e0ddf7..167e3ca 100644
+--- a/src/main/java/com/Lsms/Counting/Services/CountingApprovalService.java
++++ b/src/main/java/com/Lsms/Counting/Services/CountingApprovalService.java
+@@ -95,6 +95,15 @@ public class CountingApprovalService {
+     @org.springframework.context.annotation.Lazy
+     private com.Lsms.CapitalAndExpenditure.gl.PostingEngine postingEngine;
+ 
++    // GL posting failures are kept (V134) instead of only logged; @Lazy avoids bean cycles.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
++
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
++
+     public CountingApprovalService(CountingSessionRepository sessionRepository,
+                                    CountingLineRepository lineRepository,
+                                    StockAdjustmentRepository adjustmentRepository,
+@@ -288,6 +297,7 @@ public class CountingApprovalService {
+                     } catch (Exception glEx) {
+                         adjustment.setGlPosted(false);
+                         logger.error("GL posting failed for count adjustment {}: {}", adjustment.getUid(), glEx.getMessage());
++                        recordGlFailure("COUNT_ADJUSTMENT", adjustment.getUid(), "COUNT-" + sessionUid, glEx);
+                     }
+                     adjustmentRepository.save(adjustment);
+ 
+diff --git a/src/main/java/com/Lsms/Payments/Services/PaymentService.java b/src/main/java/com/Lsms/Payments/Services/PaymentService.java
+index 4142b00..d428ed1 100644
+--- a/src/main/java/com/Lsms/Payments/Services/PaymentService.java
++++ b/src/main/java/com/Lsms/Payments/Services/PaymentService.java
+@@ -41,6 +41,15 @@ public class PaymentService {
+     private final CustomerRepository customerRepository;
+     private final ModelMapper modelMapper;
+     private final com.Lsms.CapitalAndExpenditure.gl.PostingEngine postingEngine;
++
++    // GL posting failures are kept (V134) instead of only logged; @Lazy avoids bean cycles.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
++
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
+     private final AuditTrailRepository auditTrailRepository;
+     private final UserRepository userRepository;
+ 
+@@ -99,6 +108,8 @@ public class PaymentService {
+         } catch (Exception glEx) {
+             logger.error("GL postPaymentReceived failed for payment {}: {}",
+                     payment != null ? payment.getUid() : "?", glEx.getMessage());
++            recordGlFailure("PAYMENT_RECEIVED", payment != null ? payment.getUid() : null,
++                    sale != null ? sale.getReceiptNumber() : null, glEx);
+         }
+     }
+ 
+diff --git a/src/main/java/com/Lsms/Purchase/Services/PurchaseService.java b/src/main/java/com/Lsms/Purchase/Services/PurchaseService.java
+index 1762283..cec5017 100644
+--- a/src/main/java/com/Lsms/Purchase/Services/PurchaseService.java
++++ b/src/main/java/com/Lsms/Purchase/Services/PurchaseService.java
+@@ -64,6 +64,15 @@ public class PurchaseService {
+     @org.springframework.beans.factory.annotation.Autowired
+     private com.Lsms.CapitalAndExpenditure.gl.PostingEngine postingEngine;
+ 
++    // GL posting failures are kept (V134) instead of only logged; @Lazy avoids bean cycles.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
++
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
++
+     @PersistenceContext
+     private EntityManager entityManager;
+ 
+@@ -201,6 +210,7 @@ public class PurchaseService {
+             throw e;
+         } catch (Exception e) {
+                 logger.error("GL postPurchase failed for {}: {}", savedPurchase.getUid(), e.getMessage());
++                recordGlFailure("PURCHASE", savedPurchase.getUid(), null, e);
+             }
+ 
+             try {
+diff --git a/src/main/java/com/Lsms/Reconciliation/Entity/DailyFinancialSnapshot.java b/src/main/java/com/Lsms/Reconciliation/Entity/DailyFinancialSnapshot.java
+index 8a5cf61..a87391b 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Entity/DailyFinancialSnapshot.java
++++ b/src/main/java/com/Lsms/Reconciliation/Entity/DailyFinancialSnapshot.java
+@@ -136,6 +136,22 @@ public class DailyFinancialSnapshot {
+     @Column(name = "shortage_reason", length = 100)
+     private String shortageReason;
+ 
++    /**
++     * SHORTAGE / SURPLUS / OVER_DEDUCTION (V134), set when the variance is posted.
++     * OVER_DEDUCTION: variance < 0 with nothing counted — deductions exceeded the
++     * day's sales; no money was found, so nothing is posted to the GL.
++     */
++    @Column(name = "variance_kind", length = 20)
++    private String varianceKind;
++
++    /**
++     * Where a SURPLUS is credited (V134): '2900' Suspense while the owner has not
++     * decided where the money came from (RIPOTI Q9); null or '6700' = Cash over/short.
++     * Set by the day-close correction; copied to the next version on re-approval.
++     */
++    @Column(name = "variance_target", length = 10)
++    private String varianceTarget;
++
+     @Column(name = "variance_explanation", columnDefinition = "TEXT")
+     private String varianceExplanation;
+ 
+diff --git a/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java b/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java
+index 0c0a2c6..43a56f6 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java
++++ b/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java
+@@ -76,6 +76,15 @@ public class ReconciliationService {
+ 
+     // GL HOOK Phase 1 — @RequiredArgsConstructor wires this final field automatically.
+     private final com.Lsms.CapitalAndExpenditure.gl.PostingEngine glPostingEngine;
++
++    // Toleo 1 (V134) — field-injected so the existing constructor is untouched.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.DayCloseVarianceService dayCloseVarianceService;
++
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
+     private final ReconciliationAuditLogRepository auditLogRepo;
+     private final SalesRepository salesRepository;
+     private final SalesDetailsRepository salesDetailsRepository;
+@@ -960,6 +969,7 @@ public class ReconciliationService {
+             } catch (Exception glEx) {
+                 log.error("GL postWalkInDebtReclass failed for sale {}: {}",
+                         savedSale.getUid(), glEx.getMessage());
++                recordGlFailure("WALKIN_DEBT", savedSale.getUid(), savedSale.getReceiptNumber(), glEx);
+             }
+ 
+             log.info("Manual retail debt Sale {} created for reconciliation {}", savedSale.getUid(), reconUid);
+@@ -1065,6 +1075,7 @@ public class ReconciliationService {
+                 glPostingEngine.postWalkInDebtReclass(sale, newAmount, LoggedUser.getUid());
+             } catch (Exception glEx) {
+                 log.error("GL repost failed for edited manual debt {}: {}", saleUid, glEx.getMessage());
++                recordGlFailure("WALKIN_DEBT", saleUid, sale.getReceiptNumber(), glEx);
+             }
+ 
+             return new Response<>(ResponseStatus.Success, toDto(reconciliationRepo.save(recon)),
+@@ -1138,6 +1149,7 @@ public class ReconciliationService {
+                         LoggedUser.getUid(), "Manual debt deleted");
+             } catch (Exception glEx) {
+                 log.error("GL reversal failed for deleted manual debt {}: {}", saleUid, glEx.getMessage());
++                recordGlFailure("WALKIN_DEBT_REVERSAL", saleUid, null, glEx);
+             }
+ 
+             return new Response<>(ResponseStatus.Success, toDto(reconciliationRepo.save(recon)),
+@@ -1843,14 +1855,14 @@ public class ReconciliationService {
+             // Create immutable snapshot
+             createFinancialSnapshot(saved, approverUid, approverName);
+ 
+-            // GL HOOK Phase 1 — post the day-close cash variance from the snapshot
+-            // (DR/CR Cash vs Cash Over/Short). Shadow mode, never blocks approval.
+-            try {
+-                snapshotRepo.findByReconciliationUidAndIsCurrentTrue(saved.getUid())
+-                        .ifPresent(snap -> glPostingEngine.postDayCloseVariance(snap, approverUid));
+-            } catch (Exception glEx) {
+-                log.error("GL postDayCloseVariance failed for recon {}: {}", reconUid, glEx.getMessage());
+-            }
++            // GL HOOK — post the day-close cash variance from the snapshot: shortage
++            // Dr 6700 / Cr 1000, surplus Dr 1000 / Cr 6700 capped at the cash counted,
++            // nothing for an over-deduction (MPANGO-PAMOJA §1.2). Never blocks approval;
++            // a failure is kept in gl_posting_failure.
++            snapshotRepo.findByReconciliationUidAndIsCurrentTrue(saved.getUid())
++                    .ifPresent(snap -> {
++                        if (dayCloseVarianceService != null) dayCloseVarianceService.postForApproval(snap, approverUid);
++                    });
+ 
+             // Auto-approve the linked capital expenses IF this approver also holds
+             // CAPITAL_APPROVE. Without it they stay PENDING (surfaced as a banner in the
+@@ -1925,6 +1937,13 @@ public class ReconciliationService {
+             }
+ 
+             int newCount = (recon.getReopenCount() != null ? recon.getReopenCount() : 0) + 1;
++            // The day's money is no longer known until it is approved again: its
++            // variance journal is reversed now, on the original date (MPANGO §1.3).
++            snapshotRepo.findByReconciliationUidAndIsCurrentTrue(recon.getUid())
++                    .ifPresent(snap -> {
++                        if (dayCloseVarianceService != null) dayCloseVarianceService.reverseFor(snap.getUid(),
++                                reopenerUid, "Reco imefunguliwa upya: " + reason.trim());
++                    });
+             recon.setStatus(ReconciliationStatus.REOPENED);
+             recon.setReopenReason(reason.trim());
+             recon.setReopenedBy(reopenerUid);
+@@ -3586,6 +3605,10 @@ public class ReconciliationService {
+             current.setIsCurrent(false);
+             snapshotRepo.save(current);
+             snapshotRepo.flush();
++            // The superseded version gives its variance journal back (RIPOTI H-5: it used
++            // to stay live next to the new one). Usually reopen() already did this.
++            if (dayCloseVarianceService != null) dayCloseVarianceService.reverseFor(current.getUid(), approverUid,
++                    "Snapshot v" + current.getSnapshotVersion() + " imepitwa na v" + newVersion);
+         }
+ 
+         DailyFinancialSnapshot snap = new DailyFinancialSnapshot();
+@@ -3624,6 +3647,8 @@ public class ReconciliationService {
+             snap.setExpectedCash(orZero(recon.getExpectedCash()));
+             snap.setDeclaredCash(orZero(recon.getAccountedCash()));
+             snap.setVarianceAmount(orZero(recon.getVarianceAmount()));
++            // The owner's suspense decision (2900) belongs to the day, not to one version.
++            if (isUpdate) snap.setVarianceTarget(current.getVarianceTarget());
+             snap.setShortageReason(recon.getShortageReason());
+             snap.setVarianceExplanation(recon.getVarianceExplanation());
+ 
+@@ -3644,6 +3669,10 @@ public class ReconciliationService {
+         }
+     }
+ 
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
++
+     private void writeAuditLog(String reconUid, String action, String actorUid,
+                                 String actorName, Map<String, Object> details) {
+         try {
+diff --git a/src/main/java/com/Lsms/Sales/Services/SaleService.java b/src/main/java/com/Lsms/Sales/Services/SaleService.java
+index a516129..4751f1d 100644
+--- a/src/main/java/com/Lsms/Sales/Services/SaleService.java
++++ b/src/main/java/com/Lsms/Sales/Services/SaleService.java
+@@ -90,6 +90,19 @@ public class SaleService {
+     @org.springframework.beans.factory.annotation.Autowired
+     private com.Lsms.CapitalAndExpenditure.gl.PostingEngine postingEngine;
+ 
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.SaleGlPostingService saleGlPostingService;
++
++    // GL posting failures are kept (V134) instead of only logged; @Lazy avoids bean cycles.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
++
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
++
+     // Field-injected so the existing constructor is untouched.
+     @org.springframework.beans.factory.annotation.Autowired
+     private AuditTrailRepository auditTrailRepository;
+@@ -644,23 +657,12 @@ public class SaleService {
+                         sale.getReceiptNumber(), creditEx.getMessage());
+             }
+ 
+-            // CapEx recording runs asynchronously to avoid delaying the sale response.
+-            // Failures are NOT swallowed — they are logged and surfaced as system notifications
+-            // so the accounting team can reconcile any missing capital entries.
+-            // capexExecutor is a bounded pool with CallerRunsPolicy — provides backpressure
+-            // instead of queuing tasks unboundedly on ForkJoinPool.commonPool().
+-            Sales finalSale = sale;
+-            CompletableFuture.runAsync(() -> {
+-                // GL HOOK Phase 1 — shadow mode, never blocks POS. Posts the sale
+-                // journal (cash/AR, revenue, discount, COGS/inventory) off-thread.
+-                try {
+-                    String postedBy = finalSale.getUser() != null ? finalSale.getUser().getUid() : "SYSTEM";
+-                    postingEngine.postSale(finalSale, finalSale.getPayments(), postedBy);
+-                } catch (Exception glEx) {
+-                    logger.error("GL postSale failed for {}: {}",
+-                            finalSale.getReceiptNumber(), glEx.getMessage());
+-                }
+-            }, capexExecutor);
++            // GL HOOK — the sale journal is posted after this transaction commits, from the
++            // sale as stored (outstanding_balance is written by the native sync above, which
++            // the entity never sees: RIPOTI H-2). Never blocks POS; a failure is kept in
++            // gl_posting_failure for retry.
++            saleGlPostingService.postAfterCommit(sale.getUid(), sale.getReceiptNumber(),
++                    sale.getUser() != null ? sale.getUser().getUid() : "SYSTEM");
+ 
+             // CRITICAL FIX: Ensure sale details are loaded before DTO conversion
+             // This prevents empty saleDetails array in API response
+@@ -920,19 +922,13 @@ public class SaleService {
+             // Sync sales.outstanding_balance and sales.payment_status so AR report is accurate
+             salesRepository.syncPaymentStatusByUid(sale.getUid());
+ 
+-            // ==================== STEP 12: ASYNC CAPITAL EXPENDITURE ====================
+-            Sales finalSale = sale;
+-            CompletableFuture.runAsync(() -> {
+-                // GL HOOK Phase 1 — shadow mode, never blocks POS. Posts the sale
+-                // journal (cash/AR, revenue, discount, COGS/inventory) off-thread.
+-                try {
+-                    String postedBy = finalSale.getUser() != null ? finalSale.getUser().getUid() : "SYSTEM";
+-                    postingEngine.postSale(finalSale, finalSale.getPayments(), postedBy);
+-                } catch (Exception glEx) {
+-                    logger.error("GL postSale failed for {}: {}",
+-                            finalSale.getReceiptNumber(), glEx.getMessage());
+-                }
+-            }, capexExecutor);
++            // ==================== STEP 12: GL ====================
++            // GL HOOK — the sale journal is posted after this transaction commits, from the
++            // sale as stored (outstanding_balance is written by the native sync above, which
++            // the entity never sees: RIPOTI H-2). Never blocks POS; a failure is kept in
++            // gl_posting_failure for retry.
++            saleGlPostingService.postAfterCommit(sale.getUid(), sale.getReceiptNumber(),
++                    sale.getUser() != null ? sale.getUser().getUid() : "SYSTEM");
+ 
+             // ==================== STEP 13: BUILD RESULT ====================
+             result.setSale(convertToDto(sale));
+@@ -2318,6 +2314,7 @@ public class SaleService {
+                         paymentDto.getTotalAmount(), com.Lsms.uaa.utils.LoggedUser.getUid());
+             } catch (Exception glEx) {
+                 logger.error("GL postPaymentReceived failed for sale {}: {}", saleUid, glEx.getMessage());
++                recordGlFailure("PAYMENT_RECEIVED", newPayment.getUid(), updatedSale.getReceiptNumber(), glEx);
+             }
+ 
+             SalesDto dto = convertToDto(updatedSale);
+@@ -4282,6 +4279,7 @@ public class SaleService {
+                 }
+             } catch (Exception e) {
+                 logger.warn("Could not reverse GL entries for deleted sale {}: {}", saleUid, e.getMessage());
++                recordGlFailure("SALE_DELETE_REVERSAL", saleUid, sale.getReceiptNumber(), e);
+             }
+ 
+             // Step 7: Soft delete the sale
+diff --git a/src/main/java/com/Lsms/Store/Services/StoreService.java b/src/main/java/com/Lsms/Store/Services/StoreService.java
+index 316e8de..6920f28 100644
+--- a/src/main/java/com/Lsms/Store/Services/StoreService.java
++++ b/src/main/java/com/Lsms/Store/Services/StoreService.java
+@@ -80,6 +80,15 @@ public class StoreService {
+     @Autowired
+     private com.Lsms.CapitalAndExpenditure.gl.PostingEngine postingEngine;
+ 
++    // GL posting failures are kept (V134) instead of only logged; @Lazy avoids bean cycles.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
++
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
++
+     public StoreService(PurchaseRepository purchaseRepository, SalesReturnItemRepository salesReturnItemRepository) {
+         this.purchaseRepository = purchaseRepository;
+         this.salesReturnItemRepository = salesReturnItemRepository;
+@@ -1105,6 +1114,7 @@ public class StoreService {
+                         products.getCurrentAverageCost(), store.getInitiatedBy());
+             } catch (Exception glEx) {
+                 log.error("GL postStockAdjustment failed for {}: {}", savedStore.getUid(), glEx.getMessage());
++                recordGlFailure("STOCK_ADJUSTMENT", savedStore.getUid(), ref, glEx);
+             }
+         }
+ 
+@@ -1229,6 +1239,7 @@ public class StoreService {
+                     postingEngine.postShrinkage(savedCapex, "SYSTEM_AUTO");
+                 } catch (Exception glEx) {
+                     log.error("GL postShrinkage (damage) failed for {}: {}", savedCapex.getUid(), glEx.getMessage());
++                    recordGlFailure("SHRINKAGE", savedCapex.getUid(), savedCapex.getReferenceNumber(), glEx);
+                 }
+ 
+                 log.info("📉 Damage P&L entry created: TZS {} for {} units of {} (ref: {})",
+@@ -1514,6 +1525,7 @@ public class StoreService {
+             postingEngine.postShrinkage(savedCapex, "SYSTEM_AUTO");
+         } catch (Exception glEx) {
+             log.error("GL postShrinkage failed for {}: {}", savedCapex.getUid(), glEx.getMessage());
++            recordGlFailure("SHRINKAGE", savedCapex.getUid(), savedCapex.getReferenceNumber(), glEx);
+         }
+ 
+         Map<String, Object> result = new HashMap<>();
+diff --git a/src/main/java/com/Lsms/Supplier/Services/SupplierPaymentService.java b/src/main/java/com/Lsms/Supplier/Services/SupplierPaymentService.java
+index ed2c500..c1eca98 100644
+--- a/src/main/java/com/Lsms/Supplier/Services/SupplierPaymentService.java
++++ b/src/main/java/com/Lsms/Supplier/Services/SupplierPaymentService.java
+@@ -35,6 +35,15 @@ public class SupplierPaymentService {
+     private final PurchaseRepository purchaseRepository;
+     private final PostingEngine postingEngine;
+ 
++    // GL posting failures are kept (V134) instead of only logged; @Lazy avoids bean cycles.
++    @org.springframework.beans.factory.annotation.Autowired
++    @org.springframework.context.annotation.Lazy
++    private com.Lsms.CapitalAndExpenditure.gl.GlPostingFailureService glPostingFailureService;
++
++    private void recordGlFailure(String sourceType, String sourceUid, String sourceNumber, Exception e) {
++        if (glPostingFailureService != null) glPostingFailureService.record(sourceType, sourceUid, sourceNumber, e);
++    }
++
+     @Transactional(readOnly = true)
+     public ResponseList<SupplierPaymentDto> getPaymentsForSupplier(String supplierUid) {
+         List<SupplierPaymentDto> data = paymentRepository
+@@ -75,6 +84,7 @@ public class SupplierPaymentService {
+                 postingEngine.postSupplierPayment(saved, LoggedUser.getUid());
+             } catch (Exception e) {
+                 log.error("GL postSupplierPayment failed for {}: {}", saved.getUid(), e.getMessage());
++                recordGlFailure("SUPPLIER_PAYMENT", saved.getUid(), saved.getReference(), e);
+             }
+             log.info("Supplier payment {} recorded: {} to {}",
+                     saved.getUid(), saved.getAmount(), saved.getSupplierUid());
+diff --git a/src/main/resources/db/migration/V134__Gl_Posting_Failure_And_Period_Close.sql b/src/main/resources/db/migration/V134__Gl_Posting_Failure_And_Period_Close.sql
+new file mode 100644
+index 0000000..a72be41
+--- /dev/null
++++ b/src/main/resources/db/migration/V134__Gl_Posting_Failure_And_Period_Close.sql
+@@ -0,0 +1,93 @@
++-- V134 (Toleo 1, MPANGO-PAMOJA §1.4 + §1.9). Additive only: no existing row is changed.
++--
++-- 1. gl_posting_failure: every GL posting that a business flow catches and continues
++--    without (sale, payment, purchase, supplier payment, walk-in debt, day close,
++--    stock adjustment, shrinkage, counting) now leaves a row here instead of a log line
++--    only. Retry re-posts it; resolved_at is set once the reference has a live journal.
++-- 2. daily_financial_snapshot.variance_kind: SHORTAGE / SURPLUS / OVER_DEDUCTION.
++--    OVER_DEDUCTION = variance < 0 with nothing counted (declared 0): deductions
++--    exceeded the day's sales, no money was found, so nothing is posted.
++--    daily_financial_snapshot.variance_target: '2900' / '6700' / NULL (see below).
++-- 3. Period closing: journal_entry.event_date + is_late_entry (an event dated inside a
++--    CLOSED period is booked on the first open day and keeps its real date here),
++--    gl_period.closed_by_uid / checks_json, and gl_period_audit (who closed/reopened, why).
++
++CREATE TABLE IF NOT EXISTS gl_posting_failure (
++    id               BIGSERIAL PRIMARY KEY,
++    uid              VARCHAR(36)  NOT NULL UNIQUE,
++    source_type      VARCHAR(40)  NOT NULL,
++    source_uid       VARCHAR(255) NOT NULL,
++    source_number    VARCHAR(100),
++    event_type       VARCHAR(50),
++    reference_uid    VARCHAR(96),
++    entry_date       DATE,
++    branch_uid       VARCHAR(255),
++    posted_by        VARCHAR(255),
++    lines_json       TEXT,
++    error            TEXT,
++    stack_head       TEXT,
++    attempts         INTEGER      NOT NULL DEFAULT 1,
++    last_attempt_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
++    resolved_at      TIMESTAMP,
++    resolved_by_uid  VARCHAR(255),
++    resolution       VARCHAR(255),
++    created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
++);
++
++CREATE INDEX IF NOT EXISTS idx_gl_posting_failure_open
++    ON gl_posting_failure (created_at) WHERE resolved_at IS NULL;
++CREATE INDEX IF NOT EXISTS idx_gl_posting_failure_source
++    ON gl_posting_failure (source_type, source_uid);
++
++ALTER TABLE daily_financial_snapshot
++    ADD COLUMN IF NOT EXISTS variance_kind VARCHAR(20);
++
++-- Where a day's SURPLUS is credited: '2900' Suspense until the owner decides where the
++-- money came from (RIPOTI Q9), else NULL / '6700'. Kept on the snapshot so a retry,
++-- a later correction run and the next version after a reopen all post to the same
++-- account; set by the day-close correction for the snapshots the owner names.
++ALTER TABLE daily_financial_snapshot
++    ADD COLUMN IF NOT EXISTS variance_target VARCHAR(10);
++
++ALTER TABLE daily_financial_snapshot
++    DROP CONSTRAINT IF EXISTS chk_dfs_variance_target;
++ALTER TABLE daily_financial_snapshot
++    ADD CONSTRAINT chk_dfs_variance_target CHECK (variance_target IS NULL OR variance_target IN ('6700', '2900'));
++
++ALTER TABLE journal_entry
++    ADD COLUMN IF NOT EXISTS event_date DATE,
++    ADD COLUMN IF NOT EXISTS is_late_entry BOOLEAN NOT NULL DEFAULT FALSE;
++
++ALTER TABLE gl_period
++    ADD COLUMN IF NOT EXISTS closed_by_uid VARCHAR(255),
++    ADD COLUMN IF NOT EXISTS checks_json   TEXT;
++
++-- Periods are business-wide (branch_uid NULL). The V071 unique key treats NULLs as
++-- distinct, so it never stopped two rows for the same month.
++CREATE UNIQUE INDEX IF NOT EXISTS uq_gl_period_month_global
++    ON gl_period (period_year, period_month) WHERE branch_uid IS NULL;
++
++CREATE TABLE IF NOT EXISTS gl_period_audit (
++    id            BIGSERIAL PRIMARY KEY,
++    uid           VARCHAR(36)  NOT NULL UNIQUE,
++    period_year   INTEGER      NOT NULL,
++    period_month  INTEGER      NOT NULL,
++    action        VARCHAR(10)  NOT NULL,
++    reason        TEXT,
++    by_uid        VARCHAR(255),
++    by_name       VARCHAR(255),
++    at            TIMESTAMP    NOT NULL DEFAULT NOW(),
++    CONSTRAINT chk_gl_period_audit_action CHECK (action IN ('CLOSE', 'REOPEN'))
++);
++
++CREATE INDEX IF NOT EXISTS idx_gl_period_audit_month
++    ON gl_period_audit (period_year, period_month);
++
++-- 4. 2900 Suspense (planned for V135, brought forward): the day-close correction can
++--    post a surplus whose source the owner has not decided (RIPOTI Q9) as
++--    Dr 1000 / Cr 2900 instead of Cr 6700. ON CONFLICT keeps a later seed harmless.
++INSERT INTO gl_account
++    (uid, account_code, account_name, account_name_sw, account_type, account_category, normal_balance, is_active, is_system, sort_order)
++VALUES
++    (gen_random_uuid(), '2900', 'Suspense', 'Pesa Inayosubiri Uamuzi', 'LIABILITY', 'CURRENT_LIABILITY', 'CREDIT', true, true, 2900)
++ON CONFLICT (account_code) DO NOTHING;
+diff --git a/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java
+new file mode 100644
+index 0000000..fb3e063
+--- /dev/null
++++ b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java
+@@ -0,0 +1,116 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.jdbc.core.JdbcTemplate;
++import org.springframework.transaction.support.TransactionTemplate;
++
++import java.math.BigDecimal;
++import java.time.LocalDate;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.UUID;
++import java.util.concurrent.CountDownLatch;
++import java.util.concurrent.CyclicBarrier;
++import java.util.concurrent.ExecutorService;
++import java.util.concurrent.Executors;
++import java.util.concurrent.Future;
++import java.util.concurrent.TimeUnit;
++
++import static org.assertj.core.api.Assertions.assertThat;
++
++/**
++ * Two posts of the same reference at the same moment leave ONE journal (the advisory
++ * lock in PostingEngine.executePost). Needs a real PostgreSQL, so it is NOT part of the
++ * build; run it against a THROW-AWAY copy (it writes journals tagged QA-LOCK-):
++ *   mvnw -o test -Dtest=GlConcurrentPostCheck -Dgl.lock.check=true \
++ *        -Dspring.datasource.url=jdbc:postgresql://localhost:5432/lsms_lockcheck
++ */
++@SpringBootTest
++@EnabledIfSystemProperty(named = "gl.lock.check", matches = "true")
++class GlConcurrentPostCheck {
++
++    private static final int ROUNDS = 25;
++
++    @Autowired
++    private PostingEngine postingEngine;
++    @Autowired
++    private JdbcTemplate jdbc;
++    @Autowired
++    private TransactionTemplate tx;
++
++    private void postOnce(String ref) {
++        try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++            postingEngine.post(JournalEventType.CAPITAL_INJECTION, ref, ref, LocalDate.now(), null, "QA-LOCK",
++                    List.of(new PostingEngine.JournalLine("1000", BigDecimal.ONE, BigDecimal.ZERO, "QA lock"),
++                            new PostingEngine.JournalLine("3000", BigDecimal.ZERO, BigDecimal.ONE, "QA lock")));
++        } catch (RuntimeException e) {
++            throw e;
++        } catch (Exception e) {
++            throw new IllegalStateException(e);
++        }
++    }
++
++    private int journals(String ref) {
++        Integer n = jdbc.queryForObject(
++                "SELECT count(*) FROM journal_entry WHERE reference_uid = ? AND NOT is_reversal", Integer.class, ref);
++        return n != null ? n : -1;
++    }
++
++    @Test
++    void twoSimultaneousPostsLeaveOneJournal() throws Exception {
++        ExecutorService pool = Executors.newFixedThreadPool(2);
++        List<String> doubles = new ArrayList<>();
++        try {
++            for (int round = 0; round < ROUNDS; round++) {
++                String ref = "QA-LOCK-" + UUID.randomUUID();
++                CyclicBarrier start = new CyclicBarrier(2);
++                List<Future<?>> fs = new ArrayList<>();
++                for (int t = 0; t < 2; t++) {
++                    fs.add(pool.submit(() -> {
++                        start.await(10, TimeUnit.SECONDS);
++                        postOnce(ref);
++                        return null;
++                    }));
++                }
++                for (Future<?> f : fs) f.get(30, TimeUnit.SECONDS);
++                int n = journals(ref);
++                System.out.println("LOCKCHECK round " + round + " " + ref + " journals=" + n);
++                if (n != 1) doubles.add(ref + "=" + n);
++            }
++        } finally {
++            pool.shutdownNow();
++        }
++        assertThat(doubles).as("references with != 1 journal after 2 simultaneous posts").isEmpty();
++    }
++
++    @Test
++    void postWaitsForTheLockHolder() throws Exception {
++        String ref = "QA-LOCK-" + UUID.randomUUID();
++        CountDownLatch held = new CountDownLatch(1);
++        ExecutorService pool = Executors.newSingleThreadExecutor();
++        try {
++            Future<?> holder = pool.submit(() -> tx.executeWithoutResult(s -> {
++                jdbc.queryForObject("SELECT 1 FROM (SELECT pg_advisory_xact_lock(hashtext(?))) l", Integer.class, ref);
++                held.countDown();
++                try {
++                    Thread.sleep(2000);
++                } catch (InterruptedException e) {
++                    Thread.currentThread().interrupt();
++                }
++            }));
++            assertThat(held.await(10, TimeUnit.SECONDS)).isTrue();
++            long t0 = System.nanoTime();
++            postOnce(ref);
++            long waitedMs = (System.nanoTime() - t0) / 1_000_000;
++            holder.get(10, TimeUnit.SECONDS);
++            System.out.println("LOCKCHECK post waited " + waitedMs + " ms for the lock holder");
++            assertThat(waitedMs).isGreaterThanOrEqualTo(1500);
++            assertThat(journals(ref)).isEqualTo(1);
++        } finally {
++            pool.shutdownNow();
++        }
++    }
++}
+diff --git a/src/test/java/com/Lsms/CapitalAndExpenditure/gl/Toleo1PostingEngineTest.java b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/Toleo1PostingEngineTest.java
+new file mode 100644
+index 0000000..e29ef96
+--- /dev/null
++++ b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/Toleo1PostingEngineTest.java
+@@ -0,0 +1,274 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.Lsms.Payments.Entity.Payment;
++import com.Lsms.Reconciliation.Entity.DailyFinancialSnapshot;
++import com.Lsms.Sales.Entity.Sales;
++import com.Lsms.Sales.Entity.SalesDetails;
++import com.Lsms.uaa.utils.PaymentMethod;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Nested;
++import org.junit.jupiter.api.Test;
++import org.mockito.ArgumentCaptor;
++import org.springframework.context.ApplicationContext;
++
++import java.math.BigDecimal;
++import java.time.LocalDate;
++import java.time.LocalDateTime;
++import java.util.List;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatThrownBy;
++import static org.mockito.ArgumentMatchers.*;
++import static org.mockito.Mockito.*;
++
++/**
++ * Toleo 1 (MPANGO-PAMOJA §1.1, §1.2, §1.9) on the real PostingEngine with mocked
++ * persistence: the self-proxy returns the same instance, so executePost runs and the
++ * saved JournalEntry is captured.
++ */
++class Toleo1PostingEngineTest {
++
++    private JournalEntryRepository journals;
++    private GlPeriodRepository periods;
++    private GlConfigService config;
++    private GlPostingFailureService failures;
++    private PostingEngine engine;
++
++    @BeforeEach
++    void setUp() {
++        journals = mock(JournalEntryRepository.class);
++        periods = mock(GlPeriodRepository.class);
++        config = mock(GlConfigService.class);
++        failures = mock(GlPostingFailureService.class);
++        AccountMapper accounts = mock(AccountMapper.class);
++        ApplicationContext ctx = mock(ApplicationContext.class);
++        engine = new PostingEngine(journals, mock(JournalEntryLineRepository.class), accounts, ctx, config, periods);
++
++        when(ctx.getBean(PostingEngine.class)).thenReturn(engine);
++        when(ctx.getBean(GlPostingFailureService.class)).thenReturn(failures);
++        when(config.isPostingEnabled()).thenReturn(true);
++        when(config.isShadowMode()).thenReturn(false);
++        when(accounts.getCashAccountCode(any())).thenAnswer(i -> "VODACOM".equals(i.getArgument(0)) ? "1030" : "1000");
++        when(accounts.getARAccountCode(any())).thenReturn("1100");
++        when(accounts.requireAccount(anyString())).thenAnswer(i -> {
++            GlAccount a = new GlAccount();
++            a.setUid("acc-" + i.getArgument(0));
++            a.setAccountCode(i.getArgument(0));
++            a.setAccountName("A " + i.getArgument(0));
++            return a;
++        });
++        when(journals.findByReferenceUidAndIsReversalFalseAndIsDeletedFalse(anyString())).thenReturn(List.of());
++        when(journals.save(any(JournalEntry.class))).thenAnswer(i -> i.getArgument(0));
++    }
++
++    private JournalEntry saved() {
++        ArgumentCaptor<JournalEntry> c = ArgumentCaptor.forClass(JournalEntry.class);
++        verify(journals).save(c.capture());
++        return c.getValue();
++    }
++
++    private static BigDecimal side(JournalEntry e, String code, boolean debit) {
++        return e.getLines().stream().filter(l -> code.equals(l.getAccountCode()))
++                .map(l -> debit ? l.getDebitAmount() : l.getCreditAmount())
++                .reduce(BigDecimal.ZERO, BigDecimal::add);
++    }
++
++    private static DailyFinancialSnapshot snap(String variance, String declared) {
++        DailyFinancialSnapshot s = new DailyFinancialSnapshot();
++        s.setUid("snap-1");
++        s.setReconciliationUid("recon-1");
++        s.setSnapshotDate(LocalDate.of(2026, 10, 10));
++        s.setVarianceAmount(new BigDecimal(variance));
++        s.setDeclaredCash(new BigDecimal(declared));
++        return s;
++    }
++
++    @Nested
++    @DisplayName("H-1: day-close variance sign + guard")
++    class Variance {
++
++        @Test
++        @DisplayName("shortage 3,000 (variance +3,000) -> Dr 6700 / Cr 1000 3,000")
++        void shortage() {
++            PostingEngine.DayCloseVariance v = engine.postDayCloseVariance(snap("3000", "660000"), "u");
++            assertThat(v.kind()).isEqualTo(PostingEngine.VarianceKind.SHORTAGE);
++            JournalEntry e = saved();
++            assertThat(side(e, "6700", true)).isEqualByComparingTo("3000");
++            assertThat(side(e, "1000", false)).isEqualByComparingTo("3000");
++            assertThat(side(e, "1000", true)).isEqualByComparingTo("0");
++        }
++
++        @Test
++        @DisplayName("surplus K2 28,500, declared 420,000 -> Dr 1000 / Cr 6700 28,500")
++        void surplus() {
++            PostingEngine.DayCloseVariance v = engine.postDayCloseVariance(snap("-28500", "420000"), "u");
++            assertThat(v.kind()).isEqualTo(PostingEngine.VarianceKind.SURPLUS);
++            assertThat(v.overDeducted()).isEqualByComparingTo("0");
++            JournalEntry e = saved();
++            assertThat(side(e, "1000", true)).isEqualByComparingTo("28500");
++            assertThat(side(e, "6700", false)).isEqualByComparingTo("28500");
++        }
++
++        @Test
++        @DisplayName("K1: declared 0, variance -2,000 -> OVER_DEDUCTION, nothing posted")
++        void overDeduction() {
++            PostingEngine.DayCloseVariance v = engine.postDayCloseVariance(snap("-2000", "0"), "u");
++            assertThat(v.kind()).isEqualTo(PostingEngine.VarianceKind.OVER_DEDUCTION);
++            assertThat(v.postedAmount()).isEqualByComparingTo("0");
++            assertThat(v.overDeducted()).isEqualByComparingTo("2000");
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("guard: surplus 542,000 with 532,000 counted -> 532,000 posted, 10,000 over-deduction")
++        void guard() {
++            PostingEngine.DayCloseVariance v = engine.postDayCloseVariance(snap("-542000", "532000"), "u");
++            assertThat(v.kind()).isEqualTo(PostingEngine.VarianceKind.SURPLUS);
++            assertThat(v.postedAmount()).isEqualByComparingTo("532000");
++            assertThat(v.overDeducted()).isEqualByComparingTo("10000");
++            assertThat(side(saved(), "1000", true)).isEqualByComparingTo("532000");
++        }
++
++        @Test
++        @DisplayName("surplus to suspense (Q9): Dr 1000 / Cr 2900, nothing on 6700")
++        void surplusToSuspense() {
++            engine.postDayCloseVariance(snap("-542000", "532000"), "u", true);
++            JournalEntry e = saved();
++            assertThat(side(e, "1000", true)).isEqualByComparingTo("532000");
++            assertThat(side(e, "2900", false)).isEqualByComparingTo("532000");
++            assertThat(side(e, "6700", false)).isEqualByComparingTo("0");
++        }
++
++        @Test
++        @DisplayName("shortage ignores the suspense flag: Dr 6700 / Cr 1000")
++        void shortageIgnoresSuspense() {
++            engine.postDayCloseVariance(snap("3000", "660000"), "u", true);
++            JournalEntry e = saved();
++            assertThat(side(e, "6700", true)).isEqualByComparingTo("3000");
++            assertThat(side(e, "2900", false)).isEqualByComparingTo("0");
++        }
++
++        @Test
++        @DisplayName("zero variance -> null, nothing posted")
++        void zero() {
++            assertThat(engine.postDayCloseVariance(snap("0", "500000"), "u")).isNull();
++            verify(journals, never()).save(any());
++        }
++    }
++
++    @Nested
++    @DisplayName("H-2: a credit sale needs the stored outstanding balance")
++    class CreditSale {
++
++        private Sales sale(String outstanding) {
++            Sales s = new Sales();
++            s.setUid("sale-1");
++            s.setReceiptNumber("101026-2202");
++            s.setSaleDate(LocalDateTime.of(2026, 10, 10, 12, 0));
++            s.setTotalAmount(new BigDecimal("54500"));
++            s.setDiscountAmount(BigDecimal.ZERO);
++            s.setOutstandingBalance(new BigDecimal(outstanding));
++            SalesDetails d = new SalesDetails();
++            d.setTotalCost(new BigDecimal("40000"));
++            s.setSaleDetails(List.of(d));
++            return s;
++        }
++
++        private List<Payment> paid(String amount) {
++            Payment p = new Payment();
++            p.setPaymentMethod(PaymentMethod.CASH);
++            p.setTotalAmount(new BigDecimal("54500"));
++            p.setAmountPaid(new BigDecimal(amount));
++            return List.of(p);
++        }
++
++        @Test
++        @DisplayName("entity as the old async hook saw it (outstanding 0) -> unbalanced, GlPostingException with the lines")
++        void staleEntityIsUnbalanced() {
++            assertThatThrownBy(() -> engine.postSale(sale("0"), paid("13500"), "u"))
++                    .isInstanceOf(GlPostingException.class)
++                    .hasMessageContaining("GL post failed for SALE_CASH ref=sale-1")
++                    .satisfies(e -> assertThat(((GlPostingException) e).getLines()).isNotEmpty());
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("sale as stored (outstanding 41,000) -> SALE_MIXED with Dr AR 41,000, balanced")
++        void storedSaleBalances() {
++            engine.postSale(sale("41000"), paid("13500"), "u");
++            JournalEntry e = saved();
++            assertThat(e.getReferenceType()).isEqualTo("SALE_MIXED");
++            assertThat(side(e, "1100", true)).isEqualByComparingTo("41000");
++            assertThat(side(e, "1000", true)).isEqualByComparingTo("13500");
++            assertThat(e.getTotalDebit()).isEqualByComparingTo(e.getTotalCredit());
++        }
++
++        @Test
++        @DisplayName("shadow mode swallows the failure but records it in gl_posting_failure")
++        void shadowRecords() {
++            when(config.isShadowMode()).thenReturn(true);
++            engine.postSale(sale("0"), paid("13500"), "u");
++            verify(failures).record(eq("SALE_CASH"), eq("sale-1"), eq("101026-2202"), any(GlPostingException.class));
++        }
++    }
++
++    @Nested
++    @DisplayName("§1.9: closed periods")
++    class ClosedPeriod {
++
++        @BeforeEach
++        void septemberClosed() {
++            when(periods.isClosed(anyInt(), anyInt())).thenReturn(false);
++            when(periods.isClosed(2026, 9)).thenReturn(true);
++        }
++
++        private List<PostingEngine.JournalLine> expenseLines() {
++            return List.of(new PostingEngine.JournalLine("6100", new BigDecimal("5000"), BigDecimal.ZERO, "x"),
++                    new PostingEngine.JournalLine("1000", BigDecimal.ZERO, new BigDecimal("5000"), "x"));
++        }
++
++        @Test
++        @DisplayName("event of 15/09 after closing -> entry 01/10, event_date 15/09, late entry")
++        void systemEventMoves() {
++            engine.post(JournalEventType.EXPENSE_DIRECT, "capex-1", "R1", LocalDate.of(2026, 9, 15), null, "u",
++                    expenseLines());
++            JournalEntry e = saved();
++            assertThat(e.getEntryDate()).isEqualTo(LocalDate.of(2026, 10, 1));
++            assertThat(e.getEventDate()).isEqualTo(LocalDate.of(2026, 9, 15));
++            assertThat(e.getIsLateEntry()).isTrue();
++        }
++
++        @Test
++        @DisplayName("event in an open month keeps its date and no late flag")
++        void openMonthUntouched() {
++            engine.post(JournalEventType.EXPENSE_DIRECT, "capex-2", "R2", LocalDate.of(2026, 10, 3), null, "u",
++                    expenseLines());
++            JournalEntry e = saved();
++            assertThat(e.getEntryDate()).isEqualTo(LocalDate.of(2026, 10, 3));
++            assertThat(e.getEventDate()).isNull();
++            assertThat(e.getIsLateEntry()).isFalse();
++        }
++
++        @Test
++        @DisplayName("manual journal (true-up) dated 20/09 is refused while September is closed")
++        void manualRefused() {
++            assertThatThrownBy(() -> engine.postManual(JournalEventType.OPENING_BALANCE, "TRUEUP-1", "T",
++                    LocalDate.of(2026, 9, 20), "u", expenseLines()))
++                    .isInstanceOf(IllegalStateException.class)
++                    .hasMessageContaining("imefungwa");
++            verify(journals, never()).save(any());
++            // the manual flag does not leak into the next system post
++            engine.post(JournalEventType.EXPENSE_DIRECT, "capex-3", "R3", LocalDate.of(2026, 9, 20), null, "u",
++                    expenseLines());
++            assertThat(saved().getEntryDate()).isEqualTo(LocalDate.of(2026, 10, 1));
++        }
++
++        @Test
++        @DisplayName("several closed months in a row -> first day of the first open one")
++        void skipsClosedRun() {
++            when(periods.isClosed(2026, 8)).thenReturn(true);
++            assertThat(engine.firstOpenDate(LocalDate.of(2026, 8, 31))).isEqualTo(LocalDate.of(2026, 10, 1));
++        }
++    }
++}
+diff --git a/src/test/java/com/Lsms/CapitalAndExpenditure/gl/Toleo1ServicesTest.java b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/Toleo1ServicesTest.java
+new file mode 100644
+index 0000000..5f57ddc
+--- /dev/null
++++ b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/Toleo1ServicesTest.java
+@@ -0,0 +1,582 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.Lsms.Reconciliation.Entity.DailyFinancialSnapshot;
++import com.Lsms.Reconciliation.Entity.DailyReconciliation;
++import com.Lsms.Reconciliation.Enums.ReconciliationStatus;
++import com.Lsms.Reconciliation.Repository.DailyFinancialSnapshotRepository;
++import com.Lsms.Reconciliation.Repository.DailyReconciliationRepository;
++import org.junit.jupiter.api.AfterEach;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Nested;
++import org.junit.jupiter.api.Test;
++import org.mockito.ArgumentCaptor;
++import org.springframework.context.ApplicationContext;
++import org.springframework.transaction.support.TransactionSynchronization;
++import org.springframework.transaction.support.TransactionSynchronizationManager;
++
++import java.math.BigDecimal;
++import java.time.LocalDate;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.List;
++import java.util.Map;
++import java.util.Optional;
++import java.util.concurrent.atomic.AtomicInteger;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.mockito.ArgumentMatchers.*;
++import static org.mockito.Mockito.*;
++
++/** Toleo 1 services with mocked collaborators: failures, after-commit sale posting, day-close correction. */
++class Toleo1ServicesTest {
++
++    @Nested
++    @DisplayName("gl_posting_failure: record and retry")
++    class Failures {
++
++        private GlPostingFailureRepository repo;
++        private PostingEngine engine;
++        private GlPostingFailureService service;
++        private final List<GlPostingFailure> rows = new ArrayList<>();
++
++        @BeforeEach
++        void setUp() {
++            repo = mock(GlPostingFailureRepository.class);
++            engine = mock(PostingEngine.class);
++            ApplicationContext ctx = mock(ApplicationContext.class);
++            when(ctx.getBean(PostingEngine.class)).thenReturn(engine);
++            service = new GlPostingFailureService(repo, ctx);
++            when(repo.save(any())).thenAnswer(i -> {
++                GlPostingFailure f = i.getArgument(0);
++                if (!rows.contains(f)) rows.add(f);
++                return f;
++            });
++            when(repo.findFirstBySourceTypeAndSourceUidAndResolvedAtIsNull(anyString(), anyString()))
++                    .thenAnswer(i -> rows.stream().filter(f -> f.getResolvedAt() == null
++                            && f.getSourceType().equals(i.getArgument(0)) && f.getSourceUid().equals(i.getArgument(1))).findFirst());
++            when(repo.findByUid(anyString())).thenAnswer(i -> rows.stream()
++                    .filter(f -> i.getArgument(0).equals(f.getUid())).findFirst());
++        }
++
++        private GlPostingException missingAccount() {
++            return new GlPostingException(JournalEventType.PURCHASE_INVENTORY, "pur-1", "PUR-1", LocalDate.of(2026, 10, 14),
++                    null, "u", List.of(new PostingEngine.JournalLine("1200", new BigDecimal("300"), BigDecimal.ZERO, "i"),
++                    new PostingEngine.JournalLine("1999", BigDecimal.ZERO, new BigDecimal("300"), "c")),
++                    new IllegalStateException("GL account not found for code: 1999"));
++        }
++
++        @Test
++        @DisplayName("a failure is kept with its lines; the same source again bumps attempts")
++        void recordAndBump() {
++            service.record("PURCHASE", "pur-1", null, missingAccount());
++            service.record("PURCHASE", "pur-1", null, missingAccount());
++            assertThat(rows).hasSize(1);
++            GlPostingFailure f = rows.get(0);
++            f.setUid("f-1");
++            assertThat(f.getAttempts()).isEqualTo(2);
++            assertThat(f.getEventType()).isEqualTo("PURCHASE_INVENTORY");
++            assertThat(f.getReferenceUid()).isEqualTo("pur-1");
++            assertThat(f.getLinesJson()).contains("1999");
++            assertThat(f.getError()).contains("GL account not found");
++            assertThat(GlPostingFailureService.readLines(f.getLinesJson())).hasSize(2);
++        }
++
++        @Test
++        @DisplayName("retry replays the stored lines; success resolves, failure bumps attempts")
++        void retry() {
++            service.record("PURCHASE", "pur-1", null, missingAccount());
++            GlPostingFailure f = rows.get(0);
++            f.setUid("f-1");
++
++            doThrow(new IllegalStateException("still missing")).when(engine)
++                    .replay(any(), anyString(), any(), any(), any(), anyString(), anyList());
++            service.retry("f-1", "boss");
++            assertThat(f.getResolvedAt()).isNull();
++            assertThat(f.getAttempts()).isEqualTo(2);
++            assertThat(f.getError()).contains("still missing");
++
++            doNothing().when(engine).replay(any(), anyString(), any(), any(), any(), anyString(), anyList());
++            when(engine.hasActivePosting("pur-1")).thenReturn(true);
++            service.retry("f-1", "boss");
++            assertThat(f.getResolvedAt()).isNotNull();
++            assertThat(f.getResolution()).isEqualTo("RETRIED");
++            assertThat(f.getResolvedByUid()).isEqualTo("boss");
++        }
++
++        @Test
++        @DisplayName("a DAY_CLOSE_CORRECTION failure is not replayed by retry; it stays open with the instruction")
++        void correctionFailureNotReplayed() {
++            service.record(DayCloseVarianceService.SOURCE_CORRECTION, "snap-1", "JE-1", missingAccount());
++            GlPostingFailure f = rows.get(0);
++            f.setUid("f-c");
++            service.retry("f-c", "boss");
++            assertThat(f.getResolvedAt()).isNull();
++            assertThat(f.getError()).contains("corrections/day-close-variance");
++            verify(engine, never()).replay(any(), anyString(), any(), any(), any(), anyString(), anyList());
++        }
++
++        @Test
++        @DisplayName("record never throws, even when the table write fails")
++        void recordNeverThrows() {
++            when(repo.save(any())).thenThrow(new RuntimeException("db down"));
++            service.record("SALE", "s-1", "R", new RuntimeException("x"));
++        }
++    }
++
++    @Nested
++    @DisplayName("sale posting waits for the commit")
++    class AfterCommit {
++
++        @AfterEach
++        void clear() {
++            if (TransactionSynchronizationManager.isSynchronizationActive()) {
++                TransactionSynchronizationManager.clearSynchronization();
++            }
++        }
++
++        @Test
++        @DisplayName("inside a transaction nothing is posted until afterCommit; a failure is recorded")
++        void postsAfterCommit() {
++            ApplicationContext ctx = mock(ApplicationContext.class);
++            GlPostingFailureService failures = mock(GlPostingFailureService.class);
++            SaleGlPostingService self = mock(SaleGlPostingService.class);
++            SaleGlPostingService service = new SaleGlPostingService(null, null, null, null, mock(PostingEngine.class),
++                    failures, ctx);
++            when(ctx.getBean(SaleGlPostingService.class)).thenReturn(self);
++            when(self.postFromDb("sale-1", "u")).thenThrow(new IllegalStateException("boom"));
++
++            TransactionSynchronizationManager.initSynchronization();
++            service.postAfterCommit("sale-1", "R-1", "u");
++            verify(self, never()).postFromDb(anyString(), anyString());
++
++            List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
++            assertThat(syncs).hasSize(1);
++            syncs.get(0).afterCommit();
++            verify(self).postFromDb("sale-1", "u");
++            verify(failures).record(eq(GlPostingFailureService.SOURCE_SALE), eq("sale-1"), eq("R-1"), any());
++        }
++    }
++
++    @Nested
++    @DisplayName("repost of an old sale uses its sale-time figures")
++    class RepostOldSale {
++
++        @Test
++        @DisplayName("121026-2249: 275,000, paid 100,000 at sale + 175,000 later (already posted) -> AR 175,000, cash 100,000")
++        void laterCollectionGoesBackToAr() {
++            com.Lsms.Sales.Repository.SalesRepository sales = mock(com.Lsms.Sales.Repository.SalesRepository.class);
++            com.Lsms.Payments.Repository.PaymentRepository pays = mock(com.Lsms.Payments.Repository.PaymentRepository.class);
++            com.Lsms.DebtAdjustment.Repository.DebtAdjustmentRepository adjs = mock(com.Lsms.DebtAdjustment.Repository.DebtAdjustmentRepository.class);
++            JournalEntryRepository journals = mock(JournalEntryRepository.class);
++            PostingEngine engine = mock(PostingEngine.class);
++            SaleGlPostingService service = new SaleGlPostingService(sales, pays, adjs, journals, engine,
++                    mock(GlPostingFailureService.class), mock(ApplicationContext.class));
++
++            com.Lsms.Sales.Entity.Sales sale = new com.Lsms.Sales.Entity.Sales();
++            sale.setUid("s-2249");
++            sale.setReceiptNumber("121026-2249");
++            sale.setTotalAmount(new BigDecimal("275000"));
++            sale.setOutstandingBalance(BigDecimal.ZERO); // paid off on 13/10
++            com.Lsms.Payments.Entity.Payment first = new com.Lsms.Payments.Entity.Payment();
++            first.setUid("p-1");
++            first.setAmountPaid(new BigDecimal("100000"));
++            com.Lsms.Payments.Entity.Payment later = new com.Lsms.Payments.Entity.Payment();
++            later.setUid("p-2");
++            later.setAmountPaid(new BigDecimal("175000"));
++            JournalEntry rcpt = new JournalEntry();
++            rcpt.setUid("je-rcpt");
++            rcpt.setTotalDebit(new BigDecimal("175000"));
++
++            when(sales.findByUidWithAllRelationships("s-2249")).thenReturn(Optional.of(sale));
++            when(pays.findBySaleUid("s-2249")).thenReturn(List.of(first, later));
++            when(adjs.sumApprovedAmountBySaleUid("s-2249")).thenReturn(BigDecimal.ZERO);
++            when(journals.findByReferenceUidStartingWithAndIsReversalFalseAndIsDeletedFalse("p-1:RCPT:")).thenReturn(List.of());
++            when(journals.findByReferenceUidStartingWithAndIsReversalFalseAndIsDeletedFalse("p-2:RCPT:")).thenReturn(List.of(rcpt));
++            when(engine.hasActivePosting("SALE_MIXED", "s-2249")).thenReturn(false, true);
++
++            assertThat(service.postFromDb("s-2249", "boss")).isEqualTo(GlPostOutcome.POSTED);
++
++            @SuppressWarnings("unchecked")
++            ArgumentCaptor<List<com.Lsms.Payments.Entity.Payment>> paid = ArgumentCaptor.forClass(List.class);
++            verify(engine).postSale(eq(sale), paid.capture(), eq("boss"), argThat(b -> b.compareTo(new BigDecimal("175000")) == 0));
++            assertThat(paid.getValue()).extracting(com.Lsms.Payments.Entity.Payment::getAmountPaid)
++                    .usingComparatorForType(BigDecimal::compareTo, BigDecimal.class)
++                    .containsExactly(new BigDecimal("100000"), BigDecimal.ZERO);
++            // the stored payment row is never touched
++            assertThat(later.getAmountPaid()).isEqualByComparingTo("175000");
++        }
++    }
++
++    @Nested
++    @DisplayName("sale repost is idempotent")
++    class SaleIdempotency {
++
++        @Test
++        @DisplayName("postFromDb twice: one postSale; the second returns ALREADY_POSTED and resolves the failure")
++        void secondPostIsSkipped() {
++            com.Lsms.Sales.Repository.SalesRepository sales = mock(com.Lsms.Sales.Repository.SalesRepository.class);
++            com.Lsms.Payments.Repository.PaymentRepository pays = mock(com.Lsms.Payments.Repository.PaymentRepository.class);
++            com.Lsms.DebtAdjustment.Repository.DebtAdjustmentRepository adjs = mock(com.Lsms.DebtAdjustment.Repository.DebtAdjustmentRepository.class);
++            PostingEngine engine = mock(PostingEngine.class);
++            GlPostingFailureService failures = mock(GlPostingFailureService.class);
++            SaleGlPostingService service = new SaleGlPostingService(sales, pays, adjs, mock(JournalEntryRepository.class),
++                    engine, failures, mock(ApplicationContext.class));
++            com.Lsms.Sales.Entity.Sales sale = new com.Lsms.Sales.Entity.Sales();
++            sale.setUid("s-1");
++            sale.setReceiptNumber("101026-2202");
++            sale.setTotalAmount(new BigDecimal("50000"));
++            when(sales.findByUidWithAllRelationships("s-1")).thenReturn(Optional.of(sale));
++            when(pays.findBySaleUid("s-1")).thenReturn(List.of());
++            when(adjs.sumApprovedAmountBySaleUid("s-1")).thenReturn(BigDecimal.ZERO);
++            AtomicInteger journals = new AtomicInteger();
++            doAnswer(i -> { journals.incrementAndGet(); return null; })
++                    .when(engine).postSale(any(), anyList(), anyString(), any());
++            when(engine.hasActivePosting(eq("SALE_CREDIT"), eq("s-1"))).thenAnswer(i -> journals.get() > 0);
++
++            assertThat(service.postFromDb("s-1", "boss")).isEqualTo(GlPostOutcome.POSTED);
++            assertThat(service.postFromDb("s-1", "boss")).isEqualTo(GlPostOutcome.ALREADY_POSTED);
++            assertThat(journals.get()).isEqualTo(1);
++            verify(failures).resolveBySource("s-1", "boss", "POSTED");
++            verify(failures).resolveBySource("s-1", "boss", "ALREADY_POSTED");
++        }
++    }
++
++    @Nested
++    @DisplayName("classification: declared cash missing vs zero")
++    class NotCounted {
++
++        private DailyFinancialSnapshot s(String variance, String declared) {
++            DailyFinancialSnapshot x = new DailyFinancialSnapshot();
++            x.setVarianceAmount(new BigDecimal(variance));
++            x.setDeclaredCash(declared == null ? null : new BigDecimal(declared));
++            return x;
++        }
++
++        @Test
++        @DisplayName("declared null -> NOT_COUNTED, nothing posted, for either sign")
++        void nullDeclared() {
++            for (String v : List.of("5000", "-5000")) {
++                PostingEngine.DayCloseVariance c = PostingEngine.classifyDayCloseVariance(s(v, null));
++                assertThat(c.kind()).isEqualTo(PostingEngine.VarianceKind.NOT_COUNTED);
++                assertThat(c.postedAmount()).isEqualByComparingTo("0");
++            }
++        }
++
++        @Test
++        @DisplayName("declared 0 keeps the rule: shortage posted, negative = over-deduction")
++        void zeroDeclared() {
++            assertThat(PostingEngine.classifyDayCloseVariance(s("5000", "0")).kind())
++                    .isEqualTo(PostingEngine.VarianceKind.SHORTAGE);
++            assertThat(PostingEngine.classifyDayCloseVariance(s("-5000", "0")).kind())
++                    .isEqualTo(PostingEngine.VarianceKind.OVER_DEDUCTION);
++        }
++    }
++
++    @Nested
++    @DisplayName("H-1/H-5 data correction")
++    class Correction {
++
++        private JournalEntryRepository journals;
++        private JournalEntryLineRepository lines;
++        private DailyFinancialSnapshotRepository snaps;
++        private PostingEngine engine;
++        private GlPostingFailureService failures;
++        private DayCloseVarianceService service;
++        /** Reconciliation status per reconciliation uid ("r-" + snapshot uid); APPROVED when absent. */
++        private final Map<String, ReconciliationStatus> status = new HashMap<>();
++
++        private DailyFinancialSnapshot snap(String uid, boolean current, String variance, String declared, int day) {
++            DailyFinancialSnapshot s = new DailyFinancialSnapshot();
++            s.setUid(uid);
++            s.setReconciliationUid("r-" + uid);
++            s.setIsCurrent(current);
++            s.setSnapshotVersion(current ? 2 : 1);
++            s.setSnapshotDate(LocalDate.of(2026, 9, day));
++            s.setVarianceAmount(new BigDecimal(variance));
++            s.setDeclaredCash(new BigDecimal(declared));
++            return s;
++        }
++
++        /** A journal posted with the OLD rule: positive variance -> Dr 1000. */
++        private JournalEntry oldJournal(String uid, DailyFinancialSnapshot s) {
++            JournalEntry j = new JournalEntry();
++            j.setUid(uid);
++            j.setEntryNumber("JE-" + uid);
++            j.setReferenceUid(s.getUid());
++            j.setEntryDate(s.getSnapshotDate());
++            BigDecimal v = s.getVarianceAmount();
++            JournalEntryLine cash = new JournalEntryLine();
++            cash.setAccountCode("1000");
++            cash.setDebitAmount(v.signum() > 0 ? v : BigDecimal.ZERO);
++            cash.setCreditAmount(v.signum() > 0 ? BigDecimal.ZERO : v.abs());
++            when(lines.findByJournalEntryUid(uid)).thenReturn(List.of(cash));
++            when(journals.findByUid(uid)).thenReturn(Optional.of(j));
++            return j;
++        }
++
++        @BeforeEach
++        void setUp() {
++            journals = mock(JournalEntryRepository.class);
++            lines = mock(JournalEntryLineRepository.class);
++            snaps = mock(DailyFinancialSnapshotRepository.class);
++            engine = mock(PostingEngine.class);
++            GlConfigService config = mock(GlConfigService.class);
++            when(config.isPostingEnabled()).thenReturn(true);
++            failures = mock(GlPostingFailureService.class);
++            DailyReconciliationRepository recons = mock(DailyReconciliationRepository.class);
++            when(recons.findByUid(anyString())).thenAnswer(i -> {
++                DailyReconciliation r = new DailyReconciliation();
++                r.setUid(i.getArgument(0));
++                r.setStatus(status.getOrDefault(i.<String>getArgument(0), ReconciliationStatus.APPROVED));
++                return Optional.of(r);
++            });
++            service = new DayCloseVarianceService(engine, snaps, journals, lines, failures, config, recons);
++
++            DailyFinancialSnapshot shortage = snap("s-short", true, "3000", "660000", 5);
++            DailyFinancialSnapshot k1 = snap("s-k1", true, "-2000", "0", 6);
++            DailyFinancialSnapshot oldV1 = snap("s-v1", false, "-600", "0", 17);
++            DailyFinancialSnapshot k2 = snap("s-k2", true, "-28500", "420000", 10);
++            List<DailyFinancialSnapshot> all = List.of(shortage, k1, oldV1, k2);
++            for (DailyFinancialSnapshot s : all) when(snaps.findByUid(s.getUid())).thenReturn(Optional.of(s));
++            when(snaps.findAll()).thenReturn(all);
++            List<JournalEntry> live = List.of(oldJournal("j-short", shortage), oldJournal("j-k1", k1), oldJournal("j-v1", oldV1));
++            when(journals.findByReferenceTypeAndIsReversalFalseAndIsDeletedFalseOrderByEntryDateAscIdAsc("DAY_CLOSE_VARIANCE"))
++                    .thenReturn(live);
++            // k2 has no live journal at all (e.g. its post failed) -> POST_MISSING
++            when(engine.postDayCloseVariance(any(), anyString(), anyBoolean()))
++                    .thenAnswer(i -> PostingEngine.classifyDayCloseVariance(i.getArgument(0)));
++        }
++
++        @Test
++        @DisplayName("dry run lists every action and writes nothing")
++        void dryRun() {
++            DayCloseVarianceService.CorrectionResult r = service.correct(true, "boss");
++            assertThat(r.getRows()).extracting(DayCloseVarianceService.CorrectionRow::getAction)
++                    .containsExactly("REVERSE_AND_REPOST", "REVERSE_ONLY", "REVERSE_ONLY", "POST_MISSING");
++            assertThat(r.getRows()).extracting(DayCloseVarianceService.CorrectionRow::getGroup)
++                    .containsExactly("SHORTAGE", "OVER_DEDUCTION", "SUPERSEDED", "SURPLUS");
++            assertThat(r.getToChange()).isEqualTo(4);
++            // before: +3000 (wrong sign) -2000 -600 + 0 ; after: -3000 + 0 + 0 + 28500
++            assertThat(r.getCashBefore()).isEqualByComparingTo("400");
++            assertThat(r.getCashAfter()).isEqualByComparingTo("25500");
++            assertThat(r.getCashChange()).isEqualByComparingTo("25100");
++            verify(engine, never()).reverse(anyString(), anyString(), anyString(), any(LocalDate.class));
++            verify(engine, never()).postDayCloseVariance(any(), anyString(), anyBoolean());
++            verify(snaps, never()).save(any());
++            assertThat(r.getSuspenseAmount()).isEqualByComparingTo("0");
++            assertThat(r.getRows()).extracting(DayCloseVarianceService.CorrectionRow::getCounterAfter)
++                    .containsExactly("6700", null, null, "6700");
++        }
++
++        @Test
++        @DisplayName("suspense: the named surplus goes to 2900, 1000 moves exactly as without it")
++        void suspense() {
++            DayCloseVarianceService.CorrectionResult r = service.correct(false, "boss", java.util.Set.of("s-k2"));
++            assertThat(r.getErrors()).isZero();
++            assertThat(r.getCashChange()).isEqualByComparingTo("25100");
++            assertThat(r.getSuspenseAmount()).isEqualByComparingTo("28500");
++            assertThat(r.getSuspenseNotApplicable()).isEmpty();
++            verify(engine).postDayCloseVariance(argThat(s -> s != null && "s-k2".equals(s.getUid())), eq("boss"), eq(true));
++            verify(engine).postDayCloseVariance(argThat(s -> s != null && "s-short".equals(s.getUid())), eq("boss"), eq(false));
++        }
++
++        @Test
++        @DisplayName("suspense: a uid that is not a current surplus is listed by a dry run and refused by a real run")
++        void suspenseRefusesNonSurplus() {
++            DayCloseVarianceService.CorrectionResult dry = service.correct(true, "boss", java.util.Set.of("s-short", "s-k2"));
++            assertThat(dry.getSuspenseNotApplicable()).containsExactly("s-short");
++            assertThat(dry.getSuspenseAmount()).isEqualByComparingTo("28500");
++            org.assertj.core.api.Assertions.assertThatThrownBy(
++                    () -> service.correct(false, "boss", java.util.Set.of("s-short")))
++                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("s-short");
++            verify(engine, never()).reverse(anyString(), anyString(), anyString(), any(LocalDate.class));
++        }
++
++        @Test
++        @DisplayName("a 6700 surplus journal later named for suspense is reposted, even though 1000 is already right")
++        void movesExistingSurplusToSuspense() {
++            DailyFinancialSnapshot k2 = snaps.findByUid("s-k2").orElseThrow();
++            JournalEntry j = new JournalEntry();
++            j.setUid("j-k2");
++            j.setReferenceUid("s-k2");
++            j.setEntryDate(k2.getSnapshotDate());
++            JournalEntryLine cash = new JournalEntryLine();
++            cash.setAccountCode("1000");
++            cash.setDebitAmount(new BigDecimal("28500"));
++            cash.setCreditAmount(BigDecimal.ZERO);
++            JournalEntryLine gain = new JournalEntryLine();
++            gain.setAccountCode("6700");
++            gain.setDebitAmount(BigDecimal.ZERO);
++            gain.setCreditAmount(new BigDecimal("28500"));
++            when(lines.findByJournalEntryUid("j-k2")).thenReturn(List.of(cash, gain));
++            when(journals.findByReferenceTypeAndIsReversalFalseAndIsDeletedFalseOrderByEntryDateAscIdAsc("DAY_CLOSE_VARIANCE"))
++                    .thenReturn(List.of(j));
++            assertThat(service.correct(true, "boss").getRows()).extracting(DayCloseVarianceService.CorrectionRow::getAction)
++                    .contains("ALREADY_CORRECT");
++            DayCloseVarianceService.CorrectionRow row = service.correct(true, "boss", java.util.Set.of("s-k2")).getRows().stream()
++                    .filter(x -> "s-k2".equals(x.getSnapshotUid())).findFirst().orElseThrow();
++            assertThat(row.getAction()).isEqualTo("REVERSE_AND_REPOST");
++            assertThat(row.getCounterBefore()).isEqualTo("6700");
++            assertThat(row.getCounterAfter()).isEqualTo("2900");
++        }
++
++        @Test
++        @DisplayName("real run reverses on the original date, reposts current snapshots only, stamps variance_kind")
++        void realRun() {
++            DayCloseVarianceService.CorrectionResult r = service.correct(false, "boss");
++            assertThat(r.getDone()).isEqualTo(4);
++            assertThat(r.getErrors()).isZero();
++            verify(engine).reverse(eq("j-short"), eq("boss"), anyString(), eq(LocalDate.of(2026, 9, 5)));
++            verify(engine).reverse(eq("j-k1"), eq("boss"), anyString(), eq(LocalDate.of(2026, 9, 6)));
++            verify(engine).reverse(eq("j-v1"), eq("boss"), anyString(), eq(LocalDate.of(2026, 9, 17)));
++            ArgumentCaptor<DailyFinancialSnapshot> posted = ArgumentCaptor.forClass(DailyFinancialSnapshot.class);
++            verify(engine, times(3)).postDayCloseVariance(posted.capture(), eq("boss"), eq(false));
++            assertThat(posted.getAllValues()).extracting(DailyFinancialSnapshot::getUid)
++                    .containsExactlyInAnyOrder("s-short", "s-k1", "s-k2");
++            assertThat(snaps.findByUid("s-k1").orElseThrow().getVarianceKind()).isEqualTo("OVER_DEDUCTION");
++            assertThat(snaps.findByUid("s-short").orElseThrow().getVarianceKind()).isEqualTo("SHORTAGE");
++        }
++
++        // ── Review 19/10: idempotency, reopened recos, persistent suspense, failures ──
++
++        @Test
++        @DisplayName("retry twice: postCurrent posts once, the second call finds the live journal and resolves")
++        void postCurrentIsIdempotent() {
++            AtomicInteger posted = new AtomicInteger();
++            when(engine.hasActivePosting("DAY_CLOSE_VARIANCE", "s-k2")).thenAnswer(i -> posted.get() > 0);
++            when(engine.postDayCloseVariance(any(), anyString(), anyBoolean())).thenAnswer(i -> {
++                posted.incrementAndGet();
++                return PostingEngine.classifyDayCloseVariance(i.getArgument(0));
++            });
++            assertThat(service.postCurrent("s-k2", "boss")).isEqualTo(GlPostOutcome.POSTED);
++            assertThat(service.postCurrent("s-k2", "boss")).isEqualTo(GlPostOutcome.ALREADY_POSTED);
++            assertThat(posted.get()).isEqualTo(1);
++            verify(failures).resolveBySource("s-k2", "boss", "ALREADY_POSTED");
++        }
++
++        @Test
++        @DisplayName("retry through gl_posting_failure twice (two open rows) -> one journal; both rows resolved")
++        void retryTwiceThroughFailureTable() {
++            AtomicInteger posted = new AtomicInteger();
++            when(engine.hasActivePosting("DAY_CLOSE_VARIANCE", "s-k2")).thenAnswer(i -> posted.get() > 0);
++            when(engine.hasActivePosting("s-k2")).thenAnswer(i -> posted.get() > 0);
++            when(engine.postDayCloseVariance(any(), anyString(), anyBoolean())).thenAnswer(i -> {
++                posted.incrementAndGet();
++                return PostingEngine.classifyDayCloseVariance(i.getArgument(0));
++            });
++            GlPostingFailureRepository repo = mock(GlPostingFailureRepository.class);
++            ApplicationContext ctx = mock(ApplicationContext.class);
++            when(ctx.getBean(PostingEngine.class)).thenReturn(engine);
++            when(ctx.getBean(DayCloseVarianceService.class)).thenReturn(service);
++            GlPostingFailureService retrier = new GlPostingFailureService(repo, ctx);
++            GlPostingFailure a = failureRow("f-a"), b = failureRow("f-b");
++            when(repo.findByUid("f-a")).thenReturn(Optional.of(a));
++            when(repo.findByUid("f-b")).thenReturn(Optional.of(b));
++            when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
++
++            retrier.retry("f-a", "boss");
++            retrier.retry("f-b", "boss");
++            assertThat(posted.get()).isEqualTo(1);
++            assertThat(a.getResolution()).isEqualTo("RETRIED");
++            assertThat(b.getResolution()).isEqualTo("ALREADY_POSTED");
++            assertThat(b.getResolvedAt()).isNotNull();
++        }
++
++        private GlPostingFailure failureRow(String uid) {
++            GlPostingFailure f = new GlPostingFailure();
++            f.setUid(uid);
++            f.setSourceType(GlPostingFailureService.SOURCE_DAY_CLOSE);
++            f.setSourceUid("s-k2");
++            f.setAttempts(1);
++            return f;
++        }
++
++        @Test
++        @DisplayName("reopened reco: postCurrent posts nothing (NOT_APPROVED)")
++        void postCurrentRefusesReopened() {
++            status.put("r-s-k2", ReconciliationStatus.REOPENED);
++            assertThat(service.postCurrent("s-k2", "boss")).isEqualTo(GlPostOutcome.NOT_APPROVED);
++            verify(engine, never()).postDayCloseVariance(any(), anyString(), anyBoolean());
++        }
++
++        @Test
++        @DisplayName("superseded snapshot: postCurrent posts nothing (SUPERSEDED) instead of failing forever")
++        void postCurrentSkipsSuperseded() {
++            assertThat(service.postCurrent("s-v1", "boss")).isEqualTo(GlPostOutcome.SUPERSEDED);
++            verify(engine, never()).postDayCloseVariance(any(), anyString(), anyBoolean());
++        }
++
++        @Test
++        @DisplayName("reopen -> correct(real): no new journal for the reopened snapshot")
++        void correctSkipsReopened() {
++            // s-k2 has no live journal (reopen reversed it) and its reco is REOPENED.
++            status.put("r-s-k2", ReconciliationStatus.REOPENED);
++            DayCloseVarianceService.CorrectionResult r = service.correct(false, "boss");
++            assertThat(r.getRows()).extracting(DayCloseVarianceService.CorrectionRow::getSnapshotUid)
++                    .doesNotContain("s-k2");
++            verify(engine, never()).postDayCloseVariance(argThat(s -> s != null && "s-k2".equals(s.getUid())),
++                    anyString(), anyBoolean());
++            assertThat(r.getErrors()).isZero();
++        }
++
++        @Test
++        @DisplayName("reco reopened before Toleo 1, journal still live: correct() reverses it and reposts nothing")
++        void correctReversesLegacyReopened() {
++            status.put("r-s-short", ReconciliationStatus.REOPENED);
++            DayCloseVarianceService.CorrectionResult dry = service.correct(true, "boss");
++            DayCloseVarianceService.CorrectionRow row = dry.getRows().stream()
++                    .filter(x -> "s-short".equals(x.getSnapshotUid())).findFirst().orElseThrow();
++            assertThat(row.getGroup()).isEqualTo("NOT_APPROVED");
++            assertThat(row.getAction()).isEqualTo("REVERSE_ONLY");
++            assertThat(row.getCashAfter()).isEqualByComparingTo("0");
++
++            service.correct(false, "boss");
++            verify(engine).reverse(eq("j-short"), eq("boss"), anyString(), eq(LocalDate.of(2026, 9, 5)));
++            verify(engine, never()).postDayCloseVariance(argThat(s -> s != null && "s-short".equals(s.getUid())),
++                    anyString(), anyBoolean());
++        }
++
++        @Test
++        @DisplayName("a real run with suspense uids writes variance_target = 2900 on the snapshot")
++        void suspenseIsStoredOnSnapshot() {
++            service.correct(false, "boss", java.util.Set.of("s-k2"));
++            assertThat(snaps.findByUid("s-k2").orElseThrow().getVarianceTarget()).isEqualTo("2900");
++            assertThat(snaps.findByUid("s-short").orElseThrow().getVarianceTarget()).isNull();
++            // a dry run never writes it
++            DailyFinancialSnapshot fresh = snap("s-k3", true, "-1000", "5000", 11);
++            when(snaps.findByUid("s-k3")).thenReturn(Optional.of(fresh));
++            when(snaps.findAll()).thenReturn(List.of(fresh));
++            service.correct(true, "boss", java.util.Set.of("s-k3"));
++            assertThat(fresh.getVarianceTarget()).isNull();
++        }
++
++        @Test
++        @DisplayName("a snapshot that carries 2900 stays on 2900: later correct() without uids, retry and approval")
++        void storedSuspenseIsRead() {
++            DailyFinancialSnapshot k2 = snaps.findByUid("s-k2").orElseThrow();
++            k2.setVarianceTarget("2900");
++            DayCloseVarianceService.CorrectionRow row = service.correct(true, "boss").getRows().stream()
++                    .filter(x -> "s-k2".equals(x.getSnapshotUid())).findFirst().orElseThrow();
++            assertThat(row.getCounterAfter()).isEqualTo("2900");
++
++            service.postCurrent("s-k2", "boss");
++            verify(engine).postDayCloseVariance(k2, "boss", true);
++
++            service.postForApproval(k2, "boss2");
++            verify(engine).postDayCloseVariance(k2, "boss2", true);
++        }
++
++        @Test
++        @DisplayName("a failed correction row is kept in gl_posting_failure (DAY_CLOSE_CORRECTION); a good one resolves")
++        void correctionFailureIsRecorded() {
++            doThrow(new IllegalStateException("db down")).when(engine)
++                    .reverse(eq("j-k1"), anyString(), anyString(), any(LocalDate.class));
++            DayCloseVarianceService.CorrectionResult r = service.correct(false, "boss");
++            assertThat(r.getErrors()).isEqualTo(1);
++            verify(failures).record(eq(DayCloseVarianceService.SOURCE_CORRECTION), eq("s-k1"), eq("JE-j-k1"), any());
++            verify(failures).resolveBySource("s-short", "boss", "CORRECTED");
++            verify(failures, never()).resolveBySource(eq("s-k1"), anyString(), anyString());
++        }
++    }
++}
+diff --git a/src/test/java/com/Lsms/Reconciliation/ReconciliationReopenGlReversalTest.java b/src/test/java/com/Lsms/Reconciliation/ReconciliationReopenGlReversalTest.java
+new file mode 100644
+index 0000000..1e248ea
+--- /dev/null
++++ b/src/test/java/com/Lsms/Reconciliation/ReconciliationReopenGlReversalTest.java
+@@ -0,0 +1,193 @@
++package com.Lsms.Reconciliation;
++
++import com.Lsms.CapitalAndExpenditure.Services.CapitalExpenditureService;
++import com.Lsms.CapitalAndExpenditure.gl.DayCloseVarianceService;
++import com.Lsms.CapitalAndExpenditure.gl.PostingEngine;
++import com.Lsms.Customer.Repository.CustomerRepository;
++import com.Lsms.Payments.Repository.PaymentRepository;
++import com.Lsms.Product.Repository.ProductRepository;
++import com.Lsms.Reconciliation.Entity.DailyFinancialSnapshot;
++import com.Lsms.Reconciliation.Entity.DailyReconciliation;
++import com.Lsms.Reconciliation.Enums.ReconciliationStatus;
++import com.Lsms.Reconciliation.Repository.DailyFinancialSnapshotRepository;
++import com.Lsms.Reconciliation.Repository.DailyReconciliationRepository;
++import com.Lsms.Reconciliation.Repository.ReconciliationAuditLogRepository;
++import com.Lsms.Reconciliation.Repository.ReconciliationPurchaseRepository;
++import com.Lsms.Reconciliation.Repository.ReconciliationRetailDebtRepository;
++import com.Lsms.Reconciliation.Services.ReconciliationDraftCreator;
++import com.Lsms.Reconciliation.Services.ReconciliationService;
++import com.Lsms.Sales.Repository.SalesDetailsRepository;
++import com.Lsms.Sales.Repository.SalesRepository;
++import com.Lsms.uaa.repository.UserRepository;
++import com.Lsms.uaa.utils.LoggedUser;
++import com.Lsms.uaa.utils.Response;
++import com.Lsms.uaa.utils.ResponseStatus;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Test;
++import org.mockito.MockedStatic;
++import org.mockito.Mockito;
++
++import java.lang.reflect.Field;
++import java.util.Optional;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.ArgumentMatchers.anyString;
++import static org.mockito.ArgumentMatchers.eq;
++import static org.mockito.Mockito.never;
++import static org.mockito.Mockito.verify;
++import static org.mockito.Mockito.when;
++
++/**
++ * RIPOTI H-5: a reopened reconciliation kept its day-close variance journal live, and
++ * re-approval posted a second one. Reopen now reverses the current snapshot's journal
++ * (MPANGO-PAMOJA §1.3).
++ */
++class ReconciliationReopenGlReversalTest {
++
++    private static final String RECON_UID = "recon-1";
++    private static final String OWNER = "macheda-uid";
++
++    @Test
++    @DisplayName("reopen of an APPROVED recon reverses the current snapshot's variance journal")
++    void reopenReversesVariance() throws Exception {
++        DailyReconciliationRepository recons = Mockito.mock(DailyReconciliationRepository.class);
++        DailyFinancialSnapshotRepository snaps = Mockito.mock(DailyFinancialSnapshotRepository.class);
++        DayCloseVarianceService dayClose = Mockito.mock(DayCloseVarianceService.class);
++        ReconciliationService service = new ReconciliationService(
++                recons,
++                Mockito.mock(ReconciliationRetailDebtRepository.class),
++                Mockito.mock(ReconciliationPurchaseRepository.class),
++                snaps,
++                Mockito.mock(PostingEngine.class),
++                Mockito.mock(ReconciliationAuditLogRepository.class),
++                Mockito.mock(SalesRepository.class),
++                Mockito.mock(SalesDetailsRepository.class),
++                Mockito.mock(PaymentRepository.class),
++                Mockito.mock(CustomerRepository.class),
++                Mockito.mock(ProductRepository.class),
++                Mockito.mock(UserRepository.class),
++                new ObjectMapper(),
++                Mockito.mock(CapitalExpenditureService.class),
++                Mockito.mock(ReconciliationDraftCreator.class),
++                Mockito.mock(com.Lsms.BusinessSettings.Repository.BusinessSettingsRepository.class));
++        Field f = ReconciliationService.class.getDeclaredField("dayCloseVarianceService");
++        f.setAccessible(true);
++        f.set(service, dayClose);
++
++        DailyReconciliation recon = new DailyReconciliation();
++        recon.setUid(RECON_UID);
++        recon.setUserUid(OWNER);
++        recon.setStatus(ReconciliationStatus.APPROVED);
++        DailyFinancialSnapshot snap = new DailyFinancialSnapshot();
++        snap.setUid("snap-v1");
++        when(recons.findByUid(RECON_UID)).thenReturn(Optional.of(recon));
++        when(recons.save(any())).thenAnswer(i -> i.getArgument(0));
++        when(snaps.findByReconciliationUidAndIsCurrentTrue(RECON_UID)).thenReturn(Optional.of(snap));
++
++        try (MockedStatic<LoggedUser> lu = Mockito.mockStatic(LoggedUser.class)) {
++            lu.when(LoggedUser::getUid).thenReturn(OWNER);
++            lu.when(LoggedUser::getName).thenReturn(OWNER);
++            Response<?> r = service.reopen(RECON_UID, "boss", "Boss", "Benki iliandikwa vibaya kwenye reco");
++            assertThat(r.getStatus()).isEqualTo(ResponseStatus.Success);
++        }
++        verify(dayClose).reverseFor(eq("snap-v1"), eq("boss"), anyString());
++    }
++
++    @Test
++    @DisplayName("snapshot on 2900 -> reopen -> approve: the new version is still 2900 and posts to 2900")
++    void suspenseSurvivesReapproval() throws Exception {
++        DailyReconciliationRepository recons = Mockito.mock(DailyReconciliationRepository.class);
++        DailyFinancialSnapshotRepository snaps = Mockito.mock(DailyFinancialSnapshotRepository.class);
++        DayCloseVarianceService dayClose = Mockito.mock(DayCloseVarianceService.class);
++        ReconciliationService service = new ReconciliationService(
++                recons,
++                Mockito.mock(ReconciliationRetailDebtRepository.class),
++                Mockito.mock(ReconciliationPurchaseRepository.class),
++                snaps,
++                Mockito.mock(PostingEngine.class),
++                Mockito.mock(ReconciliationAuditLogRepository.class),
++                Mockito.mock(SalesRepository.class),
++                Mockito.mock(SalesDetailsRepository.class),
++                Mockito.mock(PaymentRepository.class),
++                Mockito.mock(CustomerRepository.class),
++                Mockito.mock(ProductRepository.class),
++                Mockito.mock(UserRepository.class),
++                new ObjectMapper(),
++                Mockito.mock(CapitalExpenditureService.class),
++                Mockito.mock(ReconciliationDraftCreator.class),
++                Mockito.mock(com.Lsms.BusinessSettings.Repository.BusinessSettingsRepository.class));
++        Field f = ReconciliationService.class.getDeclaredField("dayCloseVarianceService");
++        f.setAccessible(true);
++        f.set(service, dayClose);
++
++        DailyReconciliation recon = new DailyReconciliation();
++        recon.setUid(RECON_UID);
++        recon.setUserUid(OWNER);
++        recon.setStatus(ReconciliationStatus.APPROVED);
++        recon.setReconciliationDate(java.time.LocalDate.of(2026, 7, 4));
++        DailyFinancialSnapshot v1 = new DailyFinancialSnapshot();
++        v1.setUid("snap-v1");
++        v1.setSnapshotVersion(1);
++        v1.setVarianceTarget("2900");
++        when(snaps.findByReconciliationUidAndIsCurrentTrue(RECON_UID)).thenReturn(Optional.of(v1));
++        java.util.List<DailyFinancialSnapshot> saved = new java.util.ArrayList<>();
++        when(snaps.save(any())).thenAnswer(i -> {
++            saved.add(i.getArgument(0));
++            return i.getArgument(0);
++        });
++
++        // re-approval creates v2 (createFinancialSnapshot is what approve() calls)
++        java.lang.reflect.Method create = ReconciliationService.class.getDeclaredMethod(
++                "createFinancialSnapshot", DailyReconciliation.class, String.class, String.class);
++        create.setAccessible(true);
++        create.invoke(service, recon, "boss", "Boss");
++
++        DailyFinancialSnapshot v2 = saved.stream().filter(s -> !"snap-v1".equals(s.getUid())).findFirst().orElseThrow();
++        assertThat(v2.getSnapshotVersion()).isEqualTo(2);
++        assertThat(v2.getVarianceTarget()).isEqualTo("2900");
++        assertThat(v1.getIsCurrent()).isFalse();
++        assertThat(DayCloseVarianceService.toSuspense(v2)).isTrue();
++    }
++
++    @Test
++    @DisplayName("a refused reopen (short reason) leaves the GL alone")
++    void refusedReopenKeepsJournal() throws Exception {
++        DailyReconciliationRepository recons = Mockito.mock(DailyReconciliationRepository.class);
++        DayCloseVarianceService dayClose = Mockito.mock(DayCloseVarianceService.class);
++        ReconciliationService service = new ReconciliationService(
++                recons,
++                Mockito.mock(ReconciliationRetailDebtRepository.class),
++                Mockito.mock(ReconciliationPurchaseRepository.class),
++                Mockito.mock(DailyFinancialSnapshotRepository.class),
++                Mockito.mock(PostingEngine.class),
++                Mockito.mock(ReconciliationAuditLogRepository.class),
++                Mockito.mock(SalesRepository.class),
++                Mockito.mock(SalesDetailsRepository.class),
++                Mockito.mock(PaymentRepository.class),
++                Mockito.mock(CustomerRepository.class),
++                Mockito.mock(ProductRepository.class),
++                Mockito.mock(UserRepository.class),
++                new ObjectMapper(),
++                Mockito.mock(CapitalExpenditureService.class),
++                Mockito.mock(ReconciliationDraftCreator.class),
++                Mockito.mock(com.Lsms.BusinessSettings.Repository.BusinessSettingsRepository.class));
++        Field f = ReconciliationService.class.getDeclaredField("dayCloseVarianceService");
++        f.setAccessible(true);
++        f.set(service, dayClose);
++
++        DailyReconciliation recon = new DailyReconciliation();
++        recon.setUid(RECON_UID);
++        recon.setUserUid(OWNER);
++        recon.setStatus(ReconciliationStatus.APPROVED);
++        when(recons.findByUid(RECON_UID)).thenReturn(Optional.of(recon));
++
++        try (MockedStatic<LoggedUser> lu = Mockito.mockStatic(LoggedUser.class)) {
++            lu.when(LoggedUser::getUid).thenReturn(OWNER);
++            Response<?> r = service.reopen(RECON_UID, "boss", "Boss", "fupi");
++            assertThat(r.getStatus()).isEqualTo(ResponseStatus.Error);
++        }
++        verify(dayClose, never()).reverseFor(anyString(), anyString(), anyString());
++    }
++}
+
+commit e57e08fed8f202e9b4e33bb4da9afb1c3cd41638
+Author: TarimoPaul <chiefmaster7066@gmail>
+Date:   Mon Oct 19 19:29:08 2026 +0300
+
+    GL: reverse() takes the per-entry advisory lock and re-checks under it
+    
+    Two reversals of the same entry at the same moment (reopen + supersede, a double
+    click) both passed their callers' "already reversed?" check, which runs outside the
+    reversal's transaction, and wrote two reversals. reverse() now takes
+    pg_advisory_xact_lock(hashtext(originalEntryUid)) first and returns without writing
+    when a live reversal already exists.
+    
+    GlConcurrentPostCheck (real PostgreSQL, -Dgl.lock.check=true): 25/25 rounds of two
+    simultaneous reversals leave one reversal (without the lock: 25/25 left two).
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+index 287e4f5..3f2007d 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+@@ -338,6 +338,15 @@ public class PostingEngine {
+     @Transactional(propagation = Propagation.REQUIRES_NEW)
+     public void reverse(String originalEntryUid, String postedBy, String reason, LocalDate onDate) {
+         if (!glConfigService.isPostingEnabled()) return;
++        // Same lock as executePost, keyed on the entry being reversed: two reversals of
++        // one entry at the same moment (reopen + supersede, a double click) would both
++        // pass their callers' "already reversed?" check, which runs outside this
++        // transaction. Checked again here, under the lock, so the second one writes nothing.
++        lockReference(originalEntryUid);
++        if (originalEntryUid != null && journalEntryRepository.existsByReversedEntryUidAndIsDeletedFalse(originalEntryUid)) {
++            log.debug("GL entry {} is already reversed - skipping", originalEntryUid);
++            return;
++        }
+         JournalEntry orig = journalEntryRepository.findByUid(originalEntryUid)
+                 .orElseThrow(() -> new IllegalStateException("Original entry not found: " + originalEntryUid));
+         List<JournalEntryLine> origLines = journalEntryLineRepository.findByJournalEntryUid(originalEntryUid);
+diff --git a/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java
+index fb3e063..d71865c 100644
+--- a/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java
++++ b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlConcurrentPostCheck.java
+@@ -22,8 +22,9 @@ import java.util.concurrent.TimeUnit;
+ import static org.assertj.core.api.Assertions.assertThat;
+ 
+ /**
+- * Two posts of the same reference at the same moment leave ONE journal (the advisory
+- * lock in PostingEngine.executePost). Needs a real PostgreSQL, so it is NOT part of the
++ * Two posts of the same reference at the same moment leave ONE journal, and two
++ * reversals of the same entry leave ONE reversal (the advisory locks in
++ * PostingEngine.executePost and PostingEngine.reverse). Needs a real PostgreSQL, so it is NOT part of the
+  * build; run it against a THROW-AWAY copy (it writes journals tagged QA-LOCK-):
+  *   mvnw -o test -Dtest=GlConcurrentPostCheck -Dgl.lock.check=true \
+  *        -Dspring.datasource.url=jdbc:postgresql://localhost:5432/lsms_lockcheck
+@@ -86,6 +87,42 @@ class GlConcurrentPostCheck {
+         assertThat(doubles).as("references with != 1 journal after 2 simultaneous posts").isEmpty();
+     }
+ 
++    private int reversals(String entryUid) {
++        Integer n = jdbc.queryForObject(
++                "SELECT count(*) FROM journal_entry WHERE reversed_entry_uid = ? AND NOT is_deleted", Integer.class, entryUid);
++        return n != null ? n : -1;
++    }
++
++    @Test
++    void twoSimultaneousReversalsLeaveOneReversal() throws Exception {
++        ExecutorService pool = Executors.newFixedThreadPool(2);
++        List<String> doubles = new ArrayList<>();
++        try {
++            for (int round = 0; round < ROUNDS; round++) {
++                String ref = "QA-LOCK-REV-" + UUID.randomUUID();
++                postOnce(ref);
++                String entryUid = jdbc.queryForObject(
++                        "SELECT uid FROM journal_entry WHERE reference_uid = ? AND NOT is_reversal", String.class, ref);
++                CyclicBarrier start = new CyclicBarrier(2);
++                List<Future<?>> fs = new ArrayList<>();
++                for (int t = 0; t < 2; t++) {
++                    fs.add(pool.submit(() -> {
++                        start.await(10, TimeUnit.SECONDS);
++                        postingEngine.reverse(entryUid, "QA-LOCK", "QA lock reversal", null);
++                        return null;
++                    }));
++                }
++                for (Future<?> f : fs) f.get(30, TimeUnit.SECONDS);
++                int n = reversals(entryUid);
++                System.out.println("LOCKCHECK reverse round " + round + " " + entryUid + " reversals=" + n);
++                if (n != 1) doubles.add(entryUid + "=" + n);
++            }
++        } finally {
++            pool.shutdownNow();
++        }
++        assertThat(doubles).as("entries with != 1 reversal after 2 simultaneous reversals").isEmpty();
++    }
++
+     @Test
+     void postWaitsForTheLockHolder() throws Exception {
+         String ref = "QA-LOCK-" + UUID.randomUUID();

@@ -1,0 +1,59 @@
+SET
+ account_code |           account_name           |      account_name_sw      | account_type |  account_category   | normal_balance | is_active | is_system 
+--------------+----------------------------------+---------------------------+--------------+---------------------+----------------+-----------+-----------
+ 1000         | Cash on Hand                     | Pesa Mkononi              | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1010         | Petty Cash Float                 | Pesa Ndogo                | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1020         | Bank CRDB                        | Benki CRDB                | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1021         | Bank NMB                         | Benki NMB                 | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1022         | Bank NBC                         | Benki NBC                 | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1023         | Bank Selcom                      | Selcom                    | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1024         | Bank PCB                         | Benki PCB                 | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1030         | Mobile Money Vodacom             | Vodacom                   | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1031         | Mobile Money Tigo                | Tigo Pesa                 | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1032         | Mobile Money Halotel             | Halopesa                  | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1033         | Mobile Money Airtel              | Airtel Money              | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1100         | Accounts Receivable Retail       | Madai Rejareja            | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1110         | Accounts Receivable Wholesale    | Madai Jumla               | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1120         | Staff Receivables                | Madeni ya Wafanyakazi     | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1200         | Inventory                        | Hisa ya Bidhaa            | ASSET        | CURRENT_ASSET       | DEBIT          | t         | t
+ 1500         | Fixed Assets                     | Mali za Kudumu            | ASSET        | FIXED_ASSET         | DEBIT          | t         | t
+ 1510         | Office Assets                    | Mali za Ofisi             | ASSET        | FIXED_ASSET         | DEBIT          | t         | t
+ 1520         | Vehicle Assets                   | Magari                    | ASSET        | FIXED_ASSET         | DEBIT          | t         | t
+ 1530         | Technology Assets                | Teknolojia                | ASSET        | FIXED_ASSET         | DEBIT          | t         | t
+ 1590         | Accumulated Depreciation         | Uchakavu                  | ASSET        | CONTRA_ASSET        | CREDIT         | t         | t
+ 2000         | Accounts Payable                 | Madeni Wasambazaji        | LIABILITY    | CURRENT_LIABILITY   | CREDIT         | t         | t
+ 2100         | Loans Payable                    | Mkopo                     | LIABILITY    | LONG_TERM_LIABILITY | CREDIT         | t         | t
+ 2200         | Tax Payable                      | Kodi                      | LIABILITY    | CURRENT_LIABILITY   | CREDIT         | t         | t
+ 3000         | Owner Capital                    | Mtaji wa Mmiliki          | EQUITY       | EQUITY              | CREDIT         | t         | t
+ 3100         | Owner Drawings                   | Mmiliki Alichotoa         | EQUITY       | EQUITY              | DEBIT          | t         | t
+ 3200         | Retained Earnings                | Faida Iliyobaki           | EQUITY       | EQUITY              | CREDIT         | t         | t
+ 3900         | Opening Balance Equity           | Mtaji wa Salio la Kuanzia | EQUITY       | EQUITY              | CREDIT         | t         | t
+ 4000         | Sales Revenue                    | Mapato ya Mauzo           | REVENUE      | OPERATING_REVENUE   | CREDIT         | t         | t
+ 4010         | Sales Discounts                  | Punguzo la Bei            | REVENUE      | CONTRA_REVENUE      | DEBIT          | t         | t
+ 4020         | Sales Returns                    | Bidhaa Zilizorudishwa     | REVENUE      | CONTRA_REVENUE      | DEBIT          | t         | t
+ 4900         | Other Income                     | Mapato Mengine            | REVENUE      | OTHER_REVENUE       | CREDIT         | t         | t
+ 5000         | Cost of Goods Sold               | Gharama za Bidhaa         | EXPENSE      | COGS                | DEBIT          | t         | t
+ 5100         | Shrinkage and Damage             | Hasara ya Bidhaa          | EXPENSE      | COGS                | DEBIT          | t         | t
+ 6000         | Rent Expense                     | Kodi ya Nyumba            | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6010         | Utilities Expense                | Umeme na Maji             | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6020         | Maintenance Expense              | Matengenezo               | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6030         | Marketing Expense                | Matangazo                 | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6040         | Training Expense                 | Mafunzo                   | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6050         | Insurance Expense                | Bima                      | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6060         | Legal Expense                    | Sheria                    | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6070         | Transport and Fuel               | Usafiri                   | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6080         | Food Expense                     | Chakula                   | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6090         | Internet Expense                 | Intaneti                  | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6100         | Office Capital                   | Gharama za Ofisi          | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6110         | Bad Debt Expense                 | Deni Lisilolipika         | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6120         | Goodwill and Discount Write-offs | Punguzo la Hisani         | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6200         | General Operating Expenses       | Gharama za Uendeshaji     | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6300         | Emergency Fund                   | Akiba ya Dharura          | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6500         | Depreciation Expense             | Uchakavu                  | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6600         | Interest Expense                 | Riba ya Mkopo             | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6700         | Cash Over Short                  | Tofauti ya Pesa           | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6800         | Tax Expense                      | Gharama ya Kodi           | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6900         | Other Expense                    | Gharama Nyingine          | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+ 6910         | Research and Development         | Utafiti                   | EXPENSE      | OPERATING_EXPENSE   | DEBIT          | t         | t
+(54 rows)
+

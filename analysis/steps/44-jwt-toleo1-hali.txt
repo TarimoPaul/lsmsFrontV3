@@ -1,0 +1,6 @@
+BG_HALI_IMEISHA_0
+mistari ya mwisho:
+backup ya .env ya zamani: .env.bak-jwt-20261021-125607 (ifute ukishathibitisha (d); ina JWT_SECRET ya zamani)
+---OK---
+---BG_EXIT 0---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0

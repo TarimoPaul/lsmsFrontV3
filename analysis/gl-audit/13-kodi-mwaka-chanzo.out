@@ -1,0 +1,73 @@
+SET
+         reference_number         |                      description                      |    capital_type     |  amount   | monthly_allocation_amount | payment_method |     source     | transaction_date | allocated_month | allocated_year | expenditure_frequency |  status  | is_approved | created_at |   created_by    |                                      notes                                       
+----------------------------------+-------------------------------------------------------+---------------------+-----------+---------------------------+----------------+----------------+------------------+-----------------+----------------+-----------------------+----------+-------------+------------+-----------------+----------------------------------------------------------------------------------
+ OPE-MON-20260101-000000-2939F6DE | 2400000                                               | OPERATIONAL_CAPITAL | 200000.00 |                 200000.00 |                | DIRECT         | 2026-01-01       |               1 |           2026 | MONTHLY               | APPROVED | t           | 2026-04-30 |                 | 2026-04-30 14:01:00: Profit impact calculated - Gross: -200000, Net: -608.400000
+ OPE-MON-20260101-000000-F7C9E331 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000)    | OPERATIONAL_CAPITAL | 200000.00 |                 200000.00 |                | DIRECT         | 2026-01-01       |               0 |           2026 | MONTHLY               | APPROVED | t           | 2026-07-21 |                 | 2026-07-21 09:41:20: Athiri ya faida imehesabiwa — Gross: TZS -200,000.00, Net: 
+ OPE-MON-20260101-000000-4B42C8F1 | Malipo ya Kodi Tra (Mwaka mzima - jumla: TZS 250,000) | OPERATIONAL_CAPITAL |  20833.33 |                  20833.33 |                | DIRECT         | 2026-01-01       |               0 |           2026 | MONTHLY               | APPROVED | t           | 2026-07-21 |                 | 2026-07-21 09:39:28: Athiri ya faida imehesabiwa — Gross: TZS -20,833.33, Net: T
+ OPE-DAI-20261003-220732-E58C7256 | Transport                                             | OPERATIONAL_CAPITAL |   2000.00 |                           |                | RECONCILIATION | 2026-10-03       |                 |                | DAILY                 | APPROVED | t           | 2026-10-03 | macheda macheda | 2026-10-04 15:22:45: Hali imebadilishwa kutoka 'Inasubiri Idhini' kwenda 'Imeidh
+ OPE-DAI-20261005-121356-5F488896 | Transport                                             | OPERATIONAL_CAPITAL |   2000.00 |                           |                | RECONCILIATION | 2026-10-05       |                 |                | DAILY                 | APPROVED | t           | 2026-10-05 | macheda macheda | 2026-10-06 08:46:46: Hali imebadilishwa kutoka 'Inasubiri Idhini' kwenda 'Imeidh
+ OPE-DAI-20261006-220742-02F8D49B | Transport                                             | OPERATIONAL_CAPITAL |   2000.00 |                           |                | RECONCILIATION | 2026-10-06       |                 |                | DAILY                 | APPROVED | t           | 2026-10-06 | macheda macheda | 2026-10-07 16:23:10: Hali imebadilishwa kutoka 'Inasubiri Idhini' kwenda 'Imeidh
+ OPE-DAI-20261012-074908-95900935 | Transport                                             | OPERATIONAL_CAPITAL |   2000.00 |                           |                | RECONCILIATION | 2026-10-12       |                 |                | DAILY                 | APPROVED | t           | 2026-10-12 | macheda macheda | 2026-10-13 21:30:09: Hali imebadilishwa kutoka 'Inasubiri Idhini' kwenda 'Imeidh
+ OPE-DAI-20261013-001104-09B27B99 | Transport                                             | OPERATIONAL_CAPITAL |   2000.00 |                           |                | RECONCILIATION | 2026-10-13       |                 |                | DAILY                 | APPROVED | t           | 2026-10-13 | macheda macheda | 2026-10-13 21:38:37: Hali imebadilishwa kutoka 'Inasubiri Idhini' kwenda 'Imeidh
+ OPE-DAI-20261014-082835-5BA2B622 | Transport                                             | OPERATIONAL_CAPITAL |   2000.00 |                           |                | RECONCILIATION | 2026-10-14       |                 |                | DAILY                 | APPROVED | t           | 2026-10-14 | macheda macheda | 2026-10-14 20:33:22: Hali imebadilishwa kutoka 'Inasubiri Idhini' kwenda 'Imeidh
+(9 rows)
+
+         reference_number         | entry_date | reference_type | account_code | debit_amount | credit_amount |                      description                      
+----------------------------------+------------+----------------+--------------+--------------+---------------+-------------------------------------------------------
+ OPE-MON-20260101-000000-2939F6DE | 2026-01-01 | EXPENSE_DIRECT | 6200         |    200000.00 |          0.00 | 2400000
+ OPE-MON-20260101-000000-2939F6DE | 2026-01-01 | EXPENSE_DIRECT | 1000         |         0.00 |     200000.00 | Paid for expense (CASH)
+ OPE-MON-20260101-000000-4B42C8F1 | 2026-01-01 | EXPENSE_DIRECT | 6200         |     20833.33 |          0.00 | Malipo ya Kodi Tra (Mwaka mzima - jumla: TZS 250,000)
+ OPE-MON-20260101-000000-4B42C8F1 | 2026-01-01 | EXPENSE_DIRECT | 1000         |         0.00 |      20833.33 | Paid for expense (CASH)
+ OPE-MON-20260101-000000-F7C9E331 | 2026-01-01 | EXPENSE_DIRECT | 6200         |    200000.00 |          0.00 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000)
+ OPE-MON-20260101-000000-F7C9E331 | 2026-01-01 | EXPENSE_DIRECT | 1000         |         0.00 |     200000.00 | Paid for expense (CASH)
+(6 rows)
+
+ reconciliation_date | description | amount  
+---------------------+-------------+---------
+ 2026-10-03          | Transport   | 2000.00
+ 2026-10-04          | Transport   | 2000.00
+ 2026-10-06          | Transport   | 2000.00
+ 2026-10-11          | Transport   | 2000.00
+ 2026-10-12          | Transport   | 2000.00
+ 2026-10-13          | Transport   | 2000.00
+(6 rows)
+
+ injection_type |  source_type   |   amount    | transaction_date |                            reason                            
+----------------+----------------+-------------+------------------+--------------------------------------------------------------
+ INJECTION      | OWNER_EQUITY   | 10598755.00 | 2026-05-19       | mtaji wa mwanzo kabisa
+ VOID           | FAIDA_BIASHARA |  1056640.00 | 2026-05-19       | [BATILISHWA 2026-09-26: faida si mtaji mpya - tayari iko kwe
+ INJECTION      | LOAN           |   244985.00 | 2026-05-21       | MKOPO WA BANK
+ WITHDRAWAL     | LOAN_REPAYMENT |   244985.00 | 2026-06-11       | Kulipa sehemu ya mkopo
+ INJECTION      | LOAN           |  1200000.00 | 2026-09-26       | MKOPO KUTOKA KWENYE KIKUNDI UTARUDI BILA RIBA NDANI  MIEZI 3
+ INJECTION      | LOAN           |  1186000.00 | 2026-10-04       | kwa miezi 3 kila mwezi ni 386000
+(6 rows)
+
+ journal_ya_kwanza 
+-------------------
+ 2026-01-01
+(1 row)
+
+ sale_ya_kwanza | journal_ya_mauzo_ya_kwanza | mtaji_wa_kwanza_gl 
+----------------+----------------------------+--------------------
+ 2026-02-01     | 2026-02-01                 | 2026-05-19
+(1 row)
+
+ entry_date |   mwendo   |   salio    
+------------+------------+------------
+ 2026-01-01 | -420833.33 | -420833.33
+ 2026-02-01 | 1117700.00 |  696866.67
+ 2026-02-02 | 1126900.00 | 1823766.67
+ 2026-02-03 |  466200.00 | 2289966.67
+ 2026-02-04 | 1338500.00 | 3628466.67
+ 2026-02-05 |  296682.32 | 3925148.99
+ 2026-02-06 |   15470.64 | 3940619.63
+ 2026-02-07 | 1296300.00 | 5236919.63
+ 2026-02-08 |  948005.00 | 6184924.63
+ 2026-02-09 |  554700.00 | 6739624.63
+ 2026-02-10 |  623908.34 | 7363532.97
+ 2026-02-11 |  611500.00 | 7975032.97
+ 2026-02-12 |  852961.33 | 8827994.30
+ 2026-02-13 | -314717.00 | 8513277.30
+ 2026-02-14 |  977300.00 | 9490577.30
+(15 rows)
+

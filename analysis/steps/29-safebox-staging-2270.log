@@ -1,0 +1,63 @@
+---STAGING-TOLEO-LA-SASA-LAZIMA-2.2.69--- 
+BACKEND_VERSION=2.2.69
+---STAGING-FLYWAY-YA-MWISHO-LAZIMA-IWE-132--- 
+132
+---STAGING-HIFADHI-DB-KABLA-YA-MIGRATION--- 
+-rw-rw-r-- 1 chief chief 8376200 Oct 14 13:04 /home/chief/lsms-staging/staging_kabla_ya_2270_20261013.dump
+---STAGING-NAKALA-YA-ENV--- 
+-rw------- 1 chief chief 614 Oct 13 13:09 .env
+-rw------- 1 chief chief 614 Oct 13 13:09 .env.bak.20261013-kabla-ya-2270
+---STAGING-BADILISHA-BACKEND_VERSION--- 
+BACKEND_VERSION=2.2.70
+2
+---STAGING-PULL-IMAGE--- 
+ Image chiefmaster/my-lsms-backend:2.2.70 Pulling 
+ Image chiefmaster/my-lsms-backend:2.2.70 Pulled 
+chiefmaster/my-lsms-backend@sha256:e88c5cdc6e7c148c2ba10cf89ad1012b672892ba32e724e9b6184de42fb52b20
+---STAGING-WASHA-BACKEND-2.2.70--- 
+ Container lsms-staging-postgres-1 Running 
+ Container lsms-staging-backend-1 Recreate 
+ Container lsms-staging-backend-1 Recreated 
+ Container lsms-staging-postgres-1 Waiting 
+ Container lsms-staging-postgres-1 Healthy 
+ Container lsms-staging-backend-1 Starting 
+ Container lsms-staging-backend-1 Started 
+---STAGING-LOG-YA-BACKEND--- 
+backend-1  | 2026-10-14 13:05:13 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 29.528 seconds (process running for 30.613)
+---STAGING-IDADI-YA-ERROR--- 
+0
+---STAGING-BAADA-YA-V133--- 
+FLYWAY|133|Safe Box Deposit Owner And On Behalf|t|2026-10-14 13:04:50.491318
+FLYWAY|132|Safe Box Deposit Remainder Reason|t|2026-10-13 13:10:22.567819
+FLYWAY|131|Store Loss Columns That V039 Never Added|t|2026-10-11 14:54:54.345942
+FLYWAY_FAILED_MUST_BE_0|0
+FLYWAY_133_MUST_BE_1|1
+OWNER_UID_COL_MUST_BE_1|1
+OWNER_UID_NULL_MUST_BE_0|0
+OWNER_UID_SI_MMILIKI_WA_RECON_MUST_BE_0|0
+DEPOSITS_ZOTE|104|16050200.00
+KWA_NIABA|CANCELLED|2|49000.00
+KWA_NIABA|CONFIRMED|9|381200.00
+RUHUSA_MUST_BE_1|1
+RUHUSA_KWA_ROLE|CEO
+SAFE_BOX_DEPOSITS_BY_STATUS|CANCELLED|11|869000.00
+SAFE_BOX_DEPOSITS_BY_STATUS|CONFIRMED|79|12900700.00
+SAFE_BOX_DEPOSITS_BY_STATUS|PENDING|1|110000.00
+SAFE_BOX_DEPOSITS_BY_STATUS|REJECTED|13|2170500.00
+---STAGING-PS--- 
+NAME                         IMAGE                                COMMAND                  SERVICE       CREATED          STATUS                PORTS
+lsms-staging-backend-1       chiefmaster/my-lsms-backend:2.2.70   "sh -c 'java $JAVA_O…"   backend       48 seconds ago   Up 45 seconds         8084/tcp
+lsms-staging-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      10 days ago      Up 7 days             80/tcp
+lsms-staging-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.0.1   "/docker-entrypoint.…"   frontend-v3   10 days ago      Up 7 days (healthy)   80/tcp
+lsms-staging-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         10 days ago      Up 7 days             127.0.0.1:8081->80/tcp
+lsms-staging-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      10 days ago      Up 7 days (healthy)   5432/tcp
+BACKEND_VERSION=2.2.70
+---PROD-PS--- 
+NAME                            IMAGE                                COMMAND                  SERVICE       CREATED       STATUS                 PORTS
+lsms-deployment-backend-1       chiefmaster/my-lsms-backend:2.2.68   "sh -c 'java $JAVA_O…"   backend       2 days ago    Up 2 days              8084/tcp
+lsms-deployment-frontend-1      chiefmaster/lsms-frontend:2.2.53     "/docker-entrypoint.…"   frontend      11 days ago   Up 11 days             80/tcp
+lsms-deployment-frontend-v3-1   chiefmaster/lsms-frontend-v3:3.1.9   "/docker-entrypoint.…"   frontend-v3   2 days ago    Up 2 days (healthy)    80/tcp
+lsms-deployment-nginx-1         nginx:1.31.2                         "/docker-entrypoint.…"   nginx         11 days ago   Up 11 days             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+lsms-deployment-postgres-1      postgres:15                          "docker-entrypoint.s…"   postgres      11 days ago   Up 11 days (healthy)   5432/tcp
+BACKEND_VERSION=2.2.68
+---MWISHO--- 

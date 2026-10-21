@@ -1,0 +1,11 @@
+---SHA256-CONTABO--- 
+-rw------- 1 chief chief 8429699 Oct 14 02:00 /home/chief/backups/daily/lsms_20261014_0200.dump
+fb09666d36951e6275b10e136e37862f8c9037d0d89bb37b42b583ccb4b04d0f  /home/chief/backups/daily/lsms_20261014_0200.dump
+---SHA256-B2--- 
+fb09666d36951e6275b10e136e37862f8c9037d0d89bb37b42b583ccb4b04d0f  -
+---SCP-KUJA-PC--- 
+---SHA256-PC--- 
+SHA256 hash of D:\MY PROJECT\DUKA PROJECT\backups\lsms_20261014_0200.dump:
+fb09666d36951e6275b10e136e37862f8c9037d0d89bb37b42b583ccb4b04d0f
+CertUtil: -hashfile command completed successfully.
+---MWISHO--- 

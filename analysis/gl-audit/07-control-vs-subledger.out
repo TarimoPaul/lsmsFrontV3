@@ -1,0 +1,40 @@
+SET
+   tarehe   |     ar     | inventory  |   staff   |     ap     |   loans    |    cash     | bank_mobile | fixed_net  
+------------+------------+------------+-----------+------------+------------+-------------+-------------+------------
+ 2026-07-31 |  941500.00 | 4521255.25 | 186215.90 | 6793306.99 |       0.00 | 19924318.13 |             | 4503166.66
+ 2026-08-31 | 1316000.00 | 3260221.81 | 419102.53 | 6737243.39 |       0.00 | 21920354.07 |        0.00 | 4428277.77
+ 2026-09-01 | 1316000.00 | 3371407.43 | 424437.86 | 6737243.39 |       0.00 | 21287554.07 |        0.00 | 4428277.77
+ 2026-09-30 | 1754000.00 | 5630536.58 | 483034.27 | 6751443.39 | 1200000.00 | 22816803.99 |        0.00 | 4353388.88
+ 2026-10-13 | 1786000.00 | 6266589.20 | 942801.88 |       0.00 | 2386000.00 | 10184308.52 |  1250000.00 | 9826388.88
+(5 rows)
+
+                                    kipimo                                     |     tzs     
+-------------------------------------------------------------------------------+-------------
+ AR: sales.outstanding (mteja hai) = controlChecks                             |  2007000.00
+ AR: sales.outstanding zote                                                    |  2007000.00
+ AR: kati yake MANUAL_RETAIL                                                   |  1770500.00
+ Inventory: current_stock x current_average_cost (fallback last_purchase_cost) |  5875271.70
+ Inventory: bidhaa zenye stock lakini gharama 0/NULL (idadi)                   |           0
+ Inventory: bidhaa zenye stock hasi (idadi)                                    |           0
+ Staff: amount - malipo (si WAIVED)                                            |   942801.88
+ Staff: jumla iliyotozwa (si WAIVED)                                           |  1099171.26
+ Staff: jumla iliyolipwa                                                       |   156369.38
+ AP: purchases RECEIVED (total - amount_paid) - supplier_payments              |        0.00
+ Loans: LOAN - LOAN_REPAYMENT                                                  |  2386000.00
+ Fixed: capex OFFICE/TECH APPROVED (gross)                                     | 10415000.00
+ Fixed: accumulated_depreciation kwenye capex                                  |   588611.12
+ Fixed: asset_item register (unit_value)                                       |  3923000.00
+(14 rows)
+
+psql:07-control-vs-subledger.sql:48: ERROR:  column "amount" does not exist
+LINE 1: SELECT status, count(*), sum(amount) FROM safe_box_deposits ...
+                                     ^
+ snapshot_date |    user_name    | expected_cash | declared_cash | variance_amount | safe_box_total 
+---------------+-----------------+---------------+---------------+-----------------+----------------
+ 2026-10-11    | macheda macheda |       6000.00 |          0.00 |         6000.00 |      140000.00
+ 2026-10-10    | macheda macheda |     391500.00 |     420000.00 |       -28500.00 |      150000.00
+ 2026-10-09    | macheda macheda |      55000.00 |      50000.00 |         5000.00 |      200000.00
+ 2026-10-08    | macheda macheda |       2000.00 |          0.00 |         2000.00 |           0.00
+ 2026-10-07    | macheda macheda |       1500.00 |          0.00 |         1500.00 |      102000.00
+(5 rows)
+

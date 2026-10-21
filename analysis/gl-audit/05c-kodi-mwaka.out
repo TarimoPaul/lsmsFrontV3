@@ -1,0 +1,15 @@
+SET
+         reference_number         |  status  |  amount   | transaction_date | allocated_month | expenditure_frequency | is_recurring | recurring_active | ni_mtoto | monthly_allocation_amount | is_deleted |                        maelezo                        |                                      notes                                       |              journals               
+----------------------------------+----------+-----------+------------------+-----------------+-----------------------+--------------+------------------+----------+---------------------------+------------+-------------------------------------------------------+----------------------------------------------------------------------------------+-------------------------------------
+ OPE-MON-20260101-000000-2939F6DE | APPROVED | 200000.00 | 2026-01-01       |               1 | MONTHLY               | f            | t                | f        |                 200000.00 | f          | 2400000                                               | 2026-04-30 14:01:00: Profit impact calculated - Gross: -200000, Net: -608.400000 | EXPENSE_DIRECT@2026-01-01 200000.00
+ OPE-MON-20260101-000000-F7C9E331 | APPROVED | 200000.00 | 2026-01-01       |               0 | MONTHLY               | f            | t                | f        |                 200000.00 | f          | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000)    | 2026-07-21 09:41:20: Athiri ya faida imehesabiwa — Gross: TZS -200,000.00, Net:  | EXPENSE_DIRECT@2026-01-01 200000.00
+ OPE-MON-20260101-000000-4B42C8F1 | APPROVED |  20833.33 | 2026-01-01       |               0 | MONTHLY               | f            | t                | f        |                  20833.33 | f          | Malipo ya Kodi Tra (Mwaka mzima - jumla: TZS 250,000) | 2026-07-21 09:39:28: Athiri ya faida imehesabiwa — Gross: TZS -20,833.33, Net: T | EXPENSE_DIRECT@2026-01-01 20833.33
+(3 rows)
+
+  status   | count 
+-----------+-------
+ CANCELLED |     3
+ PENDING   |     6
+ RECEIVED  |  2055
+(3 rows)
+

@@ -1,0 +1,209 @@
+{
+  "lebo": "baada",
+  "api": "http://localhost:8081",
+  "bidhaa": "COCA && FANTA",
+  "N": 10,
+  "pingMs": [
+    626,
+    652,
+    261,
+    254,
+    621
+  ],
+  "sales": [
+    {
+      "kind": "cash",
+      "i": 1,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-3",
+      "ms": 1401
+    },
+    {
+      "kind": "deni",
+      "i": 1,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-4",
+      "ms": 1789
+    },
+    {
+      "kind": "cash",
+      "i": 2,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-5",
+      "ms": 1310
+    },
+    {
+      "kind": "deni",
+      "i": 2,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-6",
+      "ms": 947
+    },
+    {
+      "kind": "cash",
+      "i": 3,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-7",
+      "ms": 1013
+    },
+    {
+      "kind": "deni",
+      "i": 3,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-8",
+      "ms": 641
+    },
+    {
+      "kind": "cash",
+      "i": 4,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-9",
+      "ms": 1279
+    },
+    {
+      "kind": "deni",
+      "i": 4,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-10",
+      "ms": 757
+    },
+    {
+      "kind": "cash",
+      "i": 5,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-11",
+      "ms": 1304
+    },
+    {
+      "kind": "deni",
+      "i": 5,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-12",
+      "ms": 453
+    },
+    {
+      "kind": "cash",
+      "i": 6,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-13",
+      "ms": 652
+    },
+    {
+      "kind": "deni",
+      "i": 6,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-14",
+      "ms": 650
+    },
+    {
+      "kind": "cash",
+      "i": 7,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-15",
+      "ms": 1353
+    },
+    {
+      "kind": "deni",
+      "i": 7,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-16",
+      "ms": 582
+    },
+    {
+      "kind": "cash",
+      "i": 8,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-17",
+      "ms": 1324
+    },
+    {
+      "kind": "deni",
+      "i": 8,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-18",
+      "ms": 774
+    },
+    {
+      "kind": "cash",
+      "i": 9,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-19",
+      "ms": 1081
+    },
+    {
+      "kind": "deni",
+      "i": 9,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-20",
+      "ms": 1409
+    },
+    {
+      "kind": "cash",
+      "i": 10,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-21",
+      "ms": 973
+    },
+    {
+      "kind": "deni",
+      "i": 10,
+      "http": 200,
+      "ok": true,
+      "receipt": "201026-1527-22",
+      "ms": 910
+    }
+  ],
+  "muhtasari": {
+    "ping": {
+      "n": 5,
+      "min": 254,
+      "wastani": 483,
+      "median": 621,
+      "p90": 652,
+      "max": 652
+    },
+    "cash": {
+      "n": 10,
+      "min": 652,
+      "wastani": 1169,
+      "median": 1279,
+      "p90": 1353,
+      "max": 1401
+    },
+    "deni": {
+      "n": 10,
+      "min": 453,
+      "wastani": 891,
+      "median": 757,
+      "p90": 1409,
+      "max": 1789
+    },
+    "zote": {
+      "n": 20,
+      "min": 453,
+      "wastani": 1030,
+      "median": 973,
+      "p90": 1401,
+      "max": 1789
+    }
+  }
+}

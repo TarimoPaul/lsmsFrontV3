@@ -1,0 +1,6 @@
+FLYWAY_YA_MWISHO|134
+GL_CONFIG|posting_enabled=true|shadow_mode=false
+QA_H2_ZILIZOPO_KABLA|0
+H2DATA|aef4d66c-951e-4707-8416-485875852e55|COCA && FANTA|1000.00|533.33|24|228
+H2CUST|f7de5003-ddb4-4539-b814-e69d10dc9d59|REGULAR
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0

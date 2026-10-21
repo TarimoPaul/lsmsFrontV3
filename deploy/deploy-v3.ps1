@@ -152,7 +152,7 @@ try {
         if (Test-ImageOnHub $image) { Fail "$image tayari iko Docker Hub - haitaandikwa upya. Tumia -DeployOnly $newVersion kuideploy, au -Bump kwa toleo jipya." }
         Step "-BuildOnly: build + push ya $image. Server HAIGUSWI; $VersionFile haibadilishwi."
     } else {
-        Invoke-Checked "SSH kwenda '$SshHost' imeshindwa (jaribu: ssh $SshHost)" { ssh -o BatchMode=yes -o ConnectTimeout=15 $SshHost "true" }
+        Invoke-Checked "SSH kwenda '$SshHost' imeshindwa (jaribu: ssh $SshHost)" { ssh -n -o BatchMode=yes -o ConnectTimeout=15 $SshHost "true" }
     }
 
     Step "Toleo: $current -> $newVersion   ($image)"
@@ -206,7 +206,7 @@ try {
     Invoke-Checked "scp ya script imeshindwa. Server haijaguswa." { scp -q -o BatchMode=yes $tempScript "${SshHost}:${RemoteScript}" }
 
     $out = @()
-    ssh -o BatchMode=yes $SshHost "bash $RemoteScript $newVersion; rc=`$?; rm -f $RemoteScript; exit `$rc" |
+    ssh -n -o BatchMode=yes $SshHost "bash $RemoteScript $newVersion; rc=`$?; rm -f $RemoteScript; exit `$rc" |
         ForEach-Object { Write-Host "    $_"; $out += $_ }
     $sshExit = $LASTEXITCODE
 

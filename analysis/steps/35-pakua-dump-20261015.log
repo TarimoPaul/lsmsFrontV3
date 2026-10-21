@@ -1,0 +1,18 @@
+---FAILI-LA-PC-HALIPO-BADO--- 
+sawa: faili halipo, hakuna kitakachoandikwa juu 
+---KICHUJIO-KWENDA-CONTABO--- 
+---SHA256-CONTABO--- 
+-rw------- 1 chief chief 8477442 Oct 15 02:00 /home/chief/backups/daily/lsms_20261015_0200.dump
+52e34fe4c52f1597b9fcb49452a9786f0dae4dc17f6cf83322b4a37d14cbd6d2  /home/chief/backups/daily/lsms_20261015_0200.dump
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---SHA256-B2--- 
+52e34fe4c52f1597b9fcb49452a9786f0dae4dc17f6cf83322b4a37d14cbd6d2  -
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---SCP-KUJA-PC--- 
+---SHA256-PC--- 
+SHA256 hash of D:\MY PROJECT\DUKA PROJECT\backups\lsms_20261015_0200.dump:
+52e34fe4c52f1597b9fcb49452a9786f0dae4dc17f6cf83322b4a37d14cbd6d2
+CertUtil: -hashfile command completed successfully.
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

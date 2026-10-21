@@ -1,0 +1,69 @@
+---MWENDESHO-38b--- 
+---KICHUJIO-KWENDA-CONTABO--- 
+[exit 0] 
+---HAKIKI-DUMP-TENA--- 
+lsms_20261020_0200.dump
+SHA_SAWA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---PROD-PS-KABLA--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 2 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 days
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 Up 2 days (healthy)
+nginx nginx:1.31.2 Up 2 days
+postgres postgres:15 Up 2 days (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-LAZIMA-2.2.70--- 
+***MSTARI-WA-ENV-UMEFICHWA***
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 1
+[exit 0] 
+---STAGING-SIMAMISHA-BACKEND--- 
+ Container lsms-staging-backend-1 Stopping 
+ Container lsms-staging-backend-1 Stopped 
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-HIFADHI-DB-YA-SASA--- 
+-rw-rw-r-- 1 chief chief 8387046 Oct 20 14:48 /home/chief/lsms-staging/staging_kabla_ya_toleo1_20261020.dump
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-DROPDB--- 
+DROPDB_SAWA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-CREATEDB--- 
+CREATEDB_SAWA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-PG-RESTORE--- 
+PG_RESTORE_SAWA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-FLYWAY-YA-MWISHO-LAZIMA-IWE-133--- 
+133
+STAGING_FLYWAY_133_SAWA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---STAGING-PS-backend-iwe-Exited--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Exited (143) 36 seconds ago
+frontend chiefmaster/lsms-frontend:2.2.53 Up 6 hours
+frontend-v3 chiefmaster/lsms-frontend-v3:3.0.1 Up 6 hours (healthy)
+nginx nginx:1.31.2 Up 6 hours
+postgres postgres:15 Up 6 hours (healthy)
+***MSTARI-WA-ENV-UMEFICHWA***
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 1
+[exit 0] 
+---PROD-PS-BAADA--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 2 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 days
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 Up 2 days (healthy)
+nginx nginx:1.31.2 Up 2 days
+postgres postgres:15 Up 2 days (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

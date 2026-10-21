@@ -1,0 +1,54 @@
+SET
+ entry_number | reference_type | total_debit | total_credit | dr | cr 
+--------------+----------------+-------------+--------------+----+----
+(0 rows)
+
+      dr      |      cr      | tofauti 
+--------------+--------------+---------
+ 791952398.47 | 791952398.47 |    0.00
+(1 row)
+
+               tatizo               | count 
+------------------------------------+-------
+ entry_date_ya_baadaye(>2026-10-14) |     0
+ deleted                            |     0
+ is_balanced_false                  |     0
+ reversed_mara_2                    |     0
+ reversal_bila_original             |     0
+ akaunti_haipo                      |     0
+ akaunti_si_hai                     |     0
+ hasi                               |     0
+ code_hailingani                    |     0
+ zero                               |     0
+ pande_zote                         |     0
+ journal_bila_lines                 |     0
+(12 rows)
+
+ account_code |           account_name           | account_type | normal_balance |      dr      |      cr      |   salio_dr    
+--------------+----------------------------------+--------------+----------------+--------------+--------------+---------------
+ 1000         | Cash on Hand                     | ASSET        | DEBIT          | 272780119.56 | 262607811.04 |   10172308.52
+ 1020         | Bank CRDB                        | ASSET        | DEBIT          |    264664.00 |    264664.00 |          0.00
+ 1021         | Bank NMB                         | ASSET        | DEBIT          |   2186000.00 |   1000000.00 |    1186000.00
+ 1030         | Mobile Money Vodacom             | ASSET        | DEBIT          |     64000.00 |         0.00 |      64000.00
+ 1100         | Accounts Receivable Retail       | ASSET        | DEBIT          |   2605000.00 |    819000.00 |    1786000.00
+ 1120         | Staff Receivables                | ASSET        | DEBIT          |   1099171.26 |    156369.38 |     942801.88
+ 1200         | Inventory                        | ASSET        | DEBIT          | 246057228.96 | 239780453.08 |    6276775.88
+ 1510         | Office Assets                    | ASSET        | DEBIT          |   9065000.00 |         0.00 |    9065000.00
+ 1530         | Technology Assets                | ASSET        | DEBIT          |   1350000.00 |         0.00 |    1350000.00
+ 1590         | Accumulated Depreciation         | ASSET        | CREDIT         |         0.00 |    588611.12 |    -588611.12
+ 2000         | Accounts Payable                 | LIABILITY    | CREDIT         |   7233107.39 |   7233107.39 |          0.00
+ 2100         | Loans Payable                    | LIABILITY    | CREDIT         |   1244985.00 |   3630985.00 |   -2386000.00
+ 3000         | Owner Capital                    | EQUITY       | CREDIT         |         0.00 |  10598755.00 |  -10598755.00
+ 3900         | Opening Balance Equity           | EQUITY       | CREDIT         |         0.00 |   1055841.53 |   -1055841.53
+ 4000         | Sales Revenue                    | REVENUE      | CREDIT         |   1893000.00 | 261004250.85 | -259111250.85
+ 4010         | Sales Discounts                  | REVENUE      | DEBIT          |    535000.00 |    415000.00 |     120000.00
+ 4020         | Sales Returns                    | REVENUE      | DEBIT          |     31000.00 |         0.00 |      31000.00
+ 4900         | Other Income                     | REVENUE      | CREDIT         |         0.00 |     25705.41 |     -25705.41
+ 5000         | Cost of Goods Sold               | EXPENSE      | DEBIT          | 237279548.34 |   1518240.15 |  235761308.19
+ 5100         | Shrinkage and Damage             | EXPENSE      | DEBIT          |   1493029.56 |   1047754.52 |     445275.04
+ 6120         | Goodwill and Discount Write-offs | EXPENSE      | DEBIT          |     13000.00 |         0.00 |      13000.00
+ 6200         | General Operating Expenses       | EXPENSE      | DEBIT          |   5167133.33 |         0.00 |    5167133.33
+ 6500         | Depreciation Expense             | EXPENSE      | DEBIT          |    588611.12 |         0.00 |     588611.12
+ 6700         | Cash Over Short                  | EXPENSE      | DEBIT          |   1002799.95 |    205850.00 |     796949.95
+(24 rows)
+

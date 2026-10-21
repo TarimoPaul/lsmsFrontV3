@@ -1,0 +1,30 @@
+SET
+                                      chanzo                                      | zote | bila_journal | baada_t0 | baada_t0_bila 
+----------------------------------------------------------------------------------+------+--------------+----------+---------------
+ sales STANDARD (zisizofutwa, jumla > 0)                                          | 2066 |            3 |      200 |             3
+ walk-in (RECONCILIATION_MANUAL) yenye deni > 0: <uid>:DEBT                       |  120 |            0 |       27 |             0
+ purchases RECEIVED                                                               | 2064 |            0 |      167 |             0
+ supplier_payments                                                                |   12 |            0 |        7 |             0
+ stock_adjustment (counting) gl_posted = false                                    |  341 |          266 |       75 |             0
+ capital_expenditure APPROVED (gharama/mali, si PRODUCT/INVENTORY, si za baadaye) |  453 |            2 |       89 |             1
+ capital_injections (INJECTION/WITHDRAWAL)                                        |    5 |            0 |        2 |             0
+ daily_financial_snapshot is_current, variance <> 0                               |   78 |            0 |       22 |             0
+(8 rows)
+
+ malipo_ya_madeni_baada_t0 | bila_journal |  tzs   
+---------------------------+--------------+--------
+                        14 |            0 | 510500
+(1 row)
+
+ gl_posted | count | zina_journal | thamani_sifuri |    min     |    max     
+-----------+-------+--------------+----------------+------------+------------
+ f         |   266 |          266 |              0 | 2026-07-07 | 2026-09-26
+ t         |    75 |           75 |              0 | 2026-10-03 | 2026-10-14
+(2 rows)
+
+         reference_number         |      description      |    capital_type     | expenditure_type | amount | transaction_date | approval_date | source 
+----------------------------------+-----------------------+---------------------+------------------+--------+------------------+---------------+--------
+ OPE-MON-20260901-000000-B4D80D8C | Malipo Ya Dereva      | OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  |   0.00 | 2026-09-01       | 2026-09-09    | DIRECT
+ OPE-MON-20261001-000000-73E6ECB1 | malipo ya wafanyakazi | OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  |   0.00 | 2026-10-01       | 2026-10-04    | DIRECT
+(2 rows)
+

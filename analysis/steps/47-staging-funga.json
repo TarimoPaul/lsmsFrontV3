@@ -1,0 +1,92 @@
+{
+  "kabla": {
+    "salio": {
+      "1000": 17484460.55,
+      "1100": 1754000,
+      "2000": 0,
+      "2900": -742500,
+      "3000": -10598755,
+      "6700": 117350
+    },
+    "tbDr": 255252458.5
+  },
+  "after": {
+    "1000": 17484460.55,
+    "2000": 0,
+    "2900": -742500
+  },
+  "periods": [
+    {
+      "year": 2026,
+      "month": 9,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:30.05033",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 8,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:29.371872",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 7,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:28.563749",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 6,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:27.942408",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 5,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:27.195013",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 4,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:26.31252",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:25.755259",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 2,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:24.788682",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    },
+    {
+      "year": 2026,
+      "month": 1,
+      "status": "CLOSED",
+      "closedAt": "2026-10-21T12:17:23.187231",
+      "closedBy": "Paul Tarimo",
+      "current": false
+    }
+  ]
+}

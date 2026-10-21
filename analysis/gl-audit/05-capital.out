@@ -1,0 +1,115 @@
+SET
+    capital_type     | expenditure_type | idadi |     tzs      | bila_journal | tzs_bila_journal | bila_journal_za_baadaye 
+---------------------+------------------+-------+--------------+--------------+------------------+-------------------------
+ PRODUCT_CAPITAL     | INVESTMENT       |  1705 | 202668262.36 |         1705 |     202668262.36 |                       0
+ PRODUCT_CAPITAL     | DAILY_EXPENSE    |   168 |  18157478.36 |          168 |      18157478.36 |                       0
+ OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  |    17 |   2376833.33 |            4 |        600000.00 |                       2
+ INVENTORY_CAPITAL   | DAILY_EXPENSE    |     1 |    128000.00 |            1 |        128000.00 |                       0
+ OFFICE_CAPITAL      | INVESTMENT       |     7 |   9065000.00 |            0 |                  |                       0
+ OPERATIONAL_CAPITAL | DAILY_EXPENSE    |   426 |   3390300.00 |            0 |                  |                       0
+ SHRINKAGE_LOSS      | DAILY_EXPENSE    |     1 |     31500.00 |            0 |                  |                       0
+ TECHNOLOGY_ASSET    | INVESTMENT       |     2 |   1350000.00 |            0 |                  |                       0
+(8 rows)
+
+         reference_number         |  capital_type   | expenditure_type | source |  amount   | transaction_date |       approval_date        |      approved_by       | is_asset | is_from_product_capital | ina_purchase |                 maelezo                 
+----------------------------------+-----------------+------------------+--------+-----------+------------------+----------------------------+------------------------+----------+-------------------------+--------------+-----------------------------------------
+ PRO-INV-20260626-094116-959D08B8 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 416000.00 | 2026-06-26       | 2026-07-14 09:16:45.788795 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260908-220540-AAB46924 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 384000.00 | 2026-09-08       | 2026-09-09 15:08:56.290711 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250 ML
+ PRO-INV-20260728-080035-F0E7D720 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 352000.00 | 2026-07-28       | 2026-08-19 21:39:34.236169 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260719-215558-93A0A7D4 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 352000.00 | 2026-07-19       | 2026-07-21 09:33:02.620708 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ INV-DAI-20260206-175733-B51580B7 | PRODUCT_CAPITAL | DAILY_EXPENSE    | DIRECT | 350000.00 | 2026-02-06       | 2026-02-12 19:59:12.330952 | Current User           | f        | t                       | t            | Purchase: SAFARI LAGER 500ML
+ PRO-INV-20260501-060257-B420131D | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 345000.00 | 2026-05-01       | 2026-05-01 19:45:12.053781 | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 500ML
+ PRO-INV-20260329-141809-D3A603F1 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 345000.00 | 2026-03-29       | 2026-04-07 21:15:13.49655  | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 500ML
+ INV-DAI-20260207-173524-5BE79469 | PRODUCT_CAPITAL | DAILY_EXPENSE    | DIRECT | 340000.00 | 2026-02-07       | 2026-02-12 19:58:16.200604 | Current User           | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260925-145913-6A1DF39B | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 330000.00 | 2026-09-25       | 2026-10-02 20:14:40.824505 | Paul Tarimo            | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ INV-DAI-20260205-195210-AE73313B | PRODUCT_CAPITAL | DAILY_EXPENSE    | DIRECT | 330000.00 | 2026-02-05       | 2026-02-12 20:02:37.217906 | Current User           | f        | t                       | t            | Purchase: SAFARI LAGER 375ML
+ PRO-INV-20260917-140618-47A1E93A | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 330000.00 | 2026-09-17       | 2026-09-17 20:45:11.084246 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260927-205409-3D49BBBC | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 330000.00 | 2026-09-27       | 2026-10-02 20:14:40.842003 | Paul Tarimo            | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260915-190707-1A50A2F0 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 330000.00 | 2026-09-15       | 2026-09-17 20:45:11.075256 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ INV-DAI-20260207-180303-940FAE1C | PRODUCT_CAPITAL | DAILY_EXPENSE    | DIRECT | 330000.00 | 2026-02-07       | 2026-02-12 19:58:13.712117 | Current User           | f        | t                       | t            | Purchase: KILIMANJARO 330ML
+ PRO-INV-20260803-202108-3FEDD816 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 330000.00 | 2026-08-03       | 2026-08-19 21:39:57.152583 | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 375ML
+ PRO-INV-20260324-185641-89838B57 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-03-24       | 2026-03-24 18:59:37.624221 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML
+ PRO-INV-20260505-194225-68590D06 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-05-05       | 2026-05-06 07:04:20.802438 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML
+ PRO-INV-20260527-162419-5306A27F | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-05-27       | 2026-06-11 12:46:54.172012 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260902-155715-C43BB2F0 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-09-02       | 2026-09-08 08:44:01.027133 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250 ML
+ PRO-INV-20260329-140840-43E85255 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-03-29       | 2026-04-07 21:15:11.839664 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 200ML
+ PRO-INV-20260526-154451-5EE41DCE | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-05-26       | 2026-06-11 12:46:54.162753 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260809-224133-0B138B4B | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-08-09       | 2026-08-19 21:39:37.113179 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML 250 ML
+ PRO-INV-20260716-125549-FDEA143B | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-07-16       | 2026-07-19 20:30:30.744076 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260411-161754-E35E7D57 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-04-11       | 2026-04-11 16:19:41.530768 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 375ML
+ PRO-INV-20260710-162439-23BFD455 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-07-10       | 2026-07-14 09:16:45.868056 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260530-081355-822CD78E | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-05-30       | 2026-06-11 12:49:34.163321 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML
+ PRO-INV-20260408-175144-FA57CFA6 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-04-08       | 2026-04-09 17:47:11.014902 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML
+ PRO-INV-20260618-204047-22DFC433 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-06-18       | 2026-06-22 21:25:05.618753 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260409-062910-82DE4900 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-04-09       | 2026-04-09 17:46:54.251225 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 200ML
+ PRO-INV-20260521-060158-15B2DC3D | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-05-21       | 2026-05-21 06:02:20.548612 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML
+ PRO-INV-20260622-210408-CD3EAB6B | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-06-22       | 2026-06-22 21:25:05.633396 | System%20Auto-Approval | f        | t                       | t            | Purchase: CASTLE LITE 330ML
+ PRO-INV-20260726-141029-F397AF86 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 320000.00 | 2026-07-26       | 2026-08-19 21:39:37.108194 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML 250 ML
+ PRO-INV-20260814-182448-5972197B | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 310500.00 | 2026-08-14       | 2026-08-19 21:39:54.328505 | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 500ML
+ PRO-INV-20260727-080058-5FD01D58 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 310500.00 | 2026-07-27       | 2026-08-19 21:39:54.284591 | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 500ML
+ PRO-INV-20260409-062910-D7E8BCB3 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 300000.00 | 2026-04-09       | 2026-04-09 17:46:57.219461 | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 375ML
+ PRO-INV-20260727-080058-5E9D9D23 | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 297000.00 | 2026-07-27       | 2026-08-19 21:39:57.134233 | System%20Auto-Approval | f        | t                       | t            | Purchase: SAFARI LAGER 375ML
+ PRO-INV-20260803-202108-50224ACD | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 297000.00 | 2026-08-03       | 2026-08-19 21:39:51.411073 | System%20Auto-Approval | f        | t                       | t            | Purchase: KILIMANJARO 375ML
+ INV-DAI-20260205-195210-682DA613 | PRODUCT_CAPITAL | DAILY_EXPENSE    | DIRECT | 295000.00 | 2026-02-05       | 2026-02-12 20:02:37.966387 | Current User           | f        | t                       | t            | Purchase: SERENGETI LAGER 330ML
+ PRO-INV-20260523-105048-D004446F | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 295000.00 | 2026-05-23       | 2026-05-23 14:10:48.060899 | System%20Auto-Approval | f        | t                       | t            | Purchase: SERENGETI LAGER 330ML
+ PRO-INV-20260707-084546-2ED9423E | PRODUCT_CAPITAL | INVESTMENT       | DIRECT | 294400.00 | 2026-07-07       | 2026-07-14 10:59:10.825234 | System%20Auto-Approval | f        | t                       | t            | Purchase: PEPSI && MIRINDA 250ML
+(40 rows)
+
+      aina      | count |                                     mifano                                      
+----------------+-------+---------------------------------------------------------------------------------
+ jina/maandishi |  2381 | Current User | Jess Saimon | Paul Tarimo | System%20Auto-Approval | SYSTEM_AUTO
+ NULL           |    11 | 
+(2 rows)
+
+      aina      | count |                             mifano                              
+----------------+-------+-----------------------------------------------------------------
+ email          |  4725 | tarimo@gmail.com
+ jina/maandishi |   201 | Jess Saimon | Paul Tarimo | SCHEDULER | System | SYSTEM_AUTO
+ users.uid      |   268 | 03367a4b-ca4b-4409-a800-3e2037 | 0d75927b-4aae-442d-9b5f-3a70d8
+(3 rows)
+
+                   uid                    | injection_type |  source_type   |   amount    | principal_amount | interest_amount |  transaction_date   |         created_at         | reclassified_from | reclassified_at | sababu |             related_loan_uid             | payment_method | affects_cash 
+------------------------------------------+----------------+----------------+-------------+------------------+-----------------+---------------------+----------------------------+-------------------+-----------------+--------+------------------------------------------+----------------+--------------
+ INJ-30a463c1-4e99-4b76-a39b-5f3c9c5abfd7 | INJECTION      | OWNER_EQUITY   | 10598755.00 |                  |                 | 2026-05-19 19:15:21 | 2026-05-19 16:15:21.641052 |                   |                 |        |                                          |                | t
+ INJ-eb9b3e26-f21d-4e61-91d3-84e1f664a08b | VOID           | FAIDA_BIASHARA |  1056640.00 |                  |                 | 2026-05-19 19:29:48 | 2026-05-19 16:29:48.810335 |                   |                 |        |                                          |                | t
+ INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2 | INJECTION      | LOAN           |   244985.00 |                  |                 | 2026-05-21 22:25:39 | 2026-05-21 19:25:38.71007  |                   |                 |        |                                          |                | t
+ INJ-348d0641-fd27-4945-b87e-dd8f6036a956 | WITHDRAWAL     | LOAN_REPAYMENT |   244985.00 |        244985.00 |            0.00 | 2026-06-11 15:52:42 | 2026-06-11 12:53:10.998078 |                   |                 |        | INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2 |                | t
+ INJ-4e3c01c3-122e-4e92-bdf0-a09c5d532f79 | INJECTION      | LOAN           |  1200000.00 |                  |                 | 2026-09-26 12:00:00 | 2026-10-13 21:46:16.518613 |                   |                 |        |                                          | CASH           | t
+ INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | INJECTION      | LOAN           |  1186000.00 |                  |                 | 2026-10-04 15:21:49 | 2026-10-04 15:21:48.52421  |                   |                 |        |                                          | NMB            | t
+(6 rows)
+
+  reference_type   |                     reference_uid                     | entry_date |         created_at         | is_reversal | total_debit |                  lines                   
+-------------------+-------------------------------------------------------+------------+----------------------------+-------------+-------------+------------------------------------------
+ CAPITAL_INJECTION | INJ-30a463c1-4e99-4b76-a39b-5f3c9c5abfd7              | 2026-05-19 | 2026-09-30 10:31:38.267434 | f           | 10598755.00 | 1000 Dr 10598755.00; 3000 Cr 10598755.00
+ LOAN_RECEIVED     | INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2              | 2026-05-21 | 2026-09-30 10:31:38.272346 | f           |   244985.00 | 1000 Dr 244985.00; 2100 Cr 244985.00
+ LOAN_REPAYMENT    | INJ-348d0641-fd27-4945-b87e-dd8f6036a956              | 2026-06-11 | 2026-09-30 10:31:38.279552 | f           |   244985.00 | 1000 Cr 244985.00; 2100 Dr 244985.00
+ FUNDS_TRANSFER    | TRF:87ea433e-b237-45d5-9e12-e5763501b650              | 2026-08-24 | 2026-09-30 10:32:18.043465 | f           |   264664.00 | 1020 Dr 264664.00; 1000 Cr 264664.00
+ LOAN_RECEIVED     | INJ-4e3c01c3-122e-4e92-bdf0-a09c5d532f79              | 2026-09-26 | 2026-10-13 21:46:16.52469  | f           |  1200000.00 | 2100 Cr 1200000.00; 1000 Dr 1200000.00
+ OPENING_BALANCE   | TRUEUP:INVENTORY:0f086700-9e45-410a-9bb4-eee519150542 | 2026-09-30 | 2026-09-30 15:34:07.358982 | f           |   528773.18 | 1200 Dr 528773.18; 3900 Cr 528773.18
+ OPENING_BALANCE   | TRUEUP:INVENTORY:dcdba478-f063-40d8-b73e-f13099dd261f | 2026-09-30 | 2026-09-30 10:32:19.084547 | f           |   527068.35 | 1200 Dr 527068.35; 3900 Cr 527068.35
+ LOAN_RECEIVED     | INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637              | 2026-10-04 | 2026-10-04 15:21:48.559301 | f           |  1000000.00 | 1021 Dr 1000000.00; 2100 Cr 1000000.00
+ LOAN_RECEIVED     | INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637              | 2026-10-04 | 2026-10-11 14:59:36.101506 | f           |  1186000.00 | 1021 Dr 1186000.00; 2100 Cr 1186000.00
+ LOAN_RECEIVED     | INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637              | 2026-10-11 | 2026-10-11 14:59:36.063631 | t           |  1000000.00 | 1021 Cr 1000000.00; 2100 Dr 1000000.00
+(10 rows)
+
+   capital_type   |         reference_number         |   amount   | transaction_date | asset_life_months | monthly_depreciation | accumulated_depreciation |  status  |       maelezo       |  gl_dep   
+------------------+----------------------------------+------------+------------------+-------------------+----------------------+--------------------------+----------+---------------------+-----------
+ OFFICE_CAPITAL   | OFF-INV-20260219-000000-0AAEC6AF | 3700000.00 | 2026-02-19       |                72 |             51388.89 |                411111.12 | APPROVED | Guta la Umeme       | 411111.12
+ OFFICE_CAPITAL   | OFF-INV-20260219-153112-A1EF6492 | 1200000.00 | 2026-02-19       |                60 |             20000.00 |                160000.00 | APPROVED | Shelves             | 160000.00
+ OFFICE_CAPITAL   | OFF-INV-20260501-000000-A913C327 |   42000.00 | 2026-05-01       |                12 |              3500.00 |                 17500.00 | APPROVED | glass za pombe kali |  17500.00
+ OFFICE_CAPITAL   | OFF-INV-20261008-202450-AB0CCAB1 | 1200000.00 | 2026-10-08       |                60 |             20000.00 |                     0.00 | APPROVED | Fridge              |          
+ OFFICE_CAPITAL   | OFF-INV-20261009-101740-B4CDF52D | 2323000.00 | 2026-10-09       |                60 |             38716.67 |                     0.00 | APPROVED | Kreti za bia        |          
+ OFFICE_CAPITAL   | OFF-INV-20261009-102258-5AEC7B78 |  300000.00 | 2026-10-09       |                60 |              5000.00 |                     0.00 | APPROVED | Kreti za soda coca  |          
+ OFFICE_CAPITAL   | OFF-INV-20261009-102422-D8C8E9F9 |  300000.00 | 2026-10-09       |               240 |              1250.00 |                     0.00 | APPROVED | Kreti za soda Pespi |          
+ TECHNOLOGY_ASSET | TEC-INV-20261013-214207-59383383 |  650000.00 | 2026-10-13       |               170 |              3823.53 |                     0.00 | APPROVED | Hisence Tv          |          
+ TECHNOLOGY_ASSET | TEC-INV-20261013-214304-D4405631 |  700000.00 | 2026-10-13       |               300 |              2333.33 |                     0.00 | APPROVED | CAMERA              |          
+(9 rows)
+
+ id |                 uid                  | is_active | is_deleted |         created_at         |         updated_at         | deleted_at | updated_by | deleted_by |              branch_uid              |        name         | location |       capital_expenditure_uid        | capital_decision | approved_qty | proposed_qty | unit_value |  status  |           proposed_by_uid            |        proposed_at         |           approved_by_uid            |        approved_at         | reject_reason | notes |            created_by_uid            
+----+--------------------------------------+-----------+------------+----------------------------+----------------------------+------------+------------+------------+--------------------------------------+---------------------+----------+--------------------------------------+------------------+--------------+--------------+------------+----------+--------------------------------------+----------------------------+--------------------------------------+----------------------------+---------------+-------+--------------------------------------
+  1 | db9a6412-aaab-470f-af7d-b9281aaa2192 | t         | f          | 2026-10-08 20:24:19.174319 | 2026-10-08 20:32:20.104345 |            |            |            | 350cfab7-3674-47f4-a707-d88cc102dcb3 | Fridge              |          | a25f458d-2b73-49c7-bea4-6a2489574048 | LINKED           |            1 |              | 1000000.00 | APPROVED | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-08 20:24:19.17143  | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-08 20:24:53.767405 |               |       | 03367a4b-ca4b-4409-a800-3e2037038206
+  2 | dc7fd083-ded4-410d-b66d-a46d1e559545 | t         | f          | 2026-10-09 10:12:57.540684 | 2026-10-09 10:25:04.141164 |            |            |            | 350cfab7-3674-47f4-a707-d88cc102dcb3 | Kreti za bia        |          | e7770e8c-7b79-4f26-b9b0-7a96d1283d09 | LINKED           |          202 |              | 2323000.00 | APPROVED | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-09 10:12:57.537398 | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-09 10:25:04.137374 |               |       | 03367a4b-ca4b-4409-a800-3e2037038206
+  3 | 99960d20-d51a-4274-871e-a521c7d3e8bc | t         | f          | 2026-10-09 10:22:44.189179 | 2026-10-09 10:25:05.859657 |            |            |            | 350cfab7-3674-47f4-a707-d88cc102dcb3 | Kreti za soda coca  |          | 6ca1caec-c6cf-4b81-b588-cdd442b7ddeb | LINKED           |           30 |              |  300000.00 | APPROVED | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-09 10:22:44.188884 | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-09 10:25:05.849525 |               |       | 03367a4b-ca4b-4409-a800-3e2037038206
+  4 | afe0886d-af8d-4903-970b-c5acba36c76d | t         | f          | 2026-10-09 10:23:45.971407 | 2026-10-09 10:25:07.69377  |            |            |            | 350cfab7-3674-47f4-a707-d88cc102dcb3 | Kreti za soda Pespi |          | 1fb5483f-b047-4a18-8745-e3120d3c34f7 | LINKED           |           30 |              |  300000.00 | APPROVED | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-09 10:23:45.971048 | 03367a4b-ca4b-4409-a800-3e2037038206 | 2026-10-09 10:25:07.688601 |               |       | 03367a4b-ca4b-4409-a800-3e2037038206
+(4 rows)
+

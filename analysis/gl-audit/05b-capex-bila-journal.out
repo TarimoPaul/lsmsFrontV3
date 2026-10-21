@@ -1,0 +1,50 @@
+SET
+   capital_type    | idadi |     tzs      | bila_purchase_uid | purchase_bila_journal | tzs_purchase_bila_journal | purchase_si_approved 
+-------------------+-------+--------------+-------------------+-----------------------+---------------------------+----------------------
+ INVENTORY_CAPITAL |     1 |    128000.00 |                 0 |                     0 |                           |                    1
+ PRODUCT_CAPITAL   |  1873 | 220825740.72 |                 0 |                     0 |                           |                 1873
+(2 rows)
+
+ kiasi_tofauti | tofauti_tzs 
+---------------+-------------
+             0 |            
+(1 row)
+
+         reference_number         |    capital_type     | expenditure_type |  amount   |      transaction_date      |       approval_date        | approved_by  | ni_mtoto |             purchase_uid             |             maelezo             | journals_zote 
+----------------------------------+---------------------+------------------+-----------+----------------------------+----------------------------+--------------+----------+--------------------------------------+---------------------------------+---------------
+ INV-DAI-20260212-184240-6B77CB19 | INVENTORY_CAPITAL   | DAILY_EXPENSE    | 128000.00 | 2026-02-12 18:42:40.940387 | 2026-02-12 19:56:05.202784 | Current User | f        | 27a3b7bf-f15f-4f3d-9a6e-dcf689d3f5d4 | Purchase: COCA && FANTA 250ML   | 
+ OPE-MON-20260901-000000-B4D80D8C | OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  |      0.00 | 2026-09-01 00:00:00        | 2026-09-09 15:11:44.96719  | SYSTEM_AUTO  | f        |                                      | Malipo Ya Dereva                | 
+ OPE-MON-20261001-000000-73E6ECB1 | OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  |      0.00 | 2026-10-01 00:00:00        | 2026-10-04 15:24:33.604309 | SYSTEM_AUTO  | f        |                                      | malipo ya wafanyakazi           | 
+ OPE-MON-20261101-000000-78B59FE9 | OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  | 300000.00 | 2026-11-01 00:00:00        | 2026-10-04 15:24:33.661424 | SYSTEM_AUTO  | t        |                                      | malipo ya wafanyakazi (2026-11) | 
+ OPE-MON-20261201-000000-EC07AC64 | OPERATIONAL_CAPITAL | MONTHLY_EXPENSE  | 300000.00 | 2026-12-01 00:00:00        | 2026-10-04 15:24:33.66388  | SYSTEM_AUTO  | t        |                                      | malipo ya wafanyakazi (2026-12) | 
+(5 rows)
+
+         reference_number         |  amount   | transaction_date | allocated_year | allocated_month |  status  |                 maelezo                  |               journals               
+----------------------------------+-----------+------------------+----------------+-----------------+----------+------------------------------------------+--------------------------------------
+ OPE-MON-20260101-000000-2939F6DE | 200000.00 | 2026-01-01       |           2026 |               1 | APPROVED | 2400000                                  | EXPENSE_DIRECT@2026-01-01 2026-09-30
+ OPE-MON-20260101-000000-F7C9E331 | 200000.00 | 2026-01-01       |           2026 |               0 | APPROVED | KODI YA FRAME (Mwaka mzima - jumla: TZS  | EXPENSE_DIRECT@2026-01-01 2026-09-30
+ OPE-MON-20260101-000000-4B42C8F1 |  20833.33 | 2026-01-01       |           2026 |               0 | APPROVED | Malipo ya Kodi Tra (Mwaka mzima - jumla: | EXPENSE_DIRECT@2026-01-01 2026-09-30
+ OPE-MON-20260701-000000-AABDC814 |  28000.00 | 2026-07-01       |           2026 |               7 | APPROVED | MALIPO YA KINGAMUZI AZAM                 | EXPENSE_DIRECT@2026-07-01 2026-09-30
+ OPE-MON-20260801-000000-8ED8D5EF | 150000.00 | 2026-08-01       |           2026 |               8 | APPROVED | Malipo Ya Mfanyakazi                     | EXPENSE_DIRECT@2026-08-01 2026-09-30
+ OPE-MON-20260801-000000-79A1559D | 180000.00 | 2026-08-01       |           2026 |               8 | APPROVED | Malipo Ya Manager                        | EXPENSE_DIRECT@2026-08-01 2026-09-30
+ OPE-MON-20260901-000000-06AC14BB | 150000.00 | 2026-09-01       |           2026 |               9 | APPROVED | Malipo Ya wafanyakazi                    | EXPENSE_DIRECT@2026-09-01 2026-09-30
+ OPE-MON-20260901-000000-4B6D0F55 | 150000.00 | 2026-09-01       |           2026 |               9 | APPROVED | Malipo Ya Wafanyakazi                    | EXPENSE_DIRECT@2026-09-01 2026-09-30
+ OPE-MON-20260901-000000-FA8AA6E0 |  70000.00 | 2026-09-01       |           2026 |               9 | APPROVED | Malipo Ya Router                         | EXPENSE_DIRECT@2026-09-01 2026-09-30
+ OPE-MON-20260901-000000-45445413 |  28000.00 | 2026-09-01       |           2026 |               9 | APPROVED | Malipo Ya Kingamuzi                      | EXPENSE_DIRECT@2026-09-01 2026-09-30
+ OPE-MON-20260901-000000-37FAE6D1 | 150000.00 | 2026-09-01       |           2026 |               9 | APPROVED | Malipo Ya Dereva (2026-09)               | EXPENSE_DIRECT@2026-09-01 2026-09-30
+ OPE-MON-20260901-000000-B4D80D8C |      0.00 | 2026-09-01       |                |                 | APPROVED | Malipo Ya Dereva                         | 
+ OPE-MON-20261001-000000-F1C30121 | 150000.00 | 2026-10-01       |           2026 |              10 | APPROVED | Malipo Ya Dereva (2026-10)               | EXPENSE_DIRECT@2026-10-01 2026-10-03
+ OPE-MON-20261001-000000-8E962367 | 300000.00 | 2026-10-01       |           2026 |              10 | APPROVED | malipo ya wafanyakazi (2026-10)          | EXPENSE_DIRECT@2026-10-01 2026-10-05
+ OPE-MON-20261001-000000-73E6ECB1 |      0.00 | 2026-10-01       |                |                 | APPROVED | malipo ya wafanyakazi                    | 
+ OPE-MON-20261101-000000-78B59FE9 | 300000.00 | 2026-11-01       |           2026 |              11 | APPROVED | malipo ya wafanyakazi (2026-11)          | 
+ OPE-MON-20261201-000000-EC07AC64 | 300000.00 | 2026-12-01       |           2026 |              12 | APPROVED | malipo ya wafanyakazi (2026-12)          | 
+(17 rows)
+
+        name         | approved_qty | unit_value | capex_amount |         reference_number         |  gl_asset  
+---------------------+--------------+------------+--------------+----------------------------------+------------
+ Fridge              |            1 | 1000000.00 |   1200000.00 | OFF-INV-20261008-202450-AB0CCAB1 | 1200000.00
+ Kreti za bia        |          202 | 2323000.00 |   2323000.00 | OFF-INV-20261009-101740-B4CDF52D | 2323000.00
+ Kreti za soda coca  |           30 |  300000.00 |    300000.00 | OFF-INV-20261009-102258-5AEC7B78 |  300000.00
+ Kreti za soda Pespi |           30 |  300000.00 |    300000.00 | OFF-INV-20261009-102422-D8C8E9F9 |  300000.00
+(4 rows)
+

@@ -1,0 +1,71 @@
+---MWENDESHO-38d--- 
+---KICHUJIO-KWENDA-CONTABO--- 
+---STAGING-TOLEO-LAZIMA-2.2.71--- 
+TOLEO_ENV_2271
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---PROD-PS-KABLA--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 2 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 days
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 Up 2 days (healthy)
+nginx nginx:1.31.2 Up 2 days
+postgres postgres:15 Up 2 days (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---STAGING-DATA-READ-ONLY--- 
+FLYWAY_YA_MWISHO|134
+GL_CONFIG|posting_enabled=true|shadow_mode=false
+QA_H2_ZILIZOPO_KABLA|0
+H2DATA|aef4d66c-951e-4707-8416-485875852e55|COCA && FANTA|1000.00|533.33|24|228
+H2CUST|f7de5003-ddb4-4539-b814-e69d10dc9d59|REGULAR
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---TUNNEL-LAZIMA-400--- 
+400 
+---NODE-POS-MUDA--- 
+moto 1: HTTP 200 201026-1527 1947 ms (haihesabiwi)
+moto 2: HTTP 200 201026-1527-2 1929 ms (haihesabiwi)
+cash 1: HTTP 200 201026-1527-3 1401 ms
+deni 1: HTTP 200 201026-1527-4 1789 ms
+cash 2: HTTP 200 201026-1527-5 1310 ms
+deni 2: HTTP 200 201026-1527-6 947 ms
+cash 3: HTTP 200 201026-1527-7 1013 ms
+deni 3: HTTP 200 201026-1527-8 641 ms
+cash 4: HTTP 200 201026-1527-9 1279 ms
+deni 4: HTTP 200 201026-1527-10 757 ms
+cash 5: HTTP 200 201026-1527-11 1304 ms
+deni 5: HTTP 200 201026-1527-12 453 ms
+cash 6: HTTP 200 201026-1527-13 652 ms
+deni 6: HTTP 200 201026-1527-14 650 ms
+cash 7: HTTP 200 201026-1527-15 1353 ms
+deni 7: HTTP 200 201026-1527-16 582 ms
+cash 8: HTTP 200 201026-1527-17 1324 ms
+deni 8: HTTP 200 201026-1527-18 774 ms
+cash 9: HTTP 200 201026-1527-19 1081 ms
+deni 9: HTTP 200 201026-1527-20 1409 ms
+cash 10: HTTP 200 201026-1527-21 973 ms
+deni 10: HTTP 200 201026-1527-22 910 ms
+MUHTASARI baada ping(tunnel) : n=5 min 254 wastani 483 median 621 p90 652 max 652 ms
+MUHTASARI baada cash        : n=10 min 652 wastani 1169 median 1279 p90 1353 max 1401 ms
+MUHTASARI baada deni        : n=10 min 453 wastani 891 median 757 p90 1409 max 1789 ms
+MUHTASARI baada zote        : n=20 min 453 wastani 1030 median 973 p90 1401 max 1789 ms
+SALES_ZILIZOFAULU=20/20; faili: analysis\steps\pos-muda-baada.json
+---STAGING-PS--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.71 Up 4 minutes
+frontend chiefmaster/lsms-frontend:2.2.53 Up 7 hours
+frontend-v3 chiefmaster/lsms-frontend-v3:3.0.1 Up 7 hours (healthy)
+nginx nginx:1.31.2 Up 7 hours
+postgres postgres:15 Up 7 hours (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---PROD-PS-BAADA--- 
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 2 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 days
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 Up 2 days (healthy)
+nginx nginx:1.31.2 Up 2 days
+postgres postgres:15 Up 2 days (healthy)
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

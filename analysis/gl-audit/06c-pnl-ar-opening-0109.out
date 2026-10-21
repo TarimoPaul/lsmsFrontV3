@@ -1,0 +1,5 @@
+06c: AR opening 01/09 kwa kanuni ya DailyPnlCalculator (psql -X -q -f 06c-pnl-ar-opening-0109.sql; CSV pnl_ar_0109.csv)
+lsms_audit_1004 (dump 04/10 02:00): credit sales 425, AR 1,672,000.00
+lsms_audit      (dump 14/10 02:00): credit sales 451, AR 1,693,000.00
+tofauti 21,000.00 = sale moja:
+150826-0000-3 MANUAL_RETAIL 2026-08-15: kabla 11,500 baada 32,500 | 04/10 owed 11,500 dated 0 remainder_on 2026-08-17 | 14/10 owed 0 dated 0 remainder_on 2026-10-05

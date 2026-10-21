@@ -1,0 +1,75 @@
+---MWENDESHO-36-1--- 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+[exit 0] 
+---ENDESHA-KWENYE-CONTABO--- 
+---RAM-NA-DISK-KABLA---
+               total        used        free      shared  buff/cache   available
+Mem:           11960        1923        9779         139         662       10037
+Swap:              0           0           0
+/dev/sda1       193G  8.5G  185G   5% /
+RAM_INAYOPATIKANA_KABLA_MB=10036
+---PROD-PS-KABLA---
+backend chiefmaster/my-lsms-backend:2.2.70 running
+frontend chiefmaster/lsms-frontend:2.2.53 running
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 running
+nginx nginx:1.31.2 running
+postgres postgres:15 running
+---STAGING-HALI-KABLA---
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 3 minutes
+frontend chiefmaster/lsms-frontend:2.2.53 Up 3 minutes
+frontend-v3 chiefmaster/lsms-frontend-v3:3.0.1 Up 3 minutes (healthy)
+nginx nginx:1.31.2 Up 3 minutes
+postgres postgres:15 Up 3 minutes (healthy)
+---TOLEO-LAZIMA-2.2.70---
+***MSTARI-WA-ENV-UMEFICHWA***
+---IMAGES-LAZIMA-ZIWE-KWENYE-SERVER (hakuna pull)---
+ipo: chiefmaster/lsms-frontend-v3:3.0.1
+ipo: nginx:1.31.2
+ipo: postgres:15
+ipo: chiefmaster/my-lsms-backend:2.2.70
+ipo: chiefmaster/lsms-frontend:2.2.53
+---WASHA (up -d --pull never)---
+ Container lsms-staging-postgres-1 Running 
+ Container lsms-staging-backend-1 Running 
+ Container lsms-staging-frontend-1 Running 
+ Container lsms-staging-frontend-v3-1 Running 
+ Container lsms-staging-nginx-1 Running 
+ Container lsms-staging-postgres-1 Waiting 
+ Container lsms-staging-postgres-1 Healthy 
+---SUBIRI-POSTGRES-HEALTHY (hadi sek 180)---
+postgres: healthy (baada ya sek 2)
+---SUBIRI-BACKEND-IJIBU (hadi sek 300; POST /api/auth/login tupu lazima 400)---
+backend kupitia nginx ya staging: HTTP 400 (baada ya sek 3)
+backend-1  | 2026-10-14 13:05:13 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 29.528 seconds (process running for 30.613)
+backend-1  | 2026-10-20 08:24:48 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 36.922 seconds (process running for 38.82)
+---TOLEO-NA-FLYWAY (lazima 2.2.70 / 133)---
+backend inayoendesha: chiefmaster/my-lsms-backend:2.2.70
+flyway ya mwisho: 133
+---STAGING-PS-BAADA---
+SERVICE IMAGE STATUS
+backend chiefmaster/my-lsms-backend:2.2.70 Up 3 minutes
+frontend chiefmaster/lsms-frontend:2.2.53 Up 3 minutes
+frontend-v3 chiefmaster/lsms-frontend-v3:3.0.1 Up 3 minutes (healthy)
+nginx nginx:1.31.2 Up 3 minutes
+postgres postgres:15 Up 3 minutes (healthy)
+---RAM-NA-DISK-BAADA---
+               total        used        free      shared  buff/cache   available
+Mem:           11960        1942        9760         139         662       10018
+Swap:              0           0           0
+/dev/sda1       193G  8.5G  185G   5% /
+RAM_INAYOPATIKANA_BAADA_MB=10018 (staging inatumia takriban 18 MB)
+---PROD-PS-BAADA (lazima iwe sawa na kabla)---
+backend chiefmaster/my-lsms-backend:2.2.70 running
+frontend chiefmaster/lsms-frontend:2.2.53 running
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.10 running
+nginx nginx:1.31.2 running
+postgres postgres:15 running
+prod: sawa (services, images na hali hazijabadilika)
+---OK---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 1
+[exit 0] 
+---FAILI-ZA-MUDA-ZINAFUTWA--- 
+zimefutwa
+---IMESHINDWA-KWENYE: ENDESHA-KWENYE-CONTABO (exit 0)--- 

@@ -1,0 +1,16 @@
+---MWENDESHO-37v-thibitisha--- 
+---REGISTRY-DIGEST--- 
+Name:      docker.io/chiefmaster/lsms-frontend-v3:3.1.11
+MediaType: application/vnd.docker.distribution.manifest.v2+json
+Digest:    sha256:80a4bb7b81841a9fd8407945a991e99fc2218e6b676bae29073674fa0aae1aa6
+[exit 0] 
+digest ya registry: sha256:80a4bb7b81841a9fd8407945a991e99fc2218e6b676bae29073674fa0aae1aa6 
+---REGISTRY-REVISION-NI-EF4E097--- 
+commit kamili ya ef4e097: ef4e097c723730731a522a95640f36e4219dbd9f 
+{
+  "maintainer": "NGINX Docker Maintainers \u003cdocker-maint@nginx.com\u003e",
+  "org.opencontainers.image.revision": "ef4e097c723730731a522a95640f36e4219dbd9f"
+} 
+[exit 0] 
+V3_DIGEST sha256:80a4bb7b81841a9fd8407945a991e99fc2218e6b676bae29073674fa0aae1aa6
+---OK--- 

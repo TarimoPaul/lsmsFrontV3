@@ -1,0 +1,62 @@
+SET
+  chanzo  | journals | mapato_hayalingani | tofauti_mapato_tzs | cogs_hailingani | tofauti_cogs_tzs | sale_imefutwa_journal_hai 
+----------+----------+--------------------+--------------------+-----------------+------------------+---------------------------
+ backfill |     1866 |                  0 |                    |               0 |                  |                         0
+ live     |      179 |                  0 |                    |               0 |                  |                         0
+(2 rows)
+
+ receipt_number | posted | updated_at | total_amount | gl_net_rev 
+----------------+--------+------------+--------------+------------
+(0 rows)
+
+ kipindi  | mistari_iliongezwa_baadaye | tzs_iliongezwa | mistari_iliyofutwa | tzs_iliyofutwa 
+----------+----------------------------+----------------+--------------------+----------------
+ kabla_T0 |                          0 |                |                  0 |               
+ baada_T0 |                          0 |                |                  0 |               
+(2 rows)
+
+   chanzo   |              action               | count 
+------------+-----------------------------------+-------
+ sale_notes | Payment updated                   |     0
+ sale_notes | Payment deactivated               |     0
+ payments   | is_active=false, is_deleted=false |     1
+ payments   | is_deleted=true                   |    12
+ payments   | is_reversal=true                  |     0
+(5 rows)
+
+ kipindi  | sale_imefutwa | payments_zisizo_hai |   tzs    
+----------+---------------+---------------------+----------
+ kabla_T0 | f             |                   1 | 31000.00
+(1 row)
+
+ kipindi  | zilizofutwa | zilikuwa_approved | tzs_approved | zenye_journal_hai | tzs_journal_hai 
+----------+-------------+-------------------+--------------+-------------------+-----------------
+ kabla_T0 |           3 |                 0 |              |                 0 |                
+(1 row)
+
+ reopened_events | reopened_baada_t0 | superseded | superseded_baada_t0 
+-----------------+-------------------+------------+---------------------
+              15 |                13 |         14 |                  12
+(1 row)
+
+ recon_zenye_variance_hai_zaidi_ya_1 | snapshot_za_zamani_journal_hai | variance_ya_zamani_bado_hai_tzs 
+-------------------------------------+--------------------------------+---------------------------------
+                                   9 |                              9 |                        11300.00
+(1 row)
+
+ current_bila_journal | tzs_current_bila_journal | zamani_journal_hai 
+----------------------+--------------------------+--------------------
+                    0 |                          |                  9
+(1 row)
+
+ restored_notes | active_na_deleted | zilizofutwa 
+----------------+-------------------+-------------
+              0 |                 0 |         233
+(1 row)
+
+ aina | idadi | tzs 
+------+-------+-----
+ DEBT |     0 |    
+ SALE |     0 |    
+(2 rows)
+

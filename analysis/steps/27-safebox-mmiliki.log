@@ -1,0 +1,170 @@
+---MWENDESHO Tue 10/13/2026 19:53:25.83--- 
+BACKEND_VERSION=2.2.69
+node:internal/deps/undici/undici:13502
+      Error.captureStackTrace(err);
+            ^
+
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13502:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///D:/MY%20PROJECT/DUKA%20PROJECT/LsmsVersion3/lsmsFrontV3/analysis/steps/safebox-mmiliki-staging.mjs:8:13 {
+  [cause]: AggregateError [ECONNREFUSED]: 
+      at internalConnectMultiple (node:net:1139:18)
+      at afterConnectMultiple (node:net:1712:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [
+      Error: connect ECONNREFUSED ::1:8081
+          at createConnectionError (node:net:1675:14)
+          at afterConnectMultiple (node:net:1705:16) {
+        errno: -4078,
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '::1',
+        port: 8081
+      },
+      Error: connect ECONNREFUSED 127.0.0.1:8081
+          at createConnectionError (node:net:1675:14)
+          at afterConnectMultiple (node:net:1705:16) {
+        errno: -4078,
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '127.0.0.1',
+        port: 8081
+      }
+    ]
+  }
+}
+
+Node.js v22.13.1
+---MWENDESHO Tue 10/13/2026 20:01:44.13--- 
+^C---MWENDESHO Tue 10/13/2026 20:02:23.36--- 
+BACKEND_VERSION=2.2.69
+node:internal/deps/undici/undici:13502
+      Error.captureStackTrace(err);
+            ^
+
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13502:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///D:/MY%20PROJECT/DUKA%20PROJECT/LsmsVersion3/lsmsFrontV3/analysis/steps/safebox-mmiliki-staging.mjs:8:13 {
+  [cause]: AggregateError [ECONNREFUSED]: 
+      at internalConnectMultiple (node:net:1139:18)
+      at afterConnectMultiple (node:net:1712:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [
+      Error: connect ECONNREFUSED ::1:8081
+          at createConnectionError (node:net:1675:14)
+          at afterConnectMultiple (node:net:1705:16) {
+        errno: -4078,
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '::1',
+        port: 8081
+      },
+      Error: connect ECONNREFUSED 127.0.0.1:8081
+          at createConnectionError (node:net:1675:14)
+          at afterConnectMultiple (node:net:1705:16) {
+        errno: -4078,
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '127.0.0.1',
+        port: 8081
+      }
+    ]
+  }
+}
+
+Node.js v22.13.1
+---MWENDESHO Tue 10/13/2026 20:51:37.00--- 
+BACKEND_VERSION=2.2.69
+user: tarimo@gmail.com
+token claims (bila siri): {"lastName":"Tarimo","branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","isRoot":false,"roles":["CEO","user"],"fullName":"Paul Tarimo","isAdmin":false,"isActive":true,"userId":"03367a4b-ca4b-4409-a800-3e2037038206","firstName":"Paul","canLogin":true,"emailVerified":true,"email":"tarimo@gmail.com","status":"ACTIVE","sub":"tarimo@gmail.com","iat":1791913899,"exp":1792000299}
+
+POST /api/v1/safe-box/deposit kwenye entry ya macheda -> HTTP 200
+{"status":"Success","data":{"uid":"57030bfd-8823-4654-a7d8-1c7caf363a13","sourceReconUid":"6371a5d5-5c3d-44a2-ac9b-1e9513bc7559","cashEntryUid":"20e5e616-155f-40aa-a288-11617cfb6d9a","cashierUid":"03367a4b-ca4b-4409-a800-3e2037038206","cashierName":"Paul Tarimo","branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","originalAmount":194500,"submittedAmount":1000,"remainingAmount":4500,"depositType":"BANK_DEPOSIT","bankName":"NMB","receiptNumber":"QA-MMILIKI","recipientUid":null,"recipientName":null,"status":"PENDING","rejectionReason":null,"submittedAt":"2026-10-13T20:51:40.533124024","confirmedByUid":null,"confirmedByName":null,"confirmedAt":null,"cancelledByUid":null,"cancelledByName":null,"ca
+
+IMEKUBALIWA: deposit 57030bfd-8823-4654-a7d8-1c7caf363a13 | aliyewasilisha "Paul Tarimo" | mmiliki "HAKUNA (backend ya zamani)" | kwa niaba: HAKUNA (backend ya zamani)
+  -> user wa kawaida: hili ni KOSA.   mwenye SAFEBOX_DEPOSIT_ON_BEHALF kwenye 2.2.70: SAWA kama mmiliki ni macheda na kwa niaba ni true.
+kufuta deposit ya jaribio -> HTTP 200 {"status":"Success","data":{"uid":"57030bfd-8823-4654-a7d8-1c7caf363a13","sourceReconUid":"6371a5d5-5c3d-44a2-ac9b-1e9513bc7559","cashEntryUid":"20e5e616-155f-40aa-a288-11617cfb6d9a","cashierUid":"033
+---MWENDESHO Wed 10/14/2026 13:22:29.15--- 
+BACKEND_VERSION=2.2.70
+node:internal/deps/undici/undici:13502
+      Error.captureStackTrace(err);
+            ^
+
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13502:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///D:/MY%20PROJECT/DUKA%20PROJECT/LsmsVersion3/lsmsFrontV3/analysis/steps/safebox-mmiliki-staging.mjs:8:13 {
+  [cause]: AggregateError [ECONNREFUSED]: 
+      at internalConnectMultiple (node:net:1139:18)
+      at afterConnectMultiple (node:net:1712:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [
+      Error: connect ECONNREFUSED ::1:8081
+          at createConnectionError (node:net:1675:14)
+          at afterConnectMultiple (node:net:1705:16) {
+        errno: -4078,
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '::1',
+        port: 8081
+      },
+      Error: connect ECONNREFUSED 127.0.0.1:8081
+          at createConnectionError (node:net:1675:14)
+          at afterConnectMultiple (node:net:1705:16) {
+        errno: -4078,
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '127.0.0.1',
+        port: 8081
+      }
+    ]
+  }
+}
+
+Node.js v22.13.1
+---MWENDESHO Wed 10/14/2026 13:24:24.79--- 
+BACKEND_VERSION=2.2.70
+user: tarimo@gmail.com
+token claims (bila siri): {"lastName":"Tarimo","branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","isRoot":false,"roles":["CEO","user"],"fullName":"Paul Tarimo","isAdmin":false,"isActive":true,"userId":"03367a4b-ca4b-4409-a800-3e2037038206","firstName":"Paul","canLogin":true,"emailVerified":true,"email":"tarimo@gmail.com","status":"ACTIVE","sub":"tarimo@gmail.com","iat":1791973468,"exp":1792059868}
+
+POST /api/v1/safe-box/deposit kwenye entry ya macheda -> HTTP 200
+{"status":"Success","data":{"uid":"6aa351f9-eb8b-4725-a3f3-008b73f0dfa5","sourceReconUid":"6371a5d5-5c3d-44a2-ac9b-1e9513bc7559","cashEntryUid":"20e5e616-155f-40aa-a288-11617cfb6d9a","cashierUid":"03367a4b-ca4b-4409-a800-3e2037038206","cashierName":"Paul Tarimo","ownerUid":"0d75927b-4aae-442d-9b5f-3a70d85f4bfd","ownerName":"macheda macheda","onBehalf":true,"branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","originalAmount":194500,"submittedAmount":1000,"remainingAmount":4500,"depositType":"BANK_DEPOSIT","bankName":"NMB","receiptNumber":"QA-MMILIKI","recipientUid":null,"recipientName":null,"status":"PENDING","rejectionReason":null,"submittedAt":"2026-10-14T13:24:30.075996026","confirmedByUid"
+
+IMEKUBALIWA: deposit 6aa351f9-eb8b-4725-a3f3-008b73f0dfa5 | aliyewasilisha "Paul Tarimo" | mmiliki "macheda macheda" | kwa niaba: true
+  -> user wa kawaida: hili ni KOSA.   mwenye SAFEBOX_DEPOSIT_ON_BEHALF kwenye 2.2.70: SAWA kama mmiliki ni macheda na kwa niaba ni true.
+kufuta deposit ya jaribio -> HTTP 200 {"status":"Success","data":{"uid":"6aa351f9-eb8b-4725-a3f3-008b73f0dfa5","sourceReconUid":"6371a5d5-5c3d-44a2-ac9b-1e9513bc7559","cashEntryUid":"20e5e616-155f-40aa-a288-11617cfb6d9a","cashierUid":"033
+---MWENDESHO Wed 10/14/2026 13:26:22.52--- 
+BACKEND_VERSION=2.2.70
+user: tarimo@gmail.com
+token claims (bila siri): {"lastName":"Tarimo","branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","isRoot":false,"roles":["CEO","user"],"fullName":"Paul Tarimo","isAdmin":false,"isActive":true,"userId":"03367a4b-ca4b-4409-a800-3e2037038206","firstName":"Paul","canLogin":true,"emailVerified":true,"email":"tarimo@gmail.com","status":"ACTIVE","sub":"tarimo@gmail.com","iat":1791973586,"exp":1792059986}
+
+POST /api/v1/safe-box/deposit kwenye entry ya macheda -> HTTP 200
+{"status":"Success","data":{"uid":"769bf3bf-0f87-4093-8110-c90e54e07fe6","sourceReconUid":"6371a5d5-5c3d-44a2-ac9b-1e9513bc7559","cashEntryUid":"20e5e616-155f-40aa-a288-11617cfb6d9a","cashierUid":"03367a4b-ca4b-4409-a800-3e2037038206","cashierName":"Paul Tarimo","ownerUid":"0d75927b-4aae-442d-9b5f-3a70d85f4bfd","ownerName":"macheda macheda","onBehalf":true,"branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","originalAmount":194500,"submittedAmount":1000,"remainingAmount":4500,"depositType":"BANK_DEPOSIT","bankName":"NMB","receiptNumber":"QA-MMILIKI","recipientUid":null,"recipientName":null,"status":"PENDING","rejectionReason":null,"submittedAt":"2026-10-14T13:26:26.920827067","confirmedByUid"
+
+IMEKUBALIWA: deposit 769bf3bf-0f87-4093-8110-c90e54e07fe6 | aliyewasilisha "Paul Tarimo" | mmiliki "macheda macheda" | kwa niaba: true
+  -> user wa kawaida: hili ni KOSA.   mwenye SAFEBOX_DEPOSIT_ON_BEHALF kwenye 2.2.70: SAWA kama mmiliki ni macheda na kwa niaba ni true.
+kufuta deposit ya jaribio -> HTTP 200 {"status":"Success","data":{"uid":"769bf3bf-0f87-4093-8110-c90e54e07fe6","sourceReconUid":"6371a5d5-5c3d-44a2-ac9b-1e9513bc7559","cashEntryUid":"20e5e616-155f-40aa-a288-11617cfb6d9a","cashierUid":"033
+---MWENDESHO 27b Wed 10/14/2026 13:29:40.82--- 
+BACKEND_VERSION=2.2.70
+LOGIN_IMESHINDWA 400 {
+  "status" : "Error",
+  "data" : {
+    "password" : "Password is required"
+  },
+  "message" : "Validation failed: 1 error(s) found",
+  "warnings" : null,
+  "errorCode" : null
+}
+---MWENDESHO 27b Wed 10/14/2026 13:30:11.52--- 
+BACKEND_VERSION=2.2.70
+user: jess@elikom.co.tz
+token claims (bila siri): {"lastName":"Saimon","branchUid":"350cfab7-3674-47f4-a707-d88cc102dcb3","isRoot":false,"roles":["Executive CEO","user"],"fullName":"Jess Saimon","isAdmin":false,"isActive":true,"userId":"6550ef8e-75b3-4a06-bd48-f3729ea119cf","firstName":"Jess","canLogin":true,"emailVerified":true,"email":"jess@elikom.co.tz","status":"ACTIVE","sub":"jess@elikom.co.tz","iat":1791975292,"exp":1792061692}
+27b: user wa KAWAIDA, roles: ["Executive CEO","user"]
+
+POST /api/v1/safe-box/deposit kwenye entry ya macheda -> HTTP 200
+{"status":"Error","data":null,"message":"Huwezi kuwasilisha deposit kwa pesa ya Safe Box ya mtumiaji mwingine.","warnings":null,"errorCode":null}
+
+IMEKATALIWA: Huwezi kuwasilisha deposit kwa pesa ya Safe Box ya mtumiaji mwingine.
+  -> user wa kawaida: SAWA.   mwenye SAFEBOX_DEPOSIT_ON_BEHALF kwenye 2.2.70: hili ni KOSA.
