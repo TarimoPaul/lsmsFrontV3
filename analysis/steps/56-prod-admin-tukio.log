@@ -1,0 +1,132 @@
+---MWENDESHO-56--- 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---USHAHIDI-KUSOMA-TU--- 
+SAA_56 2026-10-26 13:00:38 EAT
+TAREHE_YA_56 20261026
+KIPINDI 2026-10-21 15:13:12 -> 2026-10-26 09:20:46 EAT; IP ya mmiliki 41.59.106.20
+---A-LOG-YA-BACKEND-TANGU-22/10-19:07---
+time="2026-10-26T13:00:39+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+container ya backend ilianza: 2026-10-22T16:07:12.071466162Z (UTC)
+PENGO: log ya backend ya 21/10 15:13 -> 22/10 19:07 haipo (container ilibadilishwa 22/10 19:07, 45i) - haisomeki tena
+TAARIFA: backend haiandiki login ZILIZOFANIKIWA (AuthController.java:101-205 inaandika zilizoshindwa tu); maombi ya
+  controllers nyingi yanaandika authentication.getName() = email ya mtumiaji - hayo ndiyo yanayotafutwa hapa.
+mistari yote ya log: 1808
+mistari inayotaja admin@admin.com: 1
+49:2026-10-22 19:42:48 WARN  c.Lsms.uaa.Controller.AuthController - SECURITY: Failed login attempt. Email: admin@admin.com, IP: 172.18.0.3, Attempts: see LoginAttemptService
+ALAMA| a: admin@admin.com imetajwa mara 1 kwenye log ya backend (mistari iko juu)
+  'login': 1 (mistari isiyotaja admin@admin.com)
+  'authenticat': 0 (mistari isiyotaja admin@admin.com)
+  'BadCredential': 0 (mistari isiyotaja admin@admin.com)
+  'locked': 0 (mistari isiyotaja admin@admin.com)
+mistari hiyo (login|authenticat|BadCredential|locked, isiyotaja admin@admin.com), 400 ya kwanza:
+33:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Can login: true
+---B-NGINX-21/10-15:13-HADI-26/10-09:20---
+time="2026-10-26T13:00:40+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+container ya nginx ilianza: 2026-10-18T10:10:18.337700314Z (UTC)
+mistari ya nginx: 21678
+mstari wa kwanza: 162.158.248.138 - - [21/Oct/2026:12:13:15 +0000] "GET /api/v1/notifications/unread-count HTTP/1.1" 200 131 "https://elikom.co.tz/v3/users" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+mstari wa mwisho: 162.158.248.138 - - [26/Oct/2026:06:21:37 +0000] "GET /api/v1/notifications/unread-count HTTP/1.1" 200 133 "https://elikom.co.tz/v3/users" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+-- POST /api/auth/login kwa IP (idadi, HTTP) --
+  41.59.106.20 login 20: HTTP_400=1 HTTP_401=3 HTTP_200=16
+ALAMA| b: login kutoka IP 194.163.174.34 (si ya mmiliki) mara 8: HTTP_400=8
+ALAMA| b: login kutoka IP 172.18.0.1 (si ya mmiliki) mara 8: HTTP_400=8
+ALAMA| b: login kutoka IP 154.74.175.10 (si ya mmiliki) mara 5: HTTP_200=5
+ALAMA| b: login kutoka IP 154.74.176.19 (si ya mmiliki) mara 4: HTTP_200=4
+ALAMA| b: login kutoka IP 154.74.176.28 (si ya mmiliki) mara 3: HTTP_200=3
+ALAMA| b: login kutoka IP 2a02:c207:2362:5284::1 (si ya mmiliki) mara 2: HTTP_400=2
+ALAMA| b: login kutoka IP 154.74.176.5 (si ya mmiliki) mara 2: HTTP_200=2
+ALAMA| b: login kutoka IP 154.74.176.18 (si ya mmiliki) mara 2: HTTP_200=2
+ALAMA| b: login kutoka IP 51.158.202.198 (si ya mmiliki) mara 1: HTTP_200=1
+ALAMA| b: login kutoka IP 51.158.200.198 (si ya mmiliki) mara 1: HTTP_200=1
+ALAMA| b: login kutoka IP 41.59.11.110 (si ya mmiliki) mara 1: HTTP_200=1
+ALAMA| b: login kutoka IP 154.74.176.21 (si ya mmiliki) mara 1: HTTP_200=1
+ALAMA| b: login kutoka IP 154.74.176.11 (si ya mmiliki) mara 1: HTTP_200=1
+ALAMA| b: login kutoka IP 154.74.175.25 (si ya mmiliki) mara 1: HTTP_200=1
+  jumla ya login: 60
+-- maombi ya kuandika kwenye users/roles/permissions/settings/gl periods/gl corrections/capital --
+  2026-10-22 18:08:02 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  2026-10-22 18:18:17 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  2026-10-22 18:26:55 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  2026-10-22 18:32:45 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  2026-10-22 18:32:48 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/8647280d-2035-49f7-8bb4-8742ded74b8f HTTP_200
+  2026-10-22 18:32:52 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/9013c686-1d70-42ec-b816-2be1805dd043 HTTP_200
+  2026-10-22 18:32:54 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/0cd8f381-057e-440c-8d08-b33117794463 HTTP_200
+  2026-10-22 18:32:57 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/cf13c6bf-6ecc-4e35-ada2-ccae9cd3c03c HTTP_200
+  2026-10-22 18:32:59 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/2b10497b-7557-4ace-a353-c61c443d84e2 HTTP_200
+  2026-10-22 18:33:00 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/1f7b8213-f8fb-42f3-bdc3-5b1c95990957 HTTP_200
+  2026-10-22 18:33:16 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  2026-10-22 18:33:18 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  2026-10-22 19:00:40 41.59.106.20 POST /api/v1/gl/periods/2026/1/close HTTP_200
+  2026-10-22 19:00:40 41.59.106.20 POST /api/v1/gl/periods/2026/2/close HTTP_200
+  2026-10-22 19:00:41 41.59.106.20 POST /api/v1/gl/periods/2026/3/close HTTP_200
+  2026-10-22 19:00:41 41.59.106.20 POST /api/v1/gl/periods/2026/4/close HTTP_200
+  2026-10-22 19:00:42 41.59.106.20 POST /api/v1/gl/periods/2026/5/close HTTP_200
+  2026-10-22 19:00:42 41.59.106.20 POST /api/v1/gl/periods/2026/6/close HTTP_200
+  2026-10-22 19:00:43 41.59.106.20 POST /api/v1/gl/periods/2026/7/close HTTP_200
+  2026-10-22 19:00:43 41.59.106.20 POST /api/v1/gl/periods/2026/8/close HTTP_200
+  2026-10-22 19:00:44 41.59.106.20 POST /api/v1/gl/periods/2026/9/close HTTP_200
+  2026-10-26 09:20:47 41.59.106.20 PUT /api/users/5e0e9b5c-863c-4719-a196-947f98f0819c/status HTTP_200
+  jumla ya maombi ya kuandika: 22
+---C-DB-KUSOMA-TU---
+time="2026-10-26T13:00:44+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+READ_ONLY|on
+ADMIN_SASA|INACTIVE|is_root true|updated_at 2026-10-26 09:20:46.988557
+JEDWALI_LILILOKAGULIWA|business_settings|created_at,updated_at
+JEDWALI_LILILOKAGULIWA|permission_config|created_at,updated_at
+JEDWALI_LILILOKAGULIWA|permissions|created_at,updated_at
+JEDWALI_LILILOKAGULIWA|roles|created_at,updated_at
+JEDWALI_LILILOKAGULIWA|settings_approvals|created_at,updated_at
+JEDWALI_LILILOKAGULIWA|users|created_at,updated_at
+HALINA_SAA|role_permissions
+HALINA_SAA|user_roles
+HALINA_SAA|settings
+HALINA_SAA|user_branches
+safu zilizobadilika ndani ya kipindi: 0
+---E-DUMP-YA-45A-21/10-11:53-DHIDI-YA-PROD-SASA (kusoma tu)---
+dump: /home/chief/backups/daily/lsms_20261021_1153.dump, sha256 sawa na 45a
+time="2026-10-26T13:00:45+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  user_roles: dump 17 | prod 17 | zimeongezwa 0 | zimeondolewa 0 | zimebadilika 0 (ufunguo = safu ya kwanza: user_uid)
+time="2026-10-26T13:00:47+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  role_permissions: dump 637 | prod 638 | zimeongezwa 1 | zimeondolewa 0 | zimebadilika 1 (ufunguo = safu ya kwanza: role_uid)
+ALAMA| e: role_permissions: tofauti na dump ya 21/10 11:53 - zimeongezwa 1, zimeondolewa 0, zimebadilika 1 (mistari iko juu)
+    safu: role_uid, permission_uid
+    - kabla  72a69af7-1377-4f01-a52d-cbce3c06b029|c4cd5cc6-312d-4a4b-9aea-cc1aeb0c9d76
+    + sasa   72a69af7-1377-4f01-a52d-cbce3c06b029|5503a8cd-2739-44a1-9c8f-6943a260bd0d
+    + sasa   72a69af7-1377-4f01-a52d-cbce3c06b029|aab047bd-d829-4e7f-aed8-cc3b192b1a79
+time="2026-10-26T13:00:49+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  user_branches: dump 9 | prod 9 | zimeongezwa 0 | zimeondolewa 0 | zimebadilika 0 (ufunguo = safu ya kwanza: user_uid)
+time="2026-10-26T13:00:52+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  permission_config: dump 0 | prod 0 | zimeongezwa 0 | zimeondolewa 0 | zimebadilika 0 (ufunguo = safu ya kwanza: uid)
+time="2026-10-26T13:00:54+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  roles: dump 7 | prod 7 | zimeongezwa 0 | zimeondolewa 0 | zimebadilika 0 (ufunguo = safu ya kwanza: uid)
+time="2026-10-26T13:00:56+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  settings: halipo kwenye dump wala prod
+time="2026-10-26T13:00:58+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  business_settings: dump 1 | prod 1 | zimeongezwa 0 | zimeondolewa 0 | zimebadilika 0 (ufunguo = safu ya kwanza: uid)
+majedwali yasiyo na tofauti: 5; yenye tofauti: 1
+---D-HITIMISHO---
+ALAMA_JUMLA 16
+  ALAMA| a: admin@admin.com imetajwa mara 1 kwenye log ya backend (mistari iko juu)
+  ALAMA| b: login kutoka IP 194.163.174.34 (si ya mmiliki) mara 8: HTTP_400=8
+  ALAMA| b: login kutoka IP 172.18.0.1 (si ya mmiliki) mara 8: HTTP_400=8
+  ALAMA| b: login kutoka IP 154.74.175.10 (si ya mmiliki) mara 5: HTTP_200=5
+  ALAMA| b: login kutoka IP 154.74.176.19 (si ya mmiliki) mara 4: HTTP_200=4
+  ALAMA| b: login kutoka IP 154.74.176.28 (si ya mmiliki) mara 3: HTTP_200=3
+  ALAMA| b: login kutoka IP 2a02:c207:2362:5284::1 (si ya mmiliki) mara 2: HTTP_400=2
+  ALAMA| b: login kutoka IP 154.74.176.5 (si ya mmiliki) mara 2: HTTP_200=2
+  ALAMA| b: login kutoka IP 154.74.176.18 (si ya mmiliki) mara 2: HTTP_200=2
+  ALAMA| b: login kutoka IP 51.158.202.198 (si ya mmiliki) mara 1: HTTP_200=1
+  ALAMA| b: login kutoka IP 51.158.200.198 (si ya mmiliki) mara 1: HTTP_200=1
+  ALAMA| b: login kutoka IP 41.59.11.110 (si ya mmiliki) mara 1: HTTP_200=1
+  ALAMA| b: login kutoka IP 154.74.176.21 (si ya mmiliki) mara 1: HTTP_200=1
+  ALAMA| b: login kutoka IP 154.74.176.11 (si ya mmiliki) mara 1: HTTP_200=1
+  ALAMA| b: login kutoka IP 154.74.175.25 (si ya mmiliki) mara 1: HTTP_200=1
+  ALAMA| e: role_permissions: tofauti na dump ya 21/10 11:53 - zimeongezwa 1, zimeondolewa 0, zimebadilika 1 (mistari iko juu)
+HITIMISHO ORODHA
+---USHAHIDI_56_UMEKAMILIKA---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

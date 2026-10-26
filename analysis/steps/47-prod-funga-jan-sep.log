@@ -1,0 +1,179 @@
+---MWENDESHO-47--- 
+KIBALI_DIRISHA JIONI - LSMS_DIRISHA ni [JIONI-20261022], jibu [jioni], saa 2026-10-22 1858 EAT
+saa ya Tanzania 1858 - dirisha JIONI - mwisho wa asubuhi 1100, mwisho wa jioni ya 2026-10-22 2100 
+PROD_API=https://elikom.co.tz 
+email iliyoandikwa: tarimo@gmail.com 
+---KICHUJIO-KWENDA-CONTABO--- 
+[exit 0] 
+SAA_YA_SERVER_KUANZA kutoka 46a: 1792682259 
+---KINGA-SCRIPT-KWENDA-CONTABO--- 
+[exit 0] 
+---MAANDISHI-TANGU-46A-LAZIMA-0--- 
+SAA_YA_SERVER_KUANZA 1792684779
+msingi (dump ya 45a au kuanza kwa 46a): 2026-10-22 18:17:39 EAT; freeze: 2026-10-22 18:17:39 EAT; sasa: 18:59:39 EAT
+service zinazoendesha: backend frontend frontend-v3 nginx postgres | zenye nginx: frontend frontend-v3 nginx
+ombi la majaribio - jaribio 1 ya 3
+  majaribio public: HTTP_400
+  majaribio origin80: HTTP_400
+  majaribio origin443: HTTP_000
+  alama ya public IMEONEKANA kwenye stdout:nginx
+  alama ya origin80 IMEONEKANA kwenye stdout:nginx
+chanzo cha log: stdout:nginx (ombi la public)
+mstari wa majaribio: 172.70.248.138 - - [22/Oct/2026:15:59:42 +0000] "POST /api/auth/login?lsms18probe=1792684782153public HTTP/1.1" 400 224 "-" "lsms-18-probe-public" "194.163.174.34"
+User-Agent kwenye log: NDIYO
+container ya stdout:nginx ilianza: 2026-10-18T10:10:18.337700314Z
+--- MAOMBI-YA-KUANDIKA-TANGU-DUMP (18:17:39 EAT) ---
+maombi ya kuandika tangu dump: 0 (ya hatua za 1.8 zenyewe, hayahesabiwi: 13; ya kujiendesha kwenye RUHUSA, hayahesabiwi: 0)
+  HATUA18 18:18:17 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:26:55 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:32:45 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:32:48 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/8647280d-2035-49f7-8bb4-8742ded74b8f HTTP_200
+  HATUA18 18:32:52 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/9013c686-1d70-42ec-b816-2be1805dd043 HTTP_200
+  HATUA18 18:32:54 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/0cd8f381-057e-440c-8d08-b33117794463 HTTP_200
+  HATUA18 18:32:57 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/cf13c6bf-6ecc-4e35-ada2-ccae9cd3c03c HTTP_200
+  HATUA18 18:32:59 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/2b10497b-7557-4ace-a353-c61c443d84e2 HTTP_200
+  HATUA18 18:33:00 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/1f7b8213-f8fb-42f3-bdc3-5b1c95990957 HTTP_200
+  HATUA18 18:33:16 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:33:18 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:38:50 41.59.106.20 POST /api/v1/gl/journal-entries/manual HTTP_200
+  HATUA18 18:38:50 41.59.106.20 POST /api/v1/gl/journal-entries/manual HTTP_200
+--- TAARIFA: MAOMBI YOTE TANGU FREEZE (18:17 EAT) - si kinga ---
+kwa METHOD:
+      135 GET
+       19 POST
+        2 OPTIONS
+        1 CONNECT
+kwa IP (maombi, ya mwisho EAT, METHOD):
+  140 41.59.106.20 mwisho 18:38:53 GET=122 POST=18
+  10 64.226.106.40 mwisho 18:49:59 GET=7 OPTIONS=2 POST=1
+  2 159.89.13.98 mwisho 18:50:00 GET=2
+  1 49.51.204.74 mwisho 18:21:11 GET=1
+  1 45.198.224.125 mwisho 18:40:12 GET=1
+  1 43.163.80.48 mwisho 18:17:41 GET=1
+  1 172.239.96.189 mwisho 18:46:25 GET=1
+  1 146.19.248.35 mwisho 18:19:09 CONNECT=1
+kwa njia (METHOD njia, 15 za juu):
+       64 GET /api/v1/gl/journal-entries
+       35 GET /api/v1/gl/trial-balance
+        9 GET /
+        6 POST /api/v1/gl/corrections/repost-sale/UID
+        5 POST /api/v1/gl/corrections/day-close-variance
+        5 POST /api/auth/login
+        4 GET /api/v1/reconciliation/snapshots
+        4 GET /api/v1/gl/posting-failures
+        3 GET /api/v1/notifications/unread-count
+        2 POST /api/v1/gl/journal-entries/manual
+        2 OPTIONS /
+        2 GET /v3/version.json
+        2 GET /odinhttpcall1792684195
+        2 GET /api/v1/safe-box/pending
+        2 GET /api/v1/safe-box/outstanding
+NGINX_LOG_INAFANYA_KAZI
+MAANDISHI_TANGU_DUMP_HAKUNA
+MAANDISHI_TANGU_FREEZE_HAKUNA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KAGUA-HAIANDIKI--- 
+MTUMIAJI tarimo@gmail.com | roles: CEO,user | isRoot: false | FINANCE_WRITE: true | prod https://elikom.co.tz
+PASS miezi-iko-wazi: Jan-Sep 2026 zote OPEN (au hazina safu)
+PASS M-7-ipo: journals za M-7 2 (lazima 2: 04/10 na 30/09): 2026-10-04 JE-2026-365319160506838, 2026-09-30 JE-2026-365319467819703
+PASS makosa-wazi: posting-failures openCount=0
+PASS TB-30/09: TB hadi 30/09 Dr 255,252,458.5 Cr 255,252,458.5
+  salio 30/09: 1000 17,484,460.55; 1100 1,754,000; 2000 0; 2900 -742,500; 3000 -10,598,755; 6700 117,350
+PASS 2000-30/09: 2000 ya 30/09 = 0 (lazima 0 baada ya M-7)
+PASS salio-30/09-sawa-na-mazoezi: salio 6 za 30/09 na TB sawa na mazoezi
+MUHTASARI funga kagua (prod): PASS 6, FAIL 0, SKIP 0
+[exit 0] 
+mmiliki ameandika: andika 
+SAA_YA_SERVER_KUANZA kutoka 46a: 1792682259 
+---KINGA-SCRIPT-KWENDA-CONTABO--- 
+[exit 0] 
+---MAANDISHI-TANGU-46A-LAZIMA-0--- 
+SAA_YA_SERVER_KUANZA 1792684819
+msingi (dump ya 45a au kuanza kwa 46a): 2026-10-22 18:17:39 EAT; freeze: 2026-10-22 18:17:39 EAT; sasa: 19:00:19 EAT
+service zinazoendesha: backend frontend frontend-v3 nginx postgres | zenye nginx: frontend frontend-v3 nginx
+ombi la majaribio - jaribio 1 ya 3
+  majaribio public: HTTP_400
+  majaribio origin80: HTTP_400
+  majaribio origin443: HTTP_000
+  alama ya public IMEONEKANA kwenye stdout:nginx
+  alama ya origin80 IMEONEKANA kwenye stdout:nginx
+chanzo cha log: stdout:nginx (ombi la public)
+mstari wa majaribio: 172.70.240.134 - - [22/Oct/2026:16:00:23 +0000] "POST /api/auth/login?lsms18probe=179268482226846public HTTP/1.1" 400 224 "-" "lsms-18-probe-public" "194.163.174.34"
+User-Agent kwenye log: NDIYO
+container ya stdout:nginx ilianza: 2026-10-18T10:10:18.337700314Z
+--- MAOMBI-YA-KUANDIKA-TANGU-DUMP (18:17:39 EAT) ---
+maombi ya kuandika tangu dump: 0 (ya hatua za 1.8 zenyewe, hayahesabiwi: 13; ya kujiendesha kwenye RUHUSA, hayahesabiwi: 0)
+  HATUA18 18:18:17 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:26:55 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:32:45 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:32:48 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/8647280d-2035-49f7-8bb4-8742ded74b8f HTTP_200
+  HATUA18 18:32:52 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/9013c686-1d70-42ec-b816-2be1805dd043 HTTP_200
+  HATUA18 18:32:54 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/0cd8f381-057e-440c-8d08-b33117794463 HTTP_200
+  HATUA18 18:32:57 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/cf13c6bf-6ecc-4e35-ada2-ccae9cd3c03c HTTP_200
+  HATUA18 18:32:59 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/2b10497b-7557-4ace-a353-c61c443d84e2 HTTP_200
+  HATUA18 18:33:00 41.59.106.20 POST /api/v1/gl/corrections/repost-sale/1f7b8213-f8fb-42f3-bdc3-5b1c95990957 HTTP_200
+  HATUA18 18:33:16 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:33:18 41.59.106.20 POST /api/v1/gl/corrections/day-close-variance HTTP_200
+  HATUA18 18:38:50 41.59.106.20 POST /api/v1/gl/journal-entries/manual HTTP_200
+  HATUA18 18:38:50 41.59.106.20 POST /api/v1/gl/journal-entries/manual HTTP_200
+--- TAARIFA: MAOMBI YOTE TANGU FREEZE (18:17 EAT) - si kinga ---
+kwa METHOD:
+      146 GET
+       20 POST
+        2 OPTIONS
+        1 CONNECT
+kwa IP (maombi, ya mwisho EAT, METHOD):
+  152 41.59.106.20 mwisho 18:59:59 GET=133 POST=19
+  10 64.226.106.40 mwisho 18:49:59 GET=7 OPTIONS=2 POST=1
+  2 159.89.13.98 mwisho 18:50:00 GET=2
+  1 49.51.204.74 mwisho 18:21:11 GET=1
+  1 45.198.224.125 mwisho 18:40:12 GET=1
+  1 43.163.80.48 mwisho 18:17:41 GET=1
+  1 172.239.96.189 mwisho 18:46:25 GET=1
+  1 146.19.248.35 mwisho 18:19:09 CONNECT=1
+kwa njia (METHOD njia, 15 za juu):
+       66 GET /api/v1/gl/journal-entries
+       42 GET /api/v1/gl/trial-balance
+        9 GET /
+        6 POST /api/v1/gl/corrections/repost-sale/UID
+        6 POST /api/auth/login
+        5 POST /api/v1/gl/corrections/day-close-variance
+        5 GET /api/v1/gl/posting-failures
+        4 GET /api/v1/reconciliation/snapshots
+        3 GET /api/v1/notifications/unread-count
+        3 GET /api/v1/gl/periods
+        2 POST /api/v1/gl/journal-entries/manual
+        2 OPTIONS /
+        2 GET /v3/version.json
+        2 GET /odinhttpcall1792684195
+        2 GET /api/v1/safe-box/pending
+NGINX_LOG_INAFANYA_KAZI
+MAANDISHI_TANGU_DUMP_HAKUNA
+MAANDISHI_TANGU_FREEZE_HAKUNA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---ANDIKA--- 
+MTUMIAJI tarimo@gmail.com | roles: CEO,user | isRoot: false | FINANCE_WRITE: true | prod https://elikom.co.tz
+PASS miezi-iko-wazi: Jan-Sep 2026 zote OPEN (au hazina safu)
+PASS M-7-ipo: journals za M-7 2 (lazima 2: 04/10 na 30/09): 2026-10-04 JE-2026-365319160506838, 2026-09-30 JE-2026-365319467819703
+PASS makosa-wazi: posting-failures openCount=0
+PASS TB-30/09: TB hadi 30/09 Dr 255,252,458.5 Cr 255,252,458.5
+  salio 30/09: 1000 17,484,460.55; 1100 1,754,000; 2000 0; 2900 -742,500; 3000 -10,598,755; 6700 117,350
+PASS 2000-30/09: 2000 ya 30/09 = 0 (lazima 0 baada ya M-7)
+PASS salio-30/09-sawa-na-mazoezi: salio 6 za 30/09 na TB sawa na mazoezi
+PASS funga-2026-01: CLOSED
+PASS funga-2026-02: CLOSED
+PASS funga-2026-03: CLOSED
+PASS funga-2026-04: CLOSED
+PASS funga-2026-05: CLOSED
+PASS funga-2026-06: CLOSED
+PASS funga-2026-07: CLOSED
+PASS funga-2026-08: CLOSED
+PASS funga-2026-09: CLOSED
+PASS miezi-9-imefungwa: Jan-Sep CLOSED: 9/9
+PASS salio-hazijabadilika: kufunga hakukubadilisha salio za 30/09
+MUHTASARI funga andika (prod): PASS 17, FAIL 0, SKIP 0
+[exit 0] 
+TAREHE_YA_47 20261022
+---OK--- 

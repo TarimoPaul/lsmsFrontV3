@@ -41,7 +41,17 @@ const me = await login(ROOT, process.env.ROOT_PASS, { allowRoot: true });
 check('(a)-mpya-inaingia', me.isRoot === true, `${ROOT} ameingia kwa password mpya; isRoot ${me.isRoot}`);
 if (MODE === 'b2' || MODE === 'd') {
   const ad = await user(ADMIN);
-  check('(b2)-admin-INACTIVE', !!ad && ad.status === 'INACTIVE', ad ? `${ADMIN}: status ${ad.status} (lazima INACTIVE)` : `${ADMIN} haikupatikana kwenye /api/users`);
+  if (MODE === 'b2') {
+    check('(b2)-admin-INACTIVE', !!ad && ad.status === 'INACTIVE', ad ? `${ADMIN}: status ${ad.status} (lazima INACTIVE)` : `${ADMIN} haikupatikana kwenye /api/users`);
+  } else {
+    // Mmiliki 21/10 14:xx: boot (DataInitializer, root.email) inaweza kuiwasha admin@admin.com tena baada ya restart. Kwa leo kinga ni
+    // password: login ya admin@admin.com kwa Root@123 lazima 401 (jaribio 1 tu - LoginAttemptService inafunga baada ya 5).
+    // Status ACTIVE baada ya restart = TAHADHARI (hotfix 2.2.72), si FAIL; is_root inaonyeshwa na 45g kutoka dump ya 45a.
+    const r = await fetch(`${API}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': 'lsms-18/45-root-ukaguzi.mjs' }, body: JSON.stringify({ email: ADMIN, password: 'Root@123' }) });
+    check('(d)-admin-Root@123-inakataliwa', r.status === 401, `login ya ${ADMIN} kwa Root@123: HTTP ${r.status} (lazima 401${r.status === 429 ? '; 429 = imefungwa kwa makosa 5 - haithibitishi password' : ''})`);
+    console.log(`  ${ADMIN}: status ${ad?.status ?? 'HAIKUPATIKANA'} baada ya restart`);
+    if (ad?.status !== 'INACTIVE') console.log(`TAHADHARI admin@admin.com ni ${ad?.status ?? '?'} baada ya restart - boot ya backend inaiwasha (root.email); password imebadilishwa, hotfix 2.2.72 inahitajika`);
+  }
   const c = await fw(CEO), e = await fw(EXEC_CEO);
   console.log(`  ${CEO}: ${short(c)} | ${EXEC_CEO}: ${short(e)}`);
   if (MODE === 'd') {

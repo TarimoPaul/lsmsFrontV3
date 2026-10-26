@@ -1,0 +1,36 @@
+---MWENDESHO-45k--- 
+---KICHUJIO-KWENDA-CONTABO--- 
+[exit 0] 
+---SCRIPT-KWENDA-CONTABO--- 
+[exit 0] 
+---NGINX-06-0830-NA-STAGING-ROOT-EMAIL--- 
+nginx: 2026-10-21T03:00:00Z hadi 2026-10-21T05:30:00Z (06:00-08:30 EAT)
+mistari: 1089
+--- MAOMBI YA KUANDIKA 06:00-08:30 EAT (kwa endpoint; saa ni UTC: 03h=06, 04h=07, 05h=08 EAT) ---
+  123 PUT /api/v1/counting/sessions/UID/lines                    IP 1, muda wa kati 5s, 04h=0 05h=123, UA Mozilla/N (Linux; Android 10; K) AppleWe
+    5 POST /api/v1/sales/pre-validate                            IP 1, muda wa kati 452s, 04h=3 05h=2, UA Mozilla/N (Windows NT N; Win64; x64) App
+    5 POST /api/v1/sales/partial                                 IP 1, muda wa kati 451s, 04h=3 05h=2, UA Mozilla/N (Windows NT N; Win64; x64) App
+    5 POST /api/v1/reconciliation/UID/expense                    IP 1, muda wa kati 28s, 04h=5 05h=0, UA Mozilla/N (Windows NT N; Win64; x64) App
+    4 POST /api/v1/reconciliation/UID/refresh                    IP 1, muda wa kati 1067s, 04h=3 05h=1, UA Mozilla/N (Windows NT N; Win64; x64) App
+    3 POST /api/v1/sales/bulk-delete                             IP 1, muda wa kati 375s, 04h=2 05h=1, UA Mozilla/N (Windows NT N; Win64; x64) App
+    1 POST /api/v1/reconciliation/UID/purchase                   IP 1, muda wa kati -s, 04h=1 05h=0, UA Mozilla/N (Windows NT N; Win64; x64) App
+    1 POST /api/v1/purchases/repurchase/bulk                     IP 1, muda wa kati -s, 04h=1 05h=0, UA Mozilla/N (Linux; Android 10; K) AppleWe
+    1 POST /api/v1/purchases/bulk/receive                        IP 1, muda wa kati -s, 04h=1 05h=0, UA Mozilla/N (Linux; Android 10; K) AppleWe
+    1 POST /api/v1/purchases/bulk/approve                        IP 1, muda wa kati -s, 04h=1 05h=0, UA Mozilla/N (Linux; Android 10; K) AppleWe
+    1 POST /api/v1/invoices                                      IP 1, muda wa kati -s, 04h=1 05h=0, UA Mozilla/N (Linux; Android 10; K) AppleWe
+    1 POST /api/v1/counting/sessions                             IP 1, muda wa kati -s, 04h=0 05h=1, UA Mozilla/N (Linux; Android 10; K) AppleWe
+    1 DELETE /api/v1/reconciliation/UID/expense/UID              IP 1, muda wa kati -s, 04h=1 05h=0, UA Mozilla/N (Windows NT N; Win64; x64) App
+--- WAGOMBEA WA KUJIENDESHA (>= 6 kwa saa 2.5, kila saa, IP 1-2) ---
+--- login / refresh (hayahesabiwi tayari) ---
+  login: 0
+  refresh: 0
+--- STAGING: ROOT_EMAIL (kusoma tu) ---
+  .env ya staging: mistari ROOT_EMAIL 1, ROOT_PASSWORD 1
+  thamani ya .env ya staging: [admin@admin.com]
+  ROOT_EMAIL_YA_BACKEND_YA_STAGING [admin@admin.com]
+---OK---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

@@ -1,0 +1,114 @@
+---MWENDESHO-53--- 
+---KICHUJIO-KWENDA-CONTABO--- 
+[exit 0] 
+---SCRIPT-KWENDA-CONTABO--- 
+[exit 0] 
+---USHAHIDI-KUSOMA-TU--- 
+---1-LOG-YA-BOOT-YA-BACKEND-19:06:30-19:12---
+time="2026-10-22T19:42:45+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+container /lsms-deployment-backend-1 ilianza 2026-10-22T16:07:12.071466162Z (UTC) image chiefmaster/my-lsms-backend:2.2.71 restarts 0
+mistari yote ya log ya kipindi hicho: 49
+mistari inayolingana (DataInitializer|Runner|Initializer|root|admin|user|status|ACTIVE), namba ya mstari kwanza:
+1:time="2026-10-22T19:42:45+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+12:2026-10-22 19:07:17 INFO  com.Lsms.LsmsApplication - The following 2 profiles are active: "prod", "pro"
+16:2026-10-22 19:07:30 WARN  o.f.core.internal.command.DbMigrate - outOfOrder mode is active. Migration of schema "public" may not be reproducible.
+23:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ Permissions up-to-date (225 total, none added)
+24:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ Role-permission seeding: no empty roles to seed (1 configured role(s) preserved)
+25:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user already configured correctly
+26:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - 📊 System State:
+27:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Permissions: 225
+28:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Roles: 7 (created by ROOT user)
+29:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Users: 9
+30:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user validation:
+31:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Email: root@system.com
+32:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    isRoot flag: true
+33:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Status: ACTIVE
+34:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Can login: true
+35:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ System initialization complete
+36:2026-10-22 19:08:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user can now create roles via UI/API
+37:2026-10-22 19:08:13 INFO  c.L.Branch.BranchBackfillInitializer - Branch backfill complete (main=350cfab7-3674-47f4-a707-d88cc102dcb3): sales+0, reconciliations+0, memberships+0
+38:2026-10-22 19:08:14 INFO  c.L.R.S.PermissionIntegrityChecker - Permission integrity check passed. All 206 expected permissions present.
+39:2026-10-22 19:08:14 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_daily_sales_summary already exists
+40:2026-10-22 19:08:14 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_hourly_sales_summary already exists
+41:2026-10-22 19:08:14 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_monthly_sales_summary already exists
+42:2026-10-22 19:08:14 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_top_products_summary already exists
+43:2026-10-22 19:08:14 INFO  c.L.M.MaterializedViewInitializer - All materialized views created/verified successfully
+49:2026-10-22 19:08:24 INFO  com.Lsms.uaa.config.AuthTokenFilter - ROOT authorities cache refreshed with 459 authorities
+---2-DB-KUSOMA-TU---
+time="2026-10-22T19:42:45+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+READ_ONLY|on
+SAA_YA_DB|2026-10-22 19:42:45.884402+03
+USER|admin@admin.com|{"id": 9, "uid": "5e0e9b5c-863c-4719-a196-947f98f0819c", "email": "admin@admin.com", "gender": null, "status": "ACTIVE", "is_root": true, "is_admin": false, "is_active": true, "is_locked": false, "last_name": "Root", "created_at": "2026-06-25T21:40:58.098691", "deleted_at": null, "deleted_by": null, "first_name": "System", "is_deleted": false, "updated_at": "2026-10-21T15:13:12.896408", "updated_by": null, "phone_number": null, "last_login_at": null, "email_verified": true, "profile_image_url": null}
+USER|root@system.com|{"id": 1, "uid": "3359308f-8b7b-464c-8bee-3dfdc8b5a66e", "email": "root@system.com", "gender": null, "status": "ACTIVE", "is_root": true, "is_admin": false, "is_active": true, "is_locked": false, "last_name": "Root", "created_at": "2026-02-05T06:34:15.8056", "deleted_at": null, "deleted_by": null, "first_name": "System", "is_deleted": false, "updated_at": "2026-10-20T16:04:39.453634", "updated_by": null, "phone_number": null, "last_login_at": null, "email_verified": true, "profile_image_url": null}
+ROLES|admin@admin.com|-
+ROLES|root@system.com|-
+JEDWALI|asset_count_session
+JEDWALI|audit_trails
+JEDWALI|counting_session
+JEDWALI|customer_audit_log
+JEDWALI|flyway_schema_history
+JEDWALI|gl_period_audit
+JEDWALI|item_measure_audit_log
+JEDWALI|password_reset_tokens
+JEDWALI|price_history
+JEDWALI|reconciliation_audit_log
+JEDWALI|staff_liability_deduction_log
+MAREJEO|asset_count_session|0|mwisho -
+MAREJEO|audit_trails|0|mwisho -
+MAREJEO|counting_session|0|mwisho -
+MAREJEO|customer_audit_log|0|mwisho -
+MAREJEO|flyway_schema_history|0|mwisho -
+MAREJEO|gl_period_audit|0|mwisho -
+MAREJEO|item_measure_audit_log|0|mwisho -
+MAREJEO|password_reset_tokens|0|mwisho -
+MAREJEO|price_history|0|mwisho -
+MAREJEO|reconciliation_audit_log|0|mwisho -
+MAREJEO|staff_liability_deduction_log|0|mwisho -
+---3-COMPOSE-NA-MAJINA-YA-VARIABLES (majina tu, si thamani)---
+faili docker-compose.aws.yml: marejeo ya ROOT_EMAIL / ROOT_PASSWORD kwa service
+  service (nje ya services) mstari 38: ROOT_EMAIL ROOT_EMAIL
+  service (nje ya services) mstari 39: ROOT_PASSWORD ROOT_PASSWORD
+faili docker-compose.aws.yml: majina yanayolingana na ADMIN|DEFAULT|SEED|INIT|ROOT|BOOTSTRAP|SUPER|DATA_INITIALI
+  ADMIN_EMAIL
+  ADMIN_PASSWORD
+  ROOT_EMAIL
+  ROOT_PASSWORD
+faili docker-compose.override.yml: marejeo ya ROOT_EMAIL / ROOT_PASSWORD kwa service
+faili docker-compose.override.yml: majina yanayolingana na ADMIN|DEFAULT|SEED|INIT|ROOT|BOOTSTRAP|SUPER|DATA_INITIALI
+faili docker-compose.yml: marejeo ya ROOT_EMAIL / ROOT_PASSWORD kwa service
+  service (nje ya services) mstari 37: ROOT_EMAIL ROOT_EMAIL
+  service (nje ya services) mstari 38: ROOT_PASSWORD ROOT_PASSWORD
+faili docker-compose.yml: majina yanayolingana na ADMIN|DEFAULT|SEED|INIT|ROOT|BOOTSTRAP|SUPER|DATA_INITIALI
+  ADMIN_EMAIL
+  ADMIN_PASSWORD
+  ROOT_EMAIL
+  ROOT_PASSWORD
+.env: majina yanayolingana
+  ADMIN_EMAIL
+  ADMIN_PASSWORD
+  ROOT_EMAIL
+backend (mazingira ya container): majina yanayolingana na SPRING_*
+time="2026-10-22T19:42:46+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+  ADMIN_EMAIL
+  ADMIN_PASSWORD
+  ROOT_EMAIL
+  ROOT_PASSWORD
+  SPRING_DATASOURCE_PASSWORD
+  SPRING_DATASOURCE_URL
+  SPRING_DATASOURCE_USERNAME
+  SPRING_FLYWAY_ENABLED
+  SPRING_PROFILES_ACTIVE
+---4-NGINX-TANGU-2026-10-21-15:00: MAOMBI YA KUANDIKA KWENYE /api/users (saa ya nginx ni UTC; EAT = UTC+3)---
+  21/Oct/2026:12:10:32 162.158.248.138 PUT /api/users/5e0e9b5c-863c-4719-a196-947f98f0819c/status?status=INACTIVE HTTP_200
+(mwisho wa orodha ya /api/users)
+---USHAHIDI_53_UMEKAMILIKA---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+PROD_API=https://elikom.co.tz 
+---LOGIN-ZA-ADMIN-LAZIMA-401--- 
+PASS admin-login-a: admin@admin.com (a) Root@123: HTTP 401 (lazima 401) 
+FAIL admin-login-b: admin@admin.com (b) password tupu: HTTP 400 (lazima 401) Validation failed: 1 error(s) found
+MUHTASARI 53 admin login (prod): PASS 1, FAIL 1, SKIP 0
+[exit 1] 
+---IMESHINDWA-KWENYE: LOGIN-ZA-ADMIN-SI-401 (exit 1)--- 
+---IMESHINDWA--- 

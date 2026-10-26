@@ -69,6 +69,37 @@ export async function bal(code, end) {
   const l = (t.data?.lines ?? []).find((x) => x.accountCode === code);
   return l ? Number(l.debitBalance ?? 0) - Number(l.creditBalance ?? 0) : 0;
 }
+// TB NZIMA (mmiliki 21/10): { akaunti: Dr - Cr } tangu 2025-01-01 hadi tarehe; null ikishindwa kusomwa.
+export async function tbAll(end) {
+  const t = await call('GET', `/api/v1/gl/trial-balance?startDate=2025-01-01&endDate=${end}`);
+  if (!t.ok || !Array.isArray(t.data?.lines)) return null;
+  const m = {};
+  for (const l of t.data.lines) m[l.accountCode] = Math.round(((m[l.accountCode] ?? 0) + Number(l.debitBalance ?? 0) - Number(l.creditBalance ?? 0)) * 100) / 100;
+  return m;
+}
+// Jumla ya mistari ya journals kwa akaunti (Dr - Cr) - tarajio la delta.
+export function mistariYaJournals(journals) {
+  const d = {};
+  for (const e of journals) for (const l of e?.lines ?? []) d[l.accountCode] = Math.round(((d[l.accountCode] ?? 0) + Number(l.debitAmount ?? 0) - Number(l.creditAmount ?? 0)) * 100) / 100;
+  return d;
+}
+// Delta ya TB nzima ndani ya hatua: KILA akaunti (iliyo kwenye TB ya kabla, ya baada au tarajio): baada - kabla = tarajio[akaunti],
+// na akaunti isiyo kwenye tarajio lazima iwe 0. Tofauti yoyote -> FAIL (pamoja na maelekezo ya rollback).
+export function deltaTB(id, lebo, kabla, baada, tarajio, rollback) {
+  if (!kabla || !baada) { check(id, false, `TB ${lebo}: ${!kabla ? 'ya kabla' : 'ya baada'} haikusomwa - delta haikupimwa. ${rollback}`); return; }
+  const codes = [...new Set([...Object.keys(kabla), ...Object.keys(baada), ...Object.keys(tarajio)])].sort();
+  const bad = [];
+  let sifuri = 0;
+  for (const c of codes) {
+    const d = Math.round(((baada[c] ?? 0) - (kabla[c] ?? 0)) * 100) / 100, t = tarajio[c] ?? 0, ok = same(d, t);
+    if (!ok) bad.push(c);
+    if (!ok || !same(t, 0)) console.log(`  delta ${lebo} ${c}: ${money(kabla[c])} -> ${money(baada[c])} = ${money(d)} (inatarajiwa ${money(t)})${ok ? '' : ' TOFAUTI'}`);
+    else sifuri++;
+  }
+  console.log(`  delta ${lebo}: akaunti nyingine ${sifuri} - delta 0 kama inavyotarajiwa`);
+  check(id, bad.length === 0, bad.length ? `TB ${lebo}: akaunti ${bad.join(', ')} hazilingani na journals. ${rollback}`
+    : `TB ${lebo}: akaunti ${codes.length} zote - zilizoguswa = journals, nyingine zote 0`);
+}
 
 // Mazoezi: staging inaandika, prod inasoma. Faili la mazoezi lazima liwe la usiku huu (tarehe ya dump = leo).
 export function saveMazoezi(name, obj) {
@@ -81,7 +112,9 @@ export function readMazoezi(name) {
   const p = `${MAZOEZI}/${name}.json`;
   if (!fs.existsSync(p)) { check(`mazoezi-${name}`, false, `${p} haipo - endesha mazoezi ya staging (45c) kwanza`); return null; }
   const m = JSON.parse(fs.readFileSync(p, 'utf8'));
-  if (m.tarehe !== today) { check(`mazoezi-${name}`, false, `${p} ni ya ${m.tarehe}, si ya leo ${today} - mazoezi lazima yawe ya usiku huu`); return null; }
+  // Mmiliki 21/10: 46a/46b/43/47 zimehamia asubuhi ya 22/10 (baada ya reco ya 21/10) - mazoezi ya 21/10 (dump ya 11:53) ndiyo msingi.
+  const halali = m.tarehe === today || (m.tarehe === '2026-10-21' && today === '2026-10-22');
+  if (!halali) { check(`mazoezi-${name}`, false, `${p} ni ya ${m.tarehe}, si ya leo ${today} - mazoezi lazima yawe ya usiku huu (au ya 21/10 kwa 22/10)`); return null; }
   return m;
 }
 // Data ya dump ya usiku huu (45b: SQL kwenye staging iliyorejeshwa): H2SALE / Q9SNAP / ... kama mistari "TAG|a|b|..."

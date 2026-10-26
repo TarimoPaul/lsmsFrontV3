@@ -1,0 +1,1364 @@
+diff --git a/deploy/deploy-backend.ps1 b/deploy/deploy-backend.ps1
+index 17eb4d0..be58acf 100644
+--- a/deploy/deploy-backend.ps1
++++ b/deploy/deploy-backend.ps1
+@@ -133,6 +133,27 @@ function Assert-CleanTree([string]$Root) {
+         Fail ("Working tree si safi ($($bad.Count)) - commit au ondoa kwanza (analysis/ peke yake inaruhusiwa):`n    " + ($bad -join "`n    "))
+     }
+ }
++# A prod image comes from main or hotfix/* ONLY (analysis/MATAWI.md in lsmsFrontV3), and never carries a
++# Flyway migration that main does not have: an image built from a feature branch runs migrations that the
++# next main release knows nothing about. $Extra = migration names inside an image's jar (-DeployOnly).
++function Assert-ReleaseBranch([string]$Root, [string[]]$Extra = @()) {
++    $ErrorActionPreference = 'Continue'
++    $branch = (git -C $Root symbolic-ref --quiet --short HEAD) -join ''
++    if ($LASTEXITCODE -ne 0 -or -not $branch) { Fail "HEAD haiko kwenye branch (detached) - build ya prod hutoka main au hotfix/* tu." }
++    if ($branch -ne 'main' -and $branch -notlike 'hotfix/*') {
++        Fail "Branch ni '$branch' - build ya prod hutoka main au hotfix/* tu. Merge kwenye main kwanza."
++    }
++    $onMain = @(git -C $Root -c core.quotepath=false ls-tree -r --name-only main -- $MigrationDir | ForEach-Object { Split-Path -Leaf $_ })
++    if ($LASTEXITCODE -ne 0 -or -not $onMain.Count) { Fail "Migrations za main hazikusomeka (git ls-tree main -- $MigrationDir)." }
++    $here = @(git -C $Root -c core.quotepath=false ls-tree -r --name-only HEAD -- $MigrationDir | ForEach-Object { Split-Path -Leaf $_ })
++    $here += @(Get-ChildItem (Join-Path $Root $MigrationDir) -File | ForEach-Object { $_.Name })
++    $here += @($Extra | ForEach-Object { Split-Path -Leaf $_ })
++    $notOnMain = @($here | Where-Object { $_ -and $onMain -notcontains $_ } | Sort-Object -Unique)
++    if ($notOnMain.Count) {
++        Fail ("Faili za db/migration ambazo HAZIPO kwenye main ($($notOnMain.Count)) - hotfix haiongezi migration; feature iende main kwanza:`n    " + ($notOnMain -join "`n    "))
++    }
++    Step "Branch ya build: $branch (migrations zote $(@($here | Sort-Object -Unique).Count) ziko kwenye main)"
++}
+ 
+ # The backend is built with JDK 21 ONLY (pom.xml enforces [21,22) too). Another JDK must never
+ # be used "because it is there": on Java 23 Byte Buddy refuses to run and 100+ Mockito tests fail.
+@@ -182,6 +203,7 @@ try {
+     if ($BuildOnly -and ($DeployOnly -or $PreflightOnly)) { Fail "-BuildOnly haichanganywi na -DeployOnly wala -PreflightOnly: inajenga na kusukuma tu." }
+ 
+     if (-not $PreflightOnly) { Assert-CleanTree $RepoRoot }   # -PreflightOnly only reads and never deploys
++    if (-not $PreflightOnly) { Assert-ReleaseBranch $RepoRoot }   # main or hotfix/* only, no migration main lacks
+ 
+     # A build needs JDK 21. Found here, before anything is asked or changed; never falls back to another JDK.
+     $jdk21 = $null
+@@ -248,6 +270,7 @@ try {
+             Remove-Item $jarCopy -Force -ErrorAction SilentlyContinue
+         }
+         if (-not $imageMigrations.Count) { Fail "Hakuna migrations ndani ya jar ya $image - si image ya backend? Server haijaguswa." }
++        if (-not $PreflightOnly) { Assert-ReleaseBranch $RepoRoot $imageMigrations }
+     } else {
+         foreach ($name in 'application.properties', 'application-prod.properties') {
+             $file = Join-Path $RepoRoot "src/main/resources/$name"
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/Services/CapitalExpenditureService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/Services/CapitalExpenditureService.java
+index eeec92e..55a2c70 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/Services/CapitalExpenditureService.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/Services/CapitalExpenditureService.java
+@@ -701,7 +701,8 @@ public class CapitalExpenditureService {
+                 try {
+                     posted += depreciateThroughLastMonth(asset, "SCHEDULER");
+                 } catch (Exception e) {
+-                    logger.warn("Depreciation failed for asset {}: {}", asset.getUid(), e.getMessage());
++                    // error, not warn: a GL failure here (e.g. a refused reversal, 2.2.72) must be seen
++                    logger.error("Depreciation failed for asset {}: {}", asset.getUid(), e.getMessage());
+                 }
+             }
+             if (posted > 0) logger.info("Depreciation: {} asset-month(s) posted", posted);
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/config/CapitalExpenditureScheduler.java b/src/main/java/com/Lsms/CapitalAndExpenditure/config/CapitalExpenditureScheduler.java
+index 59a60d1..4ed7164 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/config/CapitalExpenditureScheduler.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/config/CapitalExpenditureScheduler.java
+@@ -2,6 +2,7 @@ package com.Lsms.CapitalAndExpenditure.config;
+ 
+ import com.Lsms.CapitalAndExpenditure.Repository.CapitalExpenditureRepository;
+ import com.Lsms.CapitalAndExpenditure.Services.CapitalExpenditureService;
++import com.Lsms.CapitalAndExpenditure.gl.PostingEngine;
+ import com.Lsms.Enums.ExpenditureStatus;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+@@ -37,6 +38,11 @@ public class CapitalExpenditureScheduler {
+     @Autowired
+     private CapitalExpenditureRepository capitalExpenditureRepository;
+ 
++    // Scheduler journals for a CLOSED month are refused, not moved to the first open day; each
++    // refusal is kept in gl_posting_failure for a person to retry (2.2.72).
++    @Autowired
++    private PostingEngine postingEngine;
++
+     /**
+      * Tracks the last YearMonth in which depreciation was processed.
+      * Prevents double-processing if the server restarts on the 1st of the month.
+@@ -53,7 +59,7 @@ public class CapitalExpenditureScheduler {
+     @Scheduled(cron = "0 5 0 * * ?")
+     public void processRecurringExpenses() {
+         logger.info("⏰ [Scheduler] Starting daily recurring expense processing...");
+-        try {
++        try (PostingEngine.Scope strict = postingEngine.strictClosedPeriods("scheduler: recurring expenses", true)) {
+             var result = capitalExpenditureService.processRecurringExpenses();
+             if (result.getData() != null) {
+                 logger.info("✅ [Scheduler] Recurring expenses processed: {} entries generated", result.getData());
+@@ -71,7 +77,7 @@ public class CapitalExpenditureScheduler {
+      */
+     @Scheduled(cron = "0 10 0 * * ?")
+     public void postDueApprovedExpenditures() {
+-        try {
++        try (PostingEngine.Scope strict = postingEngine.strictClosedPeriods("scheduler: due expenditures", true)) {
+             int n = capitalExpenditureService.postDueApprovedCapex(45);
+             if (n > 0) logger.info("✅ [Scheduler] Posted {} due expenditures to the GL", n);
+         } catch (Exception e) {
+@@ -94,7 +100,7 @@ public class CapitalExpenditureScheduler {
+     @Scheduled(cron = "0 0 1 1 * ?")
+     public void materializeRecurringMonthlyBudgets() {
+         logger.info("⏰ [Scheduler] Materializing recurring monthly budgets for {}...", YearMonth.now());
+-        try {
++        try (PostingEngine.Scope strict = postingEngine.strictClosedPeriods("scheduler: monthly budgets", true)) {
+             var result = capitalExpenditureService.materializeMonthlyBudgets();
+             logger.info("✅ [Scheduler] Recurring monthly budgets: {} rows created ({})",
+                     result.getData(), result.getMessage());
+@@ -121,7 +127,7 @@ public class CapitalExpenditureScheduler {
+         }
+ 
+         logger.info("⏰ [Scheduler] Starting monthly asset depreciation update for {}...", currentMonth);
+-        try {
++        try (PostingEngine.Scope strict = postingEngine.strictClosedPeriods("scheduler: depreciation", true)) {
+             capitalExpenditureService.updateAllAssetDepreciation();
+             lastDepreciationMonth.set(currentMonth);
+             logger.info("✅ [Scheduler] Asset depreciation updated for {}", currentMonth);
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java
+index ac3c725..6dbd644 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/DayCloseVarianceService.java
+@@ -295,6 +295,21 @@ public class DayCloseVarianceService {
+         if (!dryRun && !notApplicable.isEmpty()) {
+             throw new IllegalStateException("Snapshot hizi si ziada (SURPLUS) hai, haziwezi kwenda 2900: " + notApplicable);
+         }
++        // 2.2.72: a correction never touches a CLOSED month (the journal it reverses, or the
++        // day it reposts). A real run is refused before anything is written; a dry run shows why.
++        List<String> inClosed = new ArrayList<>();
++        for (CorrectionRow r : rows) {
++            if ("ALREADY_CORRECT".equals(r.getAction()) || "NONE".equals(r.getAction())) continue;
++            LocalDate closed = closedDateOf(r);
++            if (closed == null) continue;
++            inClosed.add(r.getSnapshotUid() + " (" + closed + ")");
++            if (dryRun) r.setError(new GlClosedPeriodException("day-close-variance correction", closed).getMessage());
++        }
++        if (!dryRun && !inClosed.isEmpty()) {
++            throw new IllegalStateException("Marekebisho yanagusa vipindi vilivyofungwa; hakuna kilichoandikwa. "
++                    + "Fungua kipindi upya kwanza (kwa sababu): " + inClosed
++                    + " / The correction touches closed periods; nothing written.");
++        }
+         if (!dryRun) {
+             // The owner's decision is kept on the snapshot before anything is posted.
+             for (String uid : applicable) {
+@@ -312,7 +327,8 @@ public class DayCloseVarianceService {
+             if ("ALREADY_CORRECT".equals(r.getAction()) || "NONE".equals(r.getAction())) continue;
+             toChange++;
+             if (dryRun) continue;
+-            try (AutoCloseable ignored = postingEngine.withThrowOnError()) {
++            try (AutoCloseable ignored = postingEngine.withThrowOnError();
++                 PostingEngine.Scope strict = postingEngine.strictClosedPeriods("day-close-variance correction")) {
+                 if (r.getJournalUid() != null) {
+                     JournalEntry j = journalEntryRepository.findByUid(r.getJournalUid()).orElseThrow();
+                     LocalDate original = j.getEventDate() != null ? j.getEventDate() : j.getEntryDate();
+@@ -352,6 +368,24 @@ public class DayCloseVarianceService {
+                 .suspenseNotApplicable(notApplicable).rows(rows).build();
+     }
+ 
++    /**
++     * The first date of a row that lies in a CLOSED period - the original date of the journal
++     * it would reverse, then the snapshot day it would repost - or null when none does.
++     */
++    private LocalDate closedDateOf(CorrectionRow r) {
++        List<LocalDate> dates = new ArrayList<>();
++        if (r.getJournalUid() != null) {
++            journalEntryRepository.findByUid(r.getJournalUid())
++                    .map(j -> j.getEventDate() != null ? j.getEventDate() : j.getEntryDate())
++                    .ifPresent(dates::add);
++        }
++        if (r.getDate() != null) dates.add(r.getDate());
++        for (LocalDate d : dates) {
++            if (postingEngine.isPeriodClosed(java.time.YearMonth.from(d))) return d;
++        }
++        return null;
++    }
++
+     /** Dr − Cr on account 1000 of one journal's lines. */
+     private static BigDecimal cashEffect(List<JournalEntryLine> lines) {
+         BigDecimal e = BigDecimal.ZERO;
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java
+index 30d99bc..72f25f7 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GLController.java
+@@ -269,10 +269,17 @@ public class GLController {
+             Authentication authentication) {
+         String by = authentication != null ? authentication.getName() : "SYSTEM";
+         log.warn("GL manual reversal requested by {}: referenceUid={} prefix={} reason={}", by, referenceUid, prefix, reason);
+-        if (prefix) {
+-            postingEngine.reverseActiveByReferencePrefix(referenceUid, by, reason);
+-        } else {
+-            postingEngine.reverseActiveByReference(referenceUid, by, reason);
++        // Throw mode: in shadow mode a refused reversal (closed period, 2.2.72) used to be
++        // logged and answered "Reversal attempted"; the person now gets the reason.
++        try (AutoCloseable throwMode = postingEngine.withThrowOnError();
++             PostingEngine.Scope strict = postingEngine.strictClosedPeriods("reverse")) {
++            if (prefix) {
++                postingEngine.reverseActiveByReferencePrefix(referenceUid, by, reason);
++            } else {
++                postingEngine.reverseActiveByReference(referenceUid, by, reason);
++            }
++        } catch (Exception e) {
++            return new Response<>(ResponseStatus.Error, null, GlPostingFailureService.messageChain(e));
+         }
+         return new Response<>(ResponseStatus.Success, null, "Reversal attempted for ref=" + referenceUid);
+     }
+@@ -307,7 +314,7 @@ public class GLController {
+     @PostMapping("/corrections/repost-sale/{saleUid}")
+     @PreAuthorize("hasPermission(null, 'FINANCE_WRITE')")
+     public Response<Boolean> repostSale(@PathVariable String saleUid) {
+-        try {
++        try (PostingEngine.Scope strict = postingEngine.strictClosedPeriods("repost-sale")) {
+             GlPostOutcome o = saleGlPostingService.postFromDb(saleUid, com.Lsms.uaa.utils.LoggedUser.getUid());
+             return new Response<>(ResponseStatus.Success, o != GlPostOutcome.NOTHING_TO_POST,
+                     switch (o) {
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlBackfillService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlBackfillService.java
+index 5dbc540..af7ffad 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlBackfillService.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlBackfillService.java
+@@ -109,7 +109,9 @@ public class GlBackfillService {
+ 
+         // forceThrow=true so shadow mode cannot swallow exceptions — every failed post
+         // propagates back to the per-record catch blocks and increments r.errors correctly.
+-        try (AutoCloseable throwMode = postingEngine.withThrowOnError()) {
++        // strict: a month closed while this runs refuses its records instead of moving them.
++        try (AutoCloseable throwMode = postingEngine.withThrowOnError();
++             PostingEngine.Scope strict = postingEngine.strictClosedPeriods("backfill")) {
+             backfillSales(r, by);
+             backfillPurchases(r, by);
+             backfillCapex(r, by);
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlClosedPeriodException.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlClosedPeriodException.java
+new file mode 100644
+index 0000000..b8247b2
+--- /dev/null
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlClosedPeriodException.java
+@@ -0,0 +1,28 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import java.time.LocalDate;
++import java.time.YearMonth;
++
++/**
++ * A correction, rebuild or scheduler run tried to write a journal that belongs to a CLOSED
++ * period (2.2.72). Live business events and retries are not refused: they are booked on the
++ * first open day (MPANGO §1.9, decision 4). A scheduler refusal is kept in gl_posting_failure
++ * instead of thrown. An IllegalStateException, so the GL endpoints that already turn those
++ * into an Error response show this message as it is.
++ */
++public class GlClosedPeriodException extends IllegalStateException {
++
++    private final YearMonth period;
++
++    public GlClosedPeriodException(String operation, LocalDate date) {
++        super(String.format(
++                "Kipindi %s kimefungwa: %s hairuhusiwi kwa journal ya tarehe %s. Fungua kipindi upya kwanza (kwa sababu). / "
++                        + "Period %s is closed: %s refused for a journal dated %s; reopen the period first.",
++                YearMonth.from(date), operation, date, YearMonth.from(date), operation, date));
++        this.period = YearMonth.from(date);
++    }
++
++    public YearMonth getPeriod() {
++        return period;
++    }
++}
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java
+index e69ca0d..bacc088 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPeriodService.java
+@@ -40,6 +40,10 @@ public class GlPeriodService {
+     private final GlReconciliationService glReconciliationService;
+     private final JournalEntryRepository journalEntryRepository;
+ 
++    // Field-injected so the constructor (and hand-built unit tests, where it stays null) are untouched.
++    @jakarta.persistence.PersistenceContext
++    private jakarta.persistence.EntityManager entityManager;
++
+     /**
+      * Every month from the first journal's month to now (newest first, at most 36) with
+      * its status; months never closed are OPEN.
+@@ -82,6 +86,13 @@ public class GlPeriodService {
+     @Transactional
+     public Map<String, Object> close(int year, int month, String reason, String byUid, String byName) {
+         YearMonth ym = YearMonth.of(year, month);
++        // Exclusive twin of PostingEngine's shared lock: waits for the journal writes in flight and
++        // holds new ones until this close commits, so none lands in the month while it closes.
++        if (entityManager != null) {
++            entityManager.createNativeQuery("SELECT 1 FROM (SELECT pg_advisory_xact_lock(hashtext(:k))) l")
++                    .setParameter("k", PostingEngine.PERIOD_LOCK_KEY)
++                    .getSingleResult();
++        }
+         if (!ym.isBefore(YearMonth.now())) {
+             throw new IllegalStateException("Mwezi " + ym + " bado haujaisha; unaweza kufunga mwezi uliopita tu.");
+         }
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java
+index ed98b57..14d2f5d 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/GlPostingFailureService.java
+@@ -103,6 +103,8 @@ public class GlPostingFailureService {
+         if (f.getResolvedAt() != null) return f;
+         PostingEngine engine = applicationContext.getBean(PostingEngine.class);
+         String reference = f.getReferenceUid() != null ? f.getReferenceUid() : f.getSourceUid();
++        // No strict scope (owner, 2.2.72): a failure dated in a CLOSED period is booked as a late
++        // entry on the first open day, like the live event it stands for. Reopening is not needed.
+         try {
+             String resolution;
+             switch (f.getSourceType()) {
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+index 3f2007d..2fb741f 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+@@ -60,6 +60,16 @@ public class PostingEngine {
+     // Used by GlBackfillService via withThrowOnError() so backfill error counts are accurate.
+     private final ThreadLocal<Boolean> forceThrow = ThreadLocal.withInitial(() -> false);
+ 
++    // Set by strictClosedPeriods (corrections, rebuild, scheduler - 2.2.72): a post or a
++    // reversal that belongs to a CLOSED period is refused instead of moved to the first open day.
++    private final ThreadLocal<String> strictOperation = new ThreadLocal<>();
++    // Scheduler scopes: a refused post is kept in gl_posting_failure (lines included) and the job
++    // carries on; a person's retry then books it as a late entry on the first open day.
++    private final ThreadLocal<Boolean> recordRefusals = ThreadLocal.withInitial(() -> false);
++
++    /** Advisory lock key shared by every journal write (shared) and a period close (exclusive). */
++    static final String PERIOD_LOCK_KEY = "lsms:gl_period";
++
+     // Field-injected so the constructor (and the unit tests that build this class by
+     // hand, where it stays null) are untouched. Used only for the per-reference lock.
+     @jakarta.persistence.PersistenceContext
+@@ -83,7 +93,17 @@ public class PostingEngine {
+         } catch (Exception e) {
+             GlPostingException failure = new GlPostingException(eventType, referenceUid, referenceNumber,
+                     entryDate, branchUid, postedBy, lines, e);
+-            if (glConfigService.isShadowMode() && !forceThrow.get()) {
++            if (e instanceof GlClosedPeriodException && recordRefusals.get() && !forceThrow.get()) {
++                // Nobody is waiting on a scheduler run: the refusal goes where a person will see it.
++                log.error("GL {} ref={} refused (closed period) - kept in gl_posting_failure: {}",
++                        eventType, referenceUid, e.getMessage());
++                applicationContext.getBean(GlPostingFailureService.class)
++                        .record(eventType.name(), referenceUid, referenceNumber, failure);
++                return;
++            }
++            // A closed-period refusal (strict scope only) is never swallowed: the person must
++            // stop there, not carry on as if the journal had been written.
++            if (glConfigService.isShadowMode() && !forceThrow.get() && !(e instanceof GlClosedPeriodException)) {
+                 // Swallowed here, so this is the only place that can leave a trace of it.
+                 log.error("GL shadow post failed for {} ref={}: {}", eventType, referenceUid, e.getMessage());
+                 applicationContext.getBean(GlPostingFailureService.class)
+@@ -117,6 +137,7 @@ public class PostingEngine {
+         // both insert. The lock serialises them until this transaction ends, so the second
+         // one sees the first one's committed journal and skips.
+         lockReference(referenceUid);
++        lockPeriodsShared();
+         if (referenceUid != null && hasActivePosting(referenceUid)) {
+             log.debug("GL already posted for ref={} — skipping {}", referenceUid, eventType);
+             return;
+@@ -152,6 +173,9 @@ public class PostingEngine {
+ 
+         LocalDate eventDate = entryDate != null ? entryDate : LocalDate.now();
+         LocalDate bookDate = firstOpenDate(eventDate);
++        if (!bookDate.equals(eventDate) && !manualPost.get() && strictOperation.get() != null) {
++            throw new GlClosedPeriodException(strictOperation.get() + " (" + eventType + " ref=" + referenceUid + ")", eventDate);
++        }
+         if (!bookDate.equals(eventDate) && manualPost.get()) {
+             throw new IllegalStateException(String.format(
+                     "Kipindi %s kimefungwa. Kifungue upya kwanza (kwa sababu) ili kuandika journal ya tarehe %s. / "
+@@ -325,6 +349,41 @@ public class PostingEngine {
+         return () -> forceThrow.remove();
+     }
+ 
++    /** A scope whose close() throws nothing (try-with-resources without a catch). */
++    public interface Scope extends AutoCloseable {
++        @Override
++        void close();
++    }
++
++    /**
++     * For corrections, rebuilds and scheduler runs (2.2.72): while the scope is open on this
++     * thread, a post dated in a CLOSED period, or a reversal of an entry in one or dated in one,
++     * throws {@link GlClosedPeriodException} instead of being booked on the first open day.
++     * Live business events and retries never open it. A nested scope keeps the outer one's settings.
++     */
++    public Scope strictClosedPeriods(String operation) {
++        return strictClosedPeriods(operation, false);
++    }
++
++    /**
++     * With {@code recordRefusals} (scheduler jobs): a refused post does not throw; it is recorded
++     * in gl_posting_failure with its lines, so the job and its business rows carry on and a person
++     * retries it later (booked as a late entry). Refused reversals still throw.
++     */
++    public Scope strictClosedPeriods(String operation, boolean recordRefusals) {
++        String outer = strictOperation.get();
++        if (outer == null) {
++            strictOperation.set(operation);
++            this.recordRefusals.set(recordRefusals);
++        }
++        return () -> {
++            if (outer == null) {
++                strictOperation.remove();
++                this.recordRefusals.remove();
++            }
++        };
++    }
++
+     @Transactional(propagation = Propagation.REQUIRES_NEW)
+     public void reverse(String originalEntryUid, String postedBy, String reason) {
+         reverse(originalEntryUid, postedBy, reason, null);
+@@ -343,6 +402,7 @@ public class PostingEngine {
+         // pass their callers' "already reversed?" check, which runs outside this
+         // transaction. Checked again here, under the lock, so the second one writes nothing.
+         lockReference(originalEntryUid);
++        lockPeriodsShared();
+         if (originalEntryUid != null && journalEntryRepository.existsByReversedEntryUidAndIsDeletedFalse(originalEntryUid)) {
+             log.debug("GL entry {} is already reversed - skipping", originalEntryUid);
+             return;
+@@ -359,6 +419,12 @@ public class PostingEngine {
+         LocalDate eventDate = onDate != null ? onDate
+                 : (orig.getEntryDate() != null && orig.getEntryDate().isAfter(today) ? orig.getEntryDate() : today);
+         LocalDate bookDate = firstOpenDate(eventDate);
++        if (strictOperation.get() != null) {
++            String what = strictOperation.get() + " (reversal of " + orig.getEntryNumber() + ")";
++            LocalDate origDate = originalEventDate(orig);
++            if (origDate != null && isPeriodClosed(YearMonth.from(origDate))) throw new GlClosedPeriodException(what, origDate);
++            if (!bookDate.equals(eventDate)) throw new GlClosedPeriodException(what, eventDate);
++        }
+         rev.setEntryDate(bookDate);
+         if (!bookDate.equals(eventDate)) {
+             rev.setEventDate(eventDate);
+@@ -1160,6 +1226,18 @@ public class PostingEngine {
+                 .getSingleResult();
+     }
+ 
++    /**
++     * Shared advisory lock held by every journal write until its transaction ends. Closing a
++     * period takes the same key exclusively (GlPeriodService.close), so a close waits for the
++     * writes already running and a write that starts during a close sees the period CLOSED.
++     */
++    private void lockPeriodsShared() {
++        if (entityManager == null) return;
++        entityManager.createNativeQuery("SELECT 1 FROM (SELECT pg_advisory_xact_lock_shared(hashtext(:k))) l")
++                .setParameter("k", PERIOD_LOCK_KEY)
++                .getSingleResult();
++    }
++
+     /** The date the original event happened: event_date for a late entry, else entry_date. */
+     private static LocalDate originalEventDate(JournalEntry e) {
+         return e.getEventDate() != null ? e.getEventDate() : e.getEntryDate();
+diff --git a/src/main/java/com/Lsms/uaa/entity/DataInitializer.java b/src/main/java/com/Lsms/uaa/entity/DataInitializer.java
+index c956075..2167a77 100644
+--- a/src/main/java/com/Lsms/uaa/entity/DataInitializer.java
++++ b/src/main/java/com/Lsms/uaa/entity/DataInitializer.java
+@@ -34,7 +34,8 @@ public class DataInitializer implements CommandLineRunner {
+     @Value("${root.email:root@system.com}")
+     private String rootEmail;
+ 
+-    @Value("${root.password:Root@123}")
++    // No default (2.2.72): a blank password never creates a ROOT user - set ROOT_PASSWORD on first install.
++    @Value("${root.password:}")
+     private String rootPassword;
+ 
+     @Value("${app.data.initialize:true}")
+@@ -250,6 +251,11 @@ public class DataInitializer implements CommandLineRunner {
+      * Initialize ROOT user
+      * ✅ ROOT user has NO role - only isRoot flag
+      * ✅ This flag gives full access without role checks
++     *
++     * 2.2.72: root.email comes from the ROOT_EMAIL environment variable when it is set (it outranks
++     * application-pro.properties). Boot never makes an account root: a root.email that points at a
++     * non-root account only logs a WARN. A new ROOT user is created only on a database with no root
++     * user at all (first install), and only when ROOT_PASSWORD is set.
+      */
+     private void initializeRootUser() {
+         try {
+@@ -260,6 +266,17 @@ public class DataInitializer implements CommandLineRunner {
+                 return;
+             }
+ 
++            long roots = userRepository.countByIsRootTrue();
++            if (roots > 0) {
++                logger.warn("⚠️ root.email {} has no account and {} root user(s) already exist - no ROOT user created (check ROOT_EMAIL)",
++                        rootEmail, roots);
++                return;
++            }
++            if (rootPassword == null || rootPassword.isBlank()) {
++                logger.error("❌ No root user exists and ROOT_PASSWORD is not set - ROOT user {} NOT created", rootEmail);
++                return;
++            }
++
+             logger.info("✅ Creating ROOT user: {}", rootEmail);
+ 
+             User rootUser = new User();
+@@ -396,18 +413,21 @@ public class DataInitializer implements CommandLineRunner {
+     /**
+      * Ensure existing ROOT user has correct setup
+      * ✅ Only checks isRoot flag - NO role required
++     *
++     * Break-glass (kept on purpose): an account that is ALREADY root is re-activated, unlocked and
++     * verified on boot, so restarting with ROOT_EMAIL pointed at it brings root access back.
++     * A non-root account is never promoted (2.2.72; until 2.2.71 boot set isRoot on it).
+      */
+     private void ensureRootUserSetup(User rootUser) {
+         try {
+-            boolean needsUpdate = false;
+-
+-            // Ensure isRoot flag is set
+-            if (!rootUser.getIsRoot()) {
+-                logger.info("✅ Setting isRoot flag for user: {}", rootUser.getEmail());
+-                rootUser.setIsRoot(true);
+-                needsUpdate = true;
++            if (!Boolean.TRUE.equals(rootUser.getIsRoot())) {
++                logger.warn("⚠️ root.email {} is not a root user - boot does not promote existing accounts; nothing changed (check ROOT_EMAIL)",
++                        rootUser.getEmail());
++                return;
+             }
+ 
++            boolean needsUpdate = false;
++
+             // Ensure user is active
+             if (rootUser.getStatus() != User.Status.ACTIVE) {
+                 logger.info("✅ Activating ROOT user: {}", rootUser.getEmail());
+@@ -415,6 +435,13 @@ public class DataInitializer implements CommandLineRunner {
+                 needsUpdate = true;
+             }
+ 
++            // Ensure user is not locked
++            if (Boolean.TRUE.equals(rootUser.getIsLocked())) {
++                logger.info("✅ Unlocking ROOT user: {}", rootUser.getEmail());
++                rootUser.unlock();
++                needsUpdate = true;
++            }
++
+             // Ensure email is verified
+             if (!rootUser.getEmailVerified()) {
+                 logger.info("✅ Verifying ROOT user email: {}", rootUser.getEmail());
+diff --git a/src/main/java/com/Lsms/uaa/repository/UserRepository.java b/src/main/java/com/Lsms/uaa/repository/UserRepository.java
+index 2448ace..94b0985 100644
+--- a/src/main/java/com/Lsms/uaa/repository/UserRepository.java
++++ b/src/main/java/com/Lsms/uaa/repository/UserRepository.java
+@@ -23,6 +23,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
+ 
+     Optional<User> findByEmail(String email);
+ 
++    /** Root users (is_root = true); DataInitializer creates the ROOT user only when this is 0. */
++    long countByIsRootTrue();
++
+     Optional<User> findByUid(String uid);
+ 
+     /** Batch name resolution (e.g. cashier/manager display names) — avoids N+1 findByUid loops. */
+diff --git a/src/main/resources/application-pro.properties b/src/main/resources/application-pro.properties
+index 0eadf4f..c448b09 100644
+--- a/src/main/resources/application-pro.properties
++++ b/src/main/resources/application-pro.properties
+@@ -31,7 +31,7 @@ app.permissions.csv.path=seed/permissions.csv
+ 
+ # Root User Configuration
+ root.email=root@system.com
+-root.password=${ROOT_PASSWORD:Root@123}
++root.password=${ROOT_PASSWORD:}
+ 
+ # Logging (Production)
+ logging.level.root=WARN
+diff --git a/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlClosedPeriodGuardTest.java b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlClosedPeriodGuardTest.java
+new file mode 100644
+index 0000000..174264b
+--- /dev/null
++++ b/src/test/java/com/Lsms/CapitalAndExpenditure/gl/GlClosedPeriodGuardTest.java
+@@ -0,0 +1,635 @@
++package com.Lsms.CapitalAndExpenditure.gl;
++
++import com.Lsms.CapitalAndExpenditure.Services.CapitalExpenditureService;
++import com.Lsms.CapitalAndExpenditure.config.CapitalExpenditureScheduler;
++import com.Lsms.Reconciliation.Entity.DailyFinancialSnapshot;
++import com.Lsms.Reconciliation.Entity.DailyReconciliation;
++import com.Lsms.Reconciliation.Enums.ReconciliationStatus;
++import com.Lsms.Reconciliation.Repository.DailyFinancialSnapshotRepository;
++import com.Lsms.Reconciliation.Repository.DailyReconciliationRepository;
++import com.Lsms.uaa.utils.Response;
++import com.Lsms.uaa.utils.ResponseStatus;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import jakarta.persistence.EntityManager;
++import jakarta.persistence.Query;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Nested;
++import org.junit.jupiter.api.Test;
++import org.mockito.InOrder;
++import org.springframework.context.ApplicationContext;
++import org.springframework.test.util.ReflectionTestUtils;
++
++import java.lang.reflect.Constructor;
++import java.math.BigDecimal;
++import java.time.LocalDate;
++import java.time.YearMonth;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Map;
++import java.util.Optional;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatThrownBy;
++import static org.mockito.ArgumentMatchers.*;
++import static org.mockito.Mockito.*;
++
++/**
++ * 2.2.72 (c): every correction / rebuild path refuses a journal that belongs to a CLOSED period
++ * with a clear error, and writes nothing. A scheduler refusal is kept in gl_posting_failure; a
++ * retry, like a live business event, keeps MPANGO §1.9 decision 4 (booked on the first open day
++ * as a late entry). September 2026 is closed.
++ */
++class GlClosedPeriodGuardTest {
++
++    private JournalEntryRepository journals;
++    private JournalEntryLineRepository lines;
++    private GlPeriodRepository periods;
++    private GlConfigService config;
++    private GlPostingFailureService failures;
++    private ApplicationContext ctx;
++    private PostingEngine engine;
++
++    private static final LocalDate SEPT = LocalDate.of(2026, 9, 15);
++    private static final LocalDate OCT = LocalDate.of(2026, 10, 3);
++
++    @BeforeEach
++    void setUp() {
++        journals = mock(JournalEntryRepository.class);
++        lines = mock(JournalEntryLineRepository.class);
++        periods = mock(GlPeriodRepository.class);
++        config = mock(GlConfigService.class);
++        failures = mock(GlPostingFailureService.class);
++        AccountMapper accounts = mock(AccountMapper.class);
++        ctx = mock(ApplicationContext.class);
++        engine = new PostingEngine(journals, lines, accounts, ctx, config, periods);
++
++        when(ctx.getBean(PostingEngine.class)).thenReturn(engine);
++        when(ctx.getBean(GlPostingFailureService.class)).thenReturn(failures);
++        when(config.isPostingEnabled()).thenReturn(true);
++        when(config.isShadowMode()).thenReturn(false);
++        when(periods.isClosed(anyInt(), anyInt())).thenReturn(false);
++        when(periods.isClosed(2026, 9)).thenReturn(true);
++        when(accounts.requireAccount(anyString())).thenAnswer(i -> {
++            GlAccount a = new GlAccount();
++            a.setUid("acc-" + i.getArgument(0));
++            a.setAccountCode(i.getArgument(0));
++            a.setAccountName("A " + i.getArgument(0));
++            return a;
++        });
++        when(journals.findByReferenceUidAndIsReversalFalseAndIsDeletedFalse(anyString())).thenReturn(List.of());
++        when(journals.save(any(JournalEntry.class))).thenAnswer(i -> i.getArgument(0));
++    }
++
++    private static List<PostingEngine.JournalLine> expenseLines() {
++        return List.of(new PostingEngine.JournalLine("6100", new BigDecimal("5000"), BigDecimal.ZERO, "x"),
++                new PostingEngine.JournalLine("1000", BigDecimal.ZERO, new BigDecimal("5000"), "x"));
++    }
++
++    private void postExpense(String ref, LocalDate date) {
++        engine.post(JournalEventType.EXPENSE_DIRECT, ref, ref, date, null, "u", expenseLines());
++    }
++
++    /** A live, unreversed journal with one line, dated {@code date}. */
++    private JournalEntry entry(String uid, String reference, LocalDate date) {
++        JournalEntry e = new JournalEntry();
++        e.setUid(uid);
++        e.setEntryNumber("JE-" + uid);
++        e.setReferenceUid(reference);
++        e.setReferenceType(JournalEventType.EXPENSE_DIRECT.name());
++        e.setEntryDate(date);
++        JournalEntryLine l = new JournalEntryLine();
++        l.setAccountCode("6100");
++        l.setDebitAmount(new BigDecimal("5000"));
++        l.setCreditAmount(BigDecimal.ZERO);
++        when(journals.findByUid(uid)).thenReturn(Optional.of(e));
++        when(lines.findByJournalEntryUid(uid)).thenReturn(List.of(l));
++        when(journals.findByReferenceUidAndIsReversalFalseAndIsDeletedFalse(reference)).thenReturn(List.of(e));
++        return e;
++    }
++
++    private static Throwable root(Throwable t) {
++        while (t.getCause() != null && t.getCause() != t) t = t.getCause();
++        return t;
++    }
++
++    /** Builds a Spring bean through its only constructor: the given objects by type, a fresh mock for the rest. */
++    @SuppressWarnings("unchecked")
++    private static <T> T build(Class<T> type, Map<Class<?>, Object> given) throws Exception {
++        Constructor<?> c = type.getDeclaredConstructors()[0];
++        Object[] args = new Object[c.getParameterCount()];
++        Class<?>[] types = c.getParameterTypes();
++        for (int i = 0; i < args.length; i++) {
++            args[i] = given.containsKey(types[i]) ? given.get(types[i]) : mock(types[i]);
++        }
++        return (T) c.newInstance(args);
++    }
++
++    /** The reference has no journal before the post and a live one after it (retry's final check). */
++    private void liveAfterSave(String reference) {
++        JournalEntry saved = new JournalEntry();
++        saved.setUid("je-" + reference);
++        when(journals.findByReferenceUidAndIsReversalFalseAndIsDeletedFalse(reference))
++                .thenReturn(List.of(), List.of(saved));
++    }
++
++    private CapitalExpenditureScheduler scheduler(CapitalExpenditureService capex) {
++        CapitalExpenditureScheduler scheduler = new CapitalExpenditureScheduler();
++        ReflectionTestUtils.setField(scheduler, "capitalExpenditureService", capex);
++        ReflectionTestUtils.setField(scheduler, "postingEngine", engine);
++        return scheduler;
++    }
++
++    @Nested
++    @DisplayName("PostingEngine strict scope")
++    class Engine {
++
++        @Test
++        @DisplayName("strict post dated 15/09 -> GlClosedPeriodException naming the period and operation; nothing saved")
++        void strictPostRefused() {
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("backfill")) {
++                assertThatThrownBy(() -> postExpense("capex-1", SEPT))
++                        .isInstanceOf(GlPostingException.class)
++                        .satisfies(e -> assertThat(root(e)).isInstanceOf(GlClosedPeriodException.class)
++                                .hasMessageContaining("Kipindi 2026-09 kimefungwa")
++                                .hasMessageContaining("backfill")
++                                .hasMessageContaining("2026-09-15"));
++            }
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("shadow mode does not swallow a strict refusal (and records no failure row)")
++        void shadowDoesNotSwallow() {
++            when(config.isShadowMode()).thenReturn(true);
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("backfill")) {
++                assertThatThrownBy(() -> postExpense("capex-2", SEPT))
++                        .satisfies(e -> assertThat(root(e)).isInstanceOf(GlClosedPeriodException.class));
++            }
++            verify(journals, never()).save(any());
++            verify(failures, never()).record(any(), any(), any(), any());
++        }
++
++        @Test
++        @DisplayName("strict post in an open month is written as usual")
++        void strictOpenMonthPosts() {
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("retry")) {
++                postExpense("capex-3", OCT);
++            }
++            verify(journals).save(argThat(e -> OCT.equals(e.getEntryDate()) && !Boolean.TRUE.equals(e.getIsLateEntry())));
++        }
++
++        @Test
++        @DisplayName("an already-posted reference is skipped before the period check (idempotent re-runs never fail)")
++        void alreadyPostedSkipped() {
++            entry("je-old", "capex-4", SEPT);
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("scheduler: depreciation")) {
++                postExpense("capex-4", SEPT);
++            }
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("live event (no scope) keeps decision 4: booked 01/10 as a late entry")
++        void liveUnchanged() {
++            postExpense("capex-5", SEPT);
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())
++                    && SEPT.equals(e.getEventDate()) && Boolean.TRUE.equals(e.getIsLateEntry())));
++        }
++
++        @Test
++        @DisplayName("scope ends on close; a nested scope keeps the outer name and does not end it")
++        void scopeEndsAndNests() {
++            try (PostingEngine.Scope outer = engine.strictClosedPeriods("outer-op")) {
++                try (PostingEngine.Scope inner = engine.strictClosedPeriods("inner-op")) {
++                    assertThatThrownBy(() -> postExpense("capex-6", SEPT))
++                            .satisfies(e -> assertThat(root(e)).hasMessageContaining("outer-op"));
++                }
++                assertThatThrownBy(() -> postExpense("capex-7", SEPT))
++                        .satisfies(e -> assertThat(root(e)).isInstanceOf(GlClosedPeriodException.class));
++            }
++            postExpense("capex-8", SEPT); // live again: moved, not refused
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())));
++        }
++
++        @Test
++        @DisplayName("recording scope (scheduler), live and shadow: refusal kept in gl_posting_failure with its lines, no throw, nothing saved")
++        void recordingScopeKeepsFailure() {
++            for (boolean shadow : new boolean[]{false, true}) {
++                when(config.isShadowMode()).thenReturn(shadow);
++                try (PostingEngine.Scope s = engine.strictClosedPeriods("scheduler: due expenditures", true)) {
++                    postExpense("capex-13-" + shadow, SEPT);
++                }
++                verify(failures).record(eq(JournalEventType.EXPENSE_DIRECT.name()), eq("capex-13-" + shadow),
++                        eq("capex-13-" + shadow), argThat(e -> e instanceof GlPostingException g
++                                && g.getLines().size() == 2 && SEPT.equals(g.getEntryDate())
++                                && root(e) instanceof GlClosedPeriodException
++                                && root(e).getMessage().contains("scheduler: due expenditures")));
++            }
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("recording scope: an open month posts as usual; a refused reversal still throws and records nothing")
++        void recordingScopeOpenMonthAndReversal() {
++            entry("je-14", "capex-14", SEPT);
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("scheduler: depreciation", true)) {
++                postExpense("capex-15", OCT);
++                assertThatThrownBy(() -> engine.reverse("je-14", "u", "x"))
++                        .isInstanceOf(GlClosedPeriodException.class);
++            }
++            verify(journals).save(argThat(e -> OCT.equals(e.getEntryDate()) && !Boolean.TRUE.equals(e.getIsReversal())));
++            verify(failures, never()).record(any(), any(), any(), any());
++        }
++
++        @Test
++        @DisplayName("a recording scope nested in a plain strict one keeps the outer setting: throws, no row")
++        void nestedRecordingKeepsOuter() {
++            try (PostingEngine.Scope outer = engine.strictClosedPeriods("backfill");
++                 PostingEngine.Scope inner = engine.strictClosedPeriods("scheduler: x", true)) {
++                assertThatThrownBy(() -> postExpense("capex-16", SEPT))
++                        .satisfies(e -> assertThat(root(e)).hasMessageContaining("backfill"));
++            }
++            verify(failures, never()).record(any(), any(), any(), any());
++        }
++
++        @Test
++        @DisplayName("strict reversal of a September entry (dated today) is refused; nothing saved")
++        void strictReverseOfClosedEntry() {
++            entry("je-9", "capex-9", SEPT);
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("reverse")) {
++                assertThatThrownBy(() -> engine.reverse("je-9", "u", "x"))
++                        .isInstanceOf(GlClosedPeriodException.class)
++                        .hasMessageContaining("reversal of JE-je-9")
++                        .hasMessageContaining("2026-09-15");
++            }
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("strict reversal dated in September (original in October) is refused too")
++        void strictReverseDatedInClosed() {
++            entry("je-10", "capex-10", OCT);
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("day-close-variance correction")) {
++                assertThatThrownBy(() -> engine.reverse("je-10", "u", "x", SEPT))
++                        .isInstanceOf(GlClosedPeriodException.class);
++            }
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("strict reversal of an October entry is written")
++        void strictReverseOpen() {
++            entry("je-11", "capex-11", OCT);
++            try (PostingEngine.Scope s = engine.strictClosedPeriods("reverse")) {
++                engine.reverse("je-11", "u", "x", OCT);
++            }
++            verify(journals).save(argThat(e -> Boolean.TRUE.equals(e.getIsReversal()) && OCT.equals(e.getEntryDate())));
++        }
++
++        @Test
++        @DisplayName("live reversal (no scope) of a September event keeps decision 4: booked 01/10")
++        void liveReverseUnchanged() {
++            entry("je-12", "capex-12", SEPT);
++            engine.reverse("je-12", "u", "x", SEPT);
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())
++                    && SEPT.equals(e.getEventDate())));
++        }
++    }
++
++    @Nested
++    @DisplayName("period lock: close waits for journal writes")
++    class PeriodLock {
++
++        private EntityManager em() {
++            EntityManager em = mock(EntityManager.class);
++            Query q = mock(Query.class);
++            when(em.createNativeQuery(anyString())).thenReturn(q);
++            when(q.setParameter(anyString(), any())).thenReturn(q);
++            when(q.getSingleResult()).thenReturn(1);
++            return em;
++        }
++
++        @Test
++        @DisplayName("every post and reversal takes the SHARED period lock")
++        void postsTakeSharedLock() {
++            EntityManager em = em();
++            ReflectionTestUtils.setField(engine, "entityManager", em);
++            postExpense("capex-20", OCT);
++            entry("je-21", "capex-21", OCT);
++            engine.reverse("je-21", "u", "x", OCT);
++            verify(em, times(2)).createNativeQuery(contains("pg_advisory_xact_lock_shared"));
++        }
++
++        @Test
++        @DisplayName("close takes the EXCLUSIVE period lock before reading the period")
++        void closeTakesExclusiveLock() {
++            EntityManager em = em();
++            GlPeriodRepository repo = mock(GlPeriodRepository.class);
++            GlPostingFailureRepository failureRepo = mock(GlPostingFailureRepository.class);
++            when(repo.findByPeriodYearAndPeriodMonthAndBranchUidIsNull(anyInt(), anyInt())).thenReturn(Optional.empty());
++            when(failureRepo.findByResolvedAtIsNullOrderByCreatedAtDesc()).thenReturn(List.of());
++            GlPeriodService service = new GlPeriodService(repo, mock(GlPeriodAuditRepository.class), failureRepo,
++                    mock(GlReconciliationService.class), journals);
++            ReflectionTestUtils.setField(service, "entityManager", em);
++            YearMonth last = YearMonth.now().minusMonths(1);
++            service.close(last.getYear(), last.getMonthValue(), "test", "u", "U");
++            InOrder order = inOrder(em, repo);
++            order.verify(em).createNativeQuery(argThat((String sql) -> sql.contains("pg_advisory_xact_lock(")
++                    && !sql.contains("shared")));
++            order.verify(repo).findByPeriodYearAndPeriodMonthAndBranchUidIsNull(last.getYear(), last.getMonthValue());
++        }
++    }
++
++    @Nested
++    @DisplayName("each path refuses a closed period")
++    class Paths {
++
++        @Test
++        @DisplayName("retry of a stored-lines failure dated 15/09: booked 01/10 as a late entry, row resolved RETRIED")
++        void retryBooksLateEntry() throws Exception {
++            GlPostingFailureRepository repo = mock(GlPostingFailureRepository.class);
++            GlPostingFailure f = new GlPostingFailure();
++            f.setUid("f-1");
++            f.setSourceType("PURCHASE");
++            f.setSourceUid("pur-1");
++            f.setEventType(JournalEventType.EXPENSE_DIRECT.name());
++            f.setEntryDate(SEPT);
++            f.setLinesJson(new ObjectMapper().writeValueAsString(expenseLines()));
++            when(repo.findByUid("f-1")).thenReturn(Optional.of(f));
++            when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
++            liveAfterSave("pur-1");
++            GlPostingFailureService service = new GlPostingFailureService(repo, ctx);
++
++            GlPostingFailure out = service.retry("f-1", "boss");
++
++            assertThat(out.getResolvedAt()).isNotNull();
++            assertThat(out.getResolution()).isEqualTo("RETRIED");
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())
++                    && SEPT.equals(e.getEventDate()) && Boolean.TRUE.equals(e.getIsLateEntry())
++                    && "boss".equals(e.getPostedBy())));
++        }
++
++        @Test
++        @DisplayName("retry of a SALE failure dated 15/09 (re-derived from the sale): late entry 01/10, resolved")
++        void retrySaleBooksLateEntry() {
++            GlPostingFailureRepository repo = mock(GlPostingFailureRepository.class);
++            GlPostingFailure f = new GlPostingFailure();
++            f.setUid("f-2");
++            f.setSourceType(GlPostingFailureService.SOURCE_SALE);
++            f.setSourceUid("sale-2");
++            when(repo.findByUid("f-2")).thenReturn(Optional.of(f));
++            when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
++            SaleGlPostingService sales = mock(SaleGlPostingService.class);
++            when(ctx.getBean(SaleGlPostingService.class)).thenReturn(sales);
++            when(sales.postFromDb(eq("sale-2"), any())).thenAnswer(i -> {
++                postExpense("sale-2", SEPT);
++                return GlPostOutcome.POSTED;
++            });
++            liveAfterSave("sale-2");
++
++            GlPostingFailure out = new GlPostingFailureService(repo, ctx).retry("f-2", "boss");
++
++            assertThat(out.getResolution()).isEqualTo("RETRIED");
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())
++                    && Boolean.TRUE.equals(e.getIsLateEntry())));
++        }
++
++        @Test
++        @DisplayName("retry of an October failure: posted on its own date, not late")
++        void retryOpenMonth() throws Exception {
++            GlPostingFailureRepository repo = mock(GlPostingFailureRepository.class);
++            GlPostingFailure f = new GlPostingFailure();
++            f.setUid("f-3");
++            f.setSourceType("PURCHASE");
++            f.setSourceUid("pur-3");
++            f.setEventType(JournalEventType.EXPENSE_DIRECT.name());
++            f.setEntryDate(OCT);
++            f.setLinesJson(new ObjectMapper().writeValueAsString(expenseLines()));
++            when(repo.findByUid("f-3")).thenReturn(Optional.of(f));
++            when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
++            liveAfterSave("pur-3");
++
++            GlPostingFailure out = new GlPostingFailureService(repo, ctx).retry("f-3", "boss");
++
++            assertThat(out.getResolution()).isEqualTo("RETRIED");
++            verify(journals).save(argThat(e -> OCT.equals(e.getEntryDate()) && !Boolean.TRUE.equals(e.getIsLateEntry())));
++        }
++
++        @Test
++        @DisplayName("POST /corrections/repost-sale of a September sale -> Error with the reason; nothing saved")
++        void repostSaleRefused() throws Exception {
++            SaleGlPostingService sales = mock(SaleGlPostingService.class);
++            when(sales.postFromDb(eq("sale-1"), any())).thenAnswer(i -> {
++                postExpense("sale-1", SEPT);
++                return GlPostOutcome.POSTED;
++            });
++            GLController controller = build(GLController.class,
++                    Map.of(PostingEngine.class, engine, SaleGlPostingService.class, sales));
++
++            Response<Boolean> r = controller.repostSale("sale-1");
++
++            assertThat(r.getStatus()).isEqualTo(ResponseStatus.Error);
++            assertThat(r.getMessage()).contains("Kipindi 2026-09 kimefungwa").contains("repost-sale");
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("POST /reverse of a September entry -> Error (also in shadow mode, where it used to say 'attempted')")
++        void reverseEndpointRefused() throws Exception {
++            when(config.isShadowMode()).thenReturn(true);
++            entry("je-30", "capex-30", SEPT);
++            GLController controller = build(GLController.class, Map.of(PostingEngine.class, engine));
++
++            Response<Void> r = controller.reverseByReference("capex-30", false, "test", null);
++
++            assertThat(r.getStatus()).isEqualTo(ResponseStatus.Error);
++            assertThat(r.getMessage()).contains("Kipindi 2026-09 kimefungwa").contains("reverse");
++            verify(journals, never()).save(any());
++        }
++
++        @Test
++        @DisplayName("POST /reverse of an October entry still works")
++        void reverseEndpointOpen() throws Exception {
++            entry("je-31", "capex-31", OCT);
++            GLController controller = build(GLController.class, Map.of(PostingEngine.class, engine));
++
++            Response<Void> r = controller.reverseByReference("capex-31", false, "test", null);
++
++            assertThat(r.getStatus()).isEqualTo(ResponseStatus.Success);
++            verify(journals).save(argThat(e -> Boolean.TRUE.equals(e.getIsReversal())));
++        }
++
++        @Test
++        @DisplayName("day-close correction touching September: real run refused before any write; dry run says why")
++        void dayCloseCorrectionRefused() {
++            PostingEngine mockEngine = mock(PostingEngine.class);
++            when(mockEngine.isPeriodClosed(YearMonth.of(2026, 9))).thenReturn(true);
++            DailyFinancialSnapshotRepository snaps = mock(DailyFinancialSnapshotRepository.class);
++            DailyReconciliationRepository recons = mock(DailyReconciliationRepository.class);
++            when(recons.findByUid(anyString())).thenAnswer(i -> {
++                DailyReconciliation rc = new DailyReconciliation();
++                rc.setUid(i.getArgument(0));
++                rc.setStatus(ReconciliationStatus.APPROVED);
++                return Optional.of(rc);
++            });
++            DailyFinancialSnapshot s = new DailyFinancialSnapshot();
++            s.setUid("s-1");
++            s.setReconciliationUid("r-1");
++            s.setIsCurrent(true);
++            s.setSnapshotVersion(1);
++            s.setSnapshotDate(LocalDate.of(2026, 9, 5));
++            s.setVarianceAmount(new BigDecimal("3000"));
++            s.setDeclaredCash(new BigDecimal("660000"));
++            when(snaps.findByUid("s-1")).thenReturn(Optional.of(s));
++            when(snaps.findAll()).thenReturn(List.of(s));
++            // posted with the old, inverted sign -> REVERSE_AND_REPOST
++            JournalEntry j = new JournalEntry();
++            j.setUid("j-1");
++            j.setEntryNumber("JE-j-1");
++            j.setReferenceUid("s-1");
++            j.setEntryDate(LocalDate.of(2026, 9, 5));
++            JournalEntryLine cash = new JournalEntryLine();
++            cash.setAccountCode("1000");
++            cash.setDebitAmount(new BigDecimal("3000"));
++            cash.setCreditAmount(BigDecimal.ZERO);
++            when(lines.findByJournalEntryUid("j-1")).thenReturn(List.of(cash));
++            when(journals.findByUid("j-1")).thenReturn(Optional.of(j));
++            when(journals.findByReferenceTypeAndIsReversalFalseAndIsDeletedFalseOrderByEntryDateAscIdAsc("DAY_CLOSE_VARIANCE"))
++                    .thenReturn(List.of(j));
++            DayCloseVarianceService service = new DayCloseVarianceService(mockEngine, snaps, journals, lines,
++                    failures, config, recons);
++
++            assertThatThrownBy(() -> service.correct(false, "boss"))
++                    .isInstanceOf(IllegalStateException.class)
++                    .hasMessageContaining("vipindi vilivyofungwa")
++                    .hasMessageContaining("s-1 (2026-09-05)");
++            verify(mockEngine, never()).reverse(anyString(), anyString(), anyString(), any(LocalDate.class));
++            verify(mockEngine, never()).postDayCloseVariance(any(), anyString(), anyBoolean());
++            verify(snaps, never()).save(any());
++
++            DayCloseVarianceService.CorrectionResult dry = service.correct(true, "boss");
++            assertThat(dry.getRows()).singleElement()
++                    .satisfies(row -> assertThat(row.getError()).contains("Kipindi 2026-09 kimefungwa"));
++        }
++
++        @Test
++        @DisplayName("scheduler: due expenditure and depreciation for September are refused, not moved, kept in gl_posting_failure; the job does not throw")
++        void schedulerRecordsFailure() {
++            CapitalExpenditureService capex = mock(CapitalExpenditureService.class);
++            List<Throwable> seen = new ArrayList<>();
++            when(capex.postDueApprovedCapex(45)).thenAnswer(i -> {
++                try {
++                    postExpense("capex-40", SEPT);
++                } catch (RuntimeException e) {
++                    seen.add(e);
++                }
++                return 0;
++            });
++            doAnswer(i -> {
++                try {
++                    postExpense("DEPR:asset-1:2026-09", LocalDate.of(2026, 9, 30));
++                } catch (RuntimeException e) {
++                    seen.add(e);
++                }
++                return null;
++            }).when(capex).updateAllAssetDepreciation();
++            CapitalExpenditureScheduler scheduler = scheduler(capex);
++
++            scheduler.postDueApprovedExpenditures();
++            scheduler.updateAssetDepreciation();
++
++            assertThat(seen).isEmpty();
++            verify(journals, never()).save(any());
++            for (String ref : List.of("capex-40", "DEPR:asset-1:2026-09")) {
++                verify(failures).record(eq(JournalEventType.EXPENSE_DIRECT.name()), eq(ref), eq(ref),
++                        argThat(e -> root(e) instanceof GlClosedPeriodException
++                                && root(e).getMessage().contains("scheduler")));
++            }
++            // and the scope did not leak out of the scheduler thread's job
++            postExpense("capex-41", SEPT);
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())));
++            verify(failures, times(2)).record(any(), any(), any(), any());
++        }
++
++        @Test
++        @DisplayName("all 4 scheduler jobs open a recording scope")
++        void allSchedulerJobsRecord() {
++            PostingEngine mockEngine = mock(PostingEngine.class);
++            when(mockEngine.strictClosedPeriods(anyString(), anyBoolean())).thenReturn(() -> { });
++            CapitalExpenditureService capex = mock(CapitalExpenditureService.class);
++            CapitalExpenditureScheduler scheduler = new CapitalExpenditureScheduler();
++            ReflectionTestUtils.setField(scheduler, "capitalExpenditureService", capex);
++            ReflectionTestUtils.setField(scheduler, "postingEngine", mockEngine);
++
++            scheduler.processRecurringExpenses();
++            scheduler.postDueApprovedExpenditures();
++            scheduler.materializeRecurringMonthlyBudgets();
++            scheduler.updateAssetDepreciation();
++
++            for (String op : List.of("recurring expenses", "due expenditures", "monthly budgets", "depreciation")) {
++                verify(mockEngine).strictClosedPeriods("scheduler: " + op, true);
++            }
++            verify(mockEngine, never()).strictClosedPeriods(anyString());
++        }
++
++        @Test
++        @DisplayName("end to end: scheduler refusal -> real gl_posting_failure row with lines -> retry -> late entry 01/10")
++        void schedulerRefusalThenRetry() {
++            GlPostingFailureRepository repo = mock(GlPostingFailureRepository.class);
++            List<GlPostingFailure> rows = new ArrayList<>();
++            when(repo.findFirstBySourceTypeAndSourceUidAndResolvedAtIsNull(anyString(), anyString())).thenReturn(Optional.empty());
++            when(repo.save(any())).thenAnswer(i -> {
++                GlPostingFailure f = i.getArgument(0);
++                if (f.getUid() == null) f.setUid("row-" + rows.size());
++                if (!rows.contains(f)) rows.add(f);
++                return f;
++            });
++            when(repo.findByUid(anyString())).thenAnswer(i -> rows.stream()
++                    .filter(f -> f.getUid().equals(i.getArgument(0))).findFirst());
++            GlPostingFailureService real = new GlPostingFailureService(repo, ctx);
++            when(ctx.getBean(GlPostingFailureService.class)).thenReturn(real);
++            CapitalExpenditureService capex = mock(CapitalExpenditureService.class);
++            when(capex.postDueApprovedCapex(45)).thenAnswer(i -> {
++                postExpense("capex-50", SEPT);
++                return 1;
++            });
++
++            scheduler(capex).postDueApprovedExpenditures();
++
++            assertThat(rows).singleElement().satisfies(f -> {
++                assertThat(f.getResolvedAt()).isNull();
++                assertThat(f.getEntryDate()).isEqualTo(SEPT);
++                assertThat(f.getLinesJson()).contains("6100");
++                assertThat(f.getError()).contains("Kipindi 2026-09 kimefungwa").contains("scheduler: due expenditures");
++            });
++            verify(journals, never()).save(any());
++
++            liveAfterSave("capex-50");
++            GlPostingFailure out = real.retry(rows.get(0).getUid(), "boss");
++
++            assertThat(out.getResolution()).isEqualTo("RETRIED");
++            verify(journals).save(argThat(e -> LocalDate.of(2026, 10, 1).equals(e.getEntryDate())
++                    && SEPT.equals(e.getEventDate()) && Boolean.TRUE.equals(e.getIsLateEntry())));
++        }
++
++        @Test
++        @DisplayName("full backfill runs inside the strict scope (a month closed mid-run refuses its records)")
++        void backfillStrict() throws Exception {
++            PostingEngine mockEngine = mock(PostingEngine.class);
++            GlConfigService cfg = mock(GlConfigService.class);
++            GlAccountRepository accounts = mock(GlAccountRepository.class);
++            when(cfg.isPostingEnabled()).thenReturn(true);
++            when(accounts.count()).thenReturn(30L);
++            GlBackfillService service = build(GlBackfillService.class, Map.of(PostingEngine.class, mockEngine,
++                    GlConfigService.class, cfg, GlAccountRepository.class, accounts, GlPeriodRepository.class, periods));
++            when(periods.anyClosed()).thenReturn(false);
++            try {
++                service.backfillAll("boss");
++            } catch (RuntimeException ignored) {
++                // the mocked record repositories return nothing usable; only the scope matters here
++            }
++            verify(mockEngine).strictClosedPeriods("backfill");
++        }
++    }
++}
+diff --git a/src/test/java/com/Lsms/uaa/entity/DataInitializerRootUserTest.java b/src/test/java/com/Lsms/uaa/entity/DataInitializerRootUserTest.java
+new file mode 100644
+index 0000000..c121162
+--- /dev/null
++++ b/src/test/java/com/Lsms/uaa/entity/DataInitializerRootUserTest.java
+@@ -0,0 +1,154 @@
++package com.Lsms.uaa.entity;
++
++import com.Lsms.Role.Repository.PermissionRepository;
++import com.Lsms.Role.Repository.RoleRepository;
++import com.Lsms.uaa.repository.UserRepository;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.core.io.ClassPathResource;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.test.util.ReflectionTestUtils;
++
++import java.io.InputStream;
++import java.nio.charset.StandardCharsets;
++import java.util.Optional;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.ArgumentMatchers.argThat;
++import static org.mockito.Mockito.*;
++
++/**
++ * 2.2.72 (21/10): on 21/10 15:13:12 the backend restart of §1.8 (c) ran with ROOT_EMAIL=admin@admin.com,
++ * and DataInitializer re-activated that account (deactivated by the owner at 15:10:32). Now boot never
++ * makes a non-root account root, still re-activates / unlocks an account that IS root (break-glass),
++ * and has no default root password.
++ */
++class DataInitializerRootUserTest {
++
++    private UserRepository users;
++    private DataInitializer init;
++
++    @BeforeEach
++    void setUp() {
++        users = mock(UserRepository.class);
++        PasswordEncoder encoder = mock(PasswordEncoder.class);
++        when(encoder.encode(any())).thenReturn("hash");
++        init = new DataInitializer(users, mock(RoleRepository.class), mock(PermissionRepository.class), encoder);
++        ReflectionTestUtils.setField(init, "rootEmail", "admin@admin.com");
++        ReflectionTestUtils.setField(init, "rootPassword", "set-by-env");
++        when(users.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
++    }
++
++    private static User user(boolean root, User.Status status) {
++        User u = new User();
++        u.setEmail("admin@admin.com");
++        u.setIsRoot(root);
++        u.setStatus(status);
++        u.setEmailVerified(true);
++        u.setIsLocked(false);
++        return u;
++    }
++
++    private void boot() {
++        ReflectionTestUtils.invokeMethod(init, "initializeRootUser");
++    }
++
++    @Test
++    @DisplayName("(a) ROOT_EMAIL at a non-root ACTIVE account: not promoted, nothing saved")
++    void nonRootNotPromoted() {
++        User u = user(false, User.Status.ACTIVE);
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.of(u));
++        boot();
++        assertThat(u.getIsRoot()).isFalse();
++        verify(users, never()).save(any());
++    }
++
++    @Test
++    @DisplayName("(a) ROOT_EMAIL at a non-root INACTIVE account: stays INACTIVE and non-root")
++    void nonRootInactiveUntouched() {
++        User u = user(false, User.Status.INACTIVE);
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.of(u));
++        boot();
++        assertThat(u.getStatus()).isEqualTo(User.Status.INACTIVE);
++        assertThat(u.getIsRoot()).isFalse();
++        verify(users, never()).save(any());
++    }
++
++    @Test
++    @DisplayName("(a) break-glass kept: an INACTIVE account that IS root is re-activated")
++    void rootReactivated() {
++        User u = user(true, User.Status.INACTIVE);
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.of(u));
++        boot();
++        assertThat(u.getStatus()).isEqualTo(User.Status.ACTIVE);
++        verify(users).save(u);
++    }
++
++    @Test
++    @DisplayName("(a) break-glass kept: a LOCKED root account is unlocked and ACTIVE")
++    void rootUnlocked() {
++        User u = user(true, User.Status.ACTIVE);
++        u.lock();
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.of(u));
++        boot();
++        assertThat(u.getIsLocked()).isFalse();
++        assertThat(u.getStatus()).isEqualTo(User.Status.ACTIVE);
++        verify(users).save(u);
++    }
++
++    @Test
++    @DisplayName("(a) a root account already right is not saved")
++    void rootAlreadyRight() {
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.of(user(true, User.Status.ACTIVE)));
++        boot();
++        verify(users, never()).save(any());
++    }
++
++    @Test
++    @DisplayName("(a) ROOT_EMAIL with no account while a root exists: nothing created")
++    void noCreateWhenRootExists() {
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.empty());
++        when(users.countByIsRootTrue()).thenReturn(1L);
++        boot();
++        verify(users, never()).save(any());
++    }
++
++    @Test
++    @DisplayName("(b) first install with no ROOT_PASSWORD: no ROOT user is created")
++    void firstInstallWithoutPassword() {
++        ReflectionTestUtils.setField(init, "rootPassword", "");
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.empty());
++        when(users.countByIsRootTrue()).thenReturn(0L);
++        boot();
++        verify(users, never()).save(any());
++    }
++
++    @Test
++    @DisplayName("first install with ROOT_PASSWORD: the ROOT user is created ACTIVE and root")
++    void firstInstallCreatesRoot() {
++        when(users.findByEmail("admin@admin.com")).thenReturn(Optional.empty());
++        when(users.countByIsRootTrue()).thenReturn(0L);
++        boot();
++        verify(users).save(argThat(u -> u.getIsRoot() && u.getStatus() == User.Status.ACTIVE
++                && "admin@admin.com".equals(u.getEmail()) && "hash".equals(u.getPassword())));
++    }
++
++    @Test
++    @DisplayName("(b) no default root password in DataInitializer's @Value")
++    void noCodeDefault() throws Exception {
++        Value v = DataInitializer.class.getDeclaredField("rootPassword").getAnnotation(Value.class);
++        assertThat(v.value()).isEqualTo("${root.password:}");
++    }
++
++    @Test
++    @DisplayName("(b) no default root password in application-pro.properties")
++    void noProfileDefault() throws Exception {
++        try (InputStream in = new ClassPathResource("application-pro.properties").getInputStream()) {
++            String props = new String(in.readAllBytes(), StandardCharsets.UTF_8);
++            assertThat(props).contains("root.password=${ROOT_PASSWORD:}").doesNotContain("Root@123");
++        }
++    }
++}

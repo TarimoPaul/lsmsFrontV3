@@ -13,15 +13,23 @@
 #     > 0 = SIMAMA na kuorodhesha (saa, IP, njia).
 #  4) TAARIFA TU: maombi yote tangu freeze kwa METHOD, njia na IP (kifaa kipi bado kiko kwenye LSMS).
 # Ishara: NGINX_LOG_INAFANYA_KAZI, MAANDISHI_TANGU_DUMP_HAKUNA (na MAANDISHI_TANGU_FREEZE_HAKUNA - jina la zamani la 45a).
+# 22/10 (mmiliki 21/10 16:xx): 46a inaendesha `bash 45-maandishi.sh SAA1 SAA1 taarifa` - maombi ya saa 1 iliyopita, TAARIFA tu
+# (exit 0 hata yakiwepo; ombi la majaribio bado lazima lionekane), na inaandika SAA_YA_SERVER_KUANZA <epoch>. 46b / 43 / 47
+# zinaendesha `bash 45-maandishi.sh <SAA_YA_SERVER_KUANZA ya 46a> <ileile>` - hakuna ombi la kuandika tangu 46a ianze.
 set -u -o pipefail
-DE="${1:-}"; FZ="${2:-}"
+SASA=$(date +%s)
+echo "SAA_YA_SERVER_KUANZA $SASA"
+DE="${1:-}"; FZ="${2:-}"; HALI_YA_KINGA="${3:-kinga}"
+[ "$DE" = SAA1 ] && DE=$((SASA - 3600))
+[ "$FZ" = SAA1 ] && FZ=$((SASA - 3600))
+case "$HALI_YA_KINGA" in kinga|taarifa) ;; *) echo "SIYO: hali ya kinga si kinga/taarifa: [$HALI_YA_KINGA]"; exit 1 ;; esac
 echo "$DE" | grep -qxE '[0-9]{9,11}' && echo "$FZ" | grep -qxE '[0-9]{9,11}' || { echo "SIYO: epoch ya dump / freeze si sahihi: [$DE] [$FZ]"; exit 1; }
 [ "$FZ" -le "$DE" ] || { echo "SIYO: freeze ni baada ya dump"; exit 1; }
 cd ~/lsms-deployment || exit 1
 eat() { TZ=Africa/Dar_es_Salaam date "$@"; }
 W=$(mktemp -d /tmp/45-maandishi.XXXXXX) || exit 1
 trap 'rm -rf "$W"' EXIT
-echo "dump mpya ilianza: $(eat -d "@$DE" '+%F %H:%M:%S') EAT; freeze: $(eat -d "@$FZ" '+%F %H:%M:%S') EAT; sasa: $(eat '+%H:%M:%S') EAT"
+echo "msingi (dump ya 45a au kuanza kwa 46a): $(eat -d "@$DE" '+%F %H:%M:%S') EAT; freeze: $(eat -d "@$FZ" '+%F %H:%M:%S') EAT; sasa: $(eat '+%H:%M:%S') EAT"
 
 SVCS=$(docker compose ps --services --status running 2>/dev/null)
 [ -n "$SVCS" ] || { echo "SIYO: docker compose ps haikuonyesha service zinazoendesha"; exit 1; }
@@ -112,15 +120,33 @@ FMT='{ l = $0; sub(/^[^\t]*\t/, "", l); n = split(l, q, "\""); ip = l; sub(/ .*/
        split(q[2], rq, " "); meth = rq[1]; p = rq[2]; sub(/\?.*/, "", p); st = q[3]; sub(/^ /, "", st); sub(/ .*/, "", st);
        ua = (n >= 7 ? q[6] : "") }'
 
+# WRITES ZA KUJIENDESHA (mmiliki 21/10): orodha ya ENDPOINT MAHUSUSI (METHOD + njia, regex iliyofungwa ^...$) zinazotokea bila
+# mtumiaji (heartbeat, kifaa n.k.), zilizothibitishwa kwa 45k (nginx ya 21/10 06:00-08:30). Kila mstari: METHOD<TAB>regex<TAB>sababu.
+# Hazihesabiwi, lakini zinaorodheshwa kama RUHUSA. Kamwe hazifuniki GL, sales, reco, purchases, users n.k. (MARUFUKU = SIMAMA).
+RUHUSA=$(cat <<'RUHUSA_EOF'
+RUHUSA_EOF
+)
+MARUFUKU='^/api/(v1/)?(gl|sales?|reconciliation|purchases?|users?|auth|safe-box|counting|customers|expenditures?|capital|stores?|products?)(/|$)'
+printf '%s\n' "$RUHUSA" | awk -F'\t' 'NF >= 3' > "$W/ruhusa.txt"
+while IFS=$'\t' read -r m r why; do
+  case "$r" in '^'*'$') ;; *) echo "SIYO: RUHUSA '$m $r' si regex iliyofungwa ^...\$ - SIMAMA"; exit 1 ;; esac
+  case "$m" in POST|PUT|PATCH|DELETE) ;; *) echo "SIYO: RUHUSA '$m' si METHOD ya kuandika - SIMAMA"; exit 1 ;; esac
+  r2="${r#^}"; r2="${r2%\$}"
+  if grep -qE "$MARUFUKU" <<< "$r2"; then echo "SIYO: RUHUSA '$m $r' inagusa eneo lililokatazwa - SIMAMA"; exit 1; fi
+  echo "RUHUSA $m $r ($why)"
+done < "$W/ruhusa.txt"
 echo "--- MAOMBI-YA-KUANDIKA-TANGU-DUMP ($(eat -d "@$DE" '+%H:%M:%S') EAT) ---"
-awk -F'\t' -v de="$DE" -v uaipo="$UA_IPO" "$FMT"'
+awk -F'\t' -v de="$DE" -v uaipo="$UA_IPO" -v rf="$W/ruhusa.txt" "$FMT"'
   $1 + 0 >= de + 0 && meth ~ /^(POST|PUT|PATCH|DELETE)$/ && p ~ /^\/api\// && p !~ /^\/api\/auth\/(login|refresh)$/ {
     if (uaipo == 1 && ua ~ /^lsms-18\//) { print "HATUA18\t" $1 "\t" ip "\t" meth " " p "\t" st; next }
+    if (rn == "") { rn = 0; while ((getline rl < rf) > 0) { split(rl, rr, "\t"); rn++; rm_[rn] = rr[1]; rx[rn] = rr[2] } }
+    for (i = 1; i <= rn; i++) if (meth == rm_[i] && p ~ rx[i]) { print "RUHUSA\t" $1 "\t" ip "\t" meth " " p "\t" st; next }
     if (uaipo == 0 && p ~ /^\/api\/v1\/gl\/(corrections\/|journal-entries\/manual$|periods\/2026\/[0-9]+\/close$)/) { print "HATUA18?\t" $1 "\t" ip "\t" meth " " p "\t" st; next }
     print "KUANDIKA\t" $1 "\t" ip "\t" meth " " p "\t" st }' "$W/e.txt" > "$W/w.txt"
 N=$(grep -c '^KUANDIKA' "$W/w.txt" || true)
 H=$(grep -c '^HATUA18' "$W/w.txt" || true)
-echo "maombi ya kuandika tangu dump: $N (ya hatua za 1.8 zenyewe, hayahesabiwi: $H)"
+RZ=$(grep -c '^RUHUSA' "$W/w.txt" || true)
+echo "maombi ya kuandika tangu dump: $N (ya hatua za 1.8 zenyewe, hayahesabiwi: $H; ya kujiendesha kwenye RUHUSA, hayahesabiwi: $RZ)"
 while IFS=$'\t' read -r k e ip mp st; do echo "  $k $(eat -d "@$e" '+%H:%M:%S') $ip $mp HTTP_$st"; done < <(head -n 40 "$W/w.txt")
 [ "$(wc -l < "$W/w.txt")" -le 40 ] || echo "  ... (orodha imekatwa kwenye 40)"
 
@@ -136,5 +162,6 @@ awk -F'\t' -v fz="$FZ" "$FMT"'$1 + 0 >= fz + 0 { gsub(/\/[0-9a-fA-F-]{20,}/, "/U
 
 echo NGINX_LOG_INAFANYA_KAZI
 if [ "$N" = 0 ]; then echo MAANDISHI_TANGU_DUMP_HAKUNA; echo MAANDISHI_TANGU_FREEZE_HAKUNA; exit 0; fi
-echo "SIYO: maombi $N ya kuandika baada ya dump mpya - dump haiwakilishi prod. SIMAMA: hakikisha hakuna kifaa kinachotumia LSMS (IP hapo juu), kisha anza 45a upya"
+if [ "$HALI_YA_KINGA" = taarifa ]; then echo "TAARIFA: maombi $N ya kuandika ndani ya kipindi hiki (hayasimamishi hatua hii)"; echo MAANDISHI_TAARIFA_TU; exit 0; fi
+echo "SIYO: maombi $N ya kuandika baada ya msingi - SIMAMA: hakikisha hakuna kifaa kinachotumia LSMS (IP hapo juu), kisha niambie"
 exit 1

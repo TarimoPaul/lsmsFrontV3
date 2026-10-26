@@ -1,0 +1,31 @@
+diff --git a/deploy/deploy-backend.ps1 b/deploy/deploy-backend.ps1
+index 17eb4d0..badf804 100644
+--- a/deploy/deploy-backend.ps1
++++ b/deploy/deploy-backend.ps1
+@@ -254,7 +254,7 @@ try {
+             if (Test-Path $file) { $propTexts += [System.IO.File]::ReadAllText($file) }
+         }
+     }
+-    Invoke-Checked "SSH kwenda '$SshHost' imeshindwa (jaribu: ssh $SshHost)" { ssh -o BatchMode=yes -o ConnectTimeout=15 $SshHost "true" }
++    Invoke-Checked "SSH kwenda '$SshHost' imeshindwa (jaribu: ssh $SshHost)" { ssh -n -o BatchMode=yes -o ConnectTimeout=15 $SshHost "true" }
+ 
+     # LF-only copy without BOM (CRLF / BOM break bash).
+     $body = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'remote-deploy-backend.sh')) -replace "`r", ''
+@@ -263,7 +263,7 @@ try {
+     Invoke-Checked "scp ya script imeshindwa. Server haijaguswa." { scp -q -o BatchMode=yes $tempScript "${SshHost}:${RemoteScript}" }
+ 
+     # What the server runs now, and which migrations of this build it has not applied yet (read-only).
+-    $status = @(ssh -o BatchMode=yes $SshHost "bash $RemoteScript --status $ServerDir")
++    $status = @(ssh -n -o BatchMode=yes $SshHost "bash $RemoteScript --status $ServerDir")
+     if ($LASTEXITCODE -ne 0) { Fail "Hali ya server haikusomeka (--status). Server haijaguswa." }
+     $running = ($status | Where-Object { $_ -like 'RUNNING *' } | Select-Object -First 1) -replace '^RUNNING\s*', ''
+     $applied = @($status | Where-Object { $_ -like 'APPLIED *' } | ForEach-Object { $_ -replace '^APPLIED\s*', '' })
+@@ -398,7 +398,7 @@ try {
+     Invoke-Checked "scp ya script imeshindwa. Server haijaguswa." { scp -q -o BatchMode=yes $tempScript "${SshHost}:${RemoteScript}" }
+ 
+     $out = @()
+-    ssh -o BatchMode=yes $SshHost "bash $RemoteScript $newVersion; rc=`$?; rm -f $RemoteScript; exit `$rc" |
++    ssh -n -o BatchMode=yes $SshHost "bash $RemoteScript $newVersion; rc=`$?; rm -f $RemoteScript; exit `$rc" |
+         ForEach-Object { Write-Host "    $_"; $out += $_ }
+     $sshExit = $LASTEXITCODE
+ 

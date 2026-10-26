@@ -1,0 +1,139 @@
+---MWENDESHO-55--- 
+RUHUSA_55 UAMUZI_WA_MMILIKI - imeruhusiwa kwa uamuzi wa mmiliki baada ya 56 (HITIMISHO ORODHA) na 56b (HITIMISHO_56B KUNA_HAIELEWEKI, 20261026); 55-uamuzi.txt: UAMUZI_MMILIKI_55 ENDELEA 20261026. SI HAKUNA_USHAHIDI_WA_MATUMIZI. 
+56: tarehe 20261026; leo 20261026; njia UAMUZI_WA_MMILIKI 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KAGUA-READ-ONLY--- 
+---KINGA-ZA-MPANGILIO---
+time="2026-10-26T14:29:10+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+backend: chiefmaster/my-lsms-backend:2.2.71 (taarifa - 55 haitegemei toleo)
+time="2026-10-26T14:29:11+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+ROOT_EMAIL_YA_BACKEND [root@system.com]
+---HALI-YA-ROOT-SASA-KABLA---
+time="2026-10-26T14:29:12+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+HALI_ROOT_SAA|SASA|prod|2026-10-26 14:29:12 EAT
+HALI_ROOT|SASA|prod|admin@admin.com|9|INACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-26 09:20:46.988557|last_login_at -
+HALI_ROOT|SASA|prod|root@system.com|1|ACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-20 16:04:39.453634|last_login_at -
+HALI_ROOT|SASA|prod|is_root_wote 2 admin@admin.com,root@system.com
+---HALI-YA-DB-KABLA---
+time="2026-10-26T14:29:13+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+ADMIN 1
+ADMIN_YOYOTE 1
+USERS 9
+ROOTS 2
+ROOT_SYSTEM 1
+---SQL-YA-55-HALI-kagua---
+time="2026-10-26T14:29:13+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+HALI_55| kagua
+NOTICE:  KABLA users 9 is_root 2 root@system.com ACTIVE
+NOTICE:  FK|audit_trails.user_uid|0|del=a
+NOTICE:  FK|branches.owner_uid|0|del=a
+NOTICE:  FK|debt_adjustment.approver_uid|0|del=a
+NOTICE:  FK|debt_adjustment.requester_uid|0|del=a
+NOTICE:  FK|password_reset_tokens.user_uid|0|del=a
+NOTICE:  FK|permission_config.user_uid|0|del=a
+NOTICE:  FK|sales.user_uid|0|del=a
+NOTICE:  FK|sales_returns.approved_by_uid|0|del=a
+NOTICE:  FK|sales_returns.processed_by_uid|0|del=a
+NOTICE:  FK|sales_returns.rejected_by_uid|0|del=a
+NOTICE:  FK|sales_returns.requested_by_uid|0|del=a
+NOTICE:  FK|settings_approvals.approver_uid|0|del=a
+NOTICE:  FK|settings_approvals.requester_uid|0|del=a
+NOTICE:  FK|user_branches.user_uid|1|del=a
+NOTICE:  KAMILI|backup_20260930_journal_entry.posted_by|25
+NOTICE:  NAMBA|order_suggestion_line.user_packs|1
+KAGUA_55_ROLLBACK
+NOTICE:  KINGA_55_SAWA
+[psql exit 0]
+KAGUA_55_SAWA
+---HALI-YA-DB-BAADA---
+time="2026-10-26T14:29:16+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+ADMIN 1
+ADMIN_YOYOTE 1
+USERS 9
+ROOTS 2
+ROOT_SYSTEM 1
+KAGUA_HAIKUBADILISHA_KITU
+---HALI-YA-ROOT-SASA-BAADA---
+time="2026-10-26T14:29:17+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+HALI_ROOT_SAA|SASA|prod|2026-10-26 14:29:18 EAT
+HALI_ROOT|SASA|prod|admin@admin.com|9|INACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-26 09:20:46.988557|last_login_at -
+HALI_ROOT|SASA|prod|root@system.com|1|ACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-20 16:04:39.453634|last_login_at -
+HALI_ROOT|SASA|prod|is_root_wote 2 admin@admin.com,root@system.com
+---55_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+mmiliki ameandika: FUTA 
+---FUTA--- 
+---KINGA-ZA-MPANGILIO---
+time="2026-10-26T14:30:32+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+backend: chiefmaster/my-lsms-backend:2.2.71 (taarifa - 55 haitegemei toleo)
+time="2026-10-26T14:30:33+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+ROOT_EMAIL_YA_BACKEND [root@system.com]
+---HALI-YA-ROOT-SASA-KABLA---
+time="2026-10-26T14:30:33+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+HALI_ROOT_SAA|SASA|prod|2026-10-26 14:30:34 EAT
+HALI_ROOT|SASA|prod|admin@admin.com|9|INACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-26 09:20:46.988557|last_login_at -
+HALI_ROOT|SASA|prod|root@system.com|1|ACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-20 16:04:39.453634|last_login_at -
+HALI_ROOT|SASA|prod|is_root_wote 2 admin@admin.com,root@system.com
+---HALI-YA-DB-KABLA---
+time="2026-10-26T14:30:34+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+ADMIN 1
+ADMIN_YOYOTE 1
+USERS 9
+ROOTS 2
+ROOT_SYSTEM 1
+---NAKALA-YA-ADMIN-KABLA-YA-KUFUTA---
+time="2026-10-26T14:30:35+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+nakala: /home/chief/backups/55-admin-20261026_143035.json (634 bytes, chmod 600; USER 1, USER_BRANCHES 1, bila password/token)
+---SQL-YA-55-HALI-futa---
+time="2026-10-26T14:30:36+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+HALI_55| futa
+NOTICE:  KABLA users 9 is_root 2 root@system.com ACTIVE
+NOTICE:  FK|audit_trails.user_uid|0|del=a
+NOTICE:  FK|branches.owner_uid|0|del=a
+NOTICE:  FK|debt_adjustment.approver_uid|0|del=a
+NOTICE:  FK|debt_adjustment.requester_uid|0|del=a
+NOTICE:  FK|password_reset_tokens.user_uid|0|del=a
+NOTICE:  FK|permission_config.user_uid|0|del=a
+NOTICE:  FK|sales.user_uid|0|del=a
+NOTICE:  FK|sales_returns.approved_by_uid|0|del=a
+NOTICE:  FK|sales_returns.processed_by_uid|0|del=a
+NOTICE:  FK|sales_returns.rejected_by_uid|0|del=a
+NOTICE:  FK|sales_returns.requested_by_uid|0|del=a
+NOTICE:  FK|settings_approvals.approver_uid|0|del=a
+NOTICE:  FK|settings_approvals.requester_uid|0|del=a
+NOTICE:  FK|user_branches.user_uid|1|del=a
+NOTICE:  KAMILI|backup_20260930_journal_entry.posted_by|25
+NOTICE:  NAMBA|order_suggestion_line.user_packs|1
+NOTICE:  KINGA_55_SAWA
+NOTICE:  ADMIN_IMEFUTWA_55 user_branches 1 users 1; baada users 8 is_root 1
+COMMIT_55
+[psql exit 0]
+ADMIN_IMEFUTWA_55
+---HALI-YA-DB-BAADA---
+time="2026-10-26T14:30:40+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+ADMIN 0
+ADMIN_YOYOTE 0
+USERS 8
+ROOTS 1
+ROOT_SYSTEM 1
+BAADA_SAWA_55
+---HALI-YA-ROOT-SASA-BAADA---
+time="2026-10-26T14:30:41+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+HALI_ROOT_SAA|SASA|prod|2026-10-26 14:30:41 EAT
+HALI_ROOT|SASA|prod|admin@admin.com|HAIPO|-|is_root -|is_locked -|is_deleted -|email_verified -|updated_at -|last_login_at -
+HALI_ROOT|SASA|prod|root@system.com|1|ACTIVE|is_root true|is_locked false|is_deleted false|email_verified true|updated_at 2026-10-20 16:04:39.453634|last_login_at -
+HALI_ROOT|SASA|prod|is_root_wote 1 root@system.com
+---55_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---ROOT-LOGIN-1--- 
+PASS root-login: root@system.com: HTTP 200, isRoot true, email root@system.com (lazima 200 + isRoot) Login successful
+ROOT_LOGIN_SAWA
+MUHTASARI 55 root login (prod): PASS 1, FAIL 0, SKIP 0
+[exit 0] 
+RUHUSA_ILIYOTUMIKA UAMUZI_WA_MMILIKI 
+---VICHUJIO-VIMEFUTWA--- 
+vichujio vimefutwa
+---OK--- 

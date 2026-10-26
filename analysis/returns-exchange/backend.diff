@@ -1,0 +1,1184 @@
+diff --git a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+index 3f2007d..fdb462e 100644
+--- a/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
++++ b/src/main/java/com/Lsms/CapitalAndExpenditure/gl/PostingEngine.java
+@@ -563,9 +563,12 @@ public class PostingEngine {
+         if (refund.compareTo(BigDecimal.ZERO) > 0) {
+             lines.add(new JournalLine("4020", refund, BigDecimal.ZERO, "Sales return"));
+         }
+-        // Cash actually paid out to the customer.
++        // Money actually paid out to the customer, from the account it left through
++        // (refund_method, V135; old rows = cash).
+         if (net.compareTo(BigDecimal.ZERO) > 0) {
+-            lines.add(new JournalLine("1000", BigDecimal.ZERO, net, "Refund paid"));
++            String refundAccount = accountMapper.getCashAccountCode(saleReturn.getRefundMethod());
++            lines.add(new JournalLine(refundAccount != null ? refundAccount : "1000", BigDecimal.ZERO, net,
++                    "Refund paid" + (saleReturn.getRefundMethod() != null ? " (" + saleReturn.getRefundMethod() + ")" : "")));
+         }
+         // Fees retained become other income (keeps the entry balanced).
+         if (feesKept.compareTo(BigDecimal.ZERO) > 0) {
+diff --git a/src/main/java/com/Lsms/Customer/Services/CustomerService.java b/src/main/java/com/Lsms/Customer/Services/CustomerService.java
+index 5465519..0ea529a 100644
+--- a/src/main/java/com/Lsms/Customer/Services/CustomerService.java
++++ b/src/main/java/com/Lsms/Customer/Services/CustomerService.java
+@@ -1519,8 +1519,10 @@ public Response<CustomerArStatementDto> getCustomerArStatement(String uid) {
+         for (SalesReturn ret : salesReturnRepository.findByCustomerUid(uid)) {
+             String st = ret.getReturnStatus() != null ? ret.getReturnStatus().name() : "";
+             if ("APPROVED".equals(st) || "COMPLETED".equals(st)) {
+-                BigDecimal net = ret.getNetRefundAmount() != null
+-                        ? ret.getNetRefundAmount() : BigDecimal.ZERO;
++                // Value of the goods brought back (credited to the customer); since V135
++                // netRefundAmount is only the part paid out in money.
++                BigDecimal net = ret.getRefundAmount() != null
++                        ? ret.getRefundAmount() : BigDecimal.ZERO;
+                 totalReturned = totalReturned.add(net);
+             }
+         }
+@@ -1537,8 +1539,10 @@ public Response<CustomerArStatementDto> getCustomerArStatement(String uid) {
+         for (SalesReturn ret : salesReturnRepository.findByCustomerUid(uid)) {
+             String st = ret.getReturnStatus() != null ? ret.getReturnStatus().name() : "";
+             if ("APPROVED".equals(st) || "COMPLETED".equals(st)) {
+-                BigDecimal net = ret.getNetRefundAmount() != null
+-                        ? ret.getNetRefundAmount() : BigDecimal.ZERO;
++                // Value of the goods brought back (credited to the customer); since V135
++                // netRefundAmount is only the part paid out in money.
++                BigDecimal net = ret.getRefundAmount() != null
++                        ? ret.getRefundAmount() : BigDecimal.ZERO;
+                 entries.add(CustomerLedgerEntryDto.builder()
+                         .date(ret.getApprovedAt() != null ? ret.getApprovedAt() : ret.getReturnDate())
+                         .type("REFUND")
+@@ -1662,7 +1666,7 @@ public ResponseList<CustomerActivityDto> getCustomerActivity(String uid) {
+             events.add(new CustomerActivityDto(
+                     "RETURN",
+                     ret.getReturnDate(),
+-                    ret.getNetRefundAmount(),
++                    ret.getRefundAmount(),
+                     ret.getReturnReference(),
+                     ret.getReturnStatus() != null ? ret.getReturnStatus().name() : null,
+                     "Marejesho"));
+diff --git a/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java b/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java
+index 43a56f6..e6456a7 100644
+--- a/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java
++++ b/src/main/java/com/Lsms/Reconciliation/Services/ReconciliationService.java
+@@ -229,13 +229,22 @@ public class ReconciliationService {
+                 }
+             }
+ 
++            // Cash handed back for returns, on the day it was handed back (approval), by
++            // whoever asked for the return. Only CASH leaves the drawer, and only the part the
++            // customer had paid (netRefundAmount) — the rest just lowered a debt. A return of
++            // a sale made the SAME day is already inside autoTotalSales (approval lowers that
++            // sale's total), so deducting it again would show a phantom excess.
+             BigDecimal returnDeductions = BigDecimal.ZERO;
+             try {
+                 List<Object[]> returnAgg = em.createQuery(
+-                    "SELECT COALESCE(SUM(sr.refundAmount), 0) FROM SalesReturn sr " +
++                    "SELECT COALESCE(SUM(sr.netRefundAmount), 0) FROM SalesReturn sr " +
++                    "LEFT JOIN sr.requestedBy rb " +
+                     "WHERE sr.isDeleted = false AND sr.returnStatus = 'APPROVED' " +
+-                    "  AND (:userUid IS NULL OR sr.originalSale.user.uid = :userUid) " +
+-                    "  AND sr.createdAt >= :start AND sr.createdAt < :end",
++                    "  AND (sr.refundMethod IS NULL OR sr.refundMethod = 'CASH') " +
++                    "  AND sr.originalSale.saleDate < :start " +
++                    "  AND (:userUid IS NULL OR COALESCE(rb.uid, sr.originalSale.user.uid) = :userUid) " +
++                    "  AND COALESCE(sr.approvedAt, sr.createdAt) >= :start " +
++                    "  AND COALESCE(sr.approvedAt, sr.createdAt) < :end",
+                     Object[].class
+                 ).setParameter("userUid", userUid)
+                  .setParameter("start", startOfDay).setParameter("end", endOfDay).getResultList();
+diff --git a/src/main/java/com/Lsms/Sales/Controller/SalesController.java b/src/main/java/com/Lsms/Sales/Controller/SalesController.java
+index dd075ca..31a09f1 100644
+--- a/src/main/java/com/Lsms/Sales/Controller/SalesController.java
++++ b/src/main/java/com/Lsms/Sales/Controller/SalesController.java
+@@ -786,7 +786,11 @@ public class SalesController {
+     public Response<ExchangeResult> processExchange(
+             @Valid @RequestBody ExchangeRequestDto exchangeRequestDto,
+             Authentication authentication) {
+-        return saleService.processExchange(exchangeRequestDto, authentication);
++        // Retired: this path sold the replacement and restocked outside the approval
++        // flow, without the return GL entry. An exchange is now a return request of type
++        // EXCHANGE with exchangeLines; approving it makes the new sale.
++        return new Response<>(ResponseStatus.Error, null,
++                "Exchange sasa ni ombi la marejesho la aina EXCHANGE (POST /api/v1/sales/returns) linaloidhinishwa na meneja");
+     }
+ 
+     // ===============================
+diff --git a/src/main/java/com/Lsms/Sales/Dto/ApproveReturnDto.java b/src/main/java/com/Lsms/Sales/Dto/ApproveReturnDto.java
+index ab44821..457b97e 100644
+--- a/src/main/java/com/Lsms/Sales/Dto/ApproveReturnDto.java
++++ b/src/main/java/com/Lsms/Sales/Dto/ApproveReturnDto.java
+@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
+ import lombok.Data;
+ import lombok.NoArgsConstructor;
+ 
++import java.math.BigDecimal;
+ import java.time.LocalDateTime;
+ import java.util.List;
+ 
+@@ -25,4 +26,17 @@ public class ApproveReturnDto {
+     private List<String> approvedItemUids;  // For partial approval
+ 
+     private LocalDateTime approvalDate;
++
++    /**
++     * How the cash refund is handed back (CASH, VODACOM, CRDB...). Default CASH.
++     * Only the part the customer had actually paid is refunded; the rest just
++     * lowers what they owe.
++     */
++    private String refundMethod;
++
++    /** EXCHANGE only: overrides the top-up recorded on the request. */
++    private BigDecimal exchangePaidAmount;
++
++    /** EXCHANGE only: overrides the top-up method recorded on the request. */
++    private String exchangePaidMethod;
+ }
+diff --git a/src/main/java/com/Lsms/Sales/Dto/CreateSalesReturnDto.java b/src/main/java/com/Lsms/Sales/Dto/CreateSalesReturnDto.java
+index 892fdb7..728633f 100644
+--- a/src/main/java/com/Lsms/Sales/Dto/CreateSalesReturnDto.java
++++ b/src/main/java/com/Lsms/Sales/Dto/CreateSalesReturnDto.java
+@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
+ import lombok.Data;
+ import lombok.NoArgsConstructor;
+ 
++import java.math.BigDecimal;
+ import java.time.LocalDateTime;
+ import java.util.List; /**
+  * DTO for creating a new sales return
+@@ -36,4 +37,14 @@ public class CreateSalesReturnDto {
+     private String customerComments;
+ 
+     private LocalDateTime returnRequestDate;
++
++    /** EXCHANGE only: the replacement products (required for an exchange). */
++    @Valid
++    private List<ExchangeLineDto> exchangeLines;
++
++    /** EXCHANGE only: money the customer adds on top of the returned value. */
++    private BigDecimal exchangePaidAmount;
++
++    /** EXCHANGE only: how that top-up is paid (default CASH). */
++    private String exchangePaidMethod;
+ }
+diff --git a/src/main/java/com/Lsms/Sales/Dto/ReturnItemDto.java b/src/main/java/com/Lsms/Sales/Dto/ReturnItemDto.java
+index a52b4a9..0967560 100644
+--- a/src/main/java/com/Lsms/Sales/Dto/ReturnItemDto.java
++++ b/src/main/java/com/Lsms/Sales/Dto/ReturnItemDto.java
+@@ -22,6 +22,19 @@ public class ReturnItemDto {
+     @Positive(message = "Quantity must be positive")
+     private Integer quantity;  // Will map to returnQuantityPieces
+ 
++    /**
++     * Optional: the exact sale line being returned. Without it the pieces are spread
++     * over the sale's lines of this product (a sale can sell one product as pieces
++     * AND as packs — two lines).
++     */
++    private String saleDetailUid;
++
++    /**
++     * Optional: GOOD (back on the shelf) or DAMAGED (cannot be resold, not restocked).
++     * A DAMAGED_RETURN makes every item DAMAGED.
++     */
++    private String itemCondition;
++
+     // ===== PACKAGE/PIECES DISPLAY FIELDS =====
+     private Integer piecesPerPackage;
+     private Integer quantityWholePackages;
+diff --git a/src/main/java/com/Lsms/Sales/Dto/ReturnValidationDto.java b/src/main/java/com/Lsms/Sales/Dto/ReturnValidationDto.java
+index 2d12eb6..48b94c2 100644
+--- a/src/main/java/com/Lsms/Sales/Dto/ReturnValidationDto.java
++++ b/src/main/java/com/Lsms/Sales/Dto/ReturnValidationDto.java
+@@ -31,6 +31,28 @@ public class ReturnValidationDto {
+     private BigDecimal estimatedRefund;
+     private BigDecimal estimatedStockValue;
+ 
++    /** What the customer still owes on the sale now (after payments, refunds, adjustments). */
++    private BigDecimal owedNow;
++
++    /** Money the customer has paid and kept on this sale — the most a return can pay back. */
++    private BigDecimal paidNet;
++
++    /** Per sale line: how many pieces can still come back, and their value per piece. */
++    private List<ReturnableLine> returnableLines;
++
++    @Data
++    @NoArgsConstructor
++    @AllArgsConstructor
++    public static class ReturnableLine {
++        private String saleDetailUid;
++        private String productUid;
++        private String productName;
++        private String saleType;
++        private Integer soldPieces;
++        private Integer returnablePieces;
++        private BigDecimal pricePerPiece;
++    }
++
+     /**
+      * Constructor with defaults
+      */
+diff --git a/src/main/java/com/Lsms/Sales/Dto/SalesDto.java b/src/main/java/com/Lsms/Sales/Dto/SalesDto.java
+index f2a03fe..7e23334 100644
+--- a/src/main/java/com/Lsms/Sales/Dto/SalesDto.java
++++ b/src/main/java/com/Lsms/Sales/Dto/SalesDto.java
+@@ -66,6 +66,9 @@ public class SalesDto {
+     private Boolean isPartialReturn;
+     private BigDecimal returnedAmount;
+     private LocalDateTime returnDate;
++    private String returnType;     // type of the return shown (pending one, else latest approved)
++    private Boolean hasExchange;   // an approved or pending EXCHANGE exists on this sale
++    private Integer returnCount;   // returns that are pending or approved
+ 
+     public SalesDto(
+             String uid,
+diff --git a/src/main/java/com/Lsms/Sales/Dto/SalesReturnDto.java b/src/main/java/com/Lsms/Sales/Dto/SalesReturnDto.java
+index 1ce8a7e..2e8955a 100644
+--- a/src/main/java/com/Lsms/Sales/Dto/SalesReturnDto.java
++++ b/src/main/java/com/Lsms/Sales/Dto/SalesReturnDto.java
+@@ -63,6 +63,9 @@ public class SalesReturnDto {
+ 
+     // Workflow tracking
+     private String requestedBy;
++    private String requestedByName;   // display names (the uid fields stay as they were)
++    private String approvedByName;
++    private String rejectedByName;
+     private LocalDateTime requestedAt;
+     private String processedBy;
+     private LocalDateTime processedDate;
+@@ -76,6 +79,12 @@ public class SalesReturnDto {
+     private String exchangeSaleUid;
+     private String exchangeReceiptNumber;
+     private BigDecimal exchangeAmountDifference;
++    private List<ExchangeLineDto> exchangeLines;  // EXCHANGE: replacement products (V135)
++    private BigDecimal exchangePaidAmount;        // EXCHANGE: customer top-up
++    private String exchangePaidMethod;
++
++    // How the cash part of the refund went back (V135; null = CASH on old rows)
++    private String refundMethod;
+ 
+     // Flags
+     private Boolean requiresManagerApproval;
+@@ -133,15 +142,18 @@ public class SalesReturnDto {
+         // Workflow tracking - users
+         if (entity.getRequestedBy() != null) {
+             dto.setRequestedBy(entity.getRequestedBy().getUid());
++            dto.setRequestedByName(entity.getRequestedBy().getFullName());
+         }
+         if (entity.getProcessedBy() != null) {
+             dto.setProcessedBy(entity.getProcessedBy().getUid());
+         }
+         if (entity.getApprovedBy() != null) {
+             dto.setApprovedBy(entity.getApprovedBy().getUid());
++            dto.setApprovedByName(entity.getApprovedBy().getFullName());
+         }
+         if (entity.getRejectedBy() != null) {
+             dto.setRejectedBy(entity.getRejectedBy().getUid());
++            dto.setRejectedByName(entity.getRejectedBy().getFullName());
+         }
+ 
+         // Workflow tracking - dates
+@@ -157,6 +169,18 @@ public class SalesReturnDto {
+             dto.setExchangeReceiptNumber(entity.getExchangeReceiptNumber());
+         }
+         dto.setExchangeAmountDifference(entity.getExchangeAmountDifference());
++        dto.setExchangePaidAmount(entity.getExchangePaidAmount());
++        dto.setExchangePaidMethod(entity.getExchangePaidMethod());
++        dto.setRefundMethod(entity.getRefundMethod());
++        if (entity.getExchangeLines() != null && !entity.getExchangeLines().isBlank()) {
++            try {
++                dto.setExchangeLines(new com.fasterxml.jackson.databind.ObjectMapper().readValue(entity.getExchangeLines(),
++                        new com.fasterxml.jackson.core.type.TypeReference<List<ExchangeLineDto>>() {
++                        }));
++            } catch (Exception ignored) {
++                dto.setExchangeLines(new ArrayList<>());
++            }
++        }
+ 
+         // Flags
+         dto.setRequiresManagerApproval(entity.getRequiresManagerApproval());
+diff --git a/src/main/java/com/Lsms/Sales/Entity/SalesReturn.java b/src/main/java/com/Lsms/Sales/Entity/SalesReturn.java
+index eff749c..5be2454 100644
+--- a/src/main/java/com/Lsms/Sales/Entity/SalesReturn.java
++++ b/src/main/java/com/Lsms/Sales/Entity/SalesReturn.java
+@@ -265,6 +265,28 @@ public class SalesReturn extends BaseEntity {
+     @Column(name = "exchange_amount_difference", precision = 19, scale = 2)
+     private BigDecimal exchangeAmountDifference = BigDecimal.ZERO;
+ 
++    /**
++     * Replacement products of an EXCHANGE, as JSON [{productUid, saleType, packageQuantity}].
++     * Turned into the exchange sale on approval (V135).
++     */
++    @Column(name = "exchange_lines", columnDefinition = "TEXT")
++    private String exchangeLines;
++
++    /** Money the customer adds on top of the returned value in an exchange (V135). */
++    @Column(name = "exchange_paid_amount", precision = 19, scale = 2)
++    private BigDecimal exchangePaidAmount;
++
++    /** Payment method of that top-up (V135). */
++    @Column(name = "exchange_paid_method", length = 30)
++    private String exchangePaidMethod;
++
++    /**
++     * How the cash refund (netRefundAmount) left the shop: CASH, VODACOM, CRDB...
++     * Null on old rows = CASH (V135).
++     */
++    @Column(name = "refund_method", length = 30)
++    private String refundMethod;
++
+     // ==================== RETURN ITEMS ====================
+ 
+     /**
+diff --git a/src/main/java/com/Lsms/Sales/Repository/SalesReturnItemRepository.java b/src/main/java/com/Lsms/Sales/Repository/SalesReturnItemRepository.java
+index ecf4829..5ae7f60 100644
+--- a/src/main/java/com/Lsms/Sales/Repository/SalesReturnItemRepository.java
++++ b/src/main/java/com/Lsms/Sales/Repository/SalesReturnItemRepository.java
+@@ -183,4 +183,12 @@ public interface SalesReturnItemRepository extends JpaRepository<SalesReturnItem
+     Integer sumReturnedQuantityBySaleAndProduct(
+             @Param("saleUid") String saleUid,
+             @Param("productUid") String productUid);
++
++    /** Pieces of one sale line already returned (approved) or waiting for approval. */
++    @Query("SELECT COALESCE(SUM(sri.returnQuantityPieces), 0) " +
++            "FROM SalesReturnItem sri " +
++            "WHERE sri.originalSaleDetail.uid = :saleDetailUid " +
++            "AND sri.salesReturn.isDeleted = false " +
++            "AND sri.salesReturn.returnStatus IN ('PENDING', 'APPROVED', 'PROCESSED', 'COMPLETED')")
++    Integer sumReturnedQuantityBySaleDetail(@Param("saleDetailUid") String saleDetailUid);
+ }
+diff --git a/src/main/java/com/Lsms/Sales/Repository/SalesReturnRepository.java b/src/main/java/com/Lsms/Sales/Repository/SalesReturnRepository.java
+index 5e29d01..986d77f 100644
+--- a/src/main/java/com/Lsms/Sales/Repository/SalesReturnRepository.java
++++ b/src/main/java/com/Lsms/Sales/Repository/SalesReturnRepository.java
+@@ -245,7 +245,7 @@ public interface SalesReturnRepository extends JpaRepository<SalesReturn, Long>
+     List<SalesReturn> findAllByOrderByReturnDateDesc();
+ 
+     @Query("SELECT sr FROM SalesReturn sr WHERE sr.originalSale.uid = :saleUid AND sr.isActive = true AND sr.isDeleted = false")
+-    Optional<SalesReturn> findByOriginalSaleUid(@Param("saleUid") String saleUid);
++    List<SalesReturn> findAllByOriginalSaleUid(@Param("saleUid") String saleUid);
+ 
+     @Query("SELECT sr FROM SalesReturn sr WHERE sr.originalSale.uid IN :saleUids AND sr.isActive = true AND sr.isDeleted = false")
+     List<SalesReturn> findByOriginalSaleUidIn(@Param("saleUids") List<String> saleUids);
+@@ -266,6 +266,24 @@ public interface SalesReturnRepository extends JpaRepository<SalesReturn, Long>
+            nativeQuery = true)
+     List<Object[]> getAggregateStats(@Param("startDate") LocalDateTime startDate,
+                                     @Param("endDate") LocalDateTime endDate);
+-}
+ 
++    /**
++     * What the customer has really paid on a sale and kept: active payments, minus the
++     * cash already handed back by earlier returns (their refund rows are inactive, so the
++     * payments still count them), plus approved debt adjustments (waived / written off —
++     * they settle the debt without money). Mirrors syncPaymentStatusByUid.
++     */
++    @Query(value = "SELECT " +
++           "COALESCE((SELECT SUM(p.amount_paid) FROM payments p WHERE p.sale_uid = :saleUid AND p.is_active = TRUE), 0) " +
++           "- COALESCE((SELECT SUM(r.net_refund_amount) FROM sales_returns r WHERE r.original_sale_uid = :saleUid " +
++           "   AND r.return_status IN ('APPROVED', 'PROCESSED', 'COMPLETED') AND r.is_deleted = FALSE), 0) " +
++           "+ COALESCE((SELECT SUM(d.amount) FROM debt_adjustment d WHERE d.sale_uid = :saleUid " +
++           "   AND d.status = 'APPROVED' AND d.is_deleted = FALSE), 0)",
++           nativeQuery = true)
++    java.math.BigDecimal settledNetOfRefunds(@Param("saleUid") String saleUid);
+ 
++    /** Approved debt adjustments of a sale (no money moved). */
++    @Query(value = "SELECT COALESCE(SUM(d.amount), 0) FROM debt_adjustment d WHERE d.sale_uid = :saleUid " +
++           "AND d.status = 'APPROVED' AND d.is_deleted = FALSE", nativeQuery = true)
++    java.math.BigDecimal sumApprovedDebtAdjustments(@Param("saleUid") String saleUid);
++}
+diff --git a/src/main/java/com/Lsms/Sales/Services/SalePaymentService.java b/src/main/java/com/Lsms/Sales/Services/SalePaymentService.java
+index 77e5f13..5c3bcc8 100644
+--- a/src/main/java/com/Lsms/Sales/Services/SalePaymentService.java
++++ b/src/main/java/com/Lsms/Sales/Services/SalePaymentService.java
+@@ -207,7 +207,16 @@ public class SalePaymentService {
+             refund.setTotalAmount(salesReturn.getNetRefundAmount().negate()); // NEGATIVE (money going out)
+             refund.setAmountPaid(salesReturn.getNetRefundAmount()); // Amount being refunded to customer
+             refund.setOutstandingBalance(BigDecimal.ZERO); // No outstanding balance for refunds
+-            refund.setPaymentMethod(PaymentMethod.CASH);
++            // The method the money really went back through (V135); old rows = CASH.
++            PaymentMethod method = PaymentMethod.CASH;
++            if (salesReturn.getRefundMethod() != null) {
++                try {
++                    method = PaymentMethod.valueOf(salesReturn.getRefundMethod());
++                } catch (IllegalArgumentException ignored) {
++                    method = PaymentMethod.CASH;
++                }
++            }
++            refund.setPaymentMethod(method);
+             refund.setPaymentStatus(PaymentStatus.REFUNDED);
+             refund.setRefundReference("REFUND-" + salesReturn.getReturnReference());
+             refund.setReversalReason(String.format(
+diff --git a/src/main/java/com/Lsms/Sales/Services/SaleService.java b/src/main/java/com/Lsms/Sales/Services/SaleService.java
+index a485ad1..c005ed1 100644
+--- a/src/main/java/com/Lsms/Sales/Services/SaleService.java
++++ b/src/main/java/com/Lsms/Sales/Services/SaleService.java
+@@ -273,39 +273,7 @@ public class SaleService {
+ 
+     private void populateReturnInfo(SalesDto dto, Sales sale) {
+         try {
+-            // Find if this sale has any returns
+-            Optional<SalesReturn> returnOpt = salesReturnRepository
+-                    .findByOriginalSaleUid(sale.getUid());
+-
+-            if (returnOpt.isPresent()) {
+-                SalesReturn salesReturn = returnOpt.get();
+-
+-                // ✅ Set return fields
+-                dto.setHasReturn(true);
+-                dto.setReturnStatus(salesReturn.getReturnStatus().toString()); // PENDING, APPROVED, etc
+-                dto.setReturnUid(salesReturn.getUid());
+-                dto.setReturnedAmount(salesReturn.getTotalReturnValue());
+-                dto.setReturnDate(salesReturn.getReturnDate());
+-
+-                // ✅ Determine if full or partial return
+-                if (salesReturn.getTotalReturnValue() != null &&
+-                        sale.getTotalAmount() != null) {
+-
+-                    BigDecimal returnPercentage = salesReturn.getTotalReturnValue()
+-                            .divide(sale.getTotalAmount(), 2, RoundingMode.HALF_UP)
+-                            .multiply(new BigDecimal("100"));
+-
+-                    if (returnPercentage.compareTo(new BigDecimal("90")) >= 0) {
+-                        dto.setIsFullReturn(true);
+-                    } else {
+-                        dto.setIsPartialReturn(true);
+-                    }
+-                }
+-
+-            } else {
+-                // No return exists
+-                dto.setHasReturn(false);
+-            }
++            applyReturnInfo(dto, salesReturnRepository.findAllByOriginalSaleUid(sale.getUid()));
+         } catch (com.Lsms.Counting.Exception.CountingBlockedException e) {
+             // Counting guard block lazima ifike GlobalExceptionHandler (HTTP 409) - usiimeze.
+             throw e;
+@@ -315,6 +283,47 @@ public class SaleService {
+         }
+     }
+ 
++    /**
++     * Return flags of a sale from ALL its returns. A sale can have several (a second
++     * partial return after the first was approved, or a new request after a rejection):
++     * the single-row lookup used to throw on those and showed "no return". The shown
++     * return is the pending one, else the latest approved; returnedAmount sums every
++     * approved return; "full" means nothing of the sale is left (its total is lowered
++     * on each approval — dividing by it gave /0 on a full return).
++     */
++    private void applyReturnInfo(SalesDto dto, List<SalesReturn> returns) {
++        List<SalesReturn> live = returns == null ? List.of() : returns.stream()
++                .filter(r -> r.getReturnStatus() != null && r.getReturnStatus() != ReturnStatus.REJECTED
++                        && r.getReturnStatus() != ReturnStatus.CANCELLED)
++                .sorted(Comparator.comparing(SalesReturn::getReturnDate, Comparator.nullsFirst(Comparator.naturalOrder())))
++                .toList();
++        if (live.isEmpty()) {
++            dto.setHasReturn(false);
++            dto.setReturnCount(0);
++            dto.setHasExchange(false);
++            return;
++        }
++        SalesReturn shown = live.stream().filter(r -> r.getReturnStatus() == ReturnStatus.PENDING)
++                .reduce((x, y) -> y).orElse(live.get(live.size() - 1));
++        BigDecimal approvedValue = live.stream()
++                .filter(r -> r.getReturnStatus() != ReturnStatus.PENDING)
++                .map(r -> r.getTotalReturnValue() != null ? r.getTotalReturnValue() : BigDecimal.ZERO)
++                .reduce(BigDecimal.ZERO, BigDecimal::add);
++
++        dto.setHasReturn(true);
++        dto.setReturnCount(live.size());
++        dto.setReturnStatus(shown.getReturnStatus().toString());
++        dto.setReturnUid(shown.getUid());
++        dto.setReturnType(shown.getReturnType() != null ? shown.getReturnType().name() : null);
++        dto.setReturnDate(shown.getReturnDate());
++        dto.setReturnedAmount(approvedValue);
++        dto.setHasExchange(live.stream().anyMatch(SalesReturn::isExchange));
++        boolean nothingLeft = approvedValue.signum() > 0
++                && (dto.getTotalAmount() == null || dto.getTotalAmount().compareTo(new BigDecimal("0.01")) < 0);
++        dto.setIsFullReturn(nothingLeft);
++        dto.setIsPartialReturn(!nothingLeft && approvedValue.signum() > 0);
++    }
++
+     private List<SalesDto> convertToDtoList(List<Sales> sales) {
+         return sales.stream()
+                 .map(this::convertToDto)
+@@ -370,12 +379,12 @@ public class SaleService {
+         }
+ 
+         // 3. Batch load return info (1 query)
+-        Map<String, SalesReturn> returnsMap = new HashMap<>();
++        Map<String, List<SalesReturn>> returnsMap = new HashMap<>();
+         try {
+             List<SalesReturn> allReturns = salesReturnRepository.findByOriginalSaleUidIn(uids);
+             for (SalesReturn sr : allReturns) {
+                 if (sr.getOriginalSale() != null) {
+-                    returnsMap.put(sr.getOriginalSale().getUid(), sr);
++                    returnsMap.computeIfAbsent(sr.getOriginalSale().getUid(), k -> new ArrayList<>()).add(sr);
+                 }
+             }
+         } catch (com.Lsms.Counting.Exception.CountingBlockedException e) {
+@@ -389,28 +398,7 @@ public class SaleService {
+         for (SalesDto dto : dtos) {
+             dto.setSaleDetails(detailsMap.getOrDefault(dto.getUid(), Collections.emptyList()));
+             dto.setPayments(paymentsMap.getOrDefault(dto.getUid(), Collections.emptyList()));
+-
+-            SalesReturn sr = returnsMap.get(dto.getUid());
+-            if (sr != null) {
+-                dto.setHasReturn(true);
+-                dto.setReturnStatus(sr.getReturnStatus().toString());
+-                dto.setReturnUid(sr.getUid());
+-                dto.setReturnedAmount(sr.getTotalReturnValue());
+-                dto.setReturnDate(sr.getReturnDate());
+-                if (sr.getTotalReturnValue() != null && dto.getTotalAmount() != null
+-                        && dto.getTotalAmount().compareTo(BigDecimal.ZERO) > 0) {
+-                    BigDecimal pct = sr.getTotalReturnValue()
+-                            .divide(dto.getTotalAmount(), 2, RoundingMode.HALF_UP)
+-                            .multiply(new BigDecimal("100"));
+-                    if (pct.compareTo(new BigDecimal("90")) >= 0) {
+-                        dto.setIsFullReturn(true);
+-                    } else {
+-                        dto.setIsPartialReturn(true);
+-                    }
+-                }
+-            } else {
+-                dto.setHasReturn(false);
+-            }
++            applyReturnInfo(dto, returnsMap.get(dto.getUid()));
+         }
+     }
+ 
+@@ -4800,6 +4788,13 @@ public class SaleService {
+                         "Cannot return deleted sale");
+             }
+ 
++            // Same 30-day window validate-return reports (it was only advisory before).
++            if (originalSale.getSaleDate() != null
++                    && originalSale.getSaleDate().isBefore(LocalDateTime.now().minusDays(30))) {
++                return new Response<>(ResponseStatus.Error, null,
++                        "Muda wa kurudisha (siku 30) umepita kwa mauzo haya");
++            }
++
+             // 2. CHECK: No pending returns exist
+             List<SalesReturn> existingReturns = salesReturnRepository
+                     .findByOriginalSaleAndReturnStatus(originalSale.getUid(), ReturnStatus.PENDING);
+@@ -4808,10 +4803,16 @@ public class SaleService {
+                         "Sale already has a pending return request");
+             }
+ 
+-            // 3. VALIDATE: Return items
+-            Response<String> validation = validateReturnItems(originalSale, returnDto.getReturnItems());
+-            if (validation.getStatus() == ResponseStatus.Error) {
+-                return new Response<>(ResponseStatus.Error, null, validation.getMessage());
++            // 3. RESOLVE + VALIDATE: every requested quantity is placed on real sale lines
++            // (one product can sit on two lines — pieces and packs), never above what is
++            // left after earlier / pending returns of that line.
++            List<ReturnAllocation> allocations;
++            List<ExchangeLineDto> exchangeLines;
++            try {
++                allocations = allocateReturnItems(originalSale, returnDto);
++                exchangeLines = validateExchangeLines(returnDto);
++            } catch (IllegalArgumentException invalid) {
++                return new Response<>(ResponseStatus.Error, null, invalid.getMessage());
+             }
+ 
+             // 4. CREATE: Return entity
+@@ -4825,13 +4826,18 @@ public class SaleService {
+             salesReturn.setReturnDate(LocalDateTime.now());
+             salesReturn.setRequestedAt(LocalDateTime.now());
+ 
+-            // ✅ FIX: Set requested by user CORRECTLY
+-            if (returnDto.getRequestedBy() != null) {
+-                User requestingUser = userRepository.findByUid(returnDto.getRequestedBy())
+-                        .orElse(null);
+-                if (requestingUser != null) {
+-                    salesReturn.setRequestedBy(requestingUser); // ✅ CORRECT: User object
+-                }
++            // Requested by: the uid sent, else the signed-in user (the frontend never sent
++            // it, which left every request without a requester).
++            String requesterUid = returnDto.getRequestedBy() != null ? returnDto.getRequestedBy() : LoggedUser.getUid();
++            if (requesterUid != null) {
++                userRepository.findByUid(requesterUid).ifPresent(salesReturn::setRequestedBy);
++            }
++
++            if (exchangeLines != null) {
++                salesReturn.setExchangeLines(EXCHANGE_JSON.writeValueAsString(exchangeLines));
++                BigDecimal topUp = returnDto.getExchangePaidAmount();
++                salesReturn.setExchangePaidAmount(topUp != null && topUp.signum() > 0 ? topUp : BigDecimal.ZERO);
++                salesReturn.setExchangePaidMethod(normalizeMethod(returnDto.getExchangePaidMethod()));
+             }
+ 
+             // 5. CREATE: Return items
+@@ -4841,48 +4847,27 @@ public class SaleService {
+ 
+             List<SalesReturnItem> returnItems = new ArrayList<>();
+ 
+-            for (ReturnItemDto itemDto : returnDto.getReturnItems()) {
+-                // ✅ FIX: Use productUid from DTO to find original sale detail
+-                SalesDetails originalDetail = salesDetailsRepository
+-                        .findBySaleAndProduct_Uid(originalSale, itemDto.getProductUid()) // ✅ CORRECT
+-                        .orElseThrow(() -> new ResourceNotFoundException(
+-                                "Sales",
+-                                "uid",
+-                                "Product not found in original sale: " + itemDto.getProductUid()));
+-
+-                // ✅ FIX: Validate quantity using correct field name
+-                if (itemDto.getQuantity() > originalDetail.getPieceQuantity()) { // ✅ CORRECT
+-                    return new Response<>(ResponseStatus.Error, null,
+-                            "Return quantity exceeds sold quantity for product: " +
+-                                    originalDetail.getProduct().getProductName());
+-                }
++            for (ReturnAllocation a : allocations) {
++                SalesDetails originalDetail = a.detail();
+ 
+-                // Create return item
+                 SalesReturnItem returnItem = new SalesReturnItem();
+                 returnItem.setSalesReturn(salesReturn);
+                 returnItem.setProduct(originalDetail.getProduct());
+                 returnItem.setOriginalSaleDetail(originalDetail);
+ 
+-                // ✅ FIX: Map DTO fields correctly
+-                returnItem.setReturnQuantityPieces(itemDto.getQuantity()); // ✅ quantity → returnQuantityPieces
++                returnItem.setReturnQuantityPieces(a.pieces());
+                 returnItem.setOriginalPiecesSold(originalDetail.getPieceQuantity());
+                 returnItem.setOriginalUnitPrice(originalDetail.getUnitPrice());
+                 returnItem.setOriginalTotalPaid(originalDetail.getSubTotal());
+                 returnItem.setCostPrice(originalDetail.getCostPerPiece());
+-                returnItem.setOriginalSaleType(originalDetail.getSaleType()); // ✅ Set original sale type from original
+-                                                                              // detail
+-
+-                // ✅ Use item-specific reason if provided, otherwise use general return reason
+-                String itemReason = (itemDto.getReason() != null && !itemDto.getReason().trim().isEmpty())
+-                        ? itemDto.getReason()
+-                        : returnDto.getReturnReason();
+-                returnItem.setReturnReason(itemReason);
++                returnItem.setOriginalSaleType(originalDetail.getSaleType());
++                returnItem.setReturnReason(a.reason());
+ 
+-                // ✅ FIX: Set default values for missing DTO fields
+-                returnItem.setItemCondition("PENDING_INSPECTION"); // ✅ Default value
+-                returnItem.setReturnToStock(true); // ✅ Default value (assume good condition)
++                // Damaged goods cannot be resold: they are NOT put back on the shelf
++                // (approval skips the restock and the GL leaves their cost in COGS).
++                returnItem.setItemCondition(a.damaged() ? "DAMAGED" : "GOOD");
++                returnItem.setReturnToStock(!a.damaged());
+ 
+-                // Calculate amounts
+                 returnItem.calculateRefundAmount();
+                 returnItem.calculateProfitReversed();
+ 
+@@ -4890,14 +4875,15 @@ public class SaleService {
+ 
+                 totalRefund = totalRefund.add(returnItem.getRefundAmount());
+                 totalValue = totalValue.add(returnItem.getTotalAmount());
+-                totalItems += itemDto.getQuantity(); // ✅ CORRECT field
++                totalItems += a.pieces();
+             }
+ 
+             salesReturn.setReturnItems(returnItems);
+             salesReturn.setRefundAmount(totalRefund);
+             salesReturn.setTotalReturnValue(totalValue);
+             salesReturn.setTotalItemsReturned(totalItems);
+-            salesReturn.setNetRefundAmount(totalRefund); // No fees yet
++            // Estimate only: approval sets the real cash refund (what the customer had paid).
++            salesReturn.setNetRefundAmount(totalRefund);
+ 
+             // Check if requires manager approval
+             salesReturn.setRequiresManagerApproval(salesReturn.shouldRequireManagerApproval());
+@@ -4921,57 +4907,256 @@ public class SaleService {
+         }
+     }
+ 
+-    /**
+-     * ==================== VALIDATE RETURN ITEMS - FIXED ====================
+-     * Validate return items before processing
+-     */
+-    private Response<String> validateReturnItems(Sales sale, List<ReturnItemDto> returnItems) {
+-        try {
+-            for (ReturnItemDto item : returnItems) {
+-                // ✅ FIX: Use productUid (correct field)
+-                Optional<SalesDetails> detailOpt = salesDetailsRepository
+-                        .findBySaleAndProduct_Uid(sale, item.getProductUid()); // ✅ CORRECT
++    /** Exchange lines are stored on the return as JSON (sales_returns.exchange_lines, V135). */
++    private static final com.fasterxml.jackson.databind.ObjectMapper EXCHANGE_JSON =
++            new com.fasterxml.jackson.databind.ObjectMapper();
+ 
+-                if (detailOpt.isEmpty()) {
+-                    return new Response<>(ResponseStatus.Error, null,
+-                            "Product " + item.getProductUid() + " was not in original sale");
+-                }
++    /** Pieces of one sale line coming back. */
++    private record ReturnAllocation(SalesDetails detail, int pieces, boolean damaged, String reason) {
++    }
+ 
+-                SalesDetails detail = detailOpt.get();
++    /**
++     * Places each requested quantity on the sale's real lines. With a saleDetailUid it
++     * goes to that line; otherwise it fills the product's lines in order. A line never
++     * gives back more than it sold minus earlier and pending returns of THAT line (the
++     * old per-product lookup threw when one product sat on two lines).
++     */
++    private List<ReturnAllocation> allocateReturnItems(Sales sale, CreateSalesReturnDto dto) {
++        if (dto.getReturnItems() == null || dto.getReturnItems().isEmpty()) {
++            throw new IllegalArgumentException("Chagua angalau bidhaa moja ya kurudisha");
++        }
++        List<SalesDetails> lines = (sale.getSaleDetails() == null ? List.<SalesDetails>of() : sale.getSaleDetails())
++                .stream()
++                .filter(d -> d != null && !Boolean.TRUE.equals(d.getIsDeleted()) && d.getProduct() != null)
++                .sorted(Comparator.comparing(SalesDetails::getId, Comparator.nullsLast(Comparator.naturalOrder())))
++                .toList();
++
++        Map<String, Integer> left = new HashMap<>();
++        for (SalesDetails d : lines) {
++            int sold = d.getPieceQuantity() != null ? d.getPieceQuantity() : 0;
++            Integer done = salesReturnItemRepository.sumReturnedQuantityBySaleDetail(d.getUid());
++            left.put(d.getUid(), Math.max(0, sold - (done != null ? done : 0)));
++        }
++
++        boolean damagedType = dto.getReturnType() == ReturnType.DAMAGED_RETURN;
++        List<ReturnAllocation> out = new ArrayList<>();
++        for (ReturnItemDto item : dto.getReturnItems()) {
++            if (item.getQuantity() == null || item.getQuantity() <= 0) {
++                throw new IllegalArgumentException("Idadi ya kurudisha lazima iwe zaidi ya sifuri");
++            }
++            String condition = item.getItemCondition() != null ? item.getItemCondition().trim().toUpperCase() : "";
++            boolean damaged = damagedType || condition.equals("DAMAGED") || condition.equals("DEFECTIVE");
++            String reason = item.getReason() != null && !item.getReason().trim().isEmpty()
++                    ? item.getReason().trim() : dto.getReturnReason();
++
++            String lineUid = item.getSaleDetailUid() != null && !item.getSaleDetailUid().isBlank()
++                    ? item.getSaleDetailUid() : null;
++            List<SalesDetails> candidates = lines.stream()
++                    .filter(d -> lineUid != null
++                            ? lineUid.equals(d.getUid())
++                            : item.getProductUid() != null && item.getProductUid().equals(d.getProduct().getUid()))
++                    .toList();
++            if (candidates.isEmpty()) {
++                throw new IllegalArgumentException("Bidhaa haikuwa kwenye mauzo haya: " + item.getProductUid());
++            }
++
++            int need = item.getQuantity();
++            for (SalesDetails d : candidates) {
++                if (need == 0) break;
++                int take = Math.min(need, left.getOrDefault(d.getUid(), 0));
++                if (take <= 0) continue;
++                left.merge(d.getUid(), -take, Integer::sum);
++                out.add(new ReturnAllocation(d, take, damaged, reason));
++                need -= take;
++            }
++            if (need > 0) {
++                int available = item.getQuantity() - need;
++                throw new IllegalArgumentException(String.format(
++                        "Vipande %d vya \"%s\" vinazidi vilivyobaki kurudishwa (%d) — vingine vimesharudishwa au vinasubiri idhini",
++                        item.getQuantity(), candidates.get(0).getProduct().getProductName(), available));
++            }
++        }
++        return out;
++    }
+ 
+-                // ✅ FIX: Check quantity using correct field
+-                if (item.getQuantity() <= 0) { // ✅ CORRECT
+-                    return new Response<>(ResponseStatus.Error, null,
+-                            "Return quantity must be positive");
+-                }
++    /**
++     * EXCHANGE: the replacement products must exist and be in stock now (approval
++     * checks again under lock). Any other return type carries no exchange lines.
++     */
++    private List<ExchangeLineDto> validateExchangeLines(CreateSalesReturnDto dto) {
++        if (dto.getReturnType() != ReturnType.EXCHANGE) {
++            return null;
++        }
++        List<ExchangeLineDto> lines = dto.getExchangeLines();
++        if (lines == null || lines.isEmpty()) {
++            throw new IllegalArgumentException("Kubadilisha bidhaa kunahitaji angalau bidhaa moja mpya");
++        }
++        Map<String, Integer> needPieces = new HashMap<>();
++        Map<String, Products> products = new HashMap<>();
++        List<ExchangeLineDto> clean = new ArrayList<>();
++        for (ExchangeLineDto l : lines) {
++            if (l.getProductUid() == null || l.getProductUid().isBlank()
++                    || l.getPackageQuantity() == null || l.getPackageQuantity() <= 0) {
++                throw new IllegalArgumentException("Kila bidhaa mpya inahitaji bidhaa na idadi");
++            }
++            String type = l.getSaleType() != null && !l.getSaleType().isBlank()
++                    ? l.getSaleType().trim().toUpperCase() : "PIECES";
++            try {
++                PurchaseType.valueOf(type);
++            } catch (IllegalArgumentException e) {
++                throw new IllegalArgumentException("Aina ya mauzo si sahihi: " + l.getSaleType());
++            }
++            Products p = products.computeIfAbsent(l.getProductUid(),
++                    uid -> productRepository.findByUid(uid).orElseThrow(
++                            () -> new IllegalArgumentException("Bidhaa mpya haipatikani: " + uid)));
++            int pieces = exchangePieces(type, l.getPackageQuantity(), p);
++            if (pieces <= 0) {
++                throw new IllegalArgumentException("Idadi ya \"" + p.getProductName() + "\" ni sifuri");
++            }
++            needPieces.merge(p.getUid(), pieces, Integer::sum);
++            clean.add(new ExchangeLineDto(p.getUid(), type, l.getPackageQuantity()));
++        }
++        Map<String, Integer> stock = storeRepository.getCurrentStockBatch(new ArrayList<>(needPieces.keySet()));
++        for (Map.Entry<String, Integer> e : needPieces.entrySet()) {
++            Integer inStock = stock.get(e.getKey());
++            int have = inStock != null ? inStock : 0;
++            if (have < e.getValue()) {
++                throw new IllegalArgumentException(String.format("Stoo haitoshi kwa \"%s\": inahitajika %d, ipo %d",
++                        products.get(e.getKey()).getProductName(), e.getValue(), have));
++            }
++        }
++        return clean;
++    }
+ 
+-                if (item.getQuantity() > detail.getPieceQuantity()) { // ✅ CORRECT
+-                    return new Response<>(ResponseStatus.Error, null,
+-                            "Return quantity exceeds sold quantity for " +
+-                                    detail.getProduct().getProductName());
+-                }
++    /**
++     * EXCHANGE, on approval: the replacement products become a new sale for the same
++     * customer, sold by whoever asked for the exchange, priced by the normal sale rules.
++     * Payments on it: the cash the return just refunded (as CASH — no money really moves,
++     * the refund row takes it out and this puts it back), then the customer's top-up.
++     * Whatever is still unpaid is a normal debt and needs a named customer.
++     */
++    private void completeExchange(SalesReturn ret, Sales originalSale, ApproveReturnDto dto,
++            BigDecimal cashRefund, Authentication authentication) throws Exception {
++        List<ExchangeLineDto> lines = ret.getExchangeLines() == null || ret.getExchangeLines().isBlank()
++                ? List.of()
++                : EXCHANGE_JSON.readValue(ret.getExchangeLines(),
++                        new com.fasterxml.jackson.core.type.TypeReference<List<ExchangeLineDto>>() {
++                        });
++        if (lines.isEmpty()) {
++            throw new IllegalStateException("Exchange haina bidhaa mpya za kumpa mteja");
++        }
++
++        BigDecimal topUp = nz(dto.getExchangePaidAmount() != null ? dto.getExchangePaidAmount() : ret.getExchangePaidAmount());
++        String topUpMethod = normalizeMethod(dto.getExchangePaidMethod() != null ? dto.getExchangePaidMethod() : ret.getExchangePaidMethod());
++        if (PaymentMethod.CREDIT.name().equals(topUpMethod)) {
++            topUp = BigDecimal.ZERO;
++        }
++
++        SalesDto newSale = new SalesDto();
++        newSale.setSaleDate(LocalDateTime.now());
++        newSale.setCustomerUid(originalSale.getCustomer() != null ? originalSale.getCustomer().getUid() : null);
++        newSale.setUserUid(ret.getRequestedBy() != null ? ret.getRequestedBy().getUid() : null);
++        newSale.setSaleNotes("EXCHANGE | Return: " + ret.getReturnReference()
++                + " | Original sale: " + originalSale.getReceiptNumber());
++        for (ExchangeLineDto l : lines) {
++            SalesDetailDto d = new SalesDetailDto();
++            d.setProductUid(l.getProductUid());
++            d.setSaleType(l.getSaleType() != null ? l.getSaleType() : "PIECES");
++            d.setPackageQuantity(BigDecimal.valueOf(l.getPackageQuantity()));
++            // Pieces sent explicitly, as the POS does (createSale trusts pieceQuantity).
++            Products p = productRepository.findByUid(l.getProductUid())
++                    .orElseThrow(() -> new IllegalStateException("Bidhaa mpya haipatikani: " + l.getProductUid()));
++            d.setPieceQuantity(exchangePieces(d.getSaleType(), l.getPackageQuantity(), p));
++            newSale.getSaleDetails().add(d);
++        }
++
++        Response<SalesDto> made = createSale(newSale, authentication);
++        if (made.getStatus() == ResponseStatus.Error || made.getData() == null) {
++            throw new IllegalStateException("Mauzo mapya ya exchange yameshindikana: " + made.getMessage());
++        }
++        // createSale skips a line it has no stock for; an exchange must give ALL of it.
++        if (made.getData().getSaleDetails() == null || made.getData().getSaleDetails().size() != lines.size()) {
++            throw new IllegalStateException("Stoo haitoshi kwa bidhaa zote mpya za exchange"
++                    + (made.getWarnings() != null && !made.getWarnings().isEmpty() ? ": " + String.join("; ", made.getWarnings()) : ""));
++        }
++
++        Sales sale = salesRepository.findByUid(made.getData().getUid())
++                .orElseThrow(() -> new IllegalStateException("Mauzo mapya ya exchange hayakupatikana"));
++        BigDecimal total = nz(sale.getTotalAmount());
++
++        BigDecimal fromReturn = cashRefund.min(total);
++        BigDecimal paidNow = topUp.min(total.subtract(fromReturn)).max(BigDecimal.ZERO);
++        List<Payment> payments = new ArrayList<>();
++        if (fromReturn.signum() > 0) {
++            payments.add(exchangePayment(sale, PaymentMethod.CASH, fromReturn,
++                    "Exchange credit from return " + ret.getReturnReference()));
++        }
++        if (paidNow.signum() > 0) {
++            payments.add(exchangePayment(sale, PaymentMethod.valueOf(topUpMethod), paidNow,
++                    "Exchange top-up (" + ret.getReturnReference() + ")"));
++        }
++        BigDecimal owed = total.subtract(fromReturn).subtract(paidNow);
++        if (owed.signum() > 0 && sale.getCustomer() == null) {
++            throw new IllegalStateException("Exchange inaacha deni la " + formatMoney(owed)
++                    + " — mauzo ya awali hayana mteja. Ongeza malipo au rekodi mteja kwanza.");
++        }
++        if (!payments.isEmpty()) {
++            paymentRepository.saveAll(payments);
++            sale.getPayments().addAll(payments);
++        }
++        if (owed.signum() <= 0) {
++            sale.setDueDate(null);
++        }
++        sale.addNote("EXCHANGE for return " + ret.getReturnReference() + " of sale " + originalSale.getReceiptNumber());
++        salesRepository.save(sale);
++        salesRepository.syncPaymentStatusByUid(sale.getUid());
++
++        ret.setExchangeSale(sale);
++        ret.setExchangeReceiptNumber(sale.getReceiptNumber());
++        ret.setExchangePaidAmount(paidNow);
++        ret.setExchangePaidMethod(topUpMethod);
++        ret.setExchangeAmountDifference(total.subtract(nz(ret.getRefundAmount())));
++        ret.addNote(String.format("Exchange sale %s: %s (credit %s, paid %s %s, owed %s)",
++                sale.getReceiptNumber(), formatMoney(total), formatMoney(fromReturn),
++                formatMoney(paidNow), topUpMethod, formatMoney(owed.max(BigDecimal.ZERO))));
++    }
+ 
+-                // Check if already returned
+-                Integer alreadyReturned = salesReturnItemRepository
+-                        .sumReturnedQuantityBySaleAndProduct(sale.getUid(), item.getProductUid()); // ✅ CORRECT
+-                if (alreadyReturned == null)
+-                    alreadyReturned = 0;
++    /** Pieces of one exchange line: PIECES is the count itself, packs use the product's tiers. */
++    private int exchangePieces(String saleType, int quantity, Products product) {
++        if (saleType == null || PurchaseType.PIECES.name().equals(saleType)) {
++            return quantity;
++        }
++        SalesDetailDto probe = new SalesDetailDto();
++        probe.setSaleType(saleType);
++        probe.setPackageQuantity(BigDecimal.valueOf(quantity));
++        try {
++            return salePricingService.calculatePiecesFromDto(probe, product);
++        } catch (IllegalStateException e) {
++            throw new IllegalArgumentException("\"" + product.getProductName() + "\" haina idadi ya vipande kwa paketi — uza kwa vipande");
++        }
++    }
+ 
+-                if (alreadyReturned + item.getQuantity() > detail.getPieceQuantity()) { // ✅ CORRECT
+-                    return new Response<>(ResponseStatus.Error, null,
+-                            "Total return quantity (including previous returns) exceeds sold quantity for " +
+-                                    detail.getProduct().getProductName());
+-                }
+-            }
++    private Payment exchangePayment(Sales sale, PaymentMethod method, BigDecimal amount, String note) {
++        PaymentDto p = new PaymentDto();
++        p.setPaymentMethod(method);
++        p.setAmountPaid(amount);
++        p.setTotalAmount(sale.getTotalAmount());
++        p.setPaymentDate(sale.getSaleDate());
++        p.setPaymentNotes(note);
++        return salePaymentService.createPaymentEntity(sale, p);
++    }
+ 
+-            return new Response<>(ResponseStatus.Success, "Validation passed", null);
++    private static BigDecimal nz(BigDecimal v) {
++        return v != null ? v : BigDecimal.ZERO;
++    }
+ 
+-        } catch (com.Lsms.Counting.Exception.CountingBlockedException e) {
+-            // Counting guard block lazima ifike GlobalExceptionHandler (HTTP 409) - usiimeze.
+-            throw e;
+-        } catch (Exception e) {
+-            return new Response<>(ResponseStatus.Error, null,
+-                    "Validation failed: " + e.getMessage());
++    /** A payment method name as stored (CASH when empty); refuses names the system does not know. */
++    private static String normalizeMethod(String method) {
++        String m = method != null && !method.isBlank() ? method.trim().toUpperCase() : "CASH";
++        try {
++            return PaymentMethod.valueOf(m).name();
++        } catch (IllegalArgumentException e) {
++            throw new IllegalArgumentException("Njia ya malipo haijulikani: " + method);
+         }
+     }
+ 
+@@ -5116,12 +5301,39 @@ public class SaleService {
+         } catch (Exception e) {
+             }
+ 
+-            // 5. PAYMENT REVERSAL (REFUND)
++            // 5. REFUND — only money the customer had really paid comes back. The returned
++            // value first clears what they still owe on this sale; just the rest is paid
++            // out (it used to be paid out in full, even on an unpaid credit sale, and the
++            // GL then took the whole value out of the till).
++            BigDecimal returnValue = salesReturn.getRefundAmount() != null ? salesReturn.getRefundAmount() : BigDecimal.ZERO;
++            BigDecimal settled = nz(salesReturnRepository.settledNetOfRefunds(originalSale.getUid()));
++            BigDecimal adjusted = nz(salesReturnRepository.sumApprovedDebtAdjustments(originalSale.getUid()));
++            BigDecimal owedBefore = nz(originalSale.getTotalAmount()).subtract(settled).max(BigDecimal.ZERO);
++            BigDecimal cashRefund = returnValue.subtract(owedBefore).max(BigDecimal.ZERO)
++                    .min(settled.subtract(adjusted).max(BigDecimal.ZERO));
++            String refundMethod;
++            try {
++                refundMethod = normalizeMethod(approvalDto.getRefundMethod());
++            } catch (IllegalArgumentException invalid) {
++                return new Response<>(ResponseStatus.Error, null, invalid.getMessage());
++            }
++            if (PaymentMethod.CREDIT.name().equals(refundMethod)) {
++                return new Response<>(ResponseStatus.Error, null, "Pesa ya marejesho haiwezi kurudishwa kwa CREDIT");
++            }
++            // An exchange hands the refund straight back as payment for the new goods: both
++            // legs go through CASH so they cancel in the till and the GL; any change is cash.
++            if (salesReturn.isExchange()) {
++                refundMethod = PaymentMethod.CASH.name();
++            }
++            salesReturn.setNetRefundAmount(cashRefund);
++            salesReturn.setRefundMethod(refundMethod);
+ 
+-            Response<Payment> refundResult = salePaymentService.processRefund(originalSale, salesReturn, approver);
+-            if (refundResult.getStatus() == ResponseStatus.Error) {
+-                logger.error("❌ Refund processing failed: {}", refundResult.getMessage());
+-                throw new RuntimeException("Refund processing failed: " + refundResult.getMessage());
++            if (cashRefund.compareTo(BigDecimal.ZERO) > 0) {
++                Response<Payment> refundResult = salePaymentService.processRefund(originalSale, salesReturn, approver);
++                if (refundResult.getStatus() == ResponseStatus.Error) {
++                    logger.error("❌ Refund processing failed: {}", refundResult.getMessage());
++                    throw new RuntimeException("Refund processing failed: " + refundResult.getMessage());
++                }
+             }
+ 
+             // 6. SALES TOTALS ADJUSTMENT
+@@ -5164,6 +5376,19 @@ public class SaleService {
+             // posts here. A live-GL failure throws and rolls the approval back.
+             postingEngine.postSaleReturn(salesReturn, salesReturn.getReturnItems(), approver.getFullName());
+ 
++            // 9. EXCHANGE: the replacement goods become a new sale in this same transaction —
++            // if it cannot be made (stock, no customer for a balance) the whole approval
++            // rolls back.
++            if (salesReturn.isExchange()) {
++                completeExchange(salesReturn, originalSale, approvalDto, cashRefund, authentication);
++                salesReturn = salesReturnRepository.save(salesReturn);
++                BigDecimal diff = nz(salesReturn.getExchangeAmountDifference());
++                return new Response<>(ResponseStatus.Success, SalesReturnDto.fromEntity(salesReturn),
++                        "Exchange approved. New sale " + salesReturn.getExchangeReceiptNumber()
++                                + (diff.signum() > 0 ? " - customer adds " + formatMoney(diff)
++                                : diff.signum() < 0 ? " - customer gets back " + formatMoney(diff.abs()) : ""));
++            }
++
+             return new Response<>(ResponseStatus.Success,
+                     SalesReturnDto.fromEntity(salesReturn),
+                     "Return approved successfully. All reversals completed.");
+@@ -5567,9 +5792,37 @@ public class SaleService {
+                 errors.add("Sale already has pending return");
+             }
+ 
++            // Per line: pieces still returnable (sold minus approved / pending returns) and
++            // the price per piece the customer paid — what a return of it is worth.
++            List<ReturnValidationDto.ReturnableLine> returnable = new ArrayList<>();
++            BigDecimal returnableValue = BigDecimal.ZERO;
++            if (sale.getSaleDetails() != null) {
++                for (SalesDetails d : sale.getSaleDetails()) {
++                    if (d == null || Boolean.TRUE.equals(d.getIsDeleted()) || d.getProduct() == null) continue;
++                    int sold = d.getPieceQuantity() != null ? d.getPieceQuantity() : 0;
++                    Integer done = salesReturnItemRepository.sumReturnedQuantityBySaleDetail(d.getUid());
++                    int left = Math.max(0, sold - (done != null ? done : 0));
++                    BigDecimal perPiece = sold > 0 && d.getSubTotal() != null
++                            ? d.getSubTotal().divide(BigDecimal.valueOf(sold), 2, RoundingMode.HALF_UP)
++                            : BigDecimal.ZERO;
++                    returnable.add(new ReturnValidationDto.ReturnableLine(d.getUid(), d.getProduct().getUid(),
++                            d.getProduct().getProductName(), d.getSaleType() != null ? d.getSaleType().name() : null,
++                            sold, left, perPiece));
++                    returnableValue = returnableValue.add(perPiece.multiply(BigDecimal.valueOf(left)));
++                }
++            }
++            if (!returnable.isEmpty() && returnable.stream().allMatch(l -> l.getReturnablePieces() == 0)) {
++                errors.add("Everything on this sale has already been returned");
++            }
++            BigDecimal settled = nz(salesReturnRepository.settledNetOfRefunds(sale.getUid()));
++            BigDecimal adjusted = nz(salesReturnRepository.sumApprovedDebtAdjustments(sale.getUid()));
++            validation.setReturnableLines(returnable);
++            validation.setOwedNow(nz(sale.getTotalAmount()).subtract(settled).max(BigDecimal.ZERO));
++            validation.setPaidNet(settled.subtract(adjusted).max(BigDecimal.ZERO));
++
+             validation.setStockAvailable(true);
+             validation.setRefundPossible(true);
+-            validation.setEstimatedRefund(sale.getTotalAmount());
++            validation.setEstimatedRefund(returnableValue);
+ 
+             validation.setValid(errors.isEmpty());
+             validation.setValidationErrors(errors);
+diff --git a/src/test/java/com/Lsms/Sales/SaleServiceAddPaymentBalanceTest.java b/src/test/java/com/Lsms/Sales/SaleServiceAddPaymentBalanceTest.java
+index bf241ce..8859221 100644
+--- a/src/test/java/com/Lsms/Sales/SaleServiceAddPaymentBalanceTest.java
++++ b/src/test/java/com/Lsms/Sales/SaleServiceAddPaymentBalanceTest.java
+@@ -128,7 +128,7 @@ class SaleServiceAddPaymentBalanceTest {
+         sale.setPayments(new ArrayList<>(List.of(embedded)));
+ 
+         when(salesRepository.save(any(Sales.class))).thenAnswer(inv -> inv.getArgument(0));
+-        when(salesReturnRepository.findByOriginalSaleUid(SALE_UID)).thenReturn(Optional.empty());
++        when(salesReturnRepository.findAllByOriginalSaleUid(SALE_UID)).thenReturn(Collections.emptyList());
+ 
+         // Reading the sale always hands back the SAME managed instance, stale figures
+         // and all - exactly what Hibernate does inside one transaction.
+diff --git a/src/test/java/com/Lsms/Sales/SaleServiceDeletionTest.java b/src/test/java/com/Lsms/Sales/SaleServiceDeletionTest.java
+index 4186898..32c810c 100644
+--- a/src/test/java/com/Lsms/Sales/SaleServiceDeletionTest.java
++++ b/src/test/java/com/Lsms/Sales/SaleServiceDeletionTest.java
+@@ -130,7 +130,7 @@ class SaleServiceDeletionTest {
+         when(salesRepository.findByUidWithRelationships("sale-uid-1")).thenReturn(Optional.of(sale));
+         when(userRepository.findByUid("deleter-uid")).thenReturn(Optional.of(deletingUser));
+         when(salesReturnRepository.findByOriginalSale("sale-uid-1")).thenReturn(Collections.emptyList());
+-        when(salesReturnRepository.findByOriginalSaleUid("sale-uid-1")).thenReturn(Optional.empty());
++        when(salesReturnRepository.findAllByOriginalSaleUid("sale-uid-1")).thenReturn(Collections.emptyList());
+         when(capitalExpenditureService.getCapitalExpendituresBySaleUid("sale-uid-1"))
+                 .thenReturn(Collections.<CapitalExpenditureDto>emptyList());
+         when(salesRepository.save(any(Sales.class))).thenAnswer(inv -> inv.getArgument(0));
+diff --git a/src/test/java/com/Lsms/Sales/SaleServiceSyncedResponseTest.java b/src/test/java/com/Lsms/Sales/SaleServiceSyncedResponseTest.java
+index 6c9bd88..d16062a 100644
+--- a/src/test/java/com/Lsms/Sales/SaleServiceSyncedResponseTest.java
++++ b/src/test/java/com/Lsms/Sales/SaleServiceSyncedResponseTest.java
+@@ -79,7 +79,7 @@ class SaleServiceSyncedResponseTest {
+         sale.setSaleDate(LocalDateTime.now());
+         sale.setSaleDetails(Collections.emptyList());
+         sale.setPayments(new ArrayList<>());
+-        when(salesReturnRepository.findByOriginalSaleUid(SALE_UID)).thenReturn(Optional.empty());
++        when(salesReturnRepository.findAllByOriginalSaleUid(SALE_UID)).thenReturn(Collections.emptyList());
+     }
+ 
+     private SalesDto syncedDto() {
+diff --git a/src/main/java/com/Lsms/Sales/Dto/ExchangeLineDto.java b/src/main/java/com/Lsms/Sales/Dto/ExchangeLineDto.java
+new file mode 100644
+index 0000000..3695530
+--- /dev/null
++++ b/src/main/java/com/Lsms/Sales/Dto/ExchangeLineDto.java
+@@ -0,0 +1,29 @@
++package com.Lsms.Sales.Dto;
++
++import jakarta.validation.constraints.NotBlank;
++import jakarta.validation.constraints.NotNull;
++import jakarta.validation.constraints.Positive;
++import lombok.AllArgsConstructor;
++import lombok.Data;
++import lombok.NoArgsConstructor;
++
++/**
++ * One replacement product of an EXCHANGE return. Priced by the server (same rules as
++ * a POS sale) when the exchange is approved and the new sale is made.
++ */
++@Data
++@NoArgsConstructor
++@AllArgsConstructor
++public class ExchangeLineDto {
++
++    @NotBlank(message = "Product UID is required")
++    private String productUid;
++
++    /** PIECES, QUARTER_PACKAGE, HALF_PACKAGE or WHOLE_PACKAGE (default PIECES). */
++    private String saleType;
++
++    /** How many of saleType (pieces for PIECES, packs otherwise). */
++    @NotNull(message = "Quantity is required")
++    @Positive(message = "Quantity must be positive")
++    private Integer packageQuantity;
++}
+diff --git a/src/main/resources/db/migration/V135__Sales_Return_Refund_Method_And_Exchange.sql b/src/main/resources/db/migration/V135__Sales_Return_Refund_Method_And_Exchange.sql
+new file mode 100644
+index 0000000..a3aba1d
+--- /dev/null
++++ b/src/main/resources/db/migration/V135__Sales_Return_Refund_Method_And_Exchange.sql
+@@ -0,0 +1,16 @@
++-- Sales returns: how the refund left the shop, and what an EXCHANGE gives back.
++--
++-- refund_method         : CASH / VODACOM / CRDB ... — the GL cash account and the
++--                         reconciliation deduction follow it (only CASH leaves the drawer).
++-- exchange_lines        : JSON list of the replacement products of an EXCHANGE
++--                         [{productUid, saleType, packageQuantity}], turned into a new
++--                         sale when the exchange is approved.
++-- exchange_paid_amount  : money the customer added on top of the returned value.
++-- exchange_paid_method  : how that top-up was paid.
++--
++-- All nullable and additive: existing rows keep their meaning (null method = CASH).
++
++ALTER TABLE sales_returns ADD COLUMN IF NOT EXISTS refund_method VARCHAR(30);
++ALTER TABLE sales_returns ADD COLUMN IF NOT EXISTS exchange_lines TEXT;
++ALTER TABLE sales_returns ADD COLUMN IF NOT EXISTS exchange_paid_amount NUMERIC(19, 2);
++ALTER TABLE sales_returns ADD COLUMN IF NOT EXISTS exchange_paid_method VARCHAR(30);

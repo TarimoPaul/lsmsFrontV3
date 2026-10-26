@@ -2,7 +2,8 @@
 rem HATUA 45g = (b2) + (c) + (d) ya MPANGO 1.8. Baada ya (b): wewe umeondoa FINANCE_WRITE kwenye role Executive CEO (Roles UI).
 rem   (b2) UKAGUZI: admin@admin.com ni INACTIVE (API, kwa root).
 rem   (c) RESTART ya backend ya prod (cache ya users dakika 5 na ruhusa dakika 15 zinasafishwa) - /api chini ~65s.
-rem   (d) THIBITISHA baada ya restart: password ya zamani ya root inakataliwa, mpya inaingia; admin@admin.com INACTIVE;
+rem   (d) THIBITISHA baada ya restart: password ya zamani ya root inakataliwa, mpya inaingia; admin@admin.com: login kwa Root@123 = 401
+rem       (mmiliki 21/10 14:xx: boot ya backend inaiwasha tena - status ACTIVE / is_root true = TAHADHARI ya hotfix 2.2.72, si kosa);
 rem       jess@elikom.co.tz (Executive CEO) HANA FINANCE_WRITE; tarimo@gmail.com (CEO, mmiliki) ANAYO.
 rem Inabadilisha prod kwa restart TU (hakuna mabadiliko ya data). Akaunti: root (b2 / d zinahitaji root).
 rem Kinga: inakataa kuanza ikiwa log ya 45f haiishii ---OK---.
@@ -27,6 +28,7 @@ set F=-v envs='/home/chief/lsms-deployment/.env /home/chief/lsms-staging/.env' -
 set SSHO=-o BatchMode=yes -o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=4
 set STEP=
 set RC=
+if exist %L% copy /y %L% %L%.awali > nul
 echo ---MWENDESHO-45g--- > %L%
 set "NIMEPATA="
 call :mwisho_ni "analysis\steps\45f-prod-root-a.log" ---OK---
@@ -58,12 +60,27 @@ node analysis\steps\45-root-ukaguzi.mjs b2 >> %L% 2>&1
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
+set "LEO="
+for /f %%t in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set "LEO=%%t"
+if not exist %L%.awali goto restart_fanya
+set "NIMEPATA="
+call :mstari_pekee "%L%.awali" PROD_RESTART_SAWA
+if not defined NIMEPATA goto restart_fanya
+findstr /r /c:"%LEO% .*Started LsmsApplication" %L%.awali > nul
+if errorlevel 1 goto restart_fanya
+echo ---C-RESTART-BACKEND-YA-PROD--- >> %L%
+echo restart ya leo ilishafanyika kwenye jaribio lililopita - hairudiwi: >> %L%
+findstr /r /c:"%LEO% .*Started LsmsApplication" %L%.awali >> %L%
+echo PROD_RESTART_SAWA>> %L%
+goto restart_imeruka
+:restart_fanya
 set STEP=C-RESTART-BACKEND-YA-PROD
 echo ---%STEP%--- >> %L%
 ssh %SSHO% -n contabo "set -o pipefail; { cd ~/lsms-deployment && S=$(date -u +%%Y-%%m-%%dT%%H:%%M:%%SZ) && docker compose restart backend && for i in $(seq 1 60); do docker compose logs --no-color --since $S backend 2>&1 | grep -q -E 'Started LsmsApplication|APPLICATION FAILED' && break; sleep 3; done; docker compose logs --no-color --since $S backend 2>&1 | grep -E 'Started LsmsApplication|APPLICATION FAILED' | tail -2 | cut -c1-300; docker compose logs --no-color --since $S backend 2>&1 | grep -q 'Started LsmsApplication' && echo PROD_RESTART_SAWA; } 2>&1 | awk %F%" >> %L% 2>&1
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
+:restart_imeruka
 set "NIMEPATA="
 call :mstari_pekee "analysis\steps\45g-prod-b2-c-d.log" PROD_RESTART_SAWA
 if not defined NIMEPATA (
@@ -77,16 +94,40 @@ ssh %SSHO% -n contabo "set -o pipefail; { for i in $(seq 1 20); do C=$(curl -s -
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
+set "DJ="
+for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\45a-prod-preflight.log' -CaseSensitive -Pattern '^DUMP_MPYA_JINA (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^lsms_\d{8}_\d{4}\.dump$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "DJ=%%v"
+if not defined DJ set "DJ=KOSA:"
+echo DUMP_MPYA_JINA kutoka 45a: %DJ% >> %L%
+if "%DJ:~0,5%"=="KOSA:" (
+  echo SIYO: DUMP_MPYA_JINA kwenye analysis\steps\45a-prod-preflight.log haipo, si moja, au muundo wake si sahihi >> %L%
+  set STEP=45A-DUMP-MPYA-JINA
+  set RC=1
+  goto fail
+)
+set STEP=USHAHIDI-SCRIPT-KWENDA-CONTABO
+echo ---%STEP%--- >> %L%
+scp %SSHO% analysis\steps\45g-admin-ushahidi.sh contabo:/tmp/45g-admin-ushahidi.sh >> %L% 2>&1
+set RC=%errorlevel%
+echo [exit %RC%] >> %L%
+if not "%RC%"=="0" goto fail
+set STEP=ADMIN-USHAHIDI-KUSOMA-TU
+echo ---%STEP%--- >> %L%
+ssh %SSHO% -n contabo "set -o pipefail; { bash /tmp/45g-admin-ushahidi.sh %DJ%; R=$?; rm -f /tmp/45g-admin-ushahidi.sh; exit $R; } 2>&1 | awk %F%" >> %L% 2>&1
+set RC=%errorlevel%
+echo [exit %RC%] >> %L%
 set STEP=D-THIBITISHA
 echo ---%STEP%--- >> %L%
 node analysis\steps\45-root-ukaguzi.mjs d >> %L% 2>&1
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
+set "NIMEPATA="
+call :mstari_pekee "analysis\steps\45g-prod-b2-c-d.log" ADMIN_IS_ROOT_TRUE
+if defined NIMEPATA echo TAHADHARI admin@admin.com bado ina is_root true kwenye dump ya 45a - hotfix 2.2.72 inahitajika >> %L%
 echo ---KICHUJIO-KIMEFUTWA--- >> %L%
 ssh %SSHO% -n contabo "rm -f /tmp/ficha-lsms.awk && echo /tmp/ficha-lsms.awk imefutwa" >> %L% 2>&1
 echo ---OK--- >> %L%
-echo OK - (b2) admin INACTIVE, (c) restart, (d) root mpya / ya zamani inakataliwa, Executive CEO hana FINANCE_WRITE, CEO anayo. Matokeo: %L%. Sasa unaweza kuendesha 45h (V3 3.1.11).
+echo OK - (b2) admin INACTIVE, (c) restart, (d) root mpya / ya zamani inakataliwa, admin@admin.com kwa Root@123 = 401, Executive CEO hana FINANCE_WRITE, CEO anayo. Soma mistari ya TAHADHARI kwenye %L% - hotfix 2.2.72. Sasa unaweza kuendesha 45h (V3 3.1.11).
 goto end
 :fail
 echo ---IMESHINDWA-KWENYE: %STEP% (exit %RC%)--- >> %L%

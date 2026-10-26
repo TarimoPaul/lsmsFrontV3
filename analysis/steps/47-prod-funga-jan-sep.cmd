@@ -5,7 +5,9 @@ rem      na salio 6 za 30/09 + TB SAWA na mazoezi; 2) unaandika andika; 3) funga
 rem Baada ya kufunga: journal za mkono kwenye Jan-Sep zinakataliwa; kufungua upya ni POST .../periods/2026/M/reopen (inaandikwa audit).
 rem Kinga: inakataa kuanza ikiwa log ya 43 haiishii ---OK---.
 rem Matokeo: analysis\steps\47-prod-funga-jan-sep.log na analysis\steps\47-prod-funga.json
-rem Dirisha: 02:30-05:59 EAT, au 06:00-15:14 EAT kwa kibali cha ASUBUHI; kuanzia 15:15 inakataa kuanza (umeme wa duka unarudi 16:00).
+rem Dirisha la 22/10 (mmiliki 21/10 16:xx): baada ya reco ya 2026-10-21 kufungwa, kwa kibali cha ASUBUHI; KUANZA hadi 11:00 tu (46a 10:30; 46b/43/47 11:00). Iliyokwisha anza inaendelea; haijaisha 11:45 = ONYO.
+rem JIONI ya 22/10 TU (mmiliki 22/10 - umeme wa duka umekatika): set LSMS_DIRISHA=JIONI-20261022 + kuandika jioni; KUANZA 16:00-21:00 (46a 20:00; 46b/43/47 21:00; 45i 21:30). Iliyokwisha anza inaendelea; haijaisha 21:45 = ONYO.
+rem   Tarehe nyingine yoyote: kibali hicho kinakataliwa. Kinga nyingine zote hazijabadilika.
 rem Kanuni za §1.8 (mmiliki 20/10): kila hatua inakataa kuanza ikiwa log ya hatua iliyotangulia haiishii ---OK---;
 rem   kila output ya Contabo inapita ficha.awk kwenye server; ssh zote %SSHO% -n; toleo linakaguliwa kwa ishara za server;
 rem   password zinaulizwa bila kuonekana (PowerShell Read-Host -AsSecureString) na haziandikwi kwenye log wala faili lolote.
@@ -33,6 +35,12 @@ if not defined NIMEPATA (
 )
 set "DIRISHA=USIKU"
 set "JIBU_DIRISHA="
+if /i "%LSMS_DIRISHA%"=="JIONI-20261022" set /p JIBU_DIRISHA=Kibali cha mmiliki - andika jioni kuendesha hatua hii JIONI ya 2026-10-22 - kingine = kanuni ya usiku 02:30-05:59: 
+set "TAREHE_EAT="
+for /f "usebackq tokens=1" %%a in (`powershell -NoProfile -Command "[TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. Africa Standard Time').ToString('yyyy-MM-dd HHmm')"`) do set "TAREHE_EAT=%%a"
+if /i "%LSMS_DIRISHA%"=="JIONI-20261022" if /i "%JIBU_DIRISHA%"=="jioni" if "%TAREHE_EAT%"=="2026-10-22" set "DIRISHA=JIONI"
+if /i "%LSMS_DIRISHA%"=="JIONI-20261022" if not "%TAREHE_EAT%"=="2026-10-22" echo KIBALI_JIONI_KIMEKATALIWA: kibali JIONI-20261022 ni cha 2026-10-22 tu - leo ni %TAREHE_EAT% >> %L%
+if /i "%LSMS_DIRISHA%"=="JIONI-20261022" if not "%TAREHE_EAT%"=="2026-10-22" echo KIBALI cha jioni ni cha 2026-10-22 tu - leo ni %TAREHE_EAT%; kinakataliwa.
 if /i "%LSMS_DIRISHA%"=="ASUBUHI" set /p JIBU_DIRISHA=Kibali cha mmiliki - andika asubuhi kuendesha hatua hii ASUBUHI - kingine = kanuni ya usiku 02:30-05:59: 
 if /i "%LSMS_DIRISHA%"=="ASUBUHI" if /i "%JIBU_DIRISHA%"=="asubuhi" set "DIRISHA=ASUBUHI"
 for /f "usebackq tokens=1,2" %%a in (`powershell -NoProfile -Command "[TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. Africa Standard Time').ToString('yyyy-MM-dd HHmm')"`) do echo KIBALI_DIRISHA %DIRISHA% - LSMS_DIRISHA ni [%LSMS_DIRISHA%], jibu [%JIBU_DIRISHA%], saa %%a %%b EAT>> %L%
@@ -44,67 +52,14 @@ set "SAA="
 for /f "usebackq tokens=2" %%t in (`powershell -NoProfile -Command "[TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. Africa Standard Time').ToString('yyyy-MM-dd HHmm')"`) do set "SAA=%%t"
 set "SAWA="
 if "%SAA%" GEQ "0230" if "%SAA%" LEQ "0559" set "SAWA=1"
-if "%DIRISHA%"=="ASUBUHI" if "%SAA%" GEQ "0600" if "%SAA%" LEQ "1514" set "SAWA=1"
-echo saa ya Tanzania %SAA% - dirisha %DIRISHA% - mwisho wa asubuhi 1514 >> %L%
+if "%DIRISHA%"=="ASUBUHI" if "%SAA%" GEQ "0600" if "%SAA%" LEQ "1100" set "SAWA=1"
+if "%DIRISHA%"=="JIONI" if "%TAREHE_EAT%"=="2026-10-22" if "%SAA%" GEQ "1600" if "%SAA%" LEQ "2100" set "SAWA=1"
+echo saa ya Tanzania %SAA% - dirisha %DIRISHA% - mwisho wa asubuhi 1100, mwisho wa jioni ya 2026-10-22 2100 >> %L%
 if defined KUENDELEA set "SAWA=1"
 if not defined SAWA (
   echo ---IMEKATALIWA: nje ya dirisha - saa %SAA% EAT, dirisha %DIRISHA% - hakuna kilichoendeshwa--- >> %L%
-  echo IMEKATALIWA: saa %SAA% EAT iko nje ya dirisha. Usiku 02:30-05:59, au asubuhi 06:00-1514 kwa kibali. 47 haijaendeshwa.
+  echo IMEKATALIWA: saa %SAA% EAT iko nje ya dirisha. Usiku 02:30-05:59, au asubuhi 06:00-1100 kwa kibali, au jioni ya 2026-10-22 1600-2100 kwa kibali JIONI-20261022. 47 haijaendeshwa.
   goto end
-)
-set F=-v envs='/home/chief/lsms-deployment/.env /home/chief/lsms-staging/.env' -f /tmp/ficha-lsms.awk
-set SSHO=-o BatchMode=yes -o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=4
-set STEP=KICHUJIO-KWENDA-CONTABO
-echo ---%STEP%--- >> %L%
-scp %SSHO% analysis\steps\ficha.awk contabo:/tmp/ficha-lsms.awk >> %L% 2>&1
-set RC=%errorlevel%
-echo [exit %RC%] >> %L%
-if not "%RC%"=="0" goto fail
-set "DE="
-for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\45a-prod-preflight.log' -CaseSensitive -Pattern '^DUMP_MPYA_EPOCH (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^\d{9,11}$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "DE=%%v"
-if not defined DE set "DE=KOSA:"
-echo DUMP_MPYA_EPOCH kutoka 45a: %DE% >> %L%
-if "%DE:~0,5%"=="KOSA:" (
-  echo SIYO: DUMP_MPYA_EPOCH kwenye analysis\steps\45a-prod-preflight.log haipo, si moja, au muundo wake si sahihi >> %L%
-  set STEP=45A-DUMP-MPYA-EPOCH
-  set RC=1
-  goto fail
-)
-set "FZ="
-for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\45a-prod-preflight.log' -CaseSensitive -Pattern '^FREEZE_EPOCH (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^\d{9,11}$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "FZ=%%v"
-if not defined FZ set "FZ=KOSA:"
-echo FREEZE_EPOCH kutoka 45a: %FZ% >> %L%
-if "%FZ:~0,5%"=="KOSA:" (
-  echo SIYO: FREEZE_EPOCH kwenye analysis\steps\45a-prod-preflight.log haipo, si moja, au muundo wake si sahihi >> %L%
-  set STEP=45A-FREEZE-EPOCH
-  set RC=1
-  goto fail
-)
-set STEP=KINGA-SCRIPT-KWENDA-CONTABO
-echo ---%STEP%--- >> %L%
-scp %SSHO% analysis\steps\45-maandishi.sh contabo:/tmp/45-maandishi.sh >> %L% 2>&1
-set RC=%errorlevel%
-echo [exit %RC%] >> %L%
-if not "%RC%"=="0" goto fail
-set STEP=MAANDISHI-TANGU-DUMP-LAZIMA-0
-echo ---%STEP%--- >> %L%
-ssh %SSHO% -n contabo "set -o pipefail; { bash /tmp/45-maandishi.sh %DE% %FZ%; R=$?; rm -f /tmp/45-maandishi.sh; exit $R; } 2>&1 | awk %F%" >> %L% 2>&1
-set RC=%errorlevel%
-echo [exit %RC%] >> %L%
-if not "%RC%"=="0" goto fail
-set "NIMEPATA="
-call :mstari_pekee "analysis\steps\47-prod-funga-jan-sep.log" NGINX_LOG_INAFANYA_KAZI
-if not defined NIMEPATA (
-  echo SIYO: ombi la majaribio halikuonekana kwenye log ya nginx >> %L%
-  set RC=1
-  goto fail
-)
-set "NIMEPATA="
-call :mstari_pekee "analysis\steps\47-prod-funga-jan-sep.log" MAANDISHI_TANGU_DUMP_HAKUNA
-if not defined NIMEPATA (
-  echo SIYO: kuna maombi ya kuandika tangu dump mpya ya 45a - SIMAMA, hakuna kilichoandikwa; orodha iko kwenye log >> %L%
-  set RC=1
-  goto fail
 )
 if not defined PROD_API set "PROD_API=https://elikom.co.tz"
 echo PROD_API=%PROD_API% >> %L%
@@ -138,6 +93,50 @@ if not defined CEO_PASS (
   goto fail
 )
 set TARGET=prod
+set F=-v envs='/home/chief/lsms-deployment/.env /home/chief/lsms-staging/.env' -f /tmp/ficha-lsms.awk
+set SSHO=-o BatchMode=yes -o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=4
+set STEP=KICHUJIO-KWENDA-CONTABO
+echo ---%STEP%--- >> %L%
+scp %SSHO% analysis\steps\ficha.awk contabo:/tmp/ficha-lsms.awk >> %L% 2>&1
+set RC=%errorlevel%
+echo [exit %RC%] >> %L%
+if not "%RC%"=="0" goto fail
+set "K46="
+for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\46a-prod-marekebisho-kagua.log' -CaseSensitive -Pattern '^SAA_YA_SERVER_KUANZA (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^\d{9,11}$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "K46=%%v"
+if not defined K46 set "K46=KOSA:"
+echo SAA_YA_SERVER_KUANZA kutoka 46a: %K46% >> %L%
+if "%K46:~0,5%"=="KOSA:" (
+  echo SIYO: SAA_YA_SERVER_KUANZA kwenye analysis\steps\46a-prod-marekebisho-kagua.log haipo, si moja, au muundo wake si sahihi >> %L%
+  set STEP=46A-SAA-YA-SERVER-KUANZA
+  set RC=1
+  goto fail
+)
+set STEP=KINGA-SCRIPT-KWENDA-CONTABO
+echo ---%STEP%--- >> %L%
+scp %SSHO% analysis\steps\45-maandishi.sh contabo:/tmp/45-maandishi.sh >> %L% 2>&1
+set RC=%errorlevel%
+echo [exit %RC%] >> %L%
+if not "%RC%"=="0" goto fail
+set STEP=MAANDISHI-TANGU-46A-LAZIMA-0
+echo ---%STEP%--- >> %L%
+ssh %SSHO% -n contabo "set -o pipefail; { bash /tmp/45-maandishi.sh %K46% %K46%; R=$?; rm -f /tmp/45-maandishi.sh; exit $R; } 2>&1 | awk %F%" >> %L% 2>&1
+set RC=%errorlevel%
+echo [exit %RC%] >> %L%
+if not "%RC%"=="0" goto fail
+set "NIMEPATA="
+call :mstari_pekee "analysis\steps\47-prod-funga-jan-sep.log" NGINX_LOG_INAFANYA_KAZI
+if not defined NIMEPATA (
+  echo SIYO: ombi la majaribio halikuonekana kwenye log ya nginx >> %L%
+  set RC=1
+  goto fail
+)
+set "NIMEPATA="
+call :mstari_pekee "analysis\steps\47-prod-funga-jan-sep.log" MAANDISHI_TANGU_DUMP_HAKUNA
+if not defined NIMEPATA (
+  echo SIYO: kuna maombi ya kuandika tangu 46a ianze - SIMAMA, hakuna kilichoandikwa; orodha iko kwenye log >> %L%
+  set RC=1
+  goto fail
+)
 set STEP=KAGUA-HAIANDIKI
 echo ---%STEP%--- >> %L%
 node analysis\steps\47-funga-jan-sep.mjs kagua >> %L% 2>&1
@@ -154,23 +153,13 @@ if /i not "%JIBU%"=="andika" (
   goto fail
 )
 echo mmiliki ameandika: andika >> %L%
-set "DE="
-for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\45a-prod-preflight.log' -CaseSensitive -Pattern '^DUMP_MPYA_EPOCH (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^\d{9,11}$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "DE=%%v"
-if not defined DE set "DE=KOSA:"
-echo DUMP_MPYA_EPOCH kutoka 45a: %DE% >> %L%
-if "%DE:~0,5%"=="KOSA:" (
-  echo SIYO: DUMP_MPYA_EPOCH kwenye analysis\steps\45a-prod-preflight.log haipo, si moja, au muundo wake si sahihi >> %L%
-  set STEP=45A-DUMP-MPYA-EPOCH
-  set RC=1
-  goto fail
-)
-set "FZ="
-for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\45a-prod-preflight.log' -CaseSensitive -Pattern '^FREEZE_EPOCH (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^\d{9,11}$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "FZ=%%v"
-if not defined FZ set "FZ=KOSA:"
-echo FREEZE_EPOCH kutoka 45a: %FZ% >> %L%
-if "%FZ:~0,5%"=="KOSA:" (
-  echo SIYO: FREEZE_EPOCH kwenye analysis\steps\45a-prod-preflight.log haipo, si moja, au muundo wake si sahihi >> %L%
-  set STEP=45A-FREEZE-EPOCH
+set "K46="
+for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = @(Select-String -LiteralPath 'analysis\steps\46a-prod-marekebisho-kagua.log' -CaseSensitive -Pattern '^SAA_YA_SERVER_KUANZA (\S+)\s*$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique); if ($m.Count -eq 1 -and $m[0] -cmatch '^\d{9,11}$') { $m[0] } else { 'KOSA:' + ($m -join ',') }"`) do set "K46=%%v"
+if not defined K46 set "K46=KOSA:"
+echo SAA_YA_SERVER_KUANZA kutoka 46a: %K46% >> %L%
+if "%K46:~0,5%"=="KOSA:" (
+  echo SIYO: SAA_YA_SERVER_KUANZA kwenye analysis\steps\46a-prod-marekebisho-kagua.log haipo, si moja, au muundo wake si sahihi >> %L%
+  set STEP=46A-SAA-YA-SERVER-KUANZA
   set RC=1
   goto fail
 )
@@ -180,9 +169,9 @@ scp %SSHO% analysis\steps\45-maandishi.sh contabo:/tmp/45-maandishi.sh >> %L% 2>
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
-set STEP=MAANDISHI-TANGU-DUMP-LAZIMA-0
+set STEP=MAANDISHI-TANGU-46A-LAZIMA-0
 echo ---%STEP%--- >> %L%
-ssh %SSHO% -n contabo "set -o pipefail; { bash /tmp/45-maandishi.sh %DE% %FZ%; R=$?; rm -f /tmp/45-maandishi.sh; exit $R; } 2>&1 | awk %F%" >> %L% 2>&1
+ssh %SSHO% -n contabo "set -o pipefail; { bash /tmp/45-maandishi.sh %K46% %K46%; R=$?; rm -f /tmp/45-maandishi.sh; exit $R; } 2>&1 | awk %F%" >> %L% 2>&1
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
@@ -196,7 +185,7 @@ if not defined NIMEPATA (
 set "NIMEPATA="
 call :mstari_pekee "analysis\steps\47-prod-funga-jan-sep.log" MAANDISHI_TANGU_DUMP_HAKUNA
 if not defined NIMEPATA (
-  echo SIYO: kuna maombi ya kuandika tangu dump mpya ya 45a - SIMAMA, hakuna kilichoandikwa; orodha iko kwenye log >> %L%
+  echo SIYO: kuna maombi ya kuandika tangu 46a ianze - SIMAMA, hakuna kilichoandikwa; orodha iko kwenye log >> %L%
   set RC=1
   goto fail
 )
@@ -206,6 +195,14 @@ node analysis\steps\47-funga-jan-sep.mjs andika >> %L% 2>&1
 set RC=%errorlevel%
 echo [exit %RC%] >> %L%
 if not "%RC%"=="0" goto fail
+set "SAA2="
+for /f "usebackq tokens=2" %%t in (`powershell -NoProfile -Command "[TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. Africa Standard Time').ToString('yyyy-MM-dd HHmm')"`) do set "SAA2=%%t"
+if not "%DIRISHA%"=="JIONI" if "%SAA2%" GTR "1145" echo ONYO: saa %SAA2% EAT - hatua hii haijaisha kabla ya 11:45; LSMS inarudi kutumika 12:00. Mwambie mmiliki SASA. >> %L%
+if not "%DIRISHA%"=="JIONI" if "%SAA2%" GTR "1145" echo ONYO: saa %SAA2% EAT - hatua hii haijaisha kabla ya 11:45; LSMS inarudi kutumika 12:00.
+set "SAA2="
+for /f "usebackq tokens=2" %%t in (`powershell -NoProfile -Command "[TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. Africa Standard Time').ToString('yyyy-MM-dd HHmm')"`) do set "SAA2=%%t"
+if "%DIRISHA%"=="JIONI" if "%SAA2%" GTR "2145" echo ONYO: saa %SAA2% EAT - hatua hii haijaisha kabla ya 21:45 ^(dirisha la jioni^). Mwambie mmiliki SASA. >> %L%
+if "%DIRISHA%"=="JIONI" if "%SAA2%" GTR "2145" echo ONYO: saa %SAA2% EAT - hatua hii haijaisha kabla ya 21:45 ^(dirisha la jioni^). Mwambie mmiliki SASA.
 ssh %SSHO% -n contabo "rm -f /tmp/ficha-lsms.awk /tmp/45-maandishi.sh" >> %L% 2>&1
 for /f %%t in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do echo TAREHE_YA_47 %%t>> %L%
 echo ---OK--- >> %L%

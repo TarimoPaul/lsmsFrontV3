@@ -1,0 +1,77 @@
+---MWENDESHO-45g--- 
+---KICHUJIO-KWENDA-CONTABO--- 
+[exit 0] 
+PROD_API=https://elikom.co.tz 
+---B2-ADMIN-INACTIVE--- 
+MTUMIAJI root@system.com | roles: - | isRoot: true | FINANCE_WRITE: false | prod https://elikom.co.tz
+PASS (a)-mpya-inaingia: root@system.com ameingia kwa password mpya; isRoot true
+PASS (b2)-admin-INACTIVE: admin@admin.com: status INACTIVE (lazima INACTIVE)
+  tarimo@gmail.com: {"found":true,"status":"ACTIVE","fw":true} | jess@elikom.co.tz: {"found":true,"status":"ACTIVE","fw":false}
+MUHTASARI root b2 prod (prod): PASS 2, FAIL 0, SKIP 0
+[exit 0] 
+---C-RESTART-BACKEND-YA-PROD--- 
+ Container lsms-deployment-backend-1 Restarting 
+ Container lsms-deployment-backend-1 Started 
+backend-1  | 2026-10-21 15:13:08 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 61.819 seconds (process running for 68.473)
+PROD_RESTART_SAWA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---PROD-PUBLIC-API-400--- 
+HTTP_400
+PUBLIC_API_400
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+DUMP_MPYA_JINA kutoka 45a: lsms_20261021_1153.dump 
+---USHAHIDI-SCRIPT-KWENDA-CONTABO--- 
+[exit 0] 
+---ADMIN-USHAHIDI-KUSOMA-TU--- 
+--- backend ya prod: profile na root.email ---
+PROFILE_YA_BACKEND [prod]
+ROOT_EMAIL_YA_BACKEND [admin@admin.com]
+ROOT_EMAIL_NI_ADMIN
+--- DataInitializer kwenye log ya backend (saa 4 zilizopita) ---
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user already configured correctly
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer -    Roles: 7 (created by ROOT user)
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user validation:
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer -    Email: admin@admin.com
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer -    isRoot flag: true
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer -    Status: ACTIVE
+2026-10-21 12:57:05 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user can now create roles via UI/API
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ Activating ROOT user: admin@admin.com
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user updated successfully
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer -    Roles: 7 (created by ROOT user)
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user validation:
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer -    Email: admin@admin.com
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer -    isRoot flag: true
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer -    Status: ACTIVE
+2026-10-21 13:57:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user can now create roles via UI/API
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ Activating ROOT user: admin@admin.com
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user updated successfully
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer -    Roles: 7 (created by ROOT user)
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user validation:
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer -    Email: admin@admin.com
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer -    isRoot flag: true
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer -    Status: ACTIVE
+2026-10-21 15:13:12 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user can now create roles via UI/API
+--- users kutoka dump ya 45a lsms_20261021_1153.dump (si DB ya prod) ---
+DUMP_USER admin@admin.com status INACTIVE is_root t
+ADMIN_IS_ROOT_TRUE
+DUMP_USER root@system.com status ACTIVE is_root t
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---D-THIBITISHA--- 
+PASS (a)-ya-zamani-inakataliwa: login ya root@system.com kwa password ya zamani: HTTP 401 (lazima 401)
+MTUMIAJI root@system.com | roles: - | isRoot: true | FINANCE_WRITE: false | prod https://elikom.co.tz
+PASS (a)-mpya-inaingia: root@system.com ameingia kwa password mpya; isRoot true
+PASS (d)-admin-Root@123-inakataliwa: login ya admin@admin.com kwa Root@123: HTTP 401 (lazima 401)
+  admin@admin.com: status ACTIVE baada ya restart
+TAHADHARI admin@admin.com ni ACTIVE baada ya restart - boot ya backend inaiwasha (root.email); password imebadilishwa, hotfix 2.2.72 inahitajika
+  tarimo@gmail.com: {"found":true,"status":"ACTIVE","fw":true} | jess@elikom.co.tz: {"found":true,"status":"ACTIVE","fw":false}
+PASS (d)-CEO-ana-FINANCE_WRITE: tarimo@gmail.com (mmiliki): FINANCE_WRITE true
+PASS (d)-Executive-CEO-hana-FINANCE_WRITE: jess@elikom.co.tz: FINANCE_WRITE false (lazima false baada ya (b))
+MUHTASARI root d prod (prod): PASS 5, FAIL 0, SKIP 0
+[exit 0] 
+TAHADHARI admin@admin.com bado ina is_root true kwenye dump ya 45a - hotfix 2.2.72 inahitajika 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

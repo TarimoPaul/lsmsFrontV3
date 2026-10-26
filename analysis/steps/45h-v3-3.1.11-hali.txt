@@ -1,0 +1,6 @@
+BG_HALI_IMEISHA_0
+mistari ya mwisho:
+frontend-v3   chiefmaster/lsms-frontend-v3:3.1.11   Up 4 seconds (health: starting)
+DEPLOY_OK 3.1.11
+---BG_EXIT 0---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
