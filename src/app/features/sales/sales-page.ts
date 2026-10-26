@@ -45,7 +45,7 @@ import { SalesService } from './sales.service';
 import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
 
 type Period = 'current' | 'today' | 'week' | 'month' | 'custom';
-type Status = 'ALL' | 'OWING' | 'PAID' | 'RETURNED';
+type Status = 'ALL' | 'OWING' | 'PAID' | 'RETURNED' | 'RETURN_PENDING' | 'EXCHANGED';
 type View = 'sales' | 'profit' | 'returns' | 'debts';
 
 /**
@@ -116,6 +116,7 @@ export class SalesPage {
   protected readonly pickedTotal = computed(() => this.picked().reduce((n, s) => n + s.total, 0));
   protected readonly canAnalytics = computed(() => this.auth.hasPermission('SALES_ANALYTICS'));
   protected readonly canReturns = computed(() => this.auth.hasPermission('SALES_RETURN_READ'));
+  protected readonly canRequestReturn = computed(() => this.auth.hasPermission('SALES_RETURN_CREATE'));
   protected readonly canProfit = computed(() => this.auth.hasPermission('SALES_VIEW_PROFIT'));
   protected readonly views = computed<SegmentOption<View>[]>(() => {
     const v: SegmentOption<View>[] = [{ value: 'sales', label: this.i18n.t('Sales', 'Mauzo'), icon: 'point_of_sale' }];
@@ -176,12 +177,29 @@ export class SalesPage {
   protected readonly statusOptions = computed<SegmentOption<Status>[]>(() => {
     const list = this.sales();
     const t = (en: string, sw: string) => this.i18n.t(en, sw);
-    return [
+    const opts: SegmentOption<Status>[] = [
       { value: 'ALL', label: t('All', 'Yote'), count: list.length },
       { value: 'OWING', label: t('Owing', 'Yenye deni'), icon: 'account_balance_wallet', count: list.filter((s) => s.balance > 0).length },
       { value: 'PAID', label: t('Paid', 'Yamelipwa'), icon: 'task_alt', count: list.filter((s) => s.balance === 0).length },
       { value: 'RETURNED', label: t('Returns', 'Marejesho'), icon: 'assignment_return', count: list.filter((s) => s.hasReturn).length },
     ];
+    // Only shown when there is something to see, so the bar stays short.
+    const pending = list.filter((s) => s.returnStatus === 'PENDING').length;
+    const exchanged = list.filter((s) => s.hasExchange).length;
+    if (pending) opts.push({ value: 'RETURN_PENDING', label: t('Waiting approval', 'Zinasubiri idhini'), icon: 'hourglass_top', count: pending });
+    if (exchanged) opts.push({ value: 'EXCHANGED', label: t('Exchanged', 'Zilizobadilishwa'), icon: 'swap_horiz', count: exchanged });
+    return opts;
+  });
+
+  /** Returns in the loaded window (server figures): value taken off sales, money handed back. */
+  protected readonly returnStats = computed(() => {
+    const l = this.sales().filter((s) => s.hasReturn);
+    return {
+      count: l.length,
+      value: l.reduce((n, s) => n + s.returnedAmount, 0),
+      refunded: l.reduce((n, s) => n + s.refunded, 0),
+      pending: l.filter((s) => s.returnStatus === 'PENDING').length,
+    };
   });
 
   protected readonly rows = computed(() => {
@@ -191,6 +209,8 @@ export class SalesPage {
       if (f === 'OWING' && s.balance <= 0) return false;
       if (f === 'PAID' && s.balance > 0) return false;
       if (f === 'RETURNED' && !s.hasReturn) return false;
+      if (f === 'RETURN_PENDING' && s.returnStatus !== 'PENDING') return false;
+      if (f === 'EXCHANGED' && !s.hasExchange) return false;
       return !q || s.haystack.includes(q);
     });
   });
@@ -400,8 +420,46 @@ export class SalesPage {
       { label: t('Print receipt', 'Chapisha risiti'), icon: 'print', run: () => this.print(s) },
     ];
     if (s.balance > 0 && this.canPay()) list.push({ label: t('Receive payment', 'Pokea malipo'), icon: 'payments', run: () => void this.pay(s) });
+    if (s.returnUid && this.canReturns()) {
+      const pending = s.returnStatus === 'PENDING';
+      const exch = s.returnType === 'EXCHANGE';
+      list.push({
+        label: pending ? (exch ? t('Exchange — approve / reject', 'Kubadilisha — idhinisha / kataa') : t('Return — approve / reject', 'Marejesho — idhinisha / kataa')) : exch ? t('View exchange', 'Angalia kubadilisha') : t('View return', 'Angalia marejesho'),
+        icon: exch ? 'swap_horiz' : 'assignment_return',
+        run: () => void this.openReturn(s),
+      });
+    }
+    // A new request while nothing is pending and something is left (the server checks each line).
+    if (this.canRequestReturn() && s.returnStatus !== 'PENDING' && !s.isFullReturn && s.lines.length) {
+      list.push({ label: t('Return items', 'Rudisha bidhaa'), icon: 'assignment_return', run: () => void this.requestReturn(s) });
+      list.push({ label: t('Exchange goods', 'Badilisha bidhaa'), icon: 'swap_horiz', run: () => void this.requestReturn(s, true) });
+    }
     if (this.canDelete()) list.push({ label: t('Delete', 'Futa'), icon: 'delete', destructive: true, run: () => void this.remove(s) });
     return list;
+  }
+
+  protected flagTitle(s: Sale): string {
+    const t = (en: string, sw: string) => this.i18n.t(en, sw);
+    const exch = s.returnType === 'EXCHANGE';
+    if (s.returnStatus === 'PENDING') return exch ? t('Exchange waiting for approval', 'Kubadilisha kunasubiri idhini') : t('Return waiting for approval', 'Marejesho yanasubiri idhini');
+    return exch ? t('Exchanged', 'Imebadilishwa') : s.isFullReturn ? t('Returned', 'Imerudishwa') : t('Partly returned', 'Imerudishwa sehemu');
+  }
+
+  protected async requestReturn(s: Sale, exchange = false): Promise<void> {
+    const { SaleReturnDialog } = await import('./sale-return-dialog');
+    const done = await this.dialogs.openAsync<boolean>(SaleReturnDialog, { size: 'lg', data: { sale: s, exchange } });
+    if (done) void this.refresh();
+  }
+
+  protected async openReturn(s: Sale): Promise<void> {
+    try {
+      const ret = await this.api.returnByUid(s.returnUid!);
+      const { ReturnDetailsDialog } = await import('./return-details-dialog');
+      const moved = await this.dialogs.openAsync<boolean>(ReturnDetailsDialog, { size: 'lg', data: { ret } });
+      if (moved) void this.refresh();
+    } catch (e) {
+      this.toast.error(ApiError.from(e).message);
+    }
   }
 
   protected print(s: Sale): void {

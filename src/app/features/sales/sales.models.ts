@@ -60,6 +60,8 @@ export interface SalePayment {
   reference: string | null;
   notes: string | null;
   receivedBy: string | null;
+  /** Money handed BACK for a return (status REFUNDED) — not money received. */
+  refund: boolean;
 }
 
 export interface Sale {
@@ -84,7 +86,16 @@ export interface Sale {
   returnStatus: string | null;
   returnUid: string | null;
   isFullReturn: boolean;
+  isPartialReturn: boolean;
+  /** Type of the return shown (pending one, else the latest approved). */
+  returnType: string | null;
+  hasExchange: boolean;
+  /** Value of approved returns (the sale total is already lowered by it). */
   returnedAmount: number;
+  /** Money paid back to the customer for returns (part of what they had paid). */
+  refunded: number;
+  /** This sale was made by an exchange: the receipt of the sale whose goods came back. */
+  exchangeOf: string | null;
   /** Lower-cased text used by the client-side search. */
   haystack: string;
 }
@@ -178,10 +189,10 @@ export const RETURN_STATUS: Record<string, { en: string; sw: string; color: stri
   CANCELLED: { en: 'Cancelled', sw: 'Imefutwa', color: 'var(--c-text-2)', icon: 'block' },
 };
 export const RETURN_TYPES: Record<ReturnType, { en: string; sw: string; hint: { en: string; sw: string } }> = {
-  FULL_RETURN: { en: 'Good condition', sw: 'Hali nzuri', hint: { en: 'Goes back into stock', sw: 'Inarudi stoo' } },
+  FULL_RETURN: { en: 'Everything', sw: 'Bidhaa zote', hint: { en: 'All of it, back on the shelf', sw: 'Zote, zinarudi stoo' } },
   PARTIAL_RETURN: { en: 'Some items', sw: 'Baadhi ya bidhaa', hint: { en: 'Only part of the sale', sw: 'Sehemu ya mauzo tu' } },
-  DAMAGED_RETURN: { en: 'Damaged', sw: 'Zimeharibika', hint: { en: 'Cannot be resold', sw: 'Haziwezi kuuzwa tena' } },
-  EXCHANGE: { en: 'Exchange', sw: 'Kubadilisha', hint: { en: 'Swap for another product', sw: 'Badilisha kwa bidhaa nyingine' } },
+  DAMAGED_RETURN: { en: 'Damaged', sw: 'Zimeharibika', hint: { en: 'Cannot be resold — not restocked', sw: 'Haziuzwi tena — hazirudi stoo' } },
+  EXCHANGE: { en: 'Exchange', sw: 'Badilisha bidhaa', hint: { en: 'Other goods instead', sw: 'Apewe bidhaa nyingine' } },
 };
 
 export interface SalesReturn {
@@ -196,13 +207,44 @@ export interface SalesReturn {
   comments: string | null;
   notes: string | null;
   rejectionReason: string | null;
+  /** Value credited for the goods coming back (lowers the sale). */
   refund: number;
+  /** Part of it paid out in money (set on approval; the rest cleared a debt). */
+  cash: number;
+  refundMethod: string | null;
   value: number;
   pieces: number;
   requestedAt: string | null;
   approvedAt: string | null;
   rejectedAt: string | null;
+  requestedBy: string | null;
+  approvedBy: string | null;
+  /** EXCHANGE: the replacement products asked for. */
+  exchangeLines: ExchangeLine[];
+  exchangeTopUp: number;
+  exchangeTopUpMethod: string | null;
+  /** EXCHANGE, once approved: the new sale and its price minus the returned value. */
+  exchangeSaleUid: string | null;
+  exchangeReceipt: string | null;
+  exchangeDifference: number;
   items: Array<{ uid: string; productName: string; category: string | null; pieces: number; soldPieces: number; display: string | null; unitPrice: number; refund: number; condition: string | null; toStock: boolean }>;
+}
+
+export interface ExchangeLine {
+  productUid: string;
+  saleType: SaleType;
+  packageQuantity: number;
+}
+
+/** One sale line as validate-return sees it: what can still come back, at what price. */
+export interface ReturnableLine {
+  saleDetailUid: string;
+  productUid: string;
+  productName: string;
+  saleType: string | null;
+  soldPieces: number;
+  returnablePieces: number;
+  pricePerPiece: number;
 }
 
 export interface ReturnCheck {
@@ -212,6 +254,20 @@ export interface ReturnCheck {
   daysFromSale: number | null;
   withinWindow: boolean;
   estimatedRefund: number | null;
+  lines: ReturnableLine[];
+  /** Still owed on the sale now. */
+  owedNow: number;
+  /** Paid and kept on the sale — the most a return can hand back in money. */
+  paidNet: number;
+}
+
+/**
+ * How the server splits a return's value on approval: first it clears what is still
+ * owed on the sale, only the rest is handed back — and never more than was paid.
+ */
+export function splitRefund(value: number, owedNow: number, paidNet: number): { debt: number; cash: number } {
+  const debt = Math.min(value, Math.max(0, owedNow));
+  return { debt, cash: Math.min(Math.max(0, value - debt), Math.max(0, paidNet)) };
 }
 
 type Raw = Record<string, unknown>;
@@ -241,7 +297,7 @@ export function normalizeLine(r: Raw): SaleLine {
 export function normalizeSale(r: Raw): Sale {
   const lines = ((r['saleDetails'] as Raw[]) ?? []).map(normalizeLine);
   const payments: SalePayment[] = ((r['payments'] as Raw[]) ?? [])
-    .filter((p) => p['isDeleted'] !== true)
+    .filter((p) => p['isDeleted'] !== true && (p['isActive'] !== false || p['paymentStatus'] === 'REFUNDED'))
     .map((p) => ({
       uid: String(p['uid'] ?? ''),
       method: String(p['paymentMethod'] ?? 'CASH'),
@@ -250,13 +306,17 @@ export function normalizeSale(r: Raw): Sale {
       reference: str(p['transactionReference']),
       notes: str(p['paymentNotes']),
       receivedBy: str(p['receivedByName']),
+      refund: p['paymentStatus'] === 'REFUNDED',
     }));
   const total = num(r['totalAmount']);
   // The sale-level totalPaidAmount / balanceDue are stale on many rows (a credit
   // sale can read "fully paid"); the payments themselves are the truth — as in
   // Flutter (`payments.totalReceived`) and the server's outstanding summary.
   const hasPayments = Array.isArray(r['payments']);
-  const paid = hasPayments ? payments.reduce((n, p) => n + p.amountPaid, 0) : num(r['totalPaidAmount']);
+  // A return refund row carries the money handed back: it is not a receipt, and what
+  // the customer still has paid is the receipts minus it (the total is already net).
+  const refunded = payments.filter((p) => p.refund).reduce((n, p) => n + p.amountPaid, 0);
+  const paid = hasPayments ? payments.filter((p) => !p.refund).reduce((n, p) => n + p.amountPaid, 0) - refunded : num(r['totalPaidAmount']);
   const balance = Math.max(0, hasPayments ? total - paid : num(r['balanceDue']));
   const customerName = str(r['customerName']);
   const sale: Sale = {
@@ -281,7 +341,13 @@ export function normalizeSale(r: Raw): Sale {
     returnStatus: str(r['returnStatus']),
     returnUid: str(r['returnUid']),
     isFullReturn: r['isFullReturn'] === true,
+    isPartialReturn: r['isPartialReturn'] === true,
+    returnType: str(r['returnType']),
+    hasExchange: r['hasExchange'] === true,
     returnedAmount: num(r['returnedAmount']),
+    refunded,
+    // The server notes an exchange sale as "EXCHANGE for return RET-… of sale <receipt>".
+    exchangeOf: /EXCHANGE for return S+ of sale (S+)/.exec(String(r['saleNotes'] ?? ''))?.[1] ?? null,
     haystack: '',
   };
   sale.haystack = [sale.receiptNumber, sale.customerName ?? '', sale.customerPhone ?? '', sale.seller ?? '', ...lines.map((l) => l.productName)].join(' ').toLowerCase();
@@ -334,12 +400,26 @@ export function normalizeReturn(r: Raw): SalesReturn {
     comments: str(r['customerComments']),
     notes: str(r['returnNotes']),
     rejectionReason: str(r['rejectionReason']),
-    refund: num(r['netRefundAmount'] ?? r['totalRefundAmount'] ?? r['refundAmount']),
+    refund: num(r['refundAmount'] ?? r['totalRefundAmount']),
+    cash: num(r['netRefundAmount']),
+    refundMethod: str(r['refundMethod']),
     value: num(r['totalReturnValue']),
     pieces: num(r['totalItemsReturned']),
     requestedAt: str(r['requestedAt']) ?? str(r['returnDate']),
     approvedAt: str(r['approvedAt']),
     rejectedAt: str(r['rejectedAt']),
+    requestedBy: str(r['requestedByName']),
+    approvedBy: str(r['approvedByName']),
+    exchangeLines: ((r['exchangeLines'] as Raw[]) ?? []).map((l) => ({
+      productUid: String(l['productUid'] ?? ''),
+      saleType: String(l['saleType'] ?? 'PIECES') as SaleType,
+      packageQuantity: num(l['packageQuantity']),
+    })),
+    exchangeTopUp: num(r['exchangePaidAmount']),
+    exchangeTopUpMethod: str(r['exchangePaidMethod']),
+    exchangeSaleUid: str(r['exchangeSaleUid']),
+    exchangeReceipt: str(r['exchangeReceiptNumber']),
+    exchangeDifference: num(r['exchangeAmountDifference']),
     items: ((r['returnItems'] as Raw[]) ?? []).map((i) => ({
       uid: String(i['uid'] ?? ''),
       productName: String(i['productName'] ?? ''),

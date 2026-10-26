@@ -135,7 +135,10 @@ export class ProfitPanel {
   private readonly lines = computed(() => {
     const out: Array<{ key: string; name: string; category: string | null; type: string; pieces: number; revenue: number; cost: number; profit: number; noCost: boolean }> = [];
     for (const s of this.sales()) {
-      const kept = s.hasReturn && s.returnStatus === 'APPROVED' && s.total > 0 ? Math.min(1, Math.max(0, (s.total - s.returnedAmount) / s.total)) : 1;
+      // Approval lowers the sale total by the returned value, so what was kept is
+      // total / (total + returned) — subtracting the return from the (already net)
+      // total counted it twice. Lines still show what was originally sold.
+      const kept = s.returnedAmount > 0 ? Math.min(1, Math.max(0, s.total / (s.total + s.returnedAmount))) : 1;
       for (const l of s.lines) {
         const cost = (l.costPerPiece ?? 0) * l.pieces * kept;
         const revenue = l.subTotal * kept;
@@ -164,7 +167,7 @@ export class ProfitPanel {
     const retailRevenue = retail.reduce((n, l) => n + l.revenue, 0);
     return {
       count: this.sales().length,
-      returned: this.sales().filter((s) => s.hasReturn && s.returnStatus === 'APPROVED').length,
+      returned: this.sales().filter((s) => s.returnedAmount > 0).length,
       revenue,
       cost,
       profit,

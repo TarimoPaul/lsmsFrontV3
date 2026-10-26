@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/api/api.service';
 import { CachedResource } from '@core/data/cached-resource';
 import { toLocalDateTime } from '@shared/utils/date-utils';
-import { DEFAULT_PAYMENT_METHODS, PosProduct, ReturnCheck, ReturnType, SalesReturn, normalizeReturn, Sale, SaleRequest, SalesSummary, StockIssue, normalizePosProduct, normalizeSale, normalizeSummary } from './sales.models';
+import { DEFAULT_PAYMENT_METHODS, ExchangeLine, PosProduct, ReturnCheck, ReturnType, SalesReturn, normalizeReturn, Sale, SaleRequest, SalesSummary, StockIssue, normalizePosProduct, normalizeSale, normalizeSummary } from './sales.models';
 
 const BASE = '/api/v1/sales';
 type Raw = Record<string, unknown>;
@@ -133,16 +133,51 @@ export class SalesService {
       daysFromSale: d['daysFromSale'] === null || d['daysFromSale'] === undefined ? null : Number(d['daysFromSale']),
       withinWindow: d['withinReturnWindow'] !== false,
       estimatedRefund: d['estimatedRefund'] === null || d['estimatedRefund'] === undefined ? null : Number(d['estimatedRefund']),
+      lines: ((d['returnableLines'] as Raw[]) ?? []).map((l) => ({
+        saleDetailUid: String(l['saleDetailUid'] ?? ''),
+        productUid: String(l['productUid'] ?? ''),
+        productName: String(l['productName'] ?? '').trim(),
+        saleType: (l['saleType'] as string) ?? null,
+        soldPieces: Number(l['soldPieces'] ?? 0) || 0,
+        returnablePieces: Number(l['returnablePieces'] ?? 0) || 0,
+        pricePerPiece: Number(l['pricePerPiece'] ?? 0) || 0,
+      })),
+      owedNow: Number(d['owedNow'] ?? 0) || 0,
+      paidNet: Number(d['paidNet'] ?? 0) || 0,
     };
   }
 
-  /** Request a return (PENDING until approved; approval restocks and refunds). */
-  async createReturn(body: { saleUid: string; returnType: ReturnType; returnReason: string; customerComments: string | null; returnItems: Array<{ productUid: string; quantity: number; reason: string | null; unitPrice: number }> }): Promise<SalesReturn> {
+  /**
+   * Request a return (PENDING until approved). Lines are named by sale line; an
+   * EXCHANGE also carries the replacement products and the customer's top-up.
+   */
+  async createReturn(body: {
+    saleUid: string;
+    returnType: ReturnType;
+    returnReason: string;
+    customerComments: string | null;
+    returnItems: Array<{ saleDetailUid: string; productUid: string; quantity: number; reason: string | null; itemCondition: 'GOOD' | 'DAMAGED' }>;
+    exchangeLines?: ExchangeLine[];
+    exchangePaidAmount?: number;
+    exchangePaidMethod?: string;
+  }): Promise<SalesReturn> {
     return normalizeReturn(await this.api.post<Raw>(`${BASE}/returns`, { ...body, returnRequestDate: toLocalDateTime() }));
   }
 
-  async approveReturn(uid: string, notes: string | null): Promise<SalesReturn> {
-    return normalizeReturn(await this.api.post<Raw>(`${BASE}/returns/${uid}/approve`, { approvalNotes: notes, approvalDate: toLocalDateTime() }));
+  /**
+   * Approve: restocks good items, lowers the sale, pays back only what the customer
+   * had paid (via refundMethod) and — for an exchange — makes the new sale.
+   */
+  async approveReturn(uid: string, opts: { notes: string | null; refundMethod?: string; exchangePaidAmount?: number; exchangePaidMethod?: string }): Promise<SalesReturn> {
+    return normalizeReturn(
+      await this.api.post<Raw>(`${BASE}/returns/${uid}/approve`, {
+        approvalNotes: opts.notes,
+        approvalDate: toLocalDateTime(),
+        refundMethod: opts.refundMethod ?? 'CASH',
+        exchangePaidAmount: opts.exchangePaidAmount,
+        exchangePaidMethod: opts.exchangePaidMethod,
+      }),
+    );
   }
 
   async rejectReturn(uid: string, reason: string): Promise<SalesReturn> {

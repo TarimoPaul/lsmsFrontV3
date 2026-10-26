@@ -250,8 +250,13 @@ export class SalesReport {
       for (const p of s.payments) {
         const key = (p.method || 'CASH').toUpperCase();
         const row = map.get(key) ?? { uid: key, method: methodLabel(key, this.i18n.isSwahili()), count: 0, amount: 0, share: 0 };
-        row.count++;
-        row.amount += p.amountPaid;
+        // A return refund is money handed back through that method, not received.
+        if (p.refund) {
+          row.amount -= p.amountPaid;
+        } else {
+          row.count++;
+          row.amount += p.amountPaid;
+        }
         map.set(key, row);
       }
     }
