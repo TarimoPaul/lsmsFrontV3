@@ -114,13 +114,10 @@ root_ok() {
   esac
 }
 
-# Flutter is checked on /index.html (served whatever / redirects to): 200 and not the V3 app.
-flutter_ok() {
-  local html
-  root_ok || return 1
-  [ "$(code "$BASE/index.html")" = "200" ] || { say "GET /index.html (Flutter) is not 200"; return 1; }
-  html="$(get "$BASE/index.html")" || return 1
-  ! grep -q '<base href="/v3/">' <<<"$html" || { say "/index.html serves the V3 app, not Flutter"; return 1; }
+# The site root after the deploy: 200, or 302 to /v3/. The Flutter app (retired 10-15) is no
+# longer checked, so removing its files never fails a V3 deploy.
+site_root_ok() {
+  root_ok
 }
 
 rollback() {
@@ -158,9 +155,9 @@ if ! health_check "$NEW"; then
   rollback
   die "new version $NEW failed the health check"
 fi
-if ! flutter_ok; then
+if ! site_root_ok; then
   rollback
-  die "Flutter (/index.html) or the site root (/ -> 200 or 302 /v3/) is not answering as expected"
+  die "the site root (/ -> 200 or 302 /v3/) is not answering as expected"
 fi
 
 # 4. Keep the new + previous image only (this repository only - no global prune).

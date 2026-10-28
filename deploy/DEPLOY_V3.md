@@ -34,8 +34,8 @@ Kinachotokea:
    → `docker compose up -d --no-deps frontend-v3`.
 3. **Health check** kupitia nginx kuu (`Host: elikom.co.tz`, `http://localhost`):
    `/v3/` = 200 na ina `<base href="/v3/">`; `main-*.js` = 200 na ni JavaScript;
-   `/v3/version.json` ina toleo jipya; deep link `/v3/sales` inarudisha app; `/` ni 200 au 302 kwenda `/v3/`; Flutter inathibitishwa
-   kwa `/index.html` = 200 (na si app ya V3).
+   `/v3/version.json` ina toleo jipya; deep link `/v3/sales` inarudisha app; `/` ni 200 au 302 kwenda `/v3/`.
+   Flutter (`/index.html`) haikaguliwi tena (imestaafu 15/10): kuondoa faili zake hakuangushi deploy ya V3.
    Kila badiliko la `.env`: nakala kwanza (`.env.bak.v3.<muda>`, 5 za mwisho zinabaki), mstari wa
    `FRONTEND_V3_VERSION=` pekee unabadilishwa, kisha `docker compose config --quiet`; ikishindwa,
    nakala inarudishwa yenyewe na deploy inasimama.
