@@ -1,6 +1,0 @@
-SET
- journals_hai | upungufu_siku | upungufu_tzs | ziada_siku | ziada_tzs  | gl_cash_athari | cash_sahihi_kama_variance_ni_upungufu | kosa_kwenye_cash 
---------------+---------------+--------------+------------+------------+----------------+---------------------------------------+------------------
-           87 |            65 |    205850.00 |         22 | 1019799.95 |     -813949.95 |                             813949.95 |      -1627899.90
-(1 row)
-

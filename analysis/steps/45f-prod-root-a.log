@@ -1,9 +1,0 @@
----MWENDESHO-45f--- 
-PROD_API=https://elikom.co.tz 
----ROOT-A--- 
-PASS (a)-ya-zamani-inakataliwa: login ya root@system.com kwa password ya zamani: HTTP 401 (lazima 401)
-MTUMIAJI root@system.com | roles: - | isRoot: true | FINANCE_WRITE: false | prod https://elikom.co.tz
-PASS (a)-mpya-inaingia: root@system.com ameingia kwa password mpya; isRoot true
-MUHTASARI root a prod (prod): PASS 2, FAIL 0, SKIP 0
-[exit 0] 
----OK--- 

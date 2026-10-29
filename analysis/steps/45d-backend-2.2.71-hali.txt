@@ -1,6 +1,0 @@
-BG_HALI_IMEISHA_0
-mistari ya mwisho:
-backend   chiefmaster/my-lsms-backend:2.2.71   Up About a minute
-DEPLOY_OK 2.2.71
----BG_EXIT 0---
-[ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
