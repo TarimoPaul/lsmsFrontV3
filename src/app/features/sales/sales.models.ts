@@ -140,6 +140,8 @@ export interface SaleRequest {
   userName: string | null;
   discountAmount: number;
   saleNotes: string | null;
+  /** Backend 2.4.0 A6: the deleted sale this one makes again ("Tengeneza upya"). */
+  replacesSaleUid?: string | null;
   saleDetails: Array<{
     productUid: string;
     productName: string;

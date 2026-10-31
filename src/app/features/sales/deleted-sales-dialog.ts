@@ -1,19 +1,22 @@
 import { DialogRef } from '@angular/cdk/dialog';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogShell, Icon, SearchBar, Skeleton, ToastService } from '@shared/ui';
+import { Button, DialogShell, Icon, SearchBar, Skeleton } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
+import { RemakeStore } from './pos/remake.store';
 import { Sale } from './sales.models';
 import { SalesService } from './sales.service';
 
 /**
- * Deleted (soft) sales with restore — GET /sales/deleted + POST /{uid}/restore
- * (SALES_UPDATE). Restoring takes the stock out again and re-posts the sale.
+ * Deleted (soft) sales — GET /sales/deleted. A deleted sale cannot be restored (owner 31/10 bf: restore is
+ * disabled on the server, like permanent delete). "Make again" opens the till with its lines and the old receipt
+ * number in the new sale's notes (SALES_WRITE).
  */
 @Component({
   selector: 'app-deleted-sales-dialog',
@@ -38,8 +41,8 @@ import { SalesService } from './sales.service';
                 <small>{{ date(s.saleDate) | date: 'dd MMM yyyy, HH:mm' }} · {{ s.customerName || i18n.t('Walk-in', 'Kawaida') }} · {{ s.lines.length }} {{ i18n.t('items', 'bidhaa') }}</small>
               </span>
               <b class="amt">{{ s.total | money }}</b>
-              @if (canRestore) {
-                <button lsmsButton="secondary" size="sm" icon="restore" [loading]="busy() === s.uid" [disabled]="!!busy()" (click)="restore(s)">{{ i18n.t('Restore', 'Rejesha') }}</button>
+              @if (canRemake) {
+                <button lsmsButton="secondary" size="sm" icon="replay" (click)="remake(s)">{{ i18n.t('Make again', 'Tengeneza upya') }}</button>
               }
             </li>
           }
@@ -70,13 +73,13 @@ export class DeletedSalesDialog {
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly i18n = inject(LanguageService);
   private readonly api = inject(SalesService);
-  private readonly toast = inject(ToastService);
 
-  protected readonly canRestore = inject(AuthService).hasPermission('SALES_UPDATE');
+  private readonly router = inject(Router);
+  private readonly remakeStore = inject(RemakeStore);
+  protected readonly canRemake = inject(AuthService).hasPermission('SALES_WRITE');
   protected readonly list = signal<Sale[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly busy = signal<string | null>(null);
   protected readonly q = signal('');
   protected readonly limit = signal(50);
   protected changed = false;
@@ -99,17 +102,10 @@ export class DeletedSalesDialog {
     return parseLocal(v);
   }
 
-  protected async restore(s: Sale): Promise<void> {
-    this.busy.set(s.uid);
-    try {
-      await this.api.restore(s.uid);
-      this.list.update((l) => l.filter((x) => x.uid !== s.uid));
-      this.changed = true;
-      this.toast.success(this.i18n.t(`Sale ${s.receiptNumber} restored`, `Mauzo ${s.receiptNumber} yamerejeshwa`));
-    } catch (e) {
-      this.toast.error(ApiError.from(e).message);
-    } finally {
-      this.busy.set(null);
-    }
+  /** The till, filled with this sale's lines; the new sale's notes name the deleted receipt. */
+  protected remake(s: Sale): void {
+    this.remakeStore.set(s);
+    this.ref.close(this.changed);
+    void this.router.navigate(['/sales/new']);
   }
 }

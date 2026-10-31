@@ -13,6 +13,7 @@ import { Money, MoneyPipe } from '@shared/utils/money';
 import { CartStore } from './pos/cart.store';
 import { printReceipt } from './receipt';
 import { SALE_TYPES, Sale, SaleType, methodLabel } from './sales.models';
+import { askSaleReason, recordedMessage } from './sale-reason';
 import { SalesService } from './sales.service';
 
 export interface SaleDetailsData {
@@ -295,17 +296,18 @@ export class SaleDetailsDialog {
 
   protected async remove(): Promise<void> {
     const s = this.sale();
-    const ok = await this.dialogs.confirmDelete({
+    const reason = await askSaleReason(this.dialogs, this.i18n, {
       title: this.i18n.t(`Delete sale ${s.receiptNumber}?`, `Futa mauzo ${s.receiptNumber}?`),
       message: this.i18n.t(
-        `The ${s.lines.length} item(s) go back into stock and ${Money.format(s.total)} is removed from sales. It can be restored later.`,
-        `Bidhaa ${s.lines.length} zitarudi stoo na ${Money.format(s.total)} vitaondolewa kwenye mauzo. Yanaweza kurejeshwa baadaye.`,
+        `The ${s.lines.length} item(s) go back into stock and ${Money.format(s.total)} is removed from sales. A deleted sale cannot be restored.`,
+        `Bidhaa ${s.lines.length} zitarudi stoo na ${Money.format(s.total)} vitaondolewa kwenye mauzo. Mauzo yaliyofutwa hayarudishwi.`,
       ),
+      confirm: this.i18n.t('Delete', 'Futa'),
     });
-    if (!ok) return;
+    if (!reason) return;
     try {
-      await this.api.remove(s.uid);
-      this.toast.success(this.i18n.t('Sale deleted', 'Mauzo yamefutwa'));
+      const msg = await this.api.remove(s.uid, reason);
+      this.toast.success(recordedMessage(this.i18n, msg));
       this.ref.close('changed');
     } catch (e) {
       this.toast.error(ApiError.from(e).message);

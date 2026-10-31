@@ -150,17 +150,19 @@ export class SalesService {
   }
 
   // ── Editing (each call re-posts stock / GL on the server) ──────────────────
-  async updateLine(detailUid: string, body: Record<string, unknown>): Promise<void> {
-    await this.api.put(`${BASE}/details/${detailUid}`, body);
+  // 2.4.0 A6: every change carries a reason (10+ characters). The server refuses it when that day's
+  // reconciliation is approved, or reopened and the user is not CEO, and records who did it.
+  async updateLine(detailUid: string, body: Record<string, unknown>, reason: string): Promise<void> {
+    await this.api.put(`${BASE}/details/${detailUid}`, body, { params: { reason } });
   }
 
-  async removeLine(detailUid: string): Promise<void> {
-    await this.api.delete(`${BASE}/details/${detailUid}`);
+  async removeLine(detailUid: string, reason: string): Promise<void> {
+    await this.api.delete(`${BASE}/details/${detailUid}`, { params: { reason } });
   }
 
   /** Sale-level fields only (customer, discount, notes, date) — lines are edited above. */
-  async updateSale(uid: string, body: Record<string, unknown>): Promise<Sale> {
-    return normalizeSale(await this.api.put<Raw>(`${BASE}/${uid}`, body));
+  async updateSale(uid: string, body: Record<string, unknown>, reason: string): Promise<Sale> {
+    return normalizeSale(await this.api.put<Raw>(`${BASE}/${uid}`, body, { params: { reason } }));
   }
 
   async deleted(): Promise<Sale[]> {
@@ -168,13 +170,12 @@ export class SalesService {
     return (rows ?? []).map(normalizeSale).sort((a, b) => (b.saleDate ?? '').localeCompare(a.saleDate ?? ''));
   }
 
-  async restore(uid: string): Promise<void> {
-    await this.api.post(`${BASE}/${uid}/restore`, {});
-  }
-
-  /** Soft delete (restorable from the deleted list); stock is returned by the backend. */
-  async remove(uid: string): Promise<void> {
-    await this.api.delete(`${BASE}/${uid}`);
+  /**
+   * Soft delete; stock is returned by the backend. A deleted sale cannot be restored (owner 31/10 bf) — it is
+   * made again as a new sale. Returns the server's message, which carries the audit number ("#123").
+   */
+  async remove(uid: string, reason: string): Promise<string | null> {
+    return (await this.api.deleteResult<Raw>(`${BASE}/${uid}`, { params: { deleteReason: reason } })).message;
   }
 
   /** Soft-deletes several sales with one reason; each refusal comes back with its own reason. */
