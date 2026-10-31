@@ -23,6 +23,38 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
    - Kesi 11/11 SAWA.
    - Main itapata kinga hii hotfix ikimergiwa.
 
+## Kanuni ya majaribio (mmiliki 31/10 ba)
+
+**"Local" = Docker ya PC inayofanana na prod:**
+- image ileile (digest) itakayoenda prod;
+- PostgreSQL 15 (si 16/17);
+- docker compose yenye mipangilio/env ya prod bila siri;
+- dump ya prod ya karibuni, iliyopita restore test.
+
+**Njia ya kila aina ya badiliko:**
+
+| Badiliko | Njia |
+|---|---|
+| V3 tu, bila mabadiliko ya API | local → prod |
+| Backend bila migration, isiyogusa data ya fedha/stock | Docker-local → prod (digest ileile) |
+| Migrations, au data ya Capital/Store/GL/stock/sales/payments/reco/counting | Docker-local → Contabo staging → prod |
+| Infra (compose, nginx, uid, env, volumes) | Contabo staging → prod |
+
+- Kifurushi chenye migrations + infra (2.4.0 / 3.2.0): Docker-local kwa kila kipengele, kisha staging MOJA (script moja), kisha prod MOJA.
+- Majaribio ya SQL ya native yaendeshwe pia kwenye PG15.
+- Kifurushi (mmiliki az): hakuna staging/prod mpaka kazi ZOTE zikamilike local. Tarehe ya kufunga ni **16/11/2026**; kisichokamilika na kujaribiwa hadi hapo kinahamia toleo linalofuata. Branches: `release/2.4.0` (backend), `release/3.2.0` (V3).
+
+**Kiolezo (kimoja kwa kila toleo):** `deploy/local/` ya backend (release/2.4.0 `804e4da`).
+```
+deploy/local/local.sh build              # jar + image lsms-backend:local-<sha> kutoka worktree hii; inatoa digest
+deploy/local/local.sh up <image> [dump]  # PG15 <- dump (restore test: exit 0, Flyway iliyoshindwa 0, TB 0), kisha backend
+deploy/local/local.sh token | psql "<sql>" | down
+```
+- Ports: PG 127.0.0.1:55415, backend 127.0.0.1:18090. Siri ni za kutupwa (`deploy/local/.siri`, gitignored).
+- Schedulers zimezimwa kwa default (`APP_SCHEDULERS_ENABLED=true` ili kuziwasha).
+- `build` inahitaji `application.properties` ya worktree ya main (kama build ya prod) mpaka C1 iiweke kwenye git.
+- Jaribio la kwanza (31/10): release/2.4.0 `d0fc776` + dump ya 29/10 10:27 → restore SAWA, Flyway 134 → 137 kwenye PG15, uid 10001 inaandika /app/logs.
+
 ## Kanuni ya namba za migration (mmiliki 26/10)
 
 **Toleo linalofika prod kwanza ndilo linalochukua namba inayofuata. Migration ambayo haijafika prod inapewa namba mpya wakati wa merge kwenye main.**
