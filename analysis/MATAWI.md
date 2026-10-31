@@ -55,6 +55,14 @@ deploy/local/local.sh token | psql "<sql>" | down
 - `build` inahitaji `application.properties` ya worktree ya main (kama build ya prod) mpaka C1 iiweke kwenye git.
 - Jaribio la kwanza (31/10): release/2.4.0 `d0fc776` + dump ya 29/10 10:27 → restore SAWA, Flyway 134 → 137 kwenye PG15, uid 10001 inaandika /app/logs.
 
+**V3 (mmiliki 31/10 bg): hakuna `ng serve`.** V3 inajaribiwa kwa production build:
+```
+deploy/local/v3-local.sh build   # ng build --configuration production --base-href /v3/ (kama deploy/Dockerfile)
+deploy/local/v3-local.sh up      # nginx.conf ya image ya prod + "edge" nginx: /v3 -> V3, /api -> backend ya Docker-local
+```
+- Kivinjari: http://127.0.0.1:4300/v3/ (backend Docker-local lazima iwe juu). Edge inatuma `Origin: https://elikom.co.tz` kama prod.
+- Majaribio ya Playwright yanaendeshwa YOTE upya kwenye build hiyo kabla ya merge kwenye release/3.2.0.
+
 ## Kanuni ya namba za migration (mmiliki 26/10)
 
 **Toleo linalofika prod kwanza ndilo linalochukua namba inayofuata. Migration ambayo haijafika prod inapewa namba mpya wakati wa merge kwenye main.**
