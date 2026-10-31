@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { sectionGuard } from '@core/auth/guards';
+import { permissionGuard, sectionGuard } from '@core/auth/guards';
 import { APP_MODULES } from '@core/navigation/app-modules';
 import { ShellLayout } from './shell-layout';
 
@@ -147,6 +147,15 @@ export const SHELL_ROUTES: Routes = [
         canActivate: [sectionGuard],
         data: { section: 'settings-approvals', hideSubtitle: true },
         loadChildren: () => import('../settings-approvals/settings-approvals.routes').then((r) => r.SETTINGS_APPROVALS_ROUTES),
+      },
+      {
+        // backend 2.4.0 A3: the LOGIN_AUDIT_VIEW permission decides (CEO + root by default), not a role
+        path: 'security/logins',
+        title: 'Logins · LSMS',
+        canMatch: [permissionGuard],
+        canActivate: [sectionGuard],
+        data: { section: 'login-audit', permissions: ['LOGIN_AUDIT_VIEW'], ...page('Security · Logins', 'Usalama · Login', 'Who signed in, from where and on what', 'Nani aliingia, kutoka wapi na kwa kifaa gani') },
+        loadComponent: () => import('../security/login-audit-page').then((c) => c.LoginAuditPage),
       },
       {
         path: 'reports',
