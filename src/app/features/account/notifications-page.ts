@@ -295,6 +295,12 @@ export class NotificationsPage {
         case 'PAST_DATE_SALE':
           await this.router.navigate(['/sales'], { queryParams: n.summaryDate ? { date: n.summaryDate.slice(0, 10) } : {} });
           break;
+        case 'SALE_DELETED':
+        case 'SALE_CHANGED': {
+          const { SaleChangesDialog } = await import('../sales/sale-changes-dialog');
+          await this.dialogs.openAsync(SaleChangesDialog, { size: 'md' });
+          break;
+        }
         case 'PRICE_CHANGE':
           await this.router.navigateByUrl('/products');
           break;

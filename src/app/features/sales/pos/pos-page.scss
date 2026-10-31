@@ -6,6 +6,12 @@
 }
 @include cart-panel.base;
 
+.remake {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent);
+  button { display: inline-flex; border: 0; background: none; padding: 2px; color: inherit; cursor: pointer; }
+}
+
 // The till's cart holds more (customer, payment) than Repurchase's, so it
 // takes a little more width on wide screens: 460px at 1920, 400px at 1366.
 @media (min-width: 1001px) {

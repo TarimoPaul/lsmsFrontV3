@@ -35,7 +35,7 @@ export interface ReasonDialogData {
     </lsms-dialog>
   `,
   styles: `
-    .msg { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; color: var(--c-text); background: color-mix(in srgb, var(--c-info) 7%, var(--c-bg)); }
+    .msg { display: flex; align-items: flex-start; gap: 8px; white-space: pre-line; margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.84rem; color: var(--c-text); background: color-mix(in srgb, var(--c-info) 7%, var(--c-bg)); }
     .msg.danger { background: color-mix(in srgb, var(--c-error) 7%, var(--c-bg)); }
     .msg lsms-icon { flex-shrink: 0; color: var(--c-info); }
     .msg.danger lsms-icon { color: var(--c-error); }

@@ -201,6 +201,12 @@
         <lsms-icon name="shopping_cart" [size]="20" />{{ i18n.t('Cart', 'Kapu') }}
         <span class="count">{{ cart.count() }}</span>
       </h2>
+      @if (remakeOf(); as r) {
+        <span class="remake" [title]="i18n.t('The new sale’s notes name the deleted receipt', 'Maelezo ya mauzo mapya yanataja risiti iliyofutwa')">
+          <lsms-icon name="replay" [size]="14" />{{ i18n.t('Replaces', 'Badala ya') }} {{ r }}
+          <button type="button" (click)="remakeOf.set(null)" [attr.aria-label]="i18n.t('Unlink', 'Ondoa kiungo')"><lsms-icon name="close" [size]="13" /></button>
+        </span>
+      }
       @if (cart.count()) {
         <button type="button" class="clear" style="color: var(--c-primary)" (click)="holdCart()" [title]="i18n.t('Hold this order and serve the next customer', 'Hifadhi oda hii umhudumie mteja mwingine')">
           <lsms-icon name="pause_circle" [size]="18" />{{ i18n.t('Hold', 'Hifadhi') }}
