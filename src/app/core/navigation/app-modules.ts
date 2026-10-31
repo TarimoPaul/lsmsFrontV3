@@ -230,6 +230,20 @@ export const APP_MODULES: AppModule[] = [
   },
   // ── ADMINISTRATION ──
   {
+    id: 'login-audit',
+    route: '/security/logins',
+    category: 'ADMINISTRATION',
+    icon: 'shield_person',
+    color: 'var(--c-error)',
+    title: { en: 'Security · Logins', sw: 'Usalama · Login' },
+    short: { en: 'Logins', sw: 'Login' },
+    description: {
+      en: 'Every login with its real IP, network, device and alerts',
+      sw: 'Kila login pamoja na IP halisi, mtandao, kifaa na tahadhari',
+    },
+    ready: true,
+  },
+  {
     id: 'roles',
     route: '/roles',
     category: 'ADMINISTRATION',

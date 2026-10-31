@@ -19,6 +19,7 @@ import {
   toPermissionsWithConfig,
 } from './auth.models';
 import { SKIP_AUTH_REDIRECT } from './auth.tokens';
+import { deviceId } from './device-id';
 import { sessionStore } from './session-storage';
 
 export type LogoutReason = 'user' | 'expired' | 'inactivity' | 'unauthorized';
@@ -100,7 +101,7 @@ export class AuthService {
     try {
       const data = await this.api.post<LoginResponse>(
         '/api/auth/login',
-        { email, password },
+        { email, password, deviceId: deviceId() },
         { timeoutMs: AUTH_TIMEOUT, context: new HttpContext().set(SKIP_AUTH_REDIRECT, true) },
       );
       const session = this.sessionFromLogin(data, email);

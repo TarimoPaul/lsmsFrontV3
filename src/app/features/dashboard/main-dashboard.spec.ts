@@ -43,7 +43,7 @@ describe('RBAC in the UI (non-root user)', () => {
     const el: HTMLElement = fixture.nativeElement;
     const tiles = [...el.querySelectorAll<HTMLElement>('.tile')];
     const unlocked = tiles.filter((t) => !t.classList.contains('locked')).map((t) => t.querySelector('strong')!.textContent!.trim());
-    expect(tiles.length).toBe(18);
+    expect(tiles.length).toBe(19); // + Security · Logins (3.2.0 B2)
     expect(unlocked).toEqual(['Sales', 'Products', 'Customers']);
     expect(el.querySelector('.hello h1')!.textContent).toContain('Asha');
     expect(el.querySelector('.chip.role')!.textContent).toContain('SALES');
@@ -57,7 +57,7 @@ describe('RBAC in the UI (non-root user)', () => {
     const locked = el.querySelectorAll('a.item.locked').length;
     const modules = el.querySelectorAll('a.item').length;
     // 1 home + 18 modules + 4 account links; only the 18 modules can lock.
-    expect(modules).toBe(23);
-    expect(locked).toBe(15);
+    expect(modules).toBe(24);
+    expect(locked).toBe(16); // Logins is locked without LOGIN_AUDIT_VIEW
   });
 });
