@@ -17,7 +17,7 @@ import type { HoldData, HoldResult } from './hold-dialog';
 import type { MissingDaysData, MissingDaysResult } from './missing-days-dialog';
 import type { SaleDoneData } from './sale-done-dialog';
 import { categoryColor, categoryInitials } from '../../categories/categories.models';
-import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel } from '../sales.models';
+import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel, shortReceipt } from '../sales.models';
 import { SalesService } from '../sales.service';
 import { CartCustomer, CartLine, CartStore } from './cart.store';
 import { RemakeStore } from './remake.store';
@@ -52,6 +52,7 @@ export class PosPage {
    * sale is never restored; the new sale's notes name it.
    */
   protected readonly remakeOf = signal<{ uid: string; receipt: string } | null>(null);
+  protected readonly shortReceipt = shortReceipt;
   private readonly api = inject(SalesService);
   private readonly customersApi = inject(CustomersService);
   private readonly store = inject(StoreService);
