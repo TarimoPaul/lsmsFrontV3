@@ -203,7 +203,7 @@
       </h2>
       @if (remakeOf(); as r) {
         <span class="remake" [title]="i18n.t('The new sale’s notes name the deleted receipt', 'Maelezo ya mauzo mapya yanataja risiti iliyofutwa')">
-          <lsms-icon name="replay" [size]="14" />{{ i18n.t('Replaces', 'Badala ya') }} {{ r }}
+          <lsms-icon name="replay" [size]="14" />{{ i18n.t('Replaces', 'Badala ya') }} {{ r.receipt }}
           <button type="button" (click)="remakeOf.set(null)" [attr.aria-label]="i18n.t('Unlink', 'Ondoa kiungo')"><lsms-icon name="close" [size]="13" /></button>
         </span>
       }
@@ -312,7 +312,10 @@
                     ><span class="tp" [style.--pc]="types[l.saleType].color">{{
                       typeLabel(l.saleType)
                     }}</span>
-                    {{ l.qty * l.unitPieces }} {{ i18n.t('pcs', 'vip') }}</small
+                    {{ l.qty * l.unitPieces }} {{ i18n.t('pcs', 'vip') }}
+                    @if (l.previousPrice != null && l.previousPrice !== l.unitPrice) {
+                      <span class="was" [title]="i18n.t('Price on the deleted sale', 'Bei kwenye mauzo yaliyofutwa')">{{ i18n.t('was', 'ilikuwa') }} {{ l.previousPrice | money }}</span>
+                    }</small
                   >
                 </span>
                 <button

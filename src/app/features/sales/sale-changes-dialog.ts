@@ -77,7 +77,14 @@ type Tab = 'pending' | 'history';
           @if (c.reason) { <small class="why">“{{ c.reason }}”</small> }
           @if (c.detail) { <small>{{ c.detail }}</small> }
           @if (c.result === 'REFUSED') { <small class="no">{{ i18n.t('Refused', 'Imekataliwa') }}: {{ c.refuseCode }}</small> }
-          @if (c.ackAt) { <small class="ok">{{ i18n.t('Seen by', 'Imeonwa na') }} {{ c.ackByName }}: {{ c.ackNote }}</small> }
+          @if (c.action === 'DELETE' && c.result === 'ALLOWED') {
+            @if (c.remadeAs) {
+              <small class="ok remade">{{ i18n.t('Made again', 'Imerudishwa') }} → #{{ c.remadeAs }}</small>
+            } @else {
+              <small class="no remade">{{ i18n.t('Not made again', 'Haijarudishwa') }}</small>
+            }
+          }
+          @if (c.seenBy) { <small class="ok">{{ i18n.t('Seen', 'Imeonwa') }} — {{ c.seenBy }}</small> }
         </span>
         <b class="amt">{{ c.amountBefore | money }}@if (c.action !== 'DELETE' && c.amountAfter !== null) { → {{ c.amountAfter | money }} }</b>
       </ng-template>

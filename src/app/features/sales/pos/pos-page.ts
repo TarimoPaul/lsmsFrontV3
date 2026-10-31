@@ -51,7 +51,7 @@ export class PosPage {
    * Receipt of the deleted sale this cart is making again (deleted list -> "Make again", owner 31/10 bf). A deleted
    * sale is never restored; the new sale's notes name it.
    */
-  protected readonly remakeOf = signal<string | null>(null);
+  protected readonly remakeOf = signal<{ uid: string; receipt: string } | null>(null);
   private readonly api = inject(SalesService);
   private readonly customersApi = inject(CustomersService);
   private readonly store = inject(StoreService);
@@ -513,6 +513,7 @@ export class PosPage {
           piecesPerPackage: p?.piecesPerPackage ?? null,
           abbreviation: l.packageAbbreviation,
           error: null,
+          previousPrice: l.unitPrice,
         };
         return p && o ? base : { ...base, error: t('No longer sold at this price — remove it', 'Haiuzwi tena kwa bei hii — iondoe') };
       });
@@ -520,7 +521,7 @@ export class PosPage {
         ? { uid: sale.customerUid, name: sale.customerName ?? '', phone: sale.customerPhone }
         : null;
       this.cart.load({ lines, customer, discount: sale.discount, heldSince: null });
-      this.remakeOf.set(sale.receiptNumber);
+      this.remakeOf.set({ uid: sale.uid, receipt: sale.receiptNumber });
       this.cartOpen.set(true);
       this.toast.success(t(`Cart filled from deleted sale ${sale.receiptNumber} — check it, then complete the sale.`,
         `Kapu limejazwa kutoka mauzo yaliyofutwa ${sale.receiptNumber} — likague kisha kamilisha mauzo.`));
@@ -553,8 +554,9 @@ export class PosPage {
       userUid: user?.uid ?? null,
       userName: this.auth.displayName() || null,
       discountAmount: this.cart.discount(),
+      replacesSaleUid: this.remakeOf()?.uid ?? null,
       saleNotes: [
-        this.remakeOf() ? `Badala ya mauzo yaliyofutwa: ${this.remakeOf()}` : '',
+        this.remakeOf() ? `Badala ya mauzo yaliyofutwa: ${this.remakeOf()!.receipt}` : '',
         `Payment Method: ${methodLabel(this.method(), true)}`,
         `Total Items: ${this.cart.count()}`,
         `Total Pieces: ${this.cart.pieces()}`,

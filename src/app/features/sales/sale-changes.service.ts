@@ -22,9 +22,13 @@ export interface SaleChange {
   byIsCeo: boolean;
   reason: string | null;
   detail: string | null;
+  /** MY "Nimeona" (each reviewer marks for themselves). */
   ackAt: string | null;
   ackNote: string | null;
-  ackByName: string | null;
+  /** Everyone who has marked it: "Name: note; …". */
+  seenBy: string | null;
+  /** Receipt(s) of the new sale that made a deleted one again, or null. */
+  remadeAs: string | null;
 }
 
 export interface SaleChangeSummary {

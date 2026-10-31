@@ -6,6 +6,10 @@
 }
 @include cart-panel.base;
 
+.was {
+  margin-left: 6px; font-weight: 600; color: var(--c-warning); text-decoration: line-through;
+}
+
 .remake {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; border-radius: 999px;
   font-size: 0.72rem; font-weight: 600; color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 12%, transparent);
