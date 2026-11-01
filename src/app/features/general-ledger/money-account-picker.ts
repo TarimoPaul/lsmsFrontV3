@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
 import { Icon } from '@shared/ui';
-import { MONEY_ACCOUNTS } from './money-accounts';
+import { MONEY_ACCOUNTS, MoneyAccount } from './money-accounts';
 
 /**
  * "Where did the money move?" — cash, a bank or a mobile wallet. The choice
@@ -15,7 +15,7 @@ import { MONEY_ACCOUNTS } from './money-accounts';
   template: `
     <span class="lbl">{{ label() || i18n.t('Paid from', 'Imelipwa kutoka') }}</span>
     <div class="chips" role="radiogroup" [attr.aria-label]="label() || i18n.t('Paid from', 'Imelipwa kutoka')">
-      @for (a of accounts; track a.method) {
+      @for (a of accounts(); track a.method) {
         <button type="button" role="radio" [attr.aria-checked]="value() === a.method" [class.on]="value() === a.method" (click)="value.set(a.method)">
           <lsms-icon [name]="a.icon" [size]="15" />{{ i18n.isSwahili() ? a.sw : a.en }}
         </button>
@@ -34,7 +34,12 @@ import { MONEY_ACCOUNTS } from './money-accounts';
 })
 export class MoneyAccountPicker {
   protected readonly i18n = inject(LanguageService);
-  protected readonly accounts = MONEY_ACCOUNTS;
   readonly value = model<string>('CASH');
   readonly label = input<string | undefined>(undefined);
+  /** Only these kinds of account (e.g. a loan is repaid from cash or a bank, never a mobile wallet). */
+  readonly groups = input<MoneyAccount['group'][] | undefined>(undefined);
+  protected readonly accounts = computed(() => {
+    const g = this.groups();
+    return g ? MONEY_ACCOUNTS.filter((a) => g.includes(a.group)) : MONEY_ACCOUNTS;
+  });
 }

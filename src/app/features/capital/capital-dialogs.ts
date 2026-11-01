@@ -7,13 +7,13 @@ import { Button, DialogShell, Icon, MoneyInput } from '@shared/ui';
 import { toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { MoneyAccountPicker } from '../general-ledger/money-account-picker';
-import { ASSET_TYPES, EXPENSE_CATEGORIES, Expenditure, Loan } from './capital.models';
+import { ASSET_TYPES, EXPENSE_CATEGORIES, Expenditure } from './capital.models';
 import { CapitalService, RecurringBudget } from './capital.service';
 
-const parse = (t: string) => Money.parse(t) ?? 0;
-const today = () => toIsoDate(new Date());
+export const parse = (t: string) => Money.parse(t) ?? 0;
+export const today = () => toIsoDate(new Date());
 /** A picked day (yyyy-MM-dd) → Spring LocalDateTime; today keeps the current time. */
-const stamp = (d: string) => {
+export const stamp = (d: string) => {
   const now = new Date();
   if (!d || d === today()) {
     const p = (x: number) => String(x).padStart(2, '0');
@@ -22,7 +22,7 @@ const stamp = (d: string) => {
   return `${d}T12:00:00`;
 };
 
-const FORM = `
+export const FORM = `
   label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
   label small { font-weight: 400; }
   input, textarea { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.88rem; color: var(--c-text); outline: none; }
@@ -313,12 +313,11 @@ export class DisposeDialog {
   }
 }
 
-// ── Owner capital in / out, or a new loan ─────────────────────────────────
+// ── Owner capital in / out ─────────────────────────────────────────────────
+// Loans have their own dialogs (loan-dialogs.ts): registered with terms, repaid, described.
 
 export interface MovementDialogData {
-  kind: 'IN' | 'OUT' | 'LOAN';
-  /** With kind 'LOAN': correct this loan instead of recording a new one. */
-  loan?: Loan;
+  kind: 'IN' | 'OUT';
 }
 
 @Component({
@@ -326,27 +325,22 @@ export interface MovementDialogData {
   imports: [DialogShell, Button, Icon, MoneyInput, MoneyAccountPicker],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lsms-dialog [title]="title()" [icon]="data.kind === 'OUT' ? 'north_east' : data.kind === 'LOAN' ? 'request_quote' : 'south_west'">
+    <lsms-dialog [title]="title()" [icon]="data.kind === 'OUT' ? 'north_east' : 'south_west'">
       <p class="info"><lsms-icon name="info" [size]="16" />{{ help() }}</p>
-      @if (belowRepaid()) {
-        <p class="err">{{ i18n.t('The amount cannot be less than the principal already repaid', 'Kiasi hakiwezi kuwa chini ya principal iliyokwisha kulipwa') }} ({{ repaidText }}).</p>
-      }
-      @if (data.kind !== 'LOAN') {
-        <div class="chips">
-          @for (s of sources(); track s.v) { <button type="button" [class.on]="source() === s.v" (click)="source.set(s.v)">{{ i18n.isSwahili() ? s.sw : s.en }}</button> }
-        </div>
-      }
+      <div class="chips">
+        @for (s of sources(); track s.v) { <button type="button" [class.on]="source() === s.v" (click)="source.set(s.v)">{{ i18n.isSwahili() ? s.sw : s.en }}</button> }
+      </div>
       <div class="two">
         <label><span>{{ i18n.t('Amount', 'Kiasi') }} (TZS)</span><input lsmsMoneyInput type="text" [value]="amount()" (input)="amount.set($any($event.target).value)" /></label>
         <label><span>{{ i18n.t('Date', 'Tarehe') }}</span><input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" /></label>
       </div>
-      <label><span>{{ data.kind === 'LOAN' ? i18n.t('Lender & terms', 'Mkopeshaji na masharti') : i18n.t('Reason', 'Sababu') }}</span><input type="text" maxlength="200" [value]="reason()" (input)="reason.set($any($event.target).value)" /></label>
+      <label><span>{{ i18n.t('Reason', 'Sababu') }}</span><input type="text" maxlength="200" [value]="reason()" (input)="reason.set($any($event.target).value)" /></label>
       <label><span>{{ i18n.t('Notes (optional)', 'Maelezo (hiari)') }}</span><textarea rows="2" maxlength="500" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea></label>
       <app-money-account-picker [(value)]="method" [label]="data.kind === 'OUT' ? i18n.t('Paid out from', 'Imetoka') : i18n.t('Received into', 'Imeingia')" />
       @if (error()) { <p class="err">{{ error() }}</p> }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ editing ? i18n.t('Save changes', 'Hifadhi mabadiliko') : i18n.t('Record', 'Rekodi') }}</button>
+        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ i18n.t('Record', 'Rekodi') }}</button>
       </ng-container>
     </lsms-dialog>
   `,
@@ -359,17 +353,12 @@ export class MovementDialog {
   private readonly api = inject(CapitalService);
 
   protected readonly today = today();
-  /** The loan being corrected, if any. */
-  private readonly loan = this.data.kind === 'LOAN' ? (this.data.loan ?? null) : null;
-  protected readonly editing = !!this.loan;
-  private readonly loanDay = (this.loan?.injectionDate ?? '').slice(0, 10);
-  protected readonly repaidText = Money.format(this.loan?.totalRepaid ?? 0, { decimals: 0 });
-  protected readonly source = signal(this.data.kind === 'OUT' ? 'OWNER_DRAW' : this.data.kind === 'LOAN' ? 'LOAN' : 'OWNER_EQUITY');
-  protected readonly amount = signal(this.loan ? Money.group(String(this.loan.loanAmount)) : '');
-  protected readonly date = signal(this.loanDay || today());
-  protected readonly reason = signal(this.loan?.reason ?? '');
-  protected readonly notes = signal(this.loan?.notes ?? '');
-  protected readonly method = signal(this.loan?.paymentMethod || 'CASH');
+  protected readonly source = signal(this.data.kind === 'OUT' ? 'OWNER_DRAW' : 'OWNER_EQUITY');
+  protected readonly amount = signal('');
+  protected readonly date = signal(today());
+  protected readonly reason = signal('');
+  protected readonly notes = signal('');
+  protected readonly method = signal('CASH');
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
 
@@ -385,43 +374,20 @@ export class MovementDialog {
         ],
   );
   protected readonly title = computed(() =>
-    this.data.kind === 'OUT'
-      ? this.i18n.t('Owner withdrawal', 'Mmiliki kutoa pesa')
-      : this.editing
-        ? this.i18n.t('Correct loan', 'Rekebisha mkopo')
-        : this.data.kind === 'LOAN'
-        ? this.i18n.t('Loan received', 'Mkopo umepokelewa')
-        : this.i18n.t('Add capital', 'Ongeza mtaji'),
+    this.data.kind === 'OUT' ? this.i18n.t('Owner withdrawal', 'Mmiliki kutoa pesa') : this.i18n.t('Add capital', 'Ongeza mtaji'),
   );
   protected readonly help = computed(() =>
     this.data.kind === 'OUT'
       ? this.i18n.t('Money taken out of the business for personal use. Reduces equity — it is not an expense.', 'Pesa iliyotolewa kwenye biashara kwa matumizi binafsi. Inapunguza mtaji — si gharama.')
-      : this.editing
-        ? this.i18n.t('Fix what was entered wrongly. If the amount, date or account changes, the old entry is reversed in the books and a correct one is posted.', 'Rekebisha kilichokosewa. Kiasi, tarehe au akaunti vikibadilika, ingizo la zamani linarudishwa kwenye vitabu na jipya sahihi linaandikwa.')
-      : this.data.kind === 'LOAN'
-        ? this.i18n.t('Borrowed money is a liability: it must be repaid. It is not income and not capital.', 'Pesa ya mkopo ni deni: lazima ilipwe. Si mapato wala mtaji.')
-        : this.i18n.t('Only NEW money put into the business. Profit already earned is in retained earnings — never record it here.', 'Pesa MPYA tu inayowekwa kwenye biashara. Faida iliyopatikana tayari iko kwenye faida iliyobaki — usiiandike hapa.'),
+      : this.i18n.t('Only NEW money put into the business. Profit already earned is in retained earnings — never record it here.', 'Pesa MPYA tu inayowekwa kwenye biashara. Faida iliyopatikana tayari iko kwenye faida iliyobaki — usiiandike hapa.'),
   );
-  protected readonly belowRepaid = computed(() => !!this.loan && parse(this.amount()) > 0 && parse(this.amount()) < this.loan.totalRepaid);
-  protected readonly valid = computed(() => parse(this.amount()) > 0 && this.reason().trim().length >= 3 && !this.belowRepaid());
+  protected readonly valid = computed(() => parse(this.amount()) > 0 && this.reason().trim().length >= 3);
 
   protected async save(): Promise<void> {
     if (!this.valid()) return;
     this.saving.set(true);
     this.error.set(null);
     try {
-      if (this.loan) {
-        await this.api.updateLoan(this.loan.uid, {
-          amount: parse(this.amount()),
-          reason: this.reason().trim(),
-          notes: this.notes().trim(),
-          // An untouched day keeps its original time of day.
-          ...(this.date() !== this.loanDay ? { transaction_date: stamp(this.date()) } : {}),
-          payment_method: this.method(),
-        });
-        this.ref.close(true);
-        return;
-      }
       await this.api.recordMovement({
         injection_type: this.data.kind === 'OUT' ? 'WITHDRAWAL' : 'INJECTION',
         source_type: this.source(),
@@ -430,70 +396,6 @@ export class MovementDialog {
         notes: this.notes().trim() || undefined,
         transaction_date: stamp(this.date()),
         payment_method: this.method(),
-      });
-      this.ref.close(true);
-    } catch (e) {
-      this.error.set(ApiError.from(e).message);
-    } finally {
-      this.saving.set(false);
-    }
-  }
-}
-
-// ── Loan repayment ─────────────────────────────────────────────────────────
-
-@Component({
-  selector: 'app-repay-dialog',
-  imports: [DialogShell, Button, Icon, MoneyInput, MoneyPipe, MoneyAccountPicker],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <lsms-dialog [title]="i18n.t('Repay loan', 'Lipa mkopo')" icon="payments">
-      <p class="info"><lsms-icon name="info" [size]="16" />{{ data.reason }} · {{ i18n.t('still owed', 'bado inadaiwa') }} <b>&nbsp;{{ data.outstandingBalance | money: { decimals: 0 } }}</b></p>
-      <div class="two">
-        <label><span>{{ i18n.t('Principal', 'Principal (mkopo wenyewe)') }}</span><input lsmsMoneyInput type="text" [value]="principal()" (input)="principal.set($any($event.target).value)" /></label>
-        <label><span>{{ i18n.t('Interest', 'Riba') }} <small>({{ i18n.t('expense', 'gharama') }})</small></span><input lsmsMoneyInput type="text" [value]="interest()" (input)="interest.set($any($event.target).value)" /></label>
-      </div>
-      <p class="gl">{{ i18n.t('Total paid', 'Jumla iliyolipwa') }}: {{ total() | money: { decimals: 0 } }}@if (over()) { · <b class="err">{{ i18n.t('Principal exceeds what is owed', 'Principal inazidi deni') }}</b> }</p>
-      <label><span>{{ i18n.t('Date', 'Tarehe') }}</span><input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" /></label>
-      <app-money-account-picker [(value)]="method" />
-      @if (error()) { <p class="err">{{ error() }}</p> }
-      <ng-container dialogActions>
-        <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ i18n.t('Record repayment', 'Rekodi malipo') }}</button>
-      </ng-container>
-    </lsms-dialog>
-  `,
-  styles: FORM,
-})
-export class RepayDialog {
-  protected readonly data = inject<Loan>(DIALOG_DATA);
-  protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
-  protected readonly i18n = inject(LanguageService);
-  private readonly api = inject(CapitalService);
-
-  protected readonly today = today();
-  protected readonly principal = signal('');
-  protected readonly interest = signal('');
-  protected readonly date = signal(today());
-  protected readonly method = signal('CASH');
-  protected readonly saving = signal(false);
-  protected readonly error = signal<string | null>(null);
-  protected readonly total = computed(() => parse(this.principal()) + parse(this.interest()));
-  protected readonly over = computed(() => parse(this.principal()) > this.data.outstandingBalance + 1);
-  protected readonly valid = computed(() => this.total() > 0 && !this.over());
-
-  protected async save(): Promise<void> {
-    if (!this.valid()) return;
-    this.saving.set(true);
-    this.error.set(null);
-    try {
-      await this.api.repayLoan(this.data.uid, {
-        amount: this.total(),
-        principal_amount: parse(this.principal()),
-        interest_amount: parse(this.interest()),
-        payment_method: this.method(),
-        reason: this.i18n.t('Loan repayment', 'Kulipa mkopo'),
-        transaction_date: stamp(this.date()),
       });
       this.ref.close(true);
     } catch (e) {
