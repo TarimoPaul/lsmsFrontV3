@@ -387,3 +387,14 @@ Mkopo mpya "moja kwa moja kwenye mzigo": PG test ya journal (Dr mzigo + Dr 1150 
 E2E b3: ianze kwenye nakala safi au ifute mkopo wake mwishoni. Jina la kipekee kwa kila mwendesho.
 Mwanzoni mwa kila ripoti: orodhesha herufi zote ulizoziona tangu ripoti iliyopita (siyo ya mwisho tu).
 Kisha B4.
+
+## 2026-11-01 (bm) — B4 imepanuliwa kidogo
+Ripoti ya uendeshaji na gl-pnl ZIBAKI mbili. Ongeza kadi "Daraja na GL" kwenye ripoti ya uendeshaji (kipindi kilekile):
+  Net (uendeshaji) → − riba (6600) → ± kila tofauti inayojulikana kwa jina (stock counts posted vs zisizoandikwa,
+  matumizi ya reco isiyoidhinishwa, mauzo yaliyofutwa yenye reversal kipindi kingine, n.k.) → = Net ya GL.
+  "Tofauti isiyoelezeka" ionyeshwe wazi, nyekundu ≠ 0. Backend: endpoint moja inayorudisha mistari ya daraja.
+  Jaribio: Oktoba kwenye nakala ya 29/10 — orodhesha tofauti zote zilizopatikana kwenye ripoti.
+Uchunguzi (kusoma tu, prod au nakala): hesabu ya stock ya 13/10 iliyoleta ziada 262,501 — bidhaa zipi, nani,
+  kwa nini. Na muhtasari wa mistari 210 isiyoandikwa: jumla ya ziada, jumla ya upungufu, tarehe.
+  Usiandike chochote — tutaamua baada ya kuona.
+Kama daraja linavuka 16/11: niambie mapema, tutaamua kipi kitoke kwenye batch.
