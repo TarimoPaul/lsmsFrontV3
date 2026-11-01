@@ -1,0 +1,3 @@
+# Windows step files must be CRLF on checkout (cmd parses LF files wrongly; memory rule 19/10)
+*.cmd text eol=crlf
+*.bat text eol=crlf
