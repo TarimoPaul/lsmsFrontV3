@@ -423,3 +423,14 @@ Hatua 62 ongeza (g): manunuzi yote 2026 ambapo unit cost > 3× au < ⅓ ya wasta
   Pia: hali ya kipindi cha Oktoba (OPEN/CLOSED).
 Onyo la manunuzi (cost > 3× ya mwisho → "carton au chupa?"): kadiria muda. < nusu siku → batch (B). Vinginevyo BAADA §3.
 Kisha B4 + daraja.
+
+## 2026-11-01 (bp)
+63: tarehe ya journal inategemea hali ya Oktoba kwenye PROD (kutoka 62):
+  - Oktoba OPEN → journal 2:
+      J1 31/10: Dr 5100 / Cr 1200 = ziada ya 1200 tarehe 31/10 (265,000 − COGS ya ziada ya mauzo ya Jagger ya Okt)
+      J2 01/11 (ikiwa tu kuna mauzo ya Jagger ≥ 01/11): Dr 1200 / Cr akaunti ya COGS = chupa × (53,000 − 8,833.33)
+      Ukaguzi: J1 − J2 = A = B. Maelezo yote mawili yataje "Jagger carton kama chupa (11/10)".
+  - Oktoba CLOSED → kama ulivyoandika (journal moja 01/11 = A).
+  Uendelezaji (resume) uzingatie J1 na J2 kila moja peke yake.
+  Gharama ibadilishwe kwa SQL: andika mstari wa audit (nani, lini, 53,000 → 8,833.33, sababu).
+Usifunge Oktoba kabla ya 63 ANDIKA. Kisha B4 + daraja.
