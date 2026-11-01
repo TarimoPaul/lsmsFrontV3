@@ -65,7 +65,7 @@ deploy/local/v3-local.sh up      # nginx.conf ya image ya prod + "edge" nginx: /
 
 **Lango la staging (mmiliki 01/11 bi): yote matatu lazima yapite kwenye build ya MWISHO kabla ya prod.** Log zake zinaambatishwa kwenye ripoti ya staging.
 ```
-Lsms (release/2.4.0)      deploy/local/pg-checks.sh       # LoanSqlPgCheck + SaleChangePgCheck, PG15 ya kutupwa kwa kila moja -> PG_CHECKS_OK 2/2
+Lsms (release/2.4.0)      deploy/local/pg-checks.sh       # LoanSqlPgCheck + SaleChangePgCheck + PnlBridgePgCheck, PG15 ya kutupwa kwa kila moja -> PG_CHECKS_OK 3/3
 Lsms (release/2.4.0)      mvnw test                       # suite nzima, Failures 0, Errors 0
 lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh   # Playwright YOTE (b1, b2, ...) kwenye v3-local build -> E2E_OK n/n
 ```
