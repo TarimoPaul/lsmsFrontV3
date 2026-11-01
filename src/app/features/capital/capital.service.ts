@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/api/api.service';
 import { CachedResource } from '@core/data/cached-resource';
 import { GlService } from '../general-ledger/gl.service';
-import { CapitalMovement, Expenditure, ExpStatus, Loan, LoanCard, n } from './capital.models';
+import { CapitalMovement, Expenditure, ExpStatus, Loan, LoanCard, ReclassResult, n } from './capital.models';
 
 const CE = '/api/v1/capital-expenditure';
 const CM = '/api/v1/capital-monitoring';
@@ -187,10 +187,20 @@ export class CapitalService {
     return r;
   }
 
-  async reclassifyLoan(uid: string, newSourceType: string, reason: string): Promise<Loan> {
-    const r = await this.api.post<Loan>(`${CM}/loans/${uid}/reclassify`, { new_source_type: newSourceType, reason });
-    this.changed();
-    return r;
+  /**
+   * Loan → capital: Dr 2100 still owed / Cr 1150 interest not yet spread / Cr 3000 the rest; the loan closes.
+   * dryRun returns that journal without writing it. FINANCE_WRITE + CAPITAL_WRITE.
+   */
+  async reclassifyLoan(uid: string, newSourceType: string, reason: string, dryRun: boolean): Promise<ReclassResult> {
+    const r = await this.api.post<ReclassResult>(`${CM}/loans/${uid}/reclassify`, { new_source_type: newSourceType, reason, dry_run: dryRun });
+    if (!dryRun) this.changed();
+    return {
+      ...r,
+      owed: n(r.owed),
+      prepaidInterest: n(r.prepaidInterest),
+      equity: n(r.equity),
+      lines: (r.lines ?? []).map((l) => ({ ...l, debit: n(l.debit), credit: n(l.credit) })),
+    };
   }
 
   // ── Recurring monthly budgets (V121): a template + one approved row per month ──

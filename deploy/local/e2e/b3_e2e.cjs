@@ -1,9 +1,10 @@
-// B3 (V3 loans: card, Lipa mkopo, details, new loan with terms) end to end on the PRODUCTION build: V3 Docker-local
-// + backend Docker-local (release/2.4.0, PG15, 29/10 copy). Setup touches only the local copy:
+// B3 (V3 loans: card, Lipa mkopo, details, new loan with terms, convert to capital) end to end on the PRODUCTION
+// build: V3 Docker-local + backend Docker-local (release/2.4.0, PG15, 29/10 copy). Setup touches only the local copy:
 //  - test passwords;
 //  - loan A corrected and loan B given its terms exactly as step 69 did on prod (once; skipped when already done),
 //    so A and B look like prod and are only READ here;
-//  - every run registers its OWN test loan and repays that one, so the test can run again on the same copy.
+//  - every run registers its OWN test loans, named "Jaribio B3 <run>", and deletes them (journals, installments,
+//    repayments) at the end, also after a failure (owner 01/11 bl), so the copy is as clean as before the run.
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 
@@ -49,6 +50,24 @@ async function loansTab(page) {
 const card = (page, uid) => page.locator(`article[data-loan="${uid}"]`);
 const loanCard = async (token, uid) => (await api('GET', `${CM}/loans/${uid}`, token)).j.data?.card;
 
+// This run's loans: one unique prefix, so the cleanup deletes only what this run made.
+const RUN = `Jaribio B3 ${Date.now().toString(36)}`;
+const LOANS_OF_RUN = `select uid from capital_injections where reason like '${RUN}%' and (source_type = 'LOAN' or reclassified_from = 'LOAN')`;
+const JOURNALS_OF_RUN = `select j.uid from journal_entry j, (${LOANS_OF_RUN}) l
+  where j.reference_uid = l.uid or j.reference_uid like l.uid || ':%' or j.reference_uid like 'LOANINT:' || l.uid || ':%'
+     or (j.reference_type = 'LOAN_REPAYMENT' and j.reference_number = l.uid)
+     or j.reference_uid in (select r.uid from capital_injections r where r.related_loan_uid = l.uid)`;
+function cleanup() {
+  sql(`begin;
+    delete from journal_entry_line where journal_entry_uid in (${JOURNALS_OF_RUN});
+    delete from journal_entry where uid in (${JOURNALS_OF_RUN});
+    delete from loan_installment where loan_uid in (${LOANS_OF_RUN});
+    delete from capital_injections where related_loan_uid in (${LOANS_OF_RUN});
+    delete from capital_injections where uid in (${LOANS_OF_RUN});
+    commit;`);
+}
+const tb = () => sql('select coalesce(sum(debit_amount - credit_amount), 0)::numeric(18,2) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where not coalesce(j.is_deleted, false)');
+
 (async () => {
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email in ('${CEO}','${EXE}')`);
@@ -90,7 +109,7 @@ const loanCard = async (token, uid) => (await api('GET', `${CM}/loans/${uid}`, t
   ok('A6 mkopo wa tatu (umelipwa) uko kwenye Historia, si kwenye orodha hai', (await ceo.locator('article[data-loan^="INJ-7a64c10a"]').count()) === 0 && /MKOPO WA BANK/.test(await ceo.locator('details.hist').textContent()));  // closed <details>: innerText hides it
 
   // ---- B. new loan with terms (this run's own loan)
-  const lender = `Jaribio B3 ${Date.now().toString(36)}`;
+  const lender = RUN;
   // MONTHLY over 3 months: the last installment is start + 3 months (same day, as the server requires)
   const start = addDays(TODAY, -10);
   const sd = new Date(`${start}T12:00:00`); const ed = new Date(sd); ed.setMonth(ed.getMonth() + 3);
@@ -178,6 +197,38 @@ const loanCard = async (token, uid) => (await api('GET', `${CM}/loans/${uid}`, t
   ok('D3 DB: jina na tarehe ya awamu #2 zimebadilika', sql(`select reason from capital_injections where uid = '${nu}'`) === `${lender} (jina sahihi)` && sql(`select due_date from loan_installment where loan_uid = '${nu}' and seq = 2`) === addDays(d3, -3));
   ok('D4 hakuna journal mpya', sql('select count(*) from journal_entry') === journals0);
 
+  // ---- F. convert to capital (owner bl): the dry-run journal is shown, then the same journal is written
+  const fr = await api('POST', `${CM}/loans`, ct, { lender: `${RUN} mtaji`, principal: 300000, interestTotal: 30000,
+    startDate: addDays(TODAY, -5), endDate: addDays(TODAY, 40), repaymentType: 'ONCE', paymentMethod: 'CASH' });
+  const fu = fr.j.data?.uid;
+  ok('F0 mkopo wa kugeuza umesajiliwa (API)', fr.status === 201 && !!fu, `${fr.status} ${fr.j.message}`);
+  const fc = await loanCard(ct, fu);
+  const owedF = Number(fc.owed), prepF = Number(fc.interestRemaining);
+  await loansTab(ceo);
+  await card(ceo, fu).getByRole('button', { name: /^(Convert to capital|Geuza kuwa mtaji)$/ }).click();
+  const cd = ceo.locator('app-loan-convert-dialog');
+  await cd.waitFor();
+  await cd.locator('input[type="text"]').fill('Mmiliki amesamehe mkopo huu (jaribio)');
+  const reclass0 = sql(`select count(*) from journal_entry where reference_uid = '${fu}:RECLASS'`);
+  await cd.getByRole('button', { name: /^(Show journal|Onyesha journal)$/ }).click();
+  await cd.locator('table.jl').waitFor({ timeout: 15000 });
+  const rows = await cd.locator('tr[data-acc]').evaluateAll((trs) => trs.map((t) => [t.getAttribute('data-acc'), t.innerText]));
+  ok(`F1 journal inaonyeshwa: Dr 2100 ${tz(owedF)} / Cr 1150 ${tz(prepF)} / Cr 3000 ${tz(owedF - prepF)}`,
+    rows.map((r) => r[0]).join(',') === '2100,1150,3000' && rows[0][1].includes(tz(owedF)) && rows[1][1].includes(tz(prepF)) && rows[2][1].includes(tz(owedF - prepF)),
+    JSON.stringify(rows));
+  ok('F2 hakiki haiandiki kitu', sql(`select count(*) from journal_entry where reference_uid = '${fu}:RECLASS'`) === reclass0 && reclass0 === '0');
+  await cd.getByRole('button', { name: /^(Convert to capital|Geuza kuwa mtaji)$/ }).click();
+  ok('F3 toast: mkopo umegeuzwa kuwa mtaji', await toast(ceo, /Loan converted to capital|Mkopo umegeuzwa kuwa mtaji/));
+  const jF = sql(`select string_agg(l.account_code || ':' || l.debit_amount || ':' || l.credit_amount, ',' order by l.line_order) from journal_entry j join journal_entry_line l on l.journal_entry_uid = j.uid where j.reference_uid = '${fu}:RECLASS'`);
+  const f2 = (v) => v.toFixed(2);
+  ok('F4 GL: journal ileile iliyoonyeshwa', jF === `2100:${f2(owedF)}:0.00,1150:0.00:${f2(prepF)},3000:0.00:${f2(owedF - prepF)}`, jF);
+  const balF = sql(`select coalesce(sum(l.debit_amount - l.credit_amount) filter (where l.account_code = '2100'), 0)::numeric(18,2) || '|' || coalesce(sum(l.debit_amount - l.credit_amount) filter (where l.account_code = '1150'), 0)::numeric(18,2)
+    from journal_entry j join journal_entry_line l on l.journal_entry_uid = j.uid where not coalesce(j.is_deleted, false)
+     and (j.reference_uid = '${fu}' or j.reference_uid like '${fu}:%' or j.reference_uid like 'LOANINT:${fu}:%')`);
+  ok('F5 mkopo: 2100 = 0, 1150 = 0, CLOSED', balF === '0.00|0.00' && sql(`select loan_status || '|' || source_type from capital_injections where uid = '${fu}'`) === 'CLOSED|OWNER_EQUITY', balF);
+  await loansTab(ceo);
+  ok('F6 kadi imeondoka kwenye orodha hai, iko kwenye Historia', (await card(ceo, fu).count()) === 0 && (await ceo.locator('details.hist').textContent()).includes(`${RUN} mtaji`));
+
   // ---- E. read only for Executive CEO (FINANCE_READ, no FINANCE_WRITE)
   const exe = await newPage();
   await login(exe, EXE);
@@ -192,6 +243,14 @@ const loanCard = async (token, uid) => (await api('GET', `${CM}/loans/${uid}`, t
 
   ok('Z hakuna JS error', errors.length === 0, errors.slice(0, 3).join(' | '));
   await browser.close();
+  cleanup();
+  ok('Z2 usafi: mikopo ya mwendesho huu imefutwa (rekodi, awamu, journal), TB 0',
+    sql(`select count(*) from (${LOANS_OF_RUN}) x`) === '0' && sql(`select count(*) from capital_injections where reason like '${RUN}%' or reason like 'Kulipa mkopo: ${RUN}%'`) === '0' && tb() === '0.00', `TB ${tb()}`);
   console.log(`JUMLA PASS ${P} FAIL ${F}`);
   process.exit(F ? 1 : 0);
-})().catch((e) => { console.log('ERROR', e.message); console.log(`JUMLA PASS ${P} FAIL ${F + 1}`); process.exit(2); });
+})().catch((e) => {
+  console.log('ERROR', e.message);
+  try { cleanup(); console.log('usafi umefanyika baada ya kosa'); } catch (c) { console.log('USAFI UMESHINDWA', c.message); }
+  console.log(`JUMLA PASS ${P} FAIL ${F + 1}`);
+  process.exit(2);
+});

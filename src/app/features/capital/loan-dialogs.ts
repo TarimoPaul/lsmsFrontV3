@@ -7,7 +7,7 @@ import { Button, DialogShell, Icon, MoneyInput } from '@shared/ui';
 import { MoneyPipe } from '@shared/utils/money';
 import { MoneyAccountPicker } from '../general-ledger/money-account-picker';
 import { FORM, parse, stamp, today } from './capital-dialogs';
-import { Loan } from './capital.models';
+import { Loan, ReclassResult } from './capital.models';
 import { CapitalService } from './capital.service';
 
 /** Interest days are [start, end): the same count the server's LoanScheduleCalculator uses. */
@@ -298,6 +298,103 @@ export class LoanDetailsDialog {
         ...(this.changedDates().length ? { installmentDates: this.dates().map((d) => ({ seq: d.seq, dueDate: d.dueDate })) } : {}),
       });
       this.ref.close(true);
+    } catch (e) {
+      this.error.set(ApiError.from(e).message);
+    } finally {
+      this.saving.set(false);
+    }
+  }
+}
+
+// ── Convert to capital: the journal is shown before it is written ──────────
+
+const ACCOUNT_NAME: Record<string, { en: string; sw: string }> = {
+  '2100': { en: 'Loans payable', sw: 'Mikopo (deni)' },
+  '1150': { en: 'Loan interest not yet a cost', sw: 'Riba ya mkopo isiyoiva' },
+  '3000': { en: 'Owner capital', sw: 'Mtaji wa mmiliki' },
+};
+
+@Component({
+  selector: 'app-loan-convert-dialog',
+  imports: [DialogShell, Button, Icon, MoneyPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <lsms-dialog [title]="i18n.t('Convert loan to capital', 'Geuza mkopo kuwa mtaji')" icon="swap_horiz">
+      <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('Only when the lender will never be repaid (e.g. the owner lent it). What is still owed becomes capital, the interest not yet due is cancelled, and the loan closes. Interest already booked stays a cost.', 'Pale tu mkopeshaji hatalipwa (mf. mmiliki ndiye aliyekopesha). Deni lililobaki linakuwa mtaji, riba ambayo haijaiva inafutwa, na mkopo unafungwa. Riba iliyokwisha kuwa gharama inabaki.') }}</p>
+      <span class="lbl">{{ i18n.t('Becomes', 'Unakuwa') }}</span>
+      <div class="chips">
+        <button type="button" [class.on]="type() === 'OWNER_EQUITY'" [disabled]="!!preview()" (click)="type.set('OWNER_EQUITY')">{{ i18n.t('Owner capital', 'Mtaji wa mmiliki') }}</button>
+        <button type="button" [class.on]="type() === 'PARTNER_CONTRIBUTION'" [disabled]="!!preview()" (click)="type.set('PARTNER_CONTRIBUTION')">{{ i18n.t('Partner contribution', 'Mchango wa mbia') }}</button>
+      </div>
+      <label><span>{{ i18n.t('Reason (required)', 'Sababu (inahitajika)') }}</span><input type="text" maxlength="200" [readonly]="!!preview()" [value]="reason()" (input)="reason.set($any($event.target).value)" /></label>
+      @if (preview(); as p) {
+        <span class="lbl">{{ i18n.t('Journal to be written', 'Journal itakayoandikwa') }} · {{ p.date }}</span>
+        <table class="jl">
+          <thead><tr><th>{{ i18n.t('Account', 'Akaunti') }}</th><th>Dr</th><th>Cr</th></tr></thead>
+          <tbody>
+            @for (l of p.lines; track l.accountCode) {
+              <tr [attr.data-acc]="l.accountCode">
+                <td><b>{{ l.accountCode }}</b> {{ name(l.accountCode) }}</td>
+                <td>{{ l.debit ? (l.debit | money) : '' }}</td>
+                <td>{{ l.credit ? (l.credit | money) : '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="gl">{{ i18n.t('Still owed', 'Deni lililobaki') }} {{ p.owed | money }} − {{ i18n.t('interest not yet due', 'riba isiyoiva') }} {{ p.prepaidInterest | money }} = {{ i18n.t('capital', 'mtaji') }} <b>{{ p.equity | money }}</b></p>
+      }
+      @if (error()) { <p class="err">{{ error() }}</p> }
+      <ng-container dialogActions>
+        <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
+        @if (preview()) {
+          <button lsmsButton="secondary" (click)="preview.set(null)">{{ i18n.t('Back', 'Rudi') }}</button>
+          <button lsmsButton="primary" [loading]="saving()" (click)="convert()">{{ i18n.t('Convert to capital', 'Geuza kuwa mtaji') }}</button>
+        } @else {
+          <button lsmsButton="primary" [disabled]="reason().trim().length < 5" [loading]="saving()" (click)="show()">{{ i18n.t('Show journal', 'Onyesha journal') }}</button>
+        }
+      </ng-container>
+    </lsms-dialog>
+  `,
+  styles: `${LOAN_FORM}
+    .jl { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.8rem; }
+    .jl th { text-align: left; font-weight: 500; font-size: 0.72rem; color: var(--c-text-2); padding: 4px 6px; border-bottom: 1px solid var(--c-border); }
+    .jl td { padding: 6px; border-bottom: 1px solid color-mix(in srgb, var(--c-border) 60%, transparent); color: var(--c-text); }
+    .jl th:not(:first-child), .jl td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  `,
+})
+export class ConvertDialog {
+  protected readonly data = inject<Loan>(DIALOG_DATA);
+  protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
+  protected readonly i18n = inject(LanguageService);
+  private readonly api = inject(CapitalService);
+
+  protected readonly type = signal<'OWNER_EQUITY' | 'PARTNER_CONTRIBUTION'>('OWNER_EQUITY');
+  protected readonly reason = signal('');
+  protected readonly preview = signal<ReclassResult | null>(null);
+  protected readonly saving = signal(false);
+  protected readonly error = signal<string | null>(null);
+
+  protected name(code: string): string {
+    const a = ACCOUNT_NAME[code];
+    return a ? (this.i18n.isSwahili() ? a.sw : a.en) : '';
+  }
+
+  /** The server's dry run: the exact lines it would write now. */
+  protected async show(): Promise<void> {
+    await this.run(true);
+  }
+
+  protected async convert(): Promise<void> {
+    await this.run(false);
+  }
+
+  private async run(dryRun: boolean): Promise<void> {
+    this.saving.set(true);
+    this.error.set(null);
+    try {
+      const r = await this.api.reclassifyLoan(this.data.uid, this.type(), this.reason().trim(), dryRun);
+      if (dryRun) this.preview.set(r);
+      else this.ref.close(true);
     } catch (e) {
       this.error.set(ApiError.from(e).message);
     } finally {
