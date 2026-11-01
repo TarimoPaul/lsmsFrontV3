@@ -10,7 +10,6 @@ import {
   DateRangeSelector,
   DialogService,
   EmptyState,
-  Icon,
   SegmentOption,
   SegmentedFilterBar,
   TableColumn,
@@ -41,7 +40,7 @@ const ALERT_LABEL: Record<string, { en: string; sw: string; tone: 'bad' | 'warn'
  */
 @Component({
   selector: 'app-login-audit-page',
-  imports: [DataTable, TableColumn, SegmentedFilterBar, DateRangeSelector, EmptyState, Icon, Button, DatePipe],
+  imports: [DataTable, TableColumn, SegmentedFilterBar, DateRangeSelector, EmptyState, Button, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">

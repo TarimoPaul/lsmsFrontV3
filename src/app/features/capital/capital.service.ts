@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/api/api.service';
 import { CachedResource } from '@core/data/cached-resource';
 import { GlService } from '../general-ledger/gl.service';
-import { CapitalMovement, Expenditure, ExpStatus, Loan, n } from './capital.models';
+import { CapitalMovement, Expenditure, ExpStatus, Loan, LoanCard, n } from './capital.models';
 
 const CE = '/api/v1/capital-expenditure';
 const CM = '/api/v1/capital-monitoring';
@@ -38,6 +38,24 @@ function toExp(r: Raw): Expenditure {
   };
 }
 
+function toCard(c: LoanCard): LoanCard {
+  return {
+    ...c,
+    principal: n(c.principal),
+    interestTotal: n(c.interestTotal),
+    total: n(c.total),
+    daysLeft: n(c.daysLeft),
+    interestDaily: n(c.interestDaily),
+    reserveDaily: n(c.reserveDaily),
+    dailyCharge: n(c.dailyCharge),
+    interestBooked: n(c.interestBooked),
+    interestRemaining: n(c.interestRemaining),
+    repaid: n(c.repaid),
+    owed: n(c.owed),
+    installments: (c.installments ?? []).map((i) => ({ ...i, amount: n(i.amount), paidAmount: n(i.paidAmount), daysLate: n(i.daysLate) })),
+  };
+}
+
 /**
  * Capital: expenses, fixed assets, loans and owner capital. Every write that
  * reaches the books bumps {@link GlService.version} so GL / capital views refresh.
@@ -66,6 +84,7 @@ export class CapitalService {
         loanAmount: n(l.loanAmount),
         totalRepaid: n(l.totalRepaid),
         outstandingBalance: n(l.outstandingBalance),
+        card: l.card ? toCard(l.card) : null,
       })),
     60_000,
   );
@@ -125,17 +144,44 @@ export class CapitalService {
     return r;
   }
 
-  async repayLoan(uid: string, body: { amount: number; principal_amount: number; interest_amount: number; payment_method: string; reason: string; transaction_date: string }): Promise<Loan> {
-    const r = await this.api.post<Loan>(`${CM}/loans/${uid}/repay`, body);
+  /**
+   * A loan with its terms (2.3.0): Dr receiving account principal + Dr 1150 interest / Cr 2100 total, the
+   * installments, and the interest from the start date up to today. FINANCE_WRITE.
+   */
+  async registerLoan(body: {
+    lender: string;
+    notes?: string;
+    principal: number;
+    interestTotal: number;
+    startDate: string;
+    endDate: string;
+    repaymentType: 'MONTHLY' | 'ONCE';
+    /** Money account the loan came into; or receiveAccount '1200' when it went straight to stock. */
+    paymentMethod?: string;
+    receiveAccount?: '1200';
+  }): Promise<Loan> {
+    const r = await this.api.post<Loan>(`${CM}/loans`, body);
     this.changed();
     return r;
   }
 
-  /** Corrects a loan recorded wrongly; the GL journal is reversed and posted again. Fields left out stay. */
-  async updateLoan(
-    uid: string,
-    body: { amount?: number; reason?: string; notes?: string; transaction_date?: string; payment_method?: string },
-  ): Promise<Loan> {
+  /**
+   * A repayment reduces 2100 only (interest is spread daily from 1150, never part of a payment). The server
+   * credits 1000 before the bank cut-over date and the chosen 102x bank from it on; installments are paid FIFO.
+   */
+  async repayLoan(uid: string, body: { amount: number; payment_method: string; transaction_date: string; notes?: string }): Promise<Loan> {
+    const r = await this.api.post<Loan>(`${CM}/loans/${uid}/repay`, {
+      ...body,
+      principal_amount: body.amount,
+      interest_amount: 0,
+      reason: 'Kulipa mkopo',
+    });
+    this.changed();
+    return r;
+  }
+
+  /** Description only, no journal: lender, notes, installment due dates. Amounts and loan dates go through corrections. */
+  async updateLoanDetails(uid: string, body: { lender?: string; notes?: string; installmentDates?: Array<{ seq: number; dueDate: string }> }): Promise<Loan> {
     const r = await this.api.put<Loan>(`${CM}/loans/${uid}`, body);
     this.changed();
     return r;
