@@ -4,7 +4,9 @@ rem   Server (analysis\steps\62-kagua-ufutaji.sh + .sql), psql ya kusoma tu (def
 rem   a) sale 311026-2139: ilifutwa lini/na nani, journal na reversal zake (entry_date dhidi ya event_date), kipindi cha
 rem      Okt/Nov, reco ya siku ya sale na ya 31/10, kumbukumbu za reco tangu 31/10, sale mpya mahali pake;
 rem   b) reco za Oktoba: variance ya kila reco, zinazojirudia, na kiasi cha ~12,587 / ~31,634 popote kwenye reco na journal;
-rem   c) gl_posting_failure tangu 31/10 18:00;  d) depreciation ya 31/10.
+rem   c) gl_posting_failure tangu 31/10 18:00;  d) depreciation ya 31/10;
+rem   e) (bn) mikopo iliyofungwa/kugeuzwa: ilifungwaje, journal, salio 2100/1150/6600, LOANINT baada ya closed_at;
+rem   f) (bn) Jagger Master: bidhaa, manunuzi 01/09-13/10 (gharama kwa chupa), mwendo wa stock, reco, mistari ya hesabu.
 rem Hakuna password. Matokeo: analysis\steps\62-kagua-ufutaji.log. Kila output ya Contabo inapita ficha.awk kwenye server.
 rem Ikishindwa: ---IMESHINDWA-KWENYE: ^<sehemu^> (exit N)---.
 setlocal

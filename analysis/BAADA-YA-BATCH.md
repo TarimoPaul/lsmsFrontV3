@@ -13,3 +13,21 @@ na majibu ya mmiliki kabla ya code.
   (Dr 2100 / Cr 1010), ili 1000 ionyeshe pesa ya droo tu.
 - Kabla ya code: muundo (reco inaandikaje akiba; siku ambayo reco haikufanyika; akiba iliyozidi/pungufu; uhusiano na tarehe ya
   kukata D ya benki na hatua 60, ambayo sasa inauliza bahasha ya akiba kwenye cash count ya ufunguzi).
+
+## 2. Hesabu ya stock (mmiliki 01/11 bn)
+
+Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, stock haibadiliki, tofauti ileile inarudi kila siku).
+
+- **Tofauti inayojirudia hesabu 2 mfululizo haiwezi kuwa NO_ACTION tena**: bidhaa ileile yenye tofauti ileile siku ya pili
+  inalazimika kuwa ADJUST / CHARGE_TO_CASHIER au recount. Inahitaji kuhifadhi uamuzi wa kila mstari (leo NO_ACTION haiachi alama).
+- **Ziada > 50,000 kwa bidhaa: recount na mtu wa pili kabla ya approve.** Mfano: JAGGER MASTER 13/10 (+265,000, hakuna recount).
+- **Bidhaa za "kupima": upotevu wa kupima uandikwe kama gharama (5100), siyo NO_ACTION.** Mfano: Moon Light / Golden King /
+  Gilbeys Kupima −36,000 kila siku kwa siku 28.
+
+## 3. Manunuzi: kifurushi kilichoingizwa kama kipande (uchunguzi (bn) f, nakala ya 29/10)
+
+- JAGGER MASTER (kifurushi = chupa 6): 07/09 na 22/09 kifurushi 1 kwa 53,000 → 8,833.33 kwa chupa (sahihi). 11/10 kilekile
+  kiliingizwa PER_PIECE → 53,000 kwa CHUPA, stock +1 badala ya +6. Hesabu ya 12–13/10 ilipata 6 → +5 × 53,000 = 265,000
+  (thamani halisi ya chupa 6 ni 53,000). 1200 imezidi kwa takriban 265,000. Hatua 62 (f) itathibitisha kwenye prod.
+- Kinga inayopendekezwa: bidhaa yenye pieces_per_package > 1 inaponunuliwa PER_PIECE kwa bei iliyo karibu na bei ya kifurushi
+  (mf. ≥ 80% ya gharama ya mwisho ya kifurushi) → onyo/kukataliwa mpaka ithibitishwe.

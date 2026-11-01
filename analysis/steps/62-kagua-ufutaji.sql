@@ -151,3 +151,79 @@ SELECT 'UCHAKAVU_KARIBUNI|' || j.entry_date || '|' || j.entry_number || '|' || j
 SELECT 'UCHAKAVU_KWA_MWEZI|' || to_char(j.entry_date, 'YYYY-MM') || '|' || count(*) || '|' || sum(j.total_debit)
   FROM journal_entry j WHERE j.reference_type = 'ASSET_DEPRECIATION' AND NOT coalesce(j.is_deleted, false) AND NOT coalesce(j.is_reversal, false)
  GROUP BY to_char(j.entry_date, 'YYYY-MM') ORDER BY 1;
+
+-- e) (bn) Mikopo yote iliyofungwa au kugeuzwa: ilifungwaje, journal zake, salio la 2100/1150/6600 ya kila mkopo, na riba
+--    (LOANINT) yenye tarehe baada ya closed_at (scheduler isiandike kwa mkopo usio ACTIVE).
+WITH m AS (SELECT * FROM capital_injections
+            WHERE (source_type = 'LOAN' OR reclassified_from = 'LOAN') AND (loan_status <> 'ACTIVE' OR reclassified_from IS NOT NULL)),
+     j AS (SELECT m.uid AS loan, je.uid, je.reference_type
+             FROM m JOIN journal_entry je ON NOT coalesce(je.is_deleted, false)
+              AND (je.reference_uid = m.uid OR je.reference_uid LIKE m.uid || ':%' OR je.reference_uid LIKE 'LOANINT:' || m.uid || ':%'
+                   OR (je.reference_type = 'LOAN_REPAYMENT' AND je.reference_number = m.uid)))
+SELECT 'MKOPO_ULIOFUNGWA|' || m.uid || '|' || coalesce(m.reason, '-') || '|' || coalesce(m.loan_status, '-') || '|source ' || m.source_type
+       || '|closed_at ' || coalesce(m.closed_at::date::text, '-') || '|reclassified_at ' || coalesce(m.reclassified_at::date::text, '-')
+       || '|njia ' || CASE WHEN m.reclassified_from IS NOT NULL THEN 'IMEGEUZWA_MTAJI'
+                           WHEN EXISTS (SELECT 1 FROM capital_injections r WHERE r.related_loan_uid = m.uid AND r.source_type = 'LOAN_REPAYMENT') THEN 'IMELIPWA'
+                           ELSE 'NYINGINE' END
+       || '|2100 ' || coalesce((SELECT sum(l.debit_amount - l.credit_amount) FROM j JOIN journal_entry_line l ON l.journal_entry_uid = j.uid
+                                 WHERE j.loan = m.uid AND l.account_code = '2100'), 0)
+       || '|1150 ' || coalesce((SELECT sum(l.debit_amount - l.credit_amount) FROM j JOIN journal_entry_line l ON l.journal_entry_uid = j.uid
+                                 WHERE j.loan = m.uid AND l.account_code = '1150'), 0)
+       || '|6600 ' || coalesce((SELECT sum(l.debit_amount - l.credit_amount) FROM j JOIN journal_entry_line l ON l.journal_entry_uid = j.uid
+                                 WHERE j.loan = m.uid AND l.account_code = '6600'), 0)
+       || '|journal ' || coalesce((SELECT string_agg(t.reference_type || ' ' || t.n, ', ')
+                                     FROM (SELECT reference_type, count(*) n FROM j WHERE j.loan = m.uid GROUP BY 1) t), '-')
+  FROM m ORDER BY m.closed_at NULLS LAST;
+SELECT 'MKOPO_JOURNAL|' || m.uid || '|' || je.entry_number || '|' || je.reference_type || '|' || je.entry_date || '|' || coalesce(je.reference_uid, '-')
+       || '|reversal ' || coalesce(je.is_reversal::text, '-') || '|' || je.total_debit
+  FROM capital_injections m JOIN journal_entry je ON NOT coalesce(je.is_deleted, false)
+   AND (je.reference_uid = m.uid OR je.reference_uid LIKE m.uid || ':%'
+        OR (je.reference_type = 'LOAN_REPAYMENT' AND je.reference_number = m.uid))
+ WHERE (m.source_type = 'LOAN' OR m.reclassified_from = 'LOAN') AND (m.loan_status <> 'ACTIVE' OR m.reclassified_from IS NOT NULL)
+ ORDER BY m.uid, je.id;
+SELECT 'RIBA_BAADA_YA_KUFUNGWA|' || m.uid || '|' || coalesce(m.reason, '-') || '|closed_at ' || m.closed_at::date
+       || '|siku ' || count(je.uid) || '|jumla ' || coalesce(sum(je.total_debit), 0)
+       || '|ya_kwanza ' || coalesce(min(right(je.reference_uid, 10)), '-') || '|ya_mwisho ' || coalesce(max(right(je.reference_uid, 10)), '-')
+  FROM capital_injections m
+  LEFT JOIN journal_entry je ON je.reference_uid LIKE 'LOANINT:' || m.uid || ':%' AND NOT coalesce(je.is_deleted, false)
+       AND NOT coalesce(je.is_reversal, false) AND right(je.reference_uid, 10) > m.closed_at::date::text
+ WHERE (m.source_type = 'LOAN' OR m.reclassified_from = 'LOAN') AND m.closed_at IS NOT NULL
+ GROUP BY m.uid, m.reason, m.closed_at ORDER BY 1;
+SELECT 'MIKOPO_YOTE|' || coalesce(loan_status, '-') || '|' || count(*)
+  FROM capital_injections WHERE source_type = 'LOAN' OR reclassified_from = 'LOAN' GROUP BY loan_status;
+
+-- f) (bn) Jagger Master: bidhaa (chupa ngapi kwa kifurushi, gharama), manunuzi 01/09-13/10 (ya Septemba kulinganisha gharama
+--    kwa chupa), mwendo wa stock 01/10-13/10, manunuzi/matumizi ya reco yanayotaja "jag", na mistari ya hesabu.
+SELECT 'JAG_BIDHAA|' || p.uid || '|' || p.product_name || '|chupa_kwa_kifurushi ' || coalesce(p.pieces_per_package::text, '-')
+       || '|wastani ' || coalesce(p.current_average_cost, 0) || '|gharama_ya_mwisho ' || coalesce(p.last_purchase_cost, 0)
+       || '|bei_chupa ' || coalesce(p.piece_sale_price, 0) || '|bei_kifurushi ' || coalesce(p.whole_sale_price, 0)
+       || '|stock ' || coalesce(p.current_stock::text, '-') || '|deleted ' || coalesce(p.is_deleted::text, '-')
+  FROM products p WHERE p.product_name ILIKE '%jag%' ORDER BY p.product_name, p.id;
+SELECT 'JAG_MANUNUZI|' || pr.purchase_date::date || '|' || p.product_name || '|' || left(p.uid, 8) || '|idadi ' || coalesce(pr.quantity::text, '-')
+       || '|chupa_kwa_kifurushi ' || coalesce(pr.pieces_per_package_at_purchase::text, '-') || '|njia ' || coalesce(pr.price_input_mode, '-')
+       || '|bei ' || coalesce(pr.purchase_price, 0) || '|gharama_kwa_chupa ' || coalesce(pr.cost_per_piece, 0) || '|jumla ' || coalesce(pr.total_amount, 0)
+       || '|' || coalesce(pr.status, '-') || '|' || coalesce(pr.supplier_name, '-') || '|received_by ' || coalesce(pr.received_by, '-')
+       || '|created ' || pr.created_at::timestamp(0)
+  FROM purchases pr JOIN products p ON p.uid = pr.product_uid
+ WHERE p.product_name ILIKE '%jag%' AND pr.purchase_date >= DATE '2026-09-01' AND pr.purchase_date < DATE '2026-10-14' AND NOT coalesce(pr.is_deleted, false)
+ ORDER BY pr.purchase_date, pr.id;
+SELECT 'JAG_MWENDO|' || s.movement_date::timestamp(0) || '|' || p.product_name || '|' || left(p.uid, 8) || '|' || coalesce(s.movement_type, '-')
+       || '|' || coalesce(s.quantity::text, '-') || '|' || coalesce(s.stock_before::text, '-') || '->' || coalesce(s.stock_after::text, '-')
+       || '|bei ' || coalesce(s.unit_price::text, '-') || '|' || coalesce(s.reference, '-') || '|' || coalesce(s.initiated_by, '-')
+  FROM store s JOIN products p ON p.uid = s.products_uid
+ WHERE p.product_name ILIKE '%jag%' AND s.movement_date >= DATE '2026-10-01' AND s.movement_date < DATE '2026-10-14' AND NOT coalesce(s.is_deleted, false)
+ ORDER BY s.movement_date, s.id;
+SELECT 'JAG_RECO|' || d.reconciliation_date || '|' || x.aina || '|' || coalesce(left(x.maelezo, 150), '-') || '|' || coalesce(x.kiasi, 0)
+  FROM (SELECT reconciliation_uid, 'manunuzi' aina, coalesce(supplier_name, '') || ' ' || coalesce(description, '') || ' ' || coalesce(notes, '') maelezo, amount kiasi
+          FROM reconciliation_purchases WHERE NOT coalesce(is_deleted, false)
+        UNION ALL
+        SELECT reconciliation_uid, 'matumizi', coalesce(expense_type, '') || ' ' || coalesce(description, '') || ' ' || coalesce(notes, ''), amount
+          FROM reconciliation_expenses WHERE NOT coalesce(is_deleted, false)) x
+  JOIN daily_reconciliation d ON d.uid = x.reconciliation_uid
+ WHERE d.reconciliation_date BETWEEN DATE '2026-10-01' AND DATE '2026-10-13' AND x.maelezo ILIKE '%jag%'
+ ORDER BY d.reconciliation_date;
+SELECT 'JAG_HESABU|' || s.session_date || '|' || p.product_name || '|' || left(p.uid, 8) || '|mfumo ' || l.system_qty_snapshot || '|kuhesabu ' || l.counted_qty
+       || '|gharama_kwa_chupa ' || l.unit_cost_snapshot || '|thamani ' || l.variance_value
+  FROM counting_line l JOIN counting_session s ON s.uid = l.session_uid JOIN products p ON p.uid = l.product_uid
+ WHERE p.product_name ILIKE '%jag%' AND s.session_date BETWEEN DATE '2026-10-01' AND DATE '2026-10-14' AND l.variance_qty <> 0
+ ORDER BY s.session_date;
