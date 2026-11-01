@@ -25,6 +25,16 @@ if not "%DOK%"=="SAWA" (
   goto end
 )
 echo D iliyoombwa: %LSMS_CUTOVER_D% >> %L%
+rem (bj) 01/11: cash count ya ufunguzi ya siku ya D lazima ihesabu pia bahasha ya akiba ya mkopo (pesa taslimu
+rem iliyowekwa pembeni kulipa mkopo), vinginevyo 1000 ya ufunguzi inakosa pesa hiyo.
+set "BAHASHA="
+set /p BAHASHA=Cash count ya ufunguzi imehesabu BAHASHA YA AKIBA YA MKOPO? Andika bahasha - kingine chochote = simama:
+if /i not "%BAHASHA%"=="bahasha" (
+  echo ---IMESIMAMISHWA: bahasha ya akiba ya mkopo haijathibitishwa kwenye cash count ya ufunguzi - hakuna kilichobadilishwa--- >> %L%
+  echo IMESIMAMISHWA - hesabu kwanza bahasha ya akiba ya mkopo kwenye cash count ya ufunguzi. Hakuna kilichobadilishwa.
+  goto end
+)
+echo mmiliki amethibitisha: bahasha ya akiba ya mkopo imo kwenye cash count ya ufunguzi >> %L%
 set "JIBU="
 set /p JIBU=Andika kata kuweka D = %LSMS_CUTOVER_D% kwenye PROD - kingine chochote = simama:
 if /i not "%JIBU%"=="kata" (
