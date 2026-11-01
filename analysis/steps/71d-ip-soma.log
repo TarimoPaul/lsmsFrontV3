@@ -1,0 +1,122 @@
+---MWENDESHO-71d--- 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---SERVER-71d--- 
+---HUDUMA---
+time="2026-10-29T17:04:18+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+backend chiefmaster/my-lsms-backend:2.3.0 running
+frontend chiefmaster/lsms-frontend:2.2.53 running
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.11 running
+nginx nginx:1.31.2 running
+postgres postgres:15 running
+---NGINX-T nginx---
+mistari ya config: 275
+1:# configuration file /etc/nginx/nginx.conf:
+16:    include       /etc/nginx/mime.types;
+19:    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+23:    access_log  /var/log/nginx/access.log  main;
+32:    include /etc/nginx/conf.d/*.conf;
+35:# configuration file /etc/nginx/mime.types:
+136:# configuration file /etc/nginx/conf.d/default.conf:
+158:      listen 80 default_server;
+159:      server_name _;
+165:      listen 80;
+166:      server_name elikom.co.tz www.elikom.co.tz;
+167:      location = / { absolute_redirect off; return 302 /v3/; }
+173:      location = /v3 {
+178:      location ^~ /v3/ {
+179:          proxy_pass http://frontend_v3;
+180:          proxy_set_header Host $host;
+181:          proxy_set_header X-Real-IP $remote_addr;
+182:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+186:      location = /flutter_service_worker.js {
+187:          proxy_pass http://frontend;
+188:          proxy_set_header Host $host;
+189:          proxy_set_header X-Real-IP $remote_addr;
+190:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+196:      location = /flutter_bootstrap.js {
+197:          proxy_pass http://frontend;
+198:          proxy_set_header Host $host;
+199:          proxy_set_header X-Real-IP $remote_addr;
+200:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+206:      location = /flutter.js {
+207:          proxy_pass http://frontend;
+208:          proxy_set_header Host $host;
+209:          proxy_set_header X-Real-IP $remote_addr;
+210:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+216:      location = /index.html {
+217:          proxy_pass http://frontend;
+218:          proxy_set_header Host $host;
+219:          proxy_set_header X-Real-IP $remote_addr;
+220:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+226:      location = /version.json {
+227:          proxy_pass http://frontend;
+228:          proxy_set_header Host $host;
+229:          proxy_set_header X-Real-IP $remote_addr;
+230:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+237:      location ~* \.(wasm|png|jpg|jpeg|gif|svg|ico|ttf|woff|woff2)$ {
+238:          proxy_pass http://frontend;
+239:          proxy_set_header Host $host;
+240:          proxy_set_header X-Real-IP $remote_addr;
+241:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+247:      location ~* \.(js|css)$ {
+248:          proxy_pass http://frontend;
+249:          proxy_set_header Host $host;
+250:          proxy_set_header X-Real-IP $remote_addr;
+251:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+257:      location / {
+258:          proxy_pass http://frontend;
+259:          proxy_set_header Host $host;
+260:          proxy_set_header X-Real-IP $remote_addr;
+261:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+265:      location /api/ {
+266:          proxy_pass http://backend/api/;
+267:          proxy_set_header Host $host;
+268:          proxy_set_header X-Real-IP $remote_addr;
+269:          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+270:          proxy_set_header X-Forwarded-Proto $scheme;
+---NGINX-T frontend-v3---
+mistari ya config: 191
+1:# configuration file /etc/nginx/nginx.conf:
+16:    include       /etc/nginx/mime.types;
+19:    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+23:    access_log  /var/log/nginx/access.log  main;
+32:    include /etc/nginx/conf.d/*.conf;
+35:# configuration file /etc/nginx/mime.types:
+136:# configuration file /etc/nginx/conf.d/default.conf:
+140:    listen 80;
+141:    server_name _;
+154:    location = /v3 {
+158:    location ^~ /v3/ {
+163:        location = /v3/index.html {
+168:        location = /v3/version.json {
+174:        location ~ "^/v3/(?:[^/]+-[A-Z0-9]{8}\.(?:js|css)|media/.+)$" {
+180:        location ~* \.(?:js|css|map|json|txt|png|jpe?g|gif|svg|ico|webp|ttf|woff2?)$ {
+187:    location / {
+---MTANDAO-WA-DOCKER---
+time="2026-10-29T17:04:20+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+/lsms-deployment-backend-1 lsms-deployment_lsms-net=172.18.0.5 
+/lsms-deployment-frontend-1 lsms-deployment_lsms-net=172.18.0.4 
+/lsms-deployment-frontend-v3-1 lsms-deployment_lsms-net=172.18.0.2 
+/lsms-deployment-nginx-1 lsms-deployment_lsms-net=172.18.0.3 
+/lsms-deployment-postgres-1 lsms-deployment_lsms-net=172.18.0.6 
+time="2026-10-29T17:04:20+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+subnet ya lsms-deployment_lsms-net: 172.18.0.0/16 
+---ACCESS-LOG (idadi tu)---
+access.log ni symlink ya stdout (kawaida ya image ya nginx) - inasomwa kutoka docker logs
+mistari ya nginx iliyosomwa: 2000
+maombi ya /api: 1398
+IP (zote) kwenye mistari ya /api: 5419
+mistari ya /api yenye IP 2 au zaidi (remote + XFF/CF): 1395
+umbo la mstari mmoja wa /api wenye IP 2+ (au wa mwisho), IP zimefichwa:
+172.68.x.x - - [29/Oct/2026:12:19:00 +0000] "GET /api/v1/notifications/unread-count HTTP/1.1" 200 133 "https://elikom.co.tz/v3/branches" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.x.x Safari/537.36 Edg/155.0.x.x" "154.74.x.x"
+---BACKEND-PROXY-CONFIG---
+time="2026-10-29T17:04:22+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+hakuna forward-headers-strategy / remoteip ndani ya jar
+hakuna env ya forward-headers
+---71d_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

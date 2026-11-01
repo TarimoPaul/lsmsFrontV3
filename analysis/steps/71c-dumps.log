@@ -1,0 +1,75 @@
+---MWENDESHO-71c--- 
+Thu 10/29/2026 20:07:46.31 
+71b: B2_LIFECYCLE_SALAMA 
+---FAILI-KWENDA-CONTABO--- 
+TMP71C_TAYARI
+[exit 0] 
+---B2-HALI--- 
+B2_EV backup_20260205_053622.sql 2a39fed98a424787033937f95b660e57298d2eb92660c3dee7c49da9485e2e5e fa40e8279a9baa8b76f5bdedeaad42f3c5a19f5d
+B2_EV dump-Lsms-202607171654.sql d23368445d43a7e83bd0c203da2b0d80180b3e69cb31f68d189f03aa8a94c51b 1463eccbb6dffdca8213f99b2c49a609188ef69b
+B2_EV lsms_20261004_0200.dump e2f9a706675b734aa01fa812ab983cdfccd3f6eb0c00c17cef6ceaa1f5c0f97c da3d31cc97da69d2d69bcb0c6e078fdb535fc64e
+B2_EV prod_Lsms_20260927_2146.dump 3c2356157230e9fa1e2f4f67e03a15d103485f7c293568532a286069d8c01082 68d166dd0dbee0c97d84ddfe393fd0219c13261e
+B2_EV prod_Lsms_20260929_2252.dump a761e3bc5aa145168d0d44c5316df450b3487e7d0a76919f1b7bb3f8f717329f 15283496050577ac4589d78c0df6cba60b2a6b10
+B2_EV prod_Lsms_20260930_1026_before_gl.dump a294c8ccd2206c871ee7af22815ffdc7d9959cdfac6624b728e58686938e3935 fe99de650caabcb82968229abfac4a5b10b11c0c
+B2_EV_MWISHO
+---71c_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+TAYARI-B2: prod_Lsms_20260930_1026_before_gl.dump sha256 a294c8ccd2206c871ee7af22815ffdc7d9959cdfac6624b728e58686938e3935 sha1 fe99de650caabcb82968229abfac4a5b10b11c0c - haipakiwi tena 
+TAYARI-B2: lsms_20261004_0200.dump sha256 e2f9a706675b734aa01fa812ab983cdfccd3f6eb0c00c17cef6ceaa1f5c0f97c sha1 da3d31cc97da69d2d69bcb0c6e078fdb535fc64e - haipakiwi tena 
+TAYARI-B2: prod_Lsms_20260929_2252.dump sha256 a761e3bc5aa145168d0d44c5316df450b3487e7d0a76919f1b7bb3f8f717329f sha1 15283496050577ac4589d78c0df6cba60b2a6b10 - haipakiwi tena 
+TAYARI-B2: prod_Lsms_20260927_2146.dump sha256 3c2356157230e9fa1e2f4f67e03a15d103485f7c293568532a286069d8c01082 sha1 68d166dd0dbee0c97d84ddfe393fd0219c13261e - haipakiwi tena 
+TAYARI-B2: dump-Lsms-202607171654.sql sha256 d23368445d43a7e83bd0c203da2b0d80180b3e69cb31f68d189f03aa8a94c51b sha1 1463eccbb6dffdca8213f99b2c49a609188ef69b - haipakiwi tena 
+TAYARI-B2: backup_20260205_053622.sql sha256 2a39fed98a424787033937f95b660e57298d2eb92660c3dee7c49da9485e2e5e sha1 fa40e8279a9baa8b76f5bdedeaad42f3c5a19f5d - haipakiwi tena 
+evidence TAYARI B2 - hazikupakiwa: 6, zilizotumwa sasa: 0 
+evidence zilizothibitishwa B2 = PC: 6 kati ya 6 
+EVIDENCE_PC_NA_B2_SAWA 
+---PAKUA-DUMPS-2-MPYA--- 
+DUMP_MPYA lsms_20261029_0200.dump 9189820 252fd7f345def9397b49f07b57a0daaa5f4eea4bc4c1202b54486a156f1abe6f
+DUMP_MPYA lsms_20261029_1027.dump 9205745 01cae67bbcb91262ce160e77adfe2b38a1ce9791faf8c62eeadd8d8699ae38a9
+DUMPS_MPYA_2_SAWA
+---71c_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---CHUKUA-lsms_20261029_0200.dump--- 
+lsms_20261029_0200.dump ipo tayari backups\ - sha256 sawa 
+---CHUKUA-lsms_20261029_1027.dump--- 
+lsms_20261029_1027.dump ipo tayari backups\ - sha256 sawa 
+/tmp/71c imefutwa
+---RESTORE-TEST-lsms_20261029_0200.dump--- 
+[pg_restore exit 0] 
+lsms_20261029_0200.dump: 
+FLYWAY 102 134
+FLYWAY_ZILIZOSHINDWA 0
+MAJEDWALI 88
+ROWS users 8 sales 2761 journal_entry 5928 journal_entry_line 16566
+MAUZO_YA_MWISHO 2026-10-29
+TB_TOFAUTI 0.00
+Flyway ya lsms_20261029_0200.dump: 134 - sawa, >= 134 
+RESTORE_TEST_SAWA lsms_20261029_0200.dump 
+---RESTORE-TEST-lsms_20261029_1027.dump--- 
+[pg_restore exit 0] 
+lsms_20261029_1027.dump: 
+FLYWAY 102 134
+FLYWAY_ZILIZOSHINDWA 0
+MAJEDWALI 88
+ROWS users 8 sales 2761 journal_entry 5938 journal_entry_line 16588
+MAUZO_YA_MWISHO 2026-10-29
+TB_TOFAUTI 0.00
+Flyway ya lsms_20261029_1027.dump: 134 - sawa, >= 134 
+RESTORE_TEST_SAWA lsms_20261029_1027.dump 
+---RESTORE_TEST_2_SAWA lsms_20261029_0200.dump lsms_20261029_1027.dump--- 
+---MMILIKI-AMEANDIKA-SAFISHA Thu 10/29/2026 20:09:08.46--- 
+---FUTA--- 
+IMEFUTWA prod_Lsms_20260930_1026_before_gl.dump 
+IMEFUTWA lsms_20261004_0200.dump 
+IMEFUTWA prod_Lsms_20260929_2252.dump 
+IMEFUTWA prod_Lsms_20260927_2146.dump 
+IMEFUTWA dump-Lsms-202607171654.sql 
+IMEFUTWA backup_20260205_053622.sql 
+IMEFUTWA lsms_20261014_0200.dump 
+IMEFUTWA lsms_20261015_0200.dump 
+folda tupu BACKUPS AWS imeondolewa 
+lsms_20261029_0200.dump
+lsms_20261029_1027.dump
+---OK--- 

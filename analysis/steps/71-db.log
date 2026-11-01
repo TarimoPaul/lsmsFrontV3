@@ -1,0 +1,83 @@
+---MWENDESHO-71-DB--- 
+Thu 10/29/2026 19:30:39.50 
+---SOMA--- 
+            db            |  ukubwa  | miunganisho |                      uamuzi                       
+--------------------------+----------+-------------+---------------------------------------------------
+ LocalLsms                | 26 MB    |           0 | pg_dump -> D:\LSMS-ARCHIVE\db, kisha FUTA (as.0c)
+ LsmsAngular              | 14 MB    |           0 | pg_dump -> D:\LSMS-ARCHIVE\db, kisha FUTA (as.0c)
+ lsms_audit               | 81 MB    |           0 | FUTA (ao)
+ lsms_audit_1004          | 75 MB    |           0 | FUTA (ao)
+ lsms_audit_20261015_0200 | 81 MB    |           0 | BAKI (ao)
+ lsms_returns_scratch     | 82 MB    |           0 | BAKI (ao)
+ lsms_test_reco           | 59 MB    |           0 | BAKI (dev, as.0c)
+ lsms_toleo1_scratch      | 82 MB    |           0 | FUTA (ao)
+ 2psDante                 | 39 MB    |           0 | -
+ DHMS                     | 2695 MB  |           0 | -
+ PHMS                     | 7801 kB  |           0 | -
+ SDMS                     | 8673 kB  |           0 | -
+ SmartChakula             | 8353 kB  |           0 | -
+ _2ps-backend-uat         | 8167 MB  |           0 | -
+ _2ps-uaa-uat             | 49 MB    |           0 | -
+ dhms                     | 96 MB    |           0 | -
+ m2ps                     | 948 MB   |           0 | -
+ m2ps_demo                | 8026 MB  |           0 | -
+ meos-backend             | 85 MB    |           0 | -
+ meos-uaa                 | 51 MB    |           0 | -
+ meos-uaadb               | 9417 kB  |           0 | -
+ meosdb                   | 82 MB    |           0 | -
+ phms                     | 9577 kB  |           0 | -
+ postgres                 | 38 MB    |           1 | -
+ samakiFarm               | 10153 kB |           0 | -
+ samaki_test_6b2a9dbb686b | 28 MB    |           0 | -
+ sdms                     | 8545 kB  |           0 | -
+ uaa                      | 46 MB    |           0 | -
+ uaa-meos                 | 9409 kB  |           0 | -
+ uaam2pc                  | 7809 kB  |           0 | -
+
+        ?column?         
+-------------------------
+ DB_ZA_KUFUTA_ZILIZOPO 5
+
+            ?column?            
+--------------------------------
+ MIUNGANISHO_KWENYE_ZA_KUFUTA 0
+
+        ?column?         
+-------------------------
+ DB_ZA_KUBAKI_ZILIZOPO 3
+
+[exit 0] 
+---PG_DUMP-LocalLsms--- 
+LocalLsms.dump ipo tayari - haiandikwi juu, inathibitishwa tu 
+LocalLsms: majedwali 73, TABLE DATA 73 
+DUMP_SAWA LocalLsms e751bac84b7e44fe2da3b4265722d12fa88fac6dd582341e1d68d938f1a7fc8c 
+---PG_DUMP-LsmsAngular--- 
+LsmsAngular.dump ipo tayari - haiandikwi juu, inathibitishwa tu 
+LsmsAngular: majedwali 67, TABLE DATA 67 
+DUMP_SAWA LsmsAngular dda1c6aeb53781c3e48e2cb21b92eecb0e26a347b0d3e0aeeccfaa619c4b63a8 
+---PG_DUMP-Lsms--- 
+HAIPO: DB Lsms haipo kwenye PG ya local - hakuna cha ku-dump, inarukwa 
+---DUMPS_ZOTE_3_SAWA--- 
+e751bac84b7e44fe2da3b4265722d12fa88fac6dd582341e1d68d938f1a7fc8c  LocalLsms.dump
+dda1c6aeb53781c3e48e2cb21b92eecb0e26a347b0d3e0aeeccfaa619c4b63a8  LsmsAngular.dump
+---MMILIKI-AMEANDIKA-SAFISHA Thu 10/29/2026 19:31:29.10--- 
+---DROP--- 
+DROP DATABASE
+DROP DATABASE
+DROP DATABASE
+DROP DATABASE
+DROP DATABASE
+psql:analysis/steps/71-db-drop.sql:11: NOTICE:  database "Lsms" does not exist, skipping
+DROP DATABASE
+           ?column?            
+-------------------------------
+ DROP_ZIMEKAMILIKA 6 kati ya 6
+(1 row)
+
+        ?column?         
+-------------------------
+ DB_ZA_KUBAKI_ZILIZOPO 3
+(1 row)
+
+[exit 0] 
+---OK--- 

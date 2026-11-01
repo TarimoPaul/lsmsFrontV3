@@ -1,0 +1,39 @@
+---MWENDESHO-71e--- 
+Thu 10/29/2026 19:27:29.91 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---SOMA--- 
+time="2026-10-29T19:27:49+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+PA_HALI|uid d89760f8-56d3-4b52-9131-53eef5778890|status ACTIVE|is_active true|is_deleted false|is_locked false|updated_at 2026-06-20 23:32:17.099821|last_login_at -
+PA_BADO_ACTIVE
+PJ_SAFU|d80b0f00-9dcb-4ad4-adc8-2872cc45087f|PRINTING|created 2026-06-21 00:05:37.489956|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|0321bb00-9c89-4ce1-841a-165c7093dc40|PRINTING|created 2026-06-21 00:06:17.481902|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|62ea0c24-4bb1-458d-8a73-6aa5c18f3924|PRINTING|created 2026-06-21 00:06:42.253761|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|b388eec0-0551-4826-afa4-11baed2d1d2b|PRINTING|created 2026-06-21 00:06:52.158758|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|f3fa71d4-f978-4da7-a240-79e63b3004dd|PRINTING|created 2026-06-21 00:08:50.07342|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|16cf5e8c-60ee-4ec0-86de-0ce2bff798ae|PRINTING|created 2026-06-21 00:11:04.044314|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|36dce32f-21fa-42cd-8e76-fbdae331e1a0|PRINTING|created 2026-06-21 00:11:48.096813|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|2b9a5327-a68c-4737-97aa-42324d2a0f6f|PRINTING|created 2026-06-21 10:50:26.117713|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-442000-AE96|sale dac6af20-bf4f-48fe-b982-476df4e841f8|printer -|error -
+PJ_SAFU|5e223292-69b2-4d42-9b3c-6ccb00af4c3e|PRINTING|created 2026-06-21 11:02:33.269358|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-442000-AE96|sale dac6af20-bf4f-48fe-b982-476df4e841f8|printer -|error -
+PJ_SAFU|439d162b-ee62-4732-ae24-eb53377503ad|PRINTING|created 2026-06-21 11:13:27.539018|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-102000-40FD|sale 9689c90c-bfaa-484f-adbf-4ee71f9d9f72|printer -|error -
+PJ_SAFU|56ae4df2-046f-41be-adcd-a49a2f74b2b8|PRINTING|created 2026-06-21 11:17:53.634568|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-102000-40FD|sale 9689c90c-bfaa-484f-adbf-4ee71f9d9f72|printer -|error -
+PJ_SAFU|24a927dd-b377-4ae1-b7b1-bae14d80a31d|PRINTING|created 2026-06-21 11:27:05.160535|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-442000-AE96|sale dac6af20-bf4f-48fe-b982-476df4e841f8|printer -|error -
+PJ_SAFU|d046d1c1-eb67-4479-99ec-3f55f9b25360|PRINTING|created 2026-06-21 11:33:23.720601|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-302000-34E6|sale 45e7de34-9aa4-4be1-8c47-2f3602871afc|printer -|error -
+PJ_SAFU|afa02bd6-30f0-41ec-ab9c-6fec26d6278e|PRINTING|created 2026-06-21 12:22:12.097397|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-714000-D2C5|sale 2994ab57-54c2-4cac-9f1c-e1892d83215d|printer -|error -
+PJ_SAFU|0301cc91-6035-4363-b4d2-d9314724c17e|PRINTING|created 2026-06-21 12:23:17.820161|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260619-714000-D2C5|sale 2994ab57-54c2-4cac-9f1c-e1892d83215d|printer -|error -
+PJ_SAFU|e9db9d0b-c7f6-4b91-930d-b8cacd5b215d|PRINTING|created 2026-06-21 13:06:36.950957|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260621-736000-BD14|sale e959ff0a-64fa-48cf-9f65-87fecee7ecb5|printer -|error -
+PJ_SAFU|1c222cb0-e74d-4f50-a179-df4c6dcc1852|PRINTING|created 2026-06-21 13:18:50.481514|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260621-620000-C509|sale 3422cadd-91bc-4a47-9c18-a0257785b9e9|printer -|error -
+PJ_SAFU|83639fbf-512f-4858-a911-2800751425ee|PRINTING|created 2026-06-21 14:09:03.864424|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260621-956000-92F6|sale 0e196f31-b8e7-4867-ac92-fb9beabf9c02|printer -|error -
+PJ_SAFU|69c0491e-dd01-4ef7-8723-2f9eef6e768e|PRINTING|created 2026-06-22 17:13:42.363635|branch 350cfab7-3674-47f4-a707-d88cc102dcb3|receipt RCP-20260622-702000-52ED|sale 1519e093-4076-498a-afc5-a0fc21f73967|printer -|error -
+PJ_PRINTING_IDADI 19
+PJ_PRINTING_KABLA_YA_JULAI 19
+PJ_DRYRUN|zitabadilishwa 19|PRINTING -> FAILED|error_message "A4 29/10 (aw): imeachwa - print-agent haitumiki tangu 28/07"
+ROLE_PRINTER|uid e7be6e77-86a5-4c99-b4f4-25fac324c307|status ACTIVE|is_active true|is_deleted false
+ROLE_PRINTER_WATUMIAJI|jumla 1|wasio print-agent 0|wasio print-agent ACTIVE 0
+ROLE_PRINTER_RUHUSA|PRINT_JOB_CREATE,PRINT_JOB_MANAGE
+PRINT_JOB_MANAGE_ROLES|CEO,Executive CEO,MANAGER,printer,SALES
+[psql exit 0]
+---71e_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---IMEKATALIWA: akaunti ya print-agent HAIJAZIMWA - izime kupitia V3 Users, kisha endesha 71e tena--- 
