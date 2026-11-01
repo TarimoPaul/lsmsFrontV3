@@ -398,3 +398,17 @@ Uchunguzi (kusoma tu, prod au nakala): hesabu ya stock ya 13/10 iliyoleta ziada 
   kwa nini. Na muhtasari wa mistari 210 isiyoandikwa: jumla ya ziada, jumla ya upungufu, tarehe.
   Usiandike chochote — tutaamua baada ya kuona.
 Kama daraja linavuka 16/11: niambie mapema, tutaamua kipi kitoke kwenye batch.
+
+## 2026-11-01 (bn)
+Hatua 62: ni kusoma tu → hakuna dirisha linalohitajika, sawa. Iongezee:
+  e) Mikopo yote iliyofungwa (pamoja na MKOPO WA BANK): ilifungwaje (geuza/kulipwa), journal yake,
+     salio la 1150 kwa kila mkopo, na kama LoanInterestScheduler bado inaandika riba kwa mkopo usio ACTIVE
+     (LOANINT za tarehe baada ya closed_at).
+  f) Jagger Master: manunuzi/receipts/matumizi ya reco yanayotaja Jagger 01/10–13/10, na bei ya gharama kwa unit (chupa au carton).
+Kisha nitaiendesha; ripoti log.
+Ongeza BAADA-YA-BATCH.md:
+  - Hesabu ya stock: tofauti inayojirudia hesabu 2 mfululizo haiwezi kuwa NO_ACTION tena (post au recount).
+  - Ziada > 50,000 kwa bidhaa: recount na mtu wa pili kabla ya approve.
+  - Bidhaa za "kupima": upotevu wa kupima uandikwe kama gharama (5100), siyo NO_ACTION.
+Push: andaa push-yote.cmd (release/2.4.0, release/3.2.0, V3 main → origin, bila force, ripoti hash). 🛑 kabla ya push.
+Kisha B4 + daraja.
