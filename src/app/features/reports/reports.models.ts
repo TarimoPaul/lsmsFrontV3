@@ -345,3 +345,25 @@ export interface SlowMovers {
 
 /** The backend refuses longer periods. */
 export const DAILY_PNL_MAX_DAYS = 93;
+
+// ── Daraja na GL (/api/v1/reports/pnl-bridge, owner 01/11 bm) ──
+/** One known difference between the operating net and the GL net; amount = its effect on the GL (+ = GL higher). */
+export interface PnlBridgeLine {
+  code: string;
+  nameSw: string;
+  nameEn: string;
+  amount: number;
+  count: number;
+}
+
+export interface PnlBridge {
+  from: string;
+  to: string;
+  operatingNet: number;
+  glNet: number;
+  lines: PnlBridgeLine[];
+  explained: number;
+  /** GL − operating − Σ lines: what no line explains (red when ≠ 0). */
+  unexplained: number;
+  notes: Array<{ code: string; message: string; count: number }>;
+}

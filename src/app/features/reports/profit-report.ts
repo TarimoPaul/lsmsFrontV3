@@ -8,7 +8,7 @@ import { DateRange, dayOnly, endOfDay, parseLocal, rangeForPreset, toIsoDate } f
 import { Cell, downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
 import { ReportFrame } from './report-frame';
-import { DAILY_PNL_MAX_DAYS, DailyPnl, PnlDay } from './reports.models';
+import { DAILY_PNL_MAX_DAYS, DailyPnl, PnlBridge, PnlBridgeLine, PnlDay } from './reports.models';
 import { ReportsService } from './reports.service';
 
 /**
@@ -16,7 +16,9 @@ import { ReportsService } from './reports.service';
  * profit" takes out the profit still sitting inside unpaid debts; "money with
  * debtors" is every shilling customers owe at the period end; operating cash
  * flow adds the stock build-up so the owner sees why profit and cash differ.
- * All figures come from GET /api/reports/daily-pnl.
+ * All figures come from GET /api/reports/daily-pnl. "Daraja na GL" (owner 01/11 bm) walks from this report's net
+ * profit to the GL's for the same period, one named line per known difference, and shows in red what no line
+ * explains (GET /api/v1/reports/pnl-bridge). The two reports stay separate.
  */
 @Component({
   selector: 'app-profit-report',
@@ -103,6 +105,30 @@ import { ReportsService } from './reports.service';
             <p class="pad muted">{{ i18n.t('Supplier credit and owner money are not part of this figure.', 'Madeni ya wasambazaji na pesa za mmiliki hazimo kwenye namba hii.') }}</p>
           </section>
         </div>
+
+        <section class="card bridge" data-test="daraja">
+          <header><h4>{{ i18n.t('Bridge to the GL', 'Daraja na GL') }}</h4><small>{{ i18n.t('Net profit of this report → known differences → net profit of the GL, same period', 'Faida halisi ya ripoti hii → tofauti zinazojulikana → faida halisi ya GL, kipindi kilekile') }}</small></header>
+          @if (bridgeError()) {
+            <p class="pad muted">{{ bridgeError() }}</p>
+          } @else if (!bridge()) {
+            <lsms-skeleton variant="list" [rows]="4" />
+          } @else {
+            @let b = bridge()!;
+            <table class="t">
+              <tbody>
+                <tr class="sub"><td>{{ i18n.t('Net profit (this report)', 'Faida halisi (ripoti ya uendeshaji)') }}</td><td class="n" [class.neg]="b.operatingNet < 0">{{ m(b.operatingNet) }}</td></tr>
+                @for (l of b.lines; track l.code) {
+                  <tr [attr.data-code]="l.code"><td>{{ lineName(l) }} <small class="muted">({{ l.count }})</small></td><td class="n" [class.neg]="l.amount < 0">{{ signed(l.amount) }}</td></tr>
+                }
+                <tr class="unexplained" [class.bad]="unexplainedBad()" data-code="ISIYOELEZEKA">
+                  <td>{{ i18n.t('Unexplained difference', 'Tofauti isiyoelezeka') }}</td><td class="n">{{ signed2(b.unexplained) }}</td>
+                </tr>
+                <tr class="sub"><td>= {{ i18n.t('Net profit (GL)', 'Faida halisi (GL)') }}</td><td class="n" [class.neg]="b.glNet < 0">{{ m(b.glNet) }}</td></tr>
+              </tbody>
+            </table>
+            @for (n of b.notes; track n.code) { <p class="pad muted">{{ n.message }}</p> }
+          }
+        </section>
 
         <section class="card flush">
           <header><h4>{{ i18n.t('Day by day', 'Kila siku') }}</h4><small>{{ i18n.t('"Still owed" = what is unpaid now from the debts of that day', '"Bado deni" = ya madeni ya siku hiyo, kilichobaki sasa') }}</small></header>
@@ -198,6 +224,9 @@ import { ReportsService } from './reports.service';
     .two table.t td.n { vertical-align: top; }
     td.owed { color: var(--c-warning); font-weight: 500; }
     table.days td:first-child { position: sticky; left: 0; background: var(--c-float); }
+    .bridge table.t td:first-child { white-space: normal; }
+    tr.unexplained td { font-weight: 600; }
+    tr.unexplained.bad td { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 8%, transparent); }
     table.days th:first-child { position: sticky; left: 0; z-index: 1; }
   `,
 })
@@ -209,6 +238,10 @@ export class ProfitReport {
   protected readonly range = signal<DateRange>(this.initialRange());
   protected readonly data = signal<DailyPnl | null>(null);
   protected readonly error = signal('');
+  protected readonly bridge = signal<PnlBridge | null>(null);
+  protected readonly bridgeError = signal('');
+  /** Red as soon as anything is left unexplained (owner bm: "nyekundu ≠ 0"). */
+  protected readonly unexplainedBad = computed(() => Math.abs(this.bridge()?.unexplained ?? 0) >= 0.005);
 
   protected readonly rowsDesc = computed(() => [...(this.data()?.days ?? [])].reverse());
   protected readonly asOfNote = computed(() => {
@@ -255,6 +288,25 @@ export class ProfitReport {
       .dailyPnl(toIsoDate(r.start), toIsoDate(r.end))
       .then((d) => this.data.set(d))
       .catch((e) => this.error.set(ApiError.from(e).message));
+    // The bridge on its own: if it fails, the report still shows.
+    this.bridge.set(null);
+    this.bridgeError.set('');
+    this.api
+      .pnlBridge(toIsoDate(r.start), toIsoDate(r.end))
+      .then((b) => this.bridge.set(b))
+      .catch((e) => this.bridgeError.set(ApiError.from(e).message));
+  }
+
+  protected lineName(l: PnlBridgeLine): string {
+    return this.i18n.isSwahili() ? l.nameSw : l.nameEn;
+  }
+
+  /**
+   * The unexplained row only: two decimals (Money.format shows whole shillings), so cents left unexplained are
+   * not shown as a red "0".
+   */
+  protected signed2(v: number): string {
+    return (v > 0 ? '+' : '') + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + Money.currencyCode;
   }
 
   protected itemsOf(month: string) {
