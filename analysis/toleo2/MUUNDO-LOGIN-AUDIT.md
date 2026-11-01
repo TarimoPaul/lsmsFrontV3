@@ -140,6 +140,18 @@ j. Hakuna password: tafuta password ya majaribio kwenye safu zote za `login_audi
 k. Kosa la audit (DB ya audit ikishindwa) halizuii login.
 l. Staging: restart → log ya backend ya kabla ya restart bado ipo kwenye `./logs/backend`.
 m. KNOWN_NETWORK: login ya Jess kutoka AS12876 → `network_flag = DATACENTER/VPN`, alert `KNOWN_VPN`, hakuna tahadhari. User mwingine kutoka AS12876 → tahadhari. Root kutoka mtandao unaojulikana → bado ROOT_LOGIN. Baada ya REVOKED → tahadhari inarudi. Retention haifuti ack hai.
+n. **DB-IP halisi (mmiliki 31/10 bh), sehemu ya staging ya kifurushi.** Majaribio a–m yanatumia `.mmdb` ya majaribio; hili linatumia faili HALISI za DB-IP Lite za mwezi huu.
+   - PC (kabla ya staging): faili za `dbip-country-lite` na `dbip-asn-lite` zinapakuliwa mara moja, sha256 inaandikwa. `GeoIpRealDbCheck` (gated, kama PG checks) inaendesha `GeoIpService` + `ClientIpResolver` HALISI juu ya faili hizo:
+     | IP | Inatarajiwa |
+     |---|---|
+     | 1.1.1.1 (Cloudflare) | ASN 13335 → `VPN` (WARP), si NORMAL |
+     | IP 1 ya Vodacom TZ (AS36908) na 1 ya Airtel TZ (AS37133) | nchi TZ, ASN hiyo → `NORMAL` |
+     | IP ya server ya Contabo yenyewe (AS51167) | `DATACENTER` |
+     | 51.158.x (Scaleway, AS12876, VPN ya Jess) | `DATACENTER` |
+     IP za Vodacom/Airtel zinachukuliwa kutoka log ya nginx ya prod (`CF-Connecting-IP` za login halisi, kusoma tu); kwenye log na ripoti zinaonyeshwa kama /24 tu.
+   - Pia: edge ya Cloudflare kama `X-Real-IP` + `CF-Connecting-IP` ya Vodacom → IP inayoandikwa ni ya Vodacom (si ya edge); bila edge ya Cloudflare → `DIRECT` na `X-Real-IP`.
+   - Staging: hatua inaweka faili zilezile kwenye `./geoip` (sha256 = ya PC, vinginevyo SIMAMA), restart, kisha: log ya boot inaonyesha faili zote mbili zimesomwa (si WARN "haipo"); login moja kupitia tunnel → safu ya `login_audit` ina `country/asn` zilizojazwa au `DIRECT` kama inavyotarajiwa; hali-root kabla/baada.
+   - Faili likishindwa kusomeka kwenye staging → hatua inasimama kabla ya prod (login haizuiwi, lakini tahadhari za VPN/DATACENTER zingekuwa kimya).
 
 ## 9. Maamuzi ya mmiliki (S) — yote yamejibiwa 26/10 (j)
 
