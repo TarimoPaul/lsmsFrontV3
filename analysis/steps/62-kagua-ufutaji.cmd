@@ -7,6 +7,7 @@ rem   b) reco za Oktoba: variance ya kila reco, zinazojirudia, na kiasi cha ~12,
 rem   c) gl_posting_failure tangu 31/10 18:00;  d) depreciation ya 31/10;
 rem   e) (bn) mikopo iliyofungwa/kugeuzwa: ilifungwaje, journal, salio 2100/1150/6600, LOANINT baada ya closed_at;
 rem   f) (bn) Jagger Master: bidhaa, manunuzi 01/09-13/10 (gharama kwa chupa), mwendo wa stock, reco, mistari ya hesabu.
+rem   g) (bo) manunuzi ya 2026 yenye gharama kwa kipande ^> 3x au ^< 1/3 ya wastani wa manunuzi mengine ya bidhaa; hali ya Oktoba.
 rem Hakuna password. Matokeo: analysis\steps\62-kagua-ufutaji.log. Kila output ya Contabo inapita ficha.awk kwenye server.
 rem Ikishindwa: ---IMESHINDWA-KWENYE: ^<sehemu^> (exit N)---.
 setlocal
