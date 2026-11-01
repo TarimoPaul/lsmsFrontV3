@@ -73,6 +73,31 @@ export interface PnlLine {
   amount: number;
 }
 
+/** GET /api/v1/reports/gl-pnl (2.3.0): the GL's profit per day/month, less each loan's reserve memo (never a journal). */
+export interface GlPnlReserve {
+  loanUid: string;
+  lender: string;
+  amount: number;
+}
+
+export interface GlPnlPeriod {
+  period: string;
+  netProfit: number;
+  interest: number;
+  reserves: GlPnlReserve[];
+  reserveTotal: number;
+  /** netProfit − reserveTotal ("inayobaki"); negative = red. */
+  remaining: number;
+  negative: boolean;
+}
+
+export interface GlPnlReport {
+  from: string;
+  to: string;
+  periods: GlPnlPeriod[];
+  totals: GlPnlPeriod;
+}
+
 export interface IncomeStatement {
   periodStart: string;
   periodEnd: string;
