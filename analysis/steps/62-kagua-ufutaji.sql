@@ -227,3 +227,36 @@ SELECT 'JAG_HESABU|' || s.session_date || '|' || p.product_name || '|' || left(p
   FROM counting_line l JOIN counting_session s ON s.uid = l.session_uid JOIN products p ON p.uid = l.product_uid
  WHERE p.product_name ILIKE '%jag%' AND s.session_date BETWEEN DATE '2026-10-01' AND DATE '2026-10-14' AND l.variance_qty <> 0
  ORDER BY s.session_date;
+
+-- g) (bo) Manunuzi ya 2026 yenye gharama kwa kipande > 3x au < 1/3 ya wastani wa manunuzi MENGINE ya bidhaa hiyo hiyo
+--    (mstari wenyewe hauhesabiwi kwenye wastani, ili mmoja usiinue wastani wake). Pamoja na hali ya kipindi cha Oktoba.
+SELECT 'KIPINDI_OKTOBA|' || coalesce((SELECT status || '|closed_at ' || coalesce(closed_at::timestamp(0)::text, '-')
+                                        FROM gl_period WHERE period_year = 2026 AND period_month = 10 LIMIT 1), 'HAKUNA_SAFU (OPEN)');
+WITH pr AS (SELECT pr.id, pr.product_uid, pr.purchase_date::date AS siku, pr.quantity, pr.cost_per_piece, pr.purchase_price,
+                   pr.pieces_per_package_at_purchase, pr.price_input_mode, pr.supplier_name
+              FROM purchases pr
+             WHERE NOT coalesce(pr.is_deleted, false) AND pr.purchase_date >= DATE '2026-01-01'
+               AND coalesce(pr.status, '') NOT IN ('CANCELLED', 'REJECTED') AND coalesce(pr.cost_per_piece, 0) > 0),
+     w AS (SELECT a.*, (SELECT avg(b.cost_per_piece) FROM pr b WHERE b.product_uid = a.product_uid AND b.id <> a.id) AS wastani,
+                  (SELECT count(*) FROM pr b WHERE b.product_uid = a.product_uid AND b.id <> a.id) AS mengine
+             FROM pr a)
+SELECT 'GHARAMA_ISIYO_KAWAIDA|' || w.siku || '|' || p.product_name || '|' || left(p.uid, 8) || '|qty ' || w.quantity
+       || '|gharama_kwa_kipande ' || round(w.cost_per_piece, 2) || '|wastani_wa_mengine ' || round(w.wastani, 2)
+       || '|mara ' || round(w.cost_per_piece / w.wastani, 2) || '|manunuzi_mengine ' || w.mengine
+       || '|kifurushi ' || coalesce(w.pieces_per_package_at_purchase::text, coalesce(p.pieces_per_package::text, '-'))
+       || '|njia ' || coalesce(w.price_input_mode, '-') || '|' || coalesce(w.supplier_name, '-')
+  FROM w JOIN products p ON p.uid = w.product_uid
+ WHERE w.mengine > 0 AND (w.cost_per_piece > 3 * w.wastani OR w.cost_per_piece < w.wastani / 3)
+ ORDER BY w.siku, p.product_name;
+SELECT 'GHARAMA_ISIYO_KAWAIDA_IDADI|' || count(*) FROM (
+  SELECT 1 FROM purchases a
+   WHERE NOT coalesce(a.is_deleted, false) AND a.purchase_date >= DATE '2026-01-01' AND coalesce(a.cost_per_piece, 0) > 0
+     AND coalesce(a.status, '') NOT IN ('CANCELLED', 'REJECTED')
+     AND EXISTS (SELECT 1 FROM purchases b WHERE b.product_uid = a.product_uid AND b.id <> a.id AND NOT coalesce(b.is_deleted, false)
+                   AND b.purchase_date >= DATE '2026-01-01' AND coalesce(b.cost_per_piece, 0) > 0 AND coalesce(b.status, '') NOT IN ('CANCELLED', 'REJECTED'))
+     AND (a.cost_per_piece > 3 * (SELECT avg(b.cost_per_piece) FROM purchases b WHERE b.product_uid = a.product_uid AND b.id <> a.id
+                                    AND NOT coalesce(b.is_deleted, false) AND b.purchase_date >= DATE '2026-01-01' AND coalesce(b.cost_per_piece, 0) > 0
+                                    AND coalesce(b.status, '') NOT IN ('CANCELLED', 'REJECTED'))
+          OR a.cost_per_piece < (SELECT avg(b.cost_per_piece) FROM purchases b WHERE b.product_uid = a.product_uid AND b.id <> a.id
+                                   AND NOT coalesce(b.is_deleted, false) AND b.purchase_date >= DATE '2026-01-01' AND coalesce(b.cost_per_piece, 0) > 0
+                                   AND coalesce(b.status, '') NOT IN ('CANCELLED', 'REJECTED')) / 3)) x;
