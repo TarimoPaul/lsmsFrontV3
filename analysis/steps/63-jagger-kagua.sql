@@ -100,6 +100,16 @@ SELECT 'J63_HESABU2|kwenye_1200_3110 ' || (manunuzi.v + marekebisho.v - okt.v) |
        || '|J1 ' || round(manunuzi.v + marekebisho.v - okt.v - c3110.chupa * g.sahihi, 2)
        || '|chupa_nov ' || nov.chupa || '|J2 ' || round(nov.ziada, 2)
   FROM manunuzi, marekebisho, okt, nov, c3110, g;
+-- (bq) Akaunti iliyopewa CREDIT na journal ya count adjustment ya Jagger (13/10): J1 inaipa DEBIT akaunti hiyohiyo.
+-- Mstari mmoja kwa kila akaunti (isiyo 1200) iliyopewa credit; lazima iwe moja tu.
+WITH t0 AS (SELECT min(s.movement_date) AS t FROM store s JOIN purchases pr ON s.reference = 'PUR-' || pr.uid
+             WHERE pr.product_uid = :'P' AND pr.purchase_date::date = DATE '2026-10-11' AND NOT coalesce(pr.is_deleted, false))
+SELECT 'J63_HESABU_CR|' || l.account_code || '|' || sum(l.credit_amount - l.debit_amount) || '|'
+       || string_agg(DISTINCT j.entry_number || ' ' || j.entry_date, ', ')
+  FROM stock_adjustment a JOIN journal_entry j ON j.reference_uid = a.gl_reference_uid AND NOT coalesce(j.is_deleted, false)
+  JOIN journal_entry_line l ON l.journal_entry_uid = j.uid, t0
+ WHERE a.product_uid = :'P' AND a.approved_at >= t0.t AND NOT coalesce(a.is_deleted, false) AND l.account_code <> '1200'
+ GROUP BY l.account_code ORDER BY 1;
 -- Journal za marekebisho haya zilizokwisha andikwa, kila moja peke yake (kinga ya kurudia na kuendelea).
 SELECT 'J63_JOURNAL_IPO|' || k.ufunguo || '|' || count(j.uid) || '|' || coalesce(string_agg(j.entry_number || ' ' || j.entry_date || ' ' || j.total_debit, ', '), '-')
   FROM (VALUES ('MOJA', 'Marekebisho ya Oktoba: Jagger carton kama chupa (11/10)'),

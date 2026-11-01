@@ -2,9 +2,10 @@
 //   kagua  : SQL ya kusoma tu (63-jagger-kagua.sql) -> kiasi kwa njia mbili (A, B; lazima zilingane), J1/J2, mauzo tangu
 //            11/10, preview -> analysis/steps/63-kagua-<TARGET>.json. Haiandiki kitu.
 //   andika : kagua upya; namba lazima ziwe zile za preview (vinginevyo SIMAMA). Njia inategemea Oktoba (bp):
-//            - Oktoba OPEN  : J1 31/10 Dr 5100 / Cr 1200 = ziada ya 1200 mwisho wa 31/10; J2 01/11 Dr 1200 / Cr 5000 =
+//            - Oktoba OPEN  : J1 31/10 Dr <X> / Cr 1200 = ziada ya 1200 mwisho wa 31/10; J2 01/11 Dr 1200 / Cr 5000 =
 //                             COGS ya ziada ya mauzo ya Jagger kuanzia 01/11 (ikiwa tu ipo). J1 - J2 = A = B.
-//            - Oktoba CLOSED: journal MOJA 01/11 Dr 5100 / Cr 1200 = A.
+//            - Oktoba CLOSED: journal MOJA 01/11 Dr <X> / Cr 1200 = A.
+//            <X> (bq) = akaunti iliyopewa credit na journal ya count adjustment ya 13/10, inasomwa kutoka prod (si 5100 ya kudhani).
 //            Kila journal inaandikwa kupitia API na inarukwa ikiwa ipo tayari (kuendelea baada ya kukatika).
 //            Kisha gharama ya Jagger -> gharama sahihi kwa SQL (transaction moja: price_history + audit_trails pamoja
 //            na UPDATE), ikiwa tu gharama na stock bado ni za preview; inarukwa ikiwa tayari sahihi.
@@ -63,6 +64,8 @@ function kagua({ quiet = false } = {}) {
     h: kv(row('J63_HESABU')),
     h2: kv(row('J63_HESABU2')),
     ipo,
+    // (bq) account(s) credited by the count adjustment journal(s): J1 / MOJA debit that same account.
+    cr: lines.filter((l) => l.startsWith('J63_HESABU_CR|')).map((l) => { const x = l.split('|'); return { akaunti: x[1], kiasi: Number(x[2]), journal: x[3] }; }),
     tb: tb ? Number(tb[1]) : NaN,
     oktoba: kip['10'],
     novemba: kip['11'],
@@ -72,8 +75,9 @@ function kagua({ quiet = false } = {}) {
 /** Which journals this correction is made of, and their amounts (bp). Once any of them exists, its path is kept. */
 function mpango(k) {
   const open = k.ipo.J1 > 0 || k.ipo.J2 > 0 || (k.ipo.MOJA === 0 && k.oktoba === 'OPEN');
-  if (!open) return { njia: 'OKTOBA_IMEFUNGWA', journals: [{ key: 'MOJA', dr: '5100', cr: '1200', kiasi: k.h.A }] };
-  const j = [{ key: 'J1', dr: '5100', cr: '1200', kiasi: k.h2.J1 }];
+  const dr = k.cr.length === 1 ? k.cr[0].akaunti : null;
+  if (!open) return { njia: 'OKTOBA_IMEFUNGWA', journals: [{ key: 'MOJA', dr, cr: '1200', kiasi: k.h.A }] };
+  const j = [{ key: 'J1', dr, cr: '1200', kiasi: k.h2.J1 }];
   if (k.h2.J2 > 0.005 || k.ipo.J2 > 0) j.push({ key: 'J2', dr: '1200', cr: '5000', kiasi: k.h2.J2 });
   return { njia: 'OKTOBA_WAZI', journals: j };
 }
@@ -92,12 +96,15 @@ function kaguaChecks(k, m) {
   check('63.k7 A = B (njia mbili zinakubaliana)', fixed ? same(h.B, 0) : Math.abs(h.A - h.B) <= 1, `A ${money(h.A)}, B ${money(h.B)}${fixed ? ' (gharama tayari sahihi)' : ''}`);
   check('63.k8 kiasi ni chanya', h.A > 0, money(h.A));
   check('63.k9 Novemba iko wazi', k.novemba === 'OPEN', String(k.novemba));
-  const jumla = m.journals.reduce((s, j) => s + (j.dr === '5100' ? j.kiasi : -j.kiasi), 0);
+  const jumla = m.journals.reduce((s, j) => s + (j.cr === '1200' ? j.kiasi : -j.kiasi), 0);
   check(`63.k10 ${m.njia}: ${m.journals.map((j) => j.key).join(' - ')} = A`, Math.abs(jumla - h.A) <= 0.01, `${m.journals.map((j) => `${j.key} ${money(j.kiasi)}`).join(', ')} -> ${money(jumla)} / A ${money(h.A)}`);
   check('63.k11 kila journal imeandikwa mara 0 au 1', Object.values(k.ipo).every((c) => c === 0 || c === 1), JSON.stringify(k.ipo));
   check('63.k12 njia moja tu: MOJA haichanganywi na J1/J2', !(k.ipo.MOJA > 0 && (k.ipo.J1 > 0 || k.ipo.J2 > 0)), JSON.stringify(k.ipo));
   check('63.k13 J1 ya 31/10 inahitaji Oktoba wazi (au imeshaandikwa)', m.njia !== 'OKTOBA_WAZI' || k.ipo.J1 > 0 || k.oktoba === 'OPEN', `Oktoba ${k.oktoba}`);
   check('63.k14 TB 0', same(k.tb, 0), money(k.tb));
+  check('63.k15 count adjustment ilipa credit akaunti MOJA tu, kiasi = marekebisho', k.cr.length === 1 && same(k.cr[0].kiasi, h.marekebisho),
+    k.cr.map((c) => `Cr ${c.akaunti} ${money(c.kiasi)} (${c.journal})`).join('; ') + ` / marekebisho ${money(h.marekebisho)}`);
+  if (k.cr.length === 1) console.log(`PREVIEW 63: 13/10 Cr ${k.cr[0].akaunti} ${money(k.cr[0].kiasi)} (${k.cr[0].journal}) -> ${m.journals[0].key} Dr ${k.cr[0].akaunti}`);
   console.log(`PREVIEW 63: Oktoba ${k.oktoba} -> ${m.njia}`);
   for (const j of m.journals) {
     console.log(`PREVIEW 63: ${j.key} ${JR[j.key].date} Dr ${j.dr} ${money(j.kiasi)} / Cr ${j.cr} ${money(j.kiasi)} "${JR[j.key].memo}"${k.ipo[j.key] ? ' (TAYARI IPO - itarukwa)' : ''}`);
@@ -126,7 +133,7 @@ const s = JSON.parse(fs.readFileSync(SAVED, 'utf8'));
 const h = k.h;
 const fixedNow = same(h.gharama_ya_sasa, h.gharama_sahihi);
 const sameJournals = s.njia === m.njia && s.journals.length === m.journals.length
-  && s.journals.every((j, i) => j.key === m.journals[i].key && same(j.kiasi, m.journals[i].kiasi));
+  && s.journals.every((j, i) => j.key === m.journals[i].key && j.dr === m.journals[i].dr && same(j.kiasi, m.journals[i].kiasi));
 check('63.a1 namba ni zilezile za preview', sameJournals && same(h.A, s.A) && h.chupa_zilizopo === s.chupa && same(h.gharama_sahihi, s.gharamaSahihi)
   && (fixedNow || (same(h.B, s.B) && same(h.gharama_ya_sasa, s.gharamaYaSasa))),
   `${s.njia} -> ${m.njia}; ${s.journals.map((j) => `${j.key} ${money(j.kiasi)}`).join(', ')} -> ${m.journals.map((j) => `${j.key} ${money(j.kiasi)}`).join(', ')}; chupa ${s.chupa} -> ${h.chupa_zilizopo}; gharama ${money(s.gharamaYaSasa)} -> ${money(h.gharama_ya_sasa)}`);
