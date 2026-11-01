@@ -439,3 +439,13 @@ Usifunge Oktoba kabla ya 63 ANDIKA. Kisha B4 + daraja.
 63 J1: debit akaunti ILEILE iliyopewa credit na count adjustment ya 13/10 (soma kutoka journal yake kwenye prod
   wakati wa KAGUA), siyo 5100 kwa kudhani. KAGUA ionyeshe: "13/10 Cr <akaunti> 265,000 → J1 Dr <akaunti>".
 Hakuna kingine. B4 + daraja.
+
+## 2026-11-01 (br)
+Punguzo 4010 (133,500): chukua sale moja yenye punguzo (Oktoba) — onyesha: total ya sale, pesa iliyopokelewa,
+  mistari ya GL yake, na thamani yake kwenye ripoti ya uendeshaji. Sema ripoti ipi imekosea; rekebisha hiyo (batch) + PG test.
+4900 (57,486.54): orodhesha journal zote za Okt kwa chanzo (reference prefix, jumla). Usibadilishe kitu.
+Ripoti ya uendeshaji: ongeza mistari ya 6700 (droo), 6120 (madeni yaliyosamehewa), DMG (upotevu nje ya hesabu)
+  na riba 6600 kwenye "How net profit is reached", ili daraja libaki na timing tu. Ikiwa > nusu siku → niambie.
+BAADA-YA-BATCH, kipaumbele "kabla ya 31/12": malipo ya mwaka (pango, TRA) → 1160 prepaid + amortization ya kila mwezi
+  (scheduler kama 1150). 2026 isiguswe.
+Kisha onyo la manunuzi, kisha B5.
