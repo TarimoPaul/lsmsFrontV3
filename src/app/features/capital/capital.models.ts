@@ -111,6 +111,16 @@ export const INSTALLMENT_STATE: Record<string, Label & { color: string }> = {
   IMECHELEWA: { en: 'Late', sw: 'Imechelewa', color: 'var(--c-error)' },
 };
 
+/** POST /loans/{uid}/reclassify: the journal (Dr 2100 / Cr 1150 / Cr 3000) and the balances it comes from. */
+export interface ReclassResult {
+  dryRun: boolean;
+  date: string;
+  lines: Array<{ accountCode: string; debit: number; credit: number; description: string }>;
+  owed: number;
+  prepaidInterest: number;
+  equity: number;
+}
+
 type Label = { en: string; sw: string };
 
 /** Expense categories offered for new expenses → capitalType and its GL account. */

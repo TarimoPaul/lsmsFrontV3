@@ -1,13 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
-import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogService, EmptyState, Icon, MetricCard, MetricsGrid, Skeleton, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
-import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
 import { INSTALLMENT_STATE, LOAN_STATUS, Loan } from './capital.models';
 import { CapitalService } from './capital.service';
 
@@ -237,26 +235,10 @@ export class LoansTab {
   }
 
   protected async convert(l: Loan): Promise<void> {
-    const reason = await this.dialogs.openAsync<string, ReasonDialogData>(ReasonDialog, {
-      size: 'sm',
-      data: {
-        title: this.i18n.t('Convert loan to capital', 'Geuza mkopo kuwa mtaji'),
-        message: this.i18n.t(
-          'Only when the lender will never be repaid (e.g. the owner lent it). The outstanding amount moves from Loans to Owner capital.',
-          'Pale tu mkopeshaji hatalipwa (mf. mmiliki ndiye aliyekopesha). Kiasi kilichobaki kinahamia kutoka Mikopo kwenda Mtaji wa mmiliki.',
-        ),
-        label: this.i18n.t('Reason (required)', 'Sababu (inahitajika)'),
-        confirm: this.i18n.t('Convert', 'Geuza'),
-        min: 5,
-      },
-    });
-    if (!reason) return;
-    try {
-      await this.api.reclassifyLoan(l.uid, 'OWNER_EQUITY', reason);
+    const { ConvertDialog } = await import('./loan-dialogs');
+    if (await this.dialogs.openAsync<boolean, Loan>(ConvertDialog, { size: 'md', data: l, disableClose: true })) {
       await this.api.loans.load(true);
       this.toast.success(this.i18n.t('Loan converted to capital', 'Mkopo umegeuzwa kuwa mtaji'));
-    } catch (e) {
-      this.toast.error(ApiError.from(e).message);
     }
   }
 
