@@ -434,3 +434,8 @@ Kisha B4 + daraja.
   Uendelezaji (resume) uzingatie J1 na J2 kila moja peke yake.
   Gharama ibadilishwe kwa SQL: andika mstari wa audit (nani, lini, 53,000 → 8,833.33, sababu).
 Usifunge Oktoba kabla ya 63 ANDIKA. Kisha B4 + daraja.
+
+## 2026-11-01 (bq)
+63 J1: debit akaunti ILEILE iliyopewa credit na count adjustment ya 13/10 (soma kutoka journal yake kwenye prod
+  wakati wa KAGUA), siyo 5100 kwa kudhani. KAGUA ionyeshe: "13/10 Cr <akaunti> 265,000 → J1 Dr <akaunti>".
+Hakuna kingine. B4 + daraja.
