@@ -412,3 +412,14 @@ Ongeza BAADA-YA-BATCH.md:
   - Bidhaa za "kupima": upotevu wa kupima uandikwe kama gharama (5100), siyo NO_ACTION.
 Push: andaa push-yote.cmd (release/2.4.0, release/3.2.0, V3 main → origin, bila force, ripoti hash). 🛑 kabla ya push.
 Kisha B4 + daraja.
+
+## 2026-11-01 (bo)
+Jagger: andaa hatua 63-rekebisha-jagger.cmd (preview → 🛑 → andika). Isiendeshwe kabla ya log ya 62.
+  - unit cost Jagger → 8,833.33; COGS za mauzo ya Jagger tangu 13/10: orodhesha (siku, chupa, COGS iliyotumika).
+  - Journal moja tarehe 01/11 (au siku ya kwanza wazi): Dr 5100 / Cr 1200 = ziada iliyobaki kwenye 1200,
+    maelezo "Marekebisho ya Oktoba: Jagger carton kama chupa (11/10)". Hesabu kiasi kutoka data, siyo 265,000 ya kudhani.
+  - Ukaguzi: thamani ya stock ya Jagger = chupa zilizopo × 8,833.33; TB 0.
+Hatua 62 ongeza (g): manunuzi yote 2026 ambapo unit cost > 3× au < ⅓ ya wastani wa bidhaa hiyo (bidhaa, tarehe, qty, cost).
+  Pia: hali ya kipindi cha Oktoba (OPEN/CLOSED).
+Onyo la manunuzi (cost > 3× ya mwisho → "carton au chupa?"): kadiria muda. < nusu siku → batch (B). Vinginevyo BAADA §3.
+Kisha B4 + daraja.
