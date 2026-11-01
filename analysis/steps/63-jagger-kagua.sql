@@ -74,11 +74,40 @@ SELECT 'J63_GL|marekebisho_1200 ' || coalesce((SELECT sum(l.debit_amount - l.cre
                                          WHERE NOT coalesce(j.is_deleted, false) AND l.account_code = '1200'
                                            AND j.reference_uid IN (SELECT pr.uid FROM purchases pr WHERE pr.product_uid = :'P' AND pr.purchase_date::date = DATE '2026-10-11')), 0)
   FROM t0;
--- Journal ya marekebisho haya ikiwa imeshaandikwa (kinga ya kurudia).
-SELECT 'J63_JOURNAL_IPO|' || count(*) || '|' || coalesce(string_agg(j.entry_number || ' ' || j.entry_date || ' ' || j.total_debit, ', '), '-')
-  FROM journal_entry j
- WHERE j.reference_type = 'MANUAL_ADJUSTMENT' AND j.reference_number = 'Marekebisho ya Oktoba: Jagger carton kama chupa (11/10)'
-   AND NOT coalesce(j.is_deleted, false) AND NOT coalesce(j.is_reversal, false);
+-- (bp) Oktoba OPEN: J1 31/10 = ziada ya 1200 mwisho wa 31/10 (kutoka data ya hadi 31/10), J2 01/11 = COGS ya ziada ya mauzo
+-- ya Jagger kuanzia 01/11 (chupa x (gharama iliyotumika - gharama sahihi)). Ukaguzi: J1 - J2 = A.
+WITH t0 AS (SELECT min(s.movement_date) AS t FROM store s JOIN purchases pr ON s.reference = 'PUR-' || pr.uid
+             WHERE pr.product_uid = :'P' AND pr.purchase_date::date = DATE '2026-10-11' AND NOT coalesce(pr.is_deleted, false)),
+     nanga AS (SELECT pr.total_amount, pr.pieces_per_package_at_purchase AS chupa FROM purchases pr
+                WHERE pr.product_uid = :'P' AND pr.purchase_date::date = DATE '2026-10-11' AND NOT coalesce(pr.is_deleted, false) LIMIT 1),
+     g AS (SELECT round(nanga.total_amount / nullif(nanga.chupa, 0), 2) AS sahihi FROM nanga),
+     manunuzi AS (SELECT coalesce(sum(pr.total_amount), 0) AS v FROM purchases pr, t0
+                   WHERE pr.product_uid = :'P' AND pr.created_at >= t0.t - interval '1 minute' AND pr.created_at < TIMESTAMP '2026-11-01'
+                     AND NOT coalesce(pr.is_deleted, false) AND coalesce(pr.status, '') = 'RECEIVED'),
+     marekebisho AS (SELECT coalesce(sum(a.adjustment_value), 0) AS v FROM stock_adjustment a, t0
+                      WHERE a.product_uid = :'P' AND a.approved_at >= t0.t AND a.approved_at < TIMESTAMP '2026-11-01'
+                        AND NOT coalesce(a.is_deleted, false) AND coalesce(a.gl_posted, false)),
+     okt AS (SELECT coalesce(sum(d.total_cost), 0) AS v FROM sales_details d JOIN sales sa ON sa.uid = d.sale_uid, t0
+              WHERE d.product_uid = :'P' AND sa.created_at >= t0.t AND sa.sale_date < TIMESTAMP '2026-11-01'
+                AND NOT coalesce(d.is_deleted, false) AND NOT coalesce(sa.is_deleted, false)),
+     nov AS (SELECT coalesce(sum(d.piece_quantity), 0) AS chupa, coalesce(sum(d.total_cost - d.piece_quantity * g.sahihi), 0) AS ziada
+               FROM sales_details d JOIN sales sa ON sa.uid = d.sale_uid, t0, g
+              WHERE d.product_uid = :'P' AND sa.sale_date >= TIMESTAMP '2026-11-01'
+                AND NOT coalesce(d.is_deleted, false) AND NOT coalesce(sa.is_deleted, false)),
+     c3110 AS (SELECT coalesce((SELECT s.stock_after FROM store s WHERE s.products_uid = :'P' AND s.movement_date < TIMESTAMP '2026-11-01'
+                                   AND NOT coalesce(s.is_deleted, false) ORDER BY s.movement_date DESC, s.id DESC LIMIT 1), 0) AS chupa)
+SELECT 'J63_HESABU2|kwenye_1200_3110 ' || (manunuzi.v + marekebisho.v - okt.v) || '|chupa_3110 ' || c3110.chupa
+       || '|J1 ' || round(manunuzi.v + marekebisho.v - okt.v - c3110.chupa * g.sahihi, 2)
+       || '|chupa_nov ' || nov.chupa || '|J2 ' || round(nov.ziada, 2)
+  FROM manunuzi, marekebisho, okt, nov, c3110, g;
+-- Journal za marekebisho haya zilizokwisha andikwa, kila moja peke yake (kinga ya kurudia na kuendelea).
+SELECT 'J63_JOURNAL_IPO|' || k.ufunguo || '|' || count(j.uid) || '|' || coalesce(string_agg(j.entry_number || ' ' || j.entry_date || ' ' || j.total_debit, ', '), '-')
+  FROM (VALUES ('MOJA', 'Marekebisho ya Oktoba: Jagger carton kama chupa (11/10)'),
+               ('J1', 'J1 31/10: Jagger carton kama chupa (11/10) - ziada ya 1200'),
+               ('J2', 'J2 01/11: Jagger carton kama chupa (11/10) - COGS ya ziada Nov')) k(ufunguo, memo)
+  LEFT JOIN journal_entry j ON j.reference_type = 'MANUAL_ADJUSTMENT' AND j.reference_number = k.memo
+       AND NOT coalesce(j.is_deleted, false) AND NOT coalesce(j.is_reversal, false)
+ GROUP BY k.ufunguo ORDER BY k.ufunguo;
 SELECT 'J63_TB|' || coalesce(sum(l.debit_amount - l.credit_amount), 0)
   FROM journal_entry j JOIN journal_entry_line l ON l.journal_entry_uid = j.uid WHERE NOT coalesce(j.is_deleted, false);
 SELECT 'J63_KAGUA_IMEKAMILIKA';

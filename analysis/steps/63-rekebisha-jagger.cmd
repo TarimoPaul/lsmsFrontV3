@@ -6,9 +6,14 @@ rem   MARA YA KWANZA: KAGUA (haiandiki, hakuna password): SQL ya kusoma tu kweny
 rem     iliyobaki kwenye 1200 kutoka manunuzi/hesabu/mauzo, B = chupa x tofauti ya gharama; lazima zilingane), mauzo ya
 rem     Jagger tangu 11/10 (siku, chupa, COGS) -^> ---SIMAMA-PREVIEW---. Nitumie log; USIANDIKE mpaka nikuthibitishie.
 rem   MARA YA PILI: andika ANDIKA -^> email + password ya CEO (si root) -^> kagua upya (namba lazima ziwe zilezile, vinginevyo
-rem     SIMAMA) -^> journal 01/11 Dr 5100 / Cr 1200 kupitia API (inarukwa ikiwa ipo) -^> gharama ya Jagger -^> 8,833.33 kwa SQL
-rem     (transaction moja, ikiwa gharama na stock bado ni za preview; inarukwa ikiwa tayari) -^> ukaguzi: journal mara moja,
-rem     thamani = chupa x 8,833.33, delta ya TB 5100/1200 tu, TB 0 -^> ---OK---. Ikirudiwa baada ya kukatika: inaendelea.
+rem     SIMAMA) -^> journal kupitia API, kulingana na hali ya OKTOBA kwenye prod (mmiliki bp):
+rem       Oktoba OPEN  : J1 31/10 Dr 5100 / Cr 1200 = ziada ya 1200 mwisho wa 31/10, na J2 01/11 Dr 1200 / Cr 5000 = COGS ya
+rem                      ziada ya mauzo ya Jagger kuanzia 01/11 (ikiwa tu yapo); J1 - J2 = A = B.
+rem       Oktoba CLOSED: journal moja 01/11 Dr 5100 / Cr 1200 = A.
+rem     Kila journal inarukwa ikiwa ipo tayari. -^> gharama ya Jagger -^> 8,833.33 kwa SQL, transaction moja pamoja na mstari wa
+rem     price_history na audit_trails (nani, lini, 53,000 -^> 8,833.33, sababu); inarukwa ikiwa tayari -^> ukaguzi: kila journal
+rem     mara moja, thamani = chupa x 8,833.33, delta ya TB, TB 0 -^> ---OK---. Ikirudiwa baada ya kukatika: inaendelea.
+rem   USIFUNGE OKTOBA kabla ya 63 ANDIKA (mmiliki bp).
 rem   Iendeshwe kabla duka halijaanza kuuza ikiwezekana: mauzo ya Jagger kati ya KAGUA na ANDIKA yanasimamisha hatua (salama).
 rem Matokeo: analysis\steps\63-rekebisha-jagger.log. Kila output ya Contabo inapita ficha.awk kwenye server.
 setlocal
