@@ -63,6 +63,16 @@ deploy/local/v3-local.sh up      # nginx.conf ya image ya prod + "edge" nginx: /
 - Kivinjari: http://127.0.0.1:4300/v3/ (backend Docker-local lazima iwe juu). Edge inatuma `Origin: https://elikom.co.tz` kama prod.
 - Majaribio ya Playwright yanaendeshwa YOTE upya kwenye build hiyo kabla ya merge kwenye release/3.2.0.
 
+**Lango la staging (mmiliki 01/11 bi): yote matatu lazima yapite kwenye build ya MWISHO kabla ya prod.** Log zake zinaambatishwa kwenye ripoti ya staging.
+```
+Lsms (release/2.4.0)      deploy/local/pg-checks.sh       # LoanSqlPgCheck + SaleChangePgCheck, PG15 ya kutupwa kwa kila moja -> PG_CHECKS_OK 2/2
+Lsms (release/2.4.0)      mvnw test                       # suite nzima, Failures 0, Errors 0
+lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh   # Playwright YOTE (b1, b2, ...) kwenye v3-local build -> E2E_OK n/n
+```
+- `pg-checks.sh` inatengeneza container `lsms-pgcheck` (:55439) na kuiondoa mwishoni hata ikishindwa, ili isishike RAM. `all` inaongeza JwtRevocationPgCheck + LoginAuditPgCheck.
+- Playwright inaendeshwa dhidi ya Docker-local (image ya digest itakayoenda staging + dump ya karibuni) na build ya V3 itakayoenda staging. Kila kipengele kipya cha V3 kinaongeza `<jina>_e2e.cjs` yake kwenye `deploy/local/e2e/`.
+- Lolote likishindwa → hakuna staging wala prod.
+
 ## Kanuni ya namba za migration (mmiliki 26/10)
 
 **Toleo linalofika prod kwanza ndilo linalochukua namba inayofuata. Migration ambayo haijafika prod inapewa namba mpya wakati wa merge kwenye main.**
