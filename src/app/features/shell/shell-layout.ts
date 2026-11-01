@@ -139,8 +139,9 @@ export interface PageMeta {
     .topbar { flex: none; z-index: 20; }
     .scroll {
       position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;
-      /* Room for the floating bottom bar (0 on desktop); no rubber-band into the browser chrome. */
-      padding-bottom: var(--nav-space); overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
+      /* Room for the floating bottom bar (0 on desktop) and for the debt banners while they show
+         (owner bj: the page's last buttons scroll clear of them); no rubber-band into the browser chrome. */
+      padding-bottom: calc(var(--nav-space) + var(--debt-banner-space, 0px)); overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
     }
     /* Notch / rounded-corner phones held sideways: keep the page clear of the cut-out. */
     .content:not(.inset) .scroll { padding-left: max(var(--safe-l), var(--nav-rail)); padding-right: var(--safe-r); }
