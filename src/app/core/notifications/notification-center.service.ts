@@ -9,12 +9,21 @@ const BASE = '/api/v1/notifications';
 /** Same cadence as Flutter — only while the tab is visible, plus a check the moment it becomes visible. */
 const POLL_MS = 10_000;
 const MAX_REMEMBERED = 300;
+/** Owner 01/11 bj: an older collection is not a banner any more; it waits in the bell (inbox). */
+const BANNER_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+/** createdAt is the server's local time without a zone (LocalDateTime). */
+const createdMs = (n: AppNotification): number => {
+  const v = n.createdAt;
+  const t = v ? new Date(v.replace(' ', 'T')).getTime() : NaN;
+  return Number.isNaN(t) ? 0 : t;
+};
 
 /**
  * Notifications for the signed-in user: the bell's unread count, the inbox API, and
  * the "deni limelipwa" banners.
  *
- * Banners are the user's UNREAD debt collections minus the ones they closed. Unlike
+ * Banners are the user's UNREAD debt collections of the last 24 hours minus the ones they closed. Unlike
  * Flutter (which forgot closed banners on every reload and re-raised them), v3
  * remembers closed banners per user in localStorage and syncs them across the
  * user's tabs, so one close is one close. Closing does NOT mark the notification
@@ -32,9 +41,16 @@ export class NotificationCenter {
   readonly unreadByType = signal<Record<string, number>>({});
   private readonly debtUnread = signal<AppNotification[]>([]);
   private readonly dismissed = signal<Set<string>>(new Set());
+  /** Moved on every poll, so a banner older than 24 h drops out without a reload. */
+  private readonly now = signal(Date.now());
 
-  /** Banners to show, newest first. */
-  readonly debtBanners = computed(() => this.debtUnread().filter((n) => !this.dismissed().has(n.uid)));
+  /** Banners to show, newest first: unread, not closed, at most 24 h old. */
+  readonly debtBanners = computed(() => {
+    const since = this.now() - BANNER_MAX_AGE_MS;
+    return this.debtUnread().filter((n) => !this.dismissed().has(n.uid) && createdMs(n) >= since);
+  });
+  /** Unread debt collections that are only in the bell (older than 24 h or closed as a banner). */
+  readonly debtInBellOnly = computed(() => this.unreadIn('DEBT') - this.debtBanners().length);
 
   constructor() {
     effect(() => {
@@ -66,6 +82,7 @@ export class NotificationCenter {
     try {
       const n = Number(await this.api.get<number>(`${BASE}/unread-count`)) || 0;
       this.unread.set(n);
+      this.now.set(Date.now());
       if (n === this.lastUnread) return;
       this.lastUnread = n;
       await Promise.all([this.loadCounts(), this.loadDebtBanners()]);
