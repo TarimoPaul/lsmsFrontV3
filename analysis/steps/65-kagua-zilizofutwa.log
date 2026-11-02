@@ -1,0 +1,131 @@
+---MWENDESHO-65--- 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KUSOMA-TU--- 
+time="2026-11-02T13:07:16+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+SAA_YA_SERVER 2026-11-02 1307 EAT
+time="2026-11-02T13:07:16+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+BACKEND_IMAGE 2.3.0
+BACKEND_TZ Africa/Dar_es_Salaam EAT
+time="2026-11-02T13:07:17+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+FLYWAY|135|0 zilizoshindwa
+SAA_YA_DB|2026-11-02 13:07:18|Africa/Dar_es_Salaam|read_only on
+IDADI|kwenye_orodha 6|zilizofutwa_tangu_30_10 8|nje_ya_orodha 2
+SALE|291026-2218|sale_date 2026-10-29 22:18:09|created 2026-10-29 22:18:11|futwa true 2026-10-30 07:59:28|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 43500.00|PAID|sababu -|maelezo 2026-10-30 07:59:28: SALE DELETED - Deleted on: 2026-10-30 07:59:28, By: System, Reason: yyyyy, Original Total: 43,500.0|kwenye_orodha false
+BIDHAA|291026-2218|Castle Lite Can 330ML|717f6f75|PIECES 2.00p+2v|sub 6000.00|gharama 4250.00|stock_uzwa -2|stock_rudi 2 2026-10-30 07:59:28|mstari_umefutwa false
+BIDHAA|291026-2218|KONYAGI|99a671ac|PIECES 2.00p+2v|sub 10000.00|gharama 7666.66|stock_uzwa -2|stock_rudi 2 2026-10-30 07:59:28|mstari_umefutwa false
+BIDHAA|291026-2218|SAFARI LAGER|a02aeee4|PIECES 1.00p+1v|sub 2500.00|gharama 1650.00|stock_uzwa -1|stock_rudi 1 2026-10-30 07:59:28|mstari_umefutwa false
+BIDHAA|291026-2218|SAFARI LAGER kb|83de9080|PIECES 2.00p+2v|sub 5000.00|gharama 3850.00|stock_uzwa -2|stock_rudi 2 2026-10-30 07:59:28|mstari_umefutwa false
+BIDHAA|291026-2218|SERENGETI LAGER|afb57fa2|PIECES 2.00p+2v|sub 4000.00|gharama 3080.00|stock_uzwa -2|stock_rudi 2 2026-10-30 07:59:28|mstari_umefutwa false
+BIDHAA|291026-2218|SERENGETI LEMON|eba11889|PIECES 2.00p+2v|sub 4000.00|gharama 3050.00|stock_uzwa -2|stock_rudi 2 2026-10-30 07:59:28|mstari_umefutwa false
+BIDHAA|291026-2218|TAN PORT|8a0c6820|PIECES 1.00p+1v|sub 12000.00|gharama 8000.00|stock_uzwa -1|stock_rudi 1 2026-10-30 07:59:28|mstari_umefutwa false
+MBADALA|291026-2218 -> 291026-0720|created 2026-10-30 07:20:56|sale_date 2026-10-29 07:20:54|jumla 54000.00 (ya zamani 43500.00)|bidhaa_sawa 6/7|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 7|tathmini SEHEMU
+MBADALA|291026-2218 -> 291026-0802|created 2026-10-30 08:02:25|sale_date 2026-10-29 08:02:23|jumla 24000.00 (ya zamani 43500.00)|bidhaa_sawa 6/7|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 7|tathmini SEHEMU
+MBADALA|291026-2218 -> 301026-0750|created 2026-10-31 07:50:11|sale_date 2026-10-30 07:50:10|jumla 164500.00 (ya zamani 43500.00)|bidhaa_sawa 3/7|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 7|tathmini SEHEMU
+MBADALA|291026-2218 -> 301026-2249|created 2026-10-30 22:49:24|sale_date 2026-10-30 22:49:23|jumla 103500.00 (ya zamani 43500.00)|bidhaa_sawa 2/7|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 7|tathmini SEHEMU
+MBADALA|291026-2218 -> 301026-2302|created 2026-10-30 23:02:07|sale_date 2026-10-30 23:02:06|jumla 129000.00 (ya zamani 43500.00)|bidhaa_sawa 4/7|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 7|tathmini SEHEMU
+HESABU|291026-2218|Castle Lite Can 330ML|2026-10-30 (APPROVED, ya 1)|mfumo 38|imehesabiwa 38|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|Castle Lite Can 330ML|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 51|imehesabiwa 49|tofauti -2 (-4250.00)|tozo 6000.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|KONYAGI|2026-10-30 (APPROVED, ya 1)|mfumo 35|imehesabiwa 34|tofauti -1 (-3833.33)|tozo 5000.00|sababu - |1120 macheda macheda 5000.00 (OPEN)|stock_adjustment -1 -3833.33 1120/1200 OFF_SYSTEM_SALE
+HESABU|291026-2218|KONYAGI|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 9|imehesabiwa 10|tofauti 1 (3833.33)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SAFARI LAGER|2026-10-30 (APPROVED, ya 1)|mfumo 89|imehesabiwa 89|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SAFARI LAGER|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 196|imehesabiwa 195|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SAFARI LAGER kb|2026-10-30 (APPROVED, ya 1)|mfumo 6|imehesabiwa 5|tofauti -1 (-1925.00)|tozo 2500.00|sababu - |1120 macheda macheda 2500.00 (OPEN)|stock_adjustment -1 -1925.00 1120/1200 OFF_SYSTEM_SALE
+HESABU|291026-2218|SAFARI LAGER kb|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 5|imehesabiwa 5|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SERENGETI LAGER|2026-10-30 (APPROVED, ya 1)|mfumo 171|imehesabiwa 171|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SERENGETI LAGER|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 158|imehesabiwa 157|tofauti -1 (-1540.00)|tozo 2000.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SERENGETI LEMON|2026-10-30 (APPROVED, ya 1)|mfumo 93|imehesabiwa 93|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|SERENGETI LEMON|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 73|imehesabiwa 73|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|TAN PORT|2026-10-30 (APPROVED, ya 1)|mfumo 11|imehesabiwa 11|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|291026-2218|TAN PORT|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 11|imehesabiwa 11|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+SALE|301026-0722|sale_date 2026-10-30 07:22:17|created 2026-10-30 07:22:19|futwa true 2026-10-30 07:22:44|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 9000.00|PAID|sababu -|maelezo 2026-10-30 07:22:43: SALE DELETED - Deleted on: 2026-10-30 07:22:43, By: System, Reason: hhhhhh, Original Total: 9,000.0|kwenye_orodha false
+BIDHAA|301026-0722|KONYAGI kt|a057d613|PIECES 1.00p+1v|sub 9000.00|gharama 8000.00|stock_uzwa -1|stock_rudi 1 2026-10-30 07:22:43|mstari_umefutwa false
+MBADALA|301026-0722 -> 291026-0723|created 2026-10-30 07:23:31|sale_date 2026-10-29 07:23:29|jumla 9000.00 (ya zamani 9000.00)|bidhaa_sawa 1/1|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 1|tathmini IMEINGIZWA_UPYA
+HESABU|301026-0722|KONYAGI kt|2026-10-30 (APPROVED, ya 1)|mfumo 18|imehesabiwa 18|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-0722|KONYAGI kt|2026-10-31 (FORCE_CLOSED, ya 2)|mfumo 17|imehesabiwa 17|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+SALE|301026-2245|sale_date 2026-10-30 22:45:20|created 2026-10-30 22:45:21|futwa true 2026-10-31 08:10:31|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 68000.00|PAID|sababu -|maelezo 2026-10-31 08:10:30: SALE DELETED - Deleted on: 2026-10-31 08:10:30, By: System, Reason: tttttt, Original Total: 68,000.|kwenye_orodha true
+BIDHAA|301026-2245|SAFARI LAGER|a02aeee4|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:10:31|mstari_umefutwa false
+BIDHAA|301026-2245|SERENGETI LEMON|eba11889|WHOLE_PACKAGE 1.00p+20v|sub 33000.00|gharama 30500.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:10:31|mstari_umefutwa false
+MBADALA|301026-2245 -> 301026-0832|created 2026-10-31 08:32:41|sale_date 2026-10-30 08:32:40|jumla 33000.00 (ya zamani 68000.00)|bidhaa_sawa 1/2|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 11|tathmini SEHEMU
+MBADALA|301026-2245 -> 311026-0735|created 2026-11-01 07:35:22|sale_date 2026-10-31 07:35:19|jumla 129800.00 (ya zamani 68000.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|301026-2245 -> 311026-0759|created 2026-11-01 07:59:16|sale_date 2026-10-31 07:59:13|jumla 47000.00 (ya zamani 68000.00)|bidhaa_sawa 1/2|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 11|tathmini SEHEMU
+MBADALA|301026-2245 -> 311026-2125|created 2026-10-31 21:25:44|sale_date 2026-10-31 21:25:42|jumla 89500.00 (ya zamani 68000.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|301026-2245 -> 311026-2136|created 2026-10-31 21:36:42|sale_date 2026-10-31 21:36:40|jumla 103000.00 (ya zamani 68000.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+HESABU|301026-2245|SAFARI LAGER|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 196|imehesabiwa 195|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2245|SAFARI LAGER|2026-11-01 (APPROVED, ya 2)|mfumo 54|imehesabiwa 53|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 macheda macheda 2500.00 (OPEN)|stock_adjustment -1 -1650.00 1120/1200 OFF_SYSTEM_SALE
+HESABU|301026-2245|SERENGETI LEMON|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 73|imehesabiwa 73|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2245|SERENGETI LEMON|2026-11-01 (APPROVED, ya 2)|mfumo 27|imehesabiwa 27|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+SALE|301026-2251|sale_date 2026-10-30 22:51:46|created 2026-10-30 22:51:47|futwa true 2026-10-31 08:24:16|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 83500.00|PAID|sababu -|maelezo 2026-10-31 08:24:15: SALE DELETED - Deleted on: 2026-10-31 08:24:15, By: System, Reason: fffff, Original Total: 83,500.0|kwenye_orodha true
+BIDHAA|301026-2251|CASTLE LITE|1de00f32|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:24:15|mstari_umefutwa false
+BIDHAA|301026-2251|PEPSI && MIRINDA|d4255240|WHOLE_PACKAGE 1.00p+24v|sub 13500.00|gharama 12799.92|stock_uzwa -24|stock_rudi 24 2026-10-31 08:24:15|mstari_umefutwa false
+BIDHAA|301026-2251|SAFARI LAGER|a02aeee4|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:24:15|mstari_umefutwa false
+MBADALA|301026-2251 -> 301026-0824|created 2026-10-31 08:24:41|sale_date 2026-10-30 08:24:40|jumla 54500.00 (ya zamani 83500.00)|bidhaa_sawa 2/3|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 18|tathmini SEHEMU
+MBADALA|301026-2251 -> 311026-0735|created 2026-11-01 07:35:22|sale_date 2026-10-31 07:35:19|jumla 129800.00 (ya zamani 83500.00)|bidhaa_sawa 3/3|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 18|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|301026-2251 -> 311026-2125|created 2026-10-31 21:25:44|sale_date 2026-10-31 21:25:42|jumla 89500.00 (ya zamani 83500.00)|bidhaa_sawa 2/3|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 18|tathmini SEHEMU
+MBADALA|301026-2251 -> 311026-2126|created 2026-10-31 21:26:33|sale_date 2026-10-31 21:26:31|jumla 89500.00 (ya zamani 83500.00)|bidhaa_sawa 2/3|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 18|tathmini SEHEMU
+MBADALA|301026-2251 -> 311026-2135|created 2026-10-31 21:35:52|sale_date 2026-10-31 21:35:49|jumla 109500.00 (ya zamani 83500.00)|bidhaa_sawa 2/3|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 18|tathmini SEHEMU
+HESABU|301026-2251|CASTLE LITE|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 285|imehesabiwa 285|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2251|CASTLE LITE|2026-11-01 (APPROVED, ya 2)|mfumo 166|imehesabiwa 166|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2251|PEPSI && MIRINDA|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 407|imehesabiwa 403|tofauti -4 (-2133.32)|tozo 4000.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2251|PEPSI && MIRINDA|2026-11-01 (APPROVED, ya 2)|mfumo 232|imehesabiwa 232|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2251|SAFARI LAGER|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 196|imehesabiwa 195|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2251|SAFARI LAGER|2026-11-01 (APPROVED, ya 2)|mfumo 54|imehesabiwa 53|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 macheda macheda 2500.00 (OPEN)|stock_adjustment -1 -1650.00 1120/1200 OFF_SYSTEM_SALE
+SALE|301026-2253|sale_date 2026-10-30 22:53:33|created 2026-10-30 22:53:33|futwa true 2026-10-31 08:26:37|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 135500.00|PAID|sababu -|maelezo 2026-10-31 08:26:37: SALE DELETED - Deleted on: 2026-10-31 08:26:37, By: System, Reason: tttttt, Original Total: 135,500|kwenye_orodha true
+BIDHAA|301026-2253|CASTLE LITE|1de00f32|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:26:37|mstari_umefutwa false
+BIDHAA|301026-2253|SAFARI LAGER|a02aeee4|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:26:37|mstari_umefutwa false
+BIDHAA|301026-2253|SERENGETI LAGER|afb57fa2|WHOLE_PACKAGE 1.00p+20v|sub 32500.00|gharama 30800.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:26:37|mstari_umefutwa false
+BIDHAA|301026-2253|SERENGETI LEMON|eba11889|WHOLE_PACKAGE 1.00p+20v|sub 33000.00|gharama 30500.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:26:37|mstari_umefutwa false
+MBADALA|301026-2253 -> 301026-0750|created 2026-10-31 07:50:11|sale_date 2026-10-30 07:50:10|jumla 164500.00 (ya zamani 135500.00)|bidhaa_sawa 3/4|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 19|tathmini SEHEMU
+MBADALA|301026-2253 -> 301026-0812|created 2026-10-31 08:12:34|sale_date 2026-10-30 08:12:32|jumla 170000.00 (ya zamani 135500.00)|bidhaa_sawa 2/4|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 19|tathmini SEHEMU
+MBADALA|301026-2253 -> 311026-0727|created 2026-11-01 07:27:50|sale_date 2026-10-31 07:27:47|jumla 158000.00 (ya zamani 135500.00)|bidhaa_sawa 3/4|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 19|tathmini SEHEMU
+MBADALA|301026-2253 -> 311026-0735|created 2026-11-01 07:35:22|sale_date 2026-10-31 07:35:19|jumla 129800.00 (ya zamani 135500.00)|bidhaa_sawa 4/4|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 19|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|301026-2253 -> 311026-2136|created 2026-10-31 21:36:42|sale_date 2026-10-31 21:36:40|jumla 103000.00 (ya zamani 135500.00)|bidhaa_sawa 2/4|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 19|tathmini SEHEMU
+HESABU|301026-2253|CASTLE LITE|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 285|imehesabiwa 285|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2253|CASTLE LITE|2026-11-01 (APPROVED, ya 2)|mfumo 166|imehesabiwa 166|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2253|SAFARI LAGER|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 196|imehesabiwa 195|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2253|SAFARI LAGER|2026-11-01 (APPROVED, ya 2)|mfumo 54|imehesabiwa 53|tofauti -1 (-1650.00)|tozo 2500.00|sababu - |1120 macheda macheda 2500.00 (OPEN)|stock_adjustment -1 -1650.00 1120/1200 OFF_SYSTEM_SALE
+HESABU|301026-2253|SERENGETI LAGER|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 158|imehesabiwa 157|tofauti -1 (-1540.00)|tozo 2000.00|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2253|SERENGETI LAGER|2026-11-01 (APPROVED, ya 2)|mfumo 45|imehesabiwa 45|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2253|SERENGETI LEMON|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 73|imehesabiwa 73|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|301026-2253|SERENGETI LEMON|2026-11-01 (APPROVED, ya 2)|mfumo 27|imehesabiwa 27|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+SALE|311026-0831|sale_date 2026-10-31 08:31:54|created 2026-10-31 08:31:55|futwa true 2026-10-31 08:32:17|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 33000.00|PAID|sababu -|maelezo 2026-10-31 08:32:17: SALE DELETED - Deleted on: 2026-10-31 08:32:17, By: System, Reason: yyyyy, Original Total: 33,000.0|kwenye_orodha true
+BIDHAA|311026-0831|SERENGETI LEMON|eba11889|WHOLE_PACKAGE 1.00p+20v|sub 33000.00|gharama 30500.00|stock_uzwa -20|stock_rudi 20 2026-10-31 08:32:17|mstari_umefutwa false
+MBADALA|311026-0831 -> 301026-0832|created 2026-10-31 08:32:41|sale_date 2026-10-30 08:32:40|jumla 33000.00 (ya zamani 33000.00)|bidhaa_sawa 1/1|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 5|tathmini IMEINGIZWA_UPYA
+MBADALA|311026-0831 -> 311026-0727|created 2026-11-01 07:27:50|sale_date 2026-10-31 07:27:47|jumla 158000.00 (ya zamani 33000.00)|bidhaa_sawa 1/1|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 5|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|311026-0831 -> 311026-0735|created 2026-11-01 07:35:22|sale_date 2026-10-31 07:35:19|jumla 129800.00 (ya zamani 33000.00)|bidhaa_sawa 1/1|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 5|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|311026-0831 -> 311026-2125|created 2026-10-31 21:25:44|sale_date 2026-10-31 21:25:42|jumla 89500.00 (ya zamani 33000.00)|bidhaa_sawa 1/1|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 5|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|311026-0831 -> 311026-2136|created 2026-10-31 21:36:42|sale_date 2026-10-31 21:36:40|jumla 103000.00 (ya zamani 33000.00)|bidhaa_sawa 1/1|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 5|tathmini HUENDA (bidhaa zote, jumla tofauti)
+HESABU|311026-0831|SERENGETI LEMON|2026-10-31 (FORCE_CLOSED, ya 1)|mfumo 73|imehesabiwa 73|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|311026-0831|SERENGETI LEMON|2026-11-01 (APPROVED, ya 2)|mfumo 27|imehesabiwa 27|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+SALE|311026-2139|sale_date 2026-10-31 21:39:32|created 2026-10-31 21:39:35|futwa true 2026-11-01 08:22:37|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 75000.00|PAID|sababu -|maelezo 2026-11-01 08:22:36: SALE DELETED - Deleted on: 2026-11-01 08:22:36, By: System, Reason: 666666, Original Total: 75,000.|kwenye_orodha true
+BIDHAA|311026-2139|CASTLE LITE|1de00f32|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-11-01 08:22:37|mstari_umefutwa false
+BIDHAA|311026-2139|SAFARI LAGER kb|83de9080|WHOLE_PACKAGE 1.00p+20v|sub 40000.00|gharama 38500.00|stock_uzwa -20|stock_rudi 20 2026-11-01 08:22:36|mstari_umefutwa false
+MBADALA|311026-2139 -> 011126-2142|created 2026-11-01 21:42:53|sale_date 2026-11-01 21:42:52|jumla 158500.00 (ya zamani 75000.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 13|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|311026-2139 -> 011126-2146|created 2026-11-01 21:46:20|sale_date 2026-11-01 21:46:19|jumla 83500.00 (ya zamani 75000.00)|bidhaa_sawa 1/2|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 13|tathmini SEHEMU
+MBADALA|311026-2139 -> 011126-2146-2|created 2026-11-01 21:46:53|sale_date 2026-11-01 21:46:52|jumla 70000.00 (ya zamani 75000.00)|bidhaa_sawa 1/2|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 13|tathmini SEHEMU
+MBADALA|311026-2139 -> 011126-2151|created 2026-11-01 21:51:43|sale_date 2026-11-01 21:51:42|jumla 284500.00 (ya zamani 75000.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 13|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|311026-2139 -> 311026-0754|created 2026-11-01 07:54:39|sale_date 2026-10-31 07:54:36|jumla 40000.00 (ya zamani 75000.00)|bidhaa_sawa 1/2|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 13|tathmini SEHEMU
+HESABU|311026-2139|CASTLE LITE|2026-11-01 (APPROVED, ya 1)|mfumo 166|imehesabiwa 166|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|311026-2139|CASTLE LITE|2026-11-02 (APPROVED, ya 2)|mfumo 43|imehesabiwa 43|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|311026-2139|SAFARI LAGER kb|2026-11-01 (APPROVED, ya 1)|mfumo 45|imehesabiwa 45|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|311026-2139|SAFARI LAGER kb|2026-11-02 (APPROVED, ya 2)|mfumo 45|imehesabiwa 45|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+SALE|011126-0720|sale_date 2026-11-01 07:20:13|created 2026-11-01 07:20:16|futwa true 2026-11-01 07:57:57|na System = HAIJULIKANI|muuzaji macheda macheda|jumla 39500.00|PAID|sababu -|maelezo 2026-11-01 07:57:56: SALE DELETED - Deleted on: 2026-11-01 07:57:56, By: System, Reason: rrrrr, Original Total: 39,500.0|kwenye_orodha true
+BIDHAA|011126-0720|AFYA|caaedca5|WHOLE_PACKAGE 1.00p+6v|sub 4500.00|gharama 4300.02|stock_uzwa -6|stock_rudi 6 2026-11-01 07:57:57|mstari_umefutwa false
+BIDHAA|011126-0720|CASTLE LITE|1de00f32|WHOLE_PACKAGE 1.00p+20v|sub 35000.00|gharama 33000.00|stock_uzwa -20|stock_rudi 20 2026-11-01 07:57:57|mstari_umefutwa false
+MBADALA|011126-0720 -> 011126-2146|created 2026-11-01 21:46:20|sale_date 2026-11-01 21:46:19|jumla 83500.00 (ya zamani 39500.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 1 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|011126-0720 -> 011126-2206|created 2026-11-01 22:06:11|sale_date 2026-11-01 22:06:10|jumla 124500.00 (ya zamani 39500.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 2 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|011126-0720 -> 311026-0719|created 2026-11-01 07:19:10|sale_date 2026-10-31 07:19:07|jumla 36000.00 (ya zamani 39500.00)|bidhaa_sawa 1/2|muuzaji macheda macheda|inataja_risiti false|nafasi 5 kati ya 11|tathmini SEHEMU
+MBADALA|011126-0720 -> 311026-0727|created 2026-11-01 07:27:50|sale_date 2026-10-31 07:27:47|jumla 158000.00 (ya zamani 39500.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 4 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+MBADALA|011126-0720 -> 311026-0735|created 2026-11-01 07:35:22|sale_date 2026-10-31 07:35:19|jumla 129800.00 (ya zamani 39500.00)|bidhaa_sawa 2/2|muuzaji macheda macheda|inataja_risiti false|nafasi 3 kati ya 11|tathmini HUENDA (bidhaa zote, jumla tofauti)
+HESABU|011126-0720|AFYA|2026-11-01 (APPROVED, ya 1)|mfumo 27|imehesabiwa 23|tofauti -4 (-2866.68)|tozo 4000.00|sababu - |1120 macheda macheda 4000.00 (OPEN)|stock_adjustment -4 -2866.68 1120/1200 OFF_SYSTEM_SALE
+HESABU|011126-0720|AFYA|2026-11-02 (APPROVED, ya 2)|mfumo 1|imehesabiwa 0|tofauti -1 (-716.67)|tozo 1000.00|sababu - |1120 macheda macheda 1000.00 (OPEN)|stock_adjustment -1 -716.67 1120/1200 OFF_SYSTEM_SALE
+HESABU|011126-0720|CASTLE LITE|2026-11-01 (APPROVED, ya 1)|mfumo 166|imehesabiwa 166|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+HESABU|011126-0720|CASTLE LITE|2026-11-02 (APPROVED, ya 2)|mfumo 43|imehesabiwa 43|tofauti 0 (0.00)|tozo -|sababu - |1120 hakuna|stock_adjustment hakuna
+USHAHIDI_65_SQL_UMEKAMILIKA
+[psql exit 0]
+---USHAHIDI_65_UMEKAMILIKA---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

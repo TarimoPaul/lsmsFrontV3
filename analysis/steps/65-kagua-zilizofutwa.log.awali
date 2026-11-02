@@ -1,0 +1,8 @@
+---MWENDESHO-65--- 
+---FAILI-KWENDA-CONTABO--- 
+ssh: connect to host 194.163.174.34 port 22: Connection timed out
+scp: Connection closed
+[exit 255] 
+---IMESHINDWA-KWENYE: FAILI-KWENDA-CONTABO (exit 255)--- 
+ssh: connect to host 194.163.174.34 port 22: Connection timed out
+---IMESHINDWA--- 

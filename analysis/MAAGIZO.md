@@ -529,3 +529,11 @@ BAADA-YA-BATCH §2: manunuzi ya siku yaandikwe kabla ya hesabu, au mzigo usioand
   hesabu iwe na swali "kuna mzigo uliofika leo ambao haujaandikwa?".
 BAADA-YA-BATCH: kipimo kimoja cha thamani ya stock = avg (ripoti ya uendeshaji + ukurasa wa Store; Store isitoe 0 kwa bidhaa iliyopo).
 Endelea na (bv).
+
+## 2026-11-02 (cb)
+64: imekamilika prod (J1 28,500; J2 imerukwa). Chief ataamua J2 baadaye — 64 ibaki inaweza kuandika J2 peke yake.
+Kanuni ya sababu: itumike kwa maandishi MAPYA tu. Submit/approve/close ya rekodi yenye sababu ya zamani "takataka" isizuiwe.
+  Jaribio: reco ya zamani yenye "nnnn" → approve inapita; reopen mpya yenye "rrrrrrrrrr" → inakataliwa.
+558 vs 559: tayari umeeleza kwenye (br) (559 ilikuwa na hesabu ya ziada). Funga.
+Oktoba: usipendekeze kufunga mpaka reco ya 31/10 iidhinishwe na 65 ikaguliwe.
+Kisha onyo la manunuzi, B5.
