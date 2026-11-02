@@ -449,3 +449,11 @@ Ripoti ya uendeshaji: ongeza mistari ya 6700 (droo), 6120 (madeni yaliyosamehewa
 BAADA-YA-BATCH, kipaumbele "kabla ya 31/12": malipo ya mwaka (pango, TRA) → 1160 prepaid + amortization ya kila mwezi
   (scheduler kama 1150). 2026 isiguswe.
 Kisha onyo la manunuzi, kisha B5.
+
+## 2026-11-02 (bs)
+1120: salio la kila mfanyakazi, makusanyo yake 2026 (nani, lini, kiasi), na kama mshahara wa Oktoba ulikatwa.
+  Kusoma tu, ripoti fupi.
+Punguzo: orodha ya sale zote 2026 zenye punguzo — tarehe, cashier (jina, siyo uid), mteja, punguzo, gharama, margin.
+  Weka alama kwa zilizo chini ya gharama.
+BAADA-YA-BATCH, kipaumbele cha juu: punguzo linaloifanya sale kuwa chini ya gharama → linahitaji ruhusa ya CEO + sababu.
+Kisha onyo la manunuzi, kisha B5. Usisubiri logs zangu — endelea.
