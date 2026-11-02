@@ -3,6 +3,18 @@
 Vitu vilivyoamuliwa na mmiliki kufanyika baada ya batch ya 16/11/2026. Havimo kwenye kifurushi. Kila kimoja kinaanza kwa muundo
 na majibu ya mmiliki kabla ya code.
 
+## 0. KIPAUMBELE CHA JUU: punguzo linaloifanya sale kuwa chini ya gharama (mmiliki 02/11 bs)
+- Sababu: sale zote 3 za 2026 zenye punguzo ziliuzwa chini ya gharama (hasara −103,841.22; 101026-2209 punguzo 100,000 kwa
+  114,500). Sale 2 zilizofutwa zilikuwa na punguzo la 280,000 na 135,000. Ripoti: analysis/toleo2/RIPOTI-BS-02-11.md.
+- Kanuni (backend, siyo V3 tu): ikiwa total ya sale baada ya punguzo < gharama ya mistari yake (cost_per_piece × idadi,
+  bei ileile inayotumika kwa COGS) → sale inakataliwa isipokuwa mtumiaji ana ruhusa ya CEO (ruhusa mpya, kama
+  SALE_DELETE_REVIEW) NA ametoa sababu (lazima, ≥ 10 herufi).
+- Inahusu kila njia: sale mpya, edit ya sale, na punguzo linaloongezwa baadaye. Inarekodiwa (nani, sababu, gharama, total)
+  kama audit ya A6, na CEO anapata notification.
+- V3: POS ionyeshe "chini ya gharama kwa X" kabla ya kuhifadhi; mtumiaji asiye na ruhusa haoni kitufe cha kuendelea.
+- Majaribio: punguzo ndani ya margin → inaruhusiwa; chini ya gharama bila ruhusa → 403; CEO bila sababu → 400;
+  CEO + sababu → inaruhusiwa na kurekodiwa; mutation.
+
 ## 1. Akiba ya mkopo kama akaunti halisi 1010 (mmiliki 01/11 bj)
 
 > "Akiba ya mkopo: akaunti 1010, Dr 1010/Cr 1000 kila siku kupitia reco, repayment kutoka 1010".
