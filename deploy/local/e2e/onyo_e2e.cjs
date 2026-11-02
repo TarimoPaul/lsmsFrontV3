@@ -56,7 +56,8 @@ const sql = (q) => execFileSync('docker', ['exec', '-i', 'lsms-local-postgres-1'
   const send = page.locator('button.send');
   const dlg = page.locator('lsms-confirm-dialog');
   await send.click();
-  await dlg.waitFor({ timeout: 10000 }).catch(() => undefined);
+  // (cg) wait for the dialog's text, not just the element
+  await dlg.filter({ hasText: /Kreti au chupa|Crate or bottle/ }).waitFor({ timeout: 10000 }).catch(() => undefined);
   const dlgText = (await dlg.count()) ? await dlg.innerText() : '';
   ok('O3 kutuma: dialogi "Kreti au chupa?" inataja bidhaa na x', /Kreti au chupa|Crate or bottle/.test(dlgText) && dlgText.includes(name) && /×\d/.test(dlgText), JSON.stringify(dlgText.slice(0, 300)));
   await dlg.getByRole('button', { name: /^(Rekebisha|Fix it)$/ }).click();

@@ -94,7 +94,8 @@ let cleanup = async () => undefined;
     await setPrice(Number(hCost) * 10);
     ok('H2 kuhariri: bei x10 -> "kreti au chupa?" (ya manunuzi ya mwisho)', (await jump.count()) === 1 && /manunuzi ya mwisho|last purchase/.test(await jump.innerText()), await jump.count());
     await save.click();
-    await dlg.waitFor({ timeout: 10000 }).catch(() => undefined);
+    // (cg) the dialog is attached before its text is rendered: wait for the text itself
+    await dlg.filter({ hasText: /Kreti au chupa|Crate or bottle/ }).waitFor({ timeout: 10000 }).catch(() => undefined);
     const t = (await dlg.count()) ? await dlg.innerText() : '';
     ok('H3 kuhifadhi: dialogi "Kreti au chupa?" inataja bidhaa', /Kreti au chupa|Crate or bottle/.test(t) && t.includes(hName.slice(0, 10)), JSON.stringify(t.slice(0, 200)));
     await dlg.getByRole('button', { name: /^(Rekebisha|Fix it)$/ }).click();
@@ -132,7 +133,7 @@ let cleanup = async () => undefined;
   await setPrice(AVG * 10);
   ok('N2 ununuzi mpya: bei x10 ya wastani wa Stoo -> onyo', (await jump.count()) === 1 && /wastani wa gharama Stoo|average cost in Store/.test(await jump.innerText()), await jump.count());
   await save.click();
-  await dlg.waitFor({ timeout: 10000 }).catch(() => undefined);
+  await dlg.filter({ hasText: /Kreti au chupa|Crate or bottle/ }).waitFor({ timeout: 10000 }).catch(() => undefined);
   ok('N3 kuhifadhi: dialogi "Kreti au chupa?"', (await dlg.count()) === 1 && /Kreti au chupa|Crate or bottle/.test(await dlg.innerText()));
   if (await dlg.count()) await dlg.getByRole('button', { name: /^(Rekebisha|Fix it)$/ }).click();
   await page.waitForTimeout(600);
