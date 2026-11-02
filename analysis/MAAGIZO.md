@@ -537,3 +537,10 @@ Kanuni ya sababu: itumike kwa maandishi MAPYA tu. Submit/approve/close ya rekodi
 558 vs 559: tayari umeeleza kwenye (br) (559 ilikuwa na hesabu ya ziada). Funga.
 Oktoba: usipendekeze kufunga mpaka reco ya 31/10 iidhinishwe na 65 ikaguliwe.
 Kisha onyo la manunuzi, B5.
+
+## 2026-11-02 (ca)
+66 prod: GL 1200 4,458,775.51 = daftari 4,458,766.74 (−8.77). Hakuna uchunguzi zaidi wa 1200; cutover D itumie Σ stock×avg.
+Ukurasa wa Store: "Thamani ya mzigo" = Σ stock × current_average_cost (siyo wastani wa miezi 6; isitoe 0 kwa bidhaa iliyopo).
+  Kadiria: ≤ saa 1 → batch (B), vinginevyo BAADA. Jaribio: jumla ya ukurasa = daftari.
+HENNESY ce1fd75d: kwa nini stockValueAt inaona 2 wakati current_stock 0? Onyesha mwendo wake; ikiwa ni tarehe ya mwendo, rekebisha stockValueAt (batch).
+65: imekaguliwa — hakuna hatua ya ziada. Kisha onyo la manunuzi, B5.
