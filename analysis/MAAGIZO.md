@@ -457,3 +457,14 @@ Punguzo: orodha ya sale zote 2026 zenye punguzo — tarehe, cashier (jina, siyo 
   Weka alama kwa zilizo chini ya gharama.
 BAADA-YA-BATCH, kipaumbele cha juu: punguzo linaloifanya sale kuwa chini ya gharama → linahitaji ruhusa ya CEO + sababu.
 Kisha onyo la manunuzi, kisha B5. Usisubiri logs zangu — endelea.
+
+## 2026-11-02 (bt)
+1120 macheda (1,000,301.88): uchambuzi kwa chanzo, kusoma tu:
+  - kwa mwezi; kwa aina (stock count shortage / droo / nyingine);
+  - kwa bidhaa: kiasi kwa bei ya kuuza na kwa gharama;
+  - sehemu inayotokana na: bidhaa za kupima, bidhaa zenye NO_ACTION inayojirudia, bidhaa zenye unit-cost isiyo ya kawaida (62 g).
+  - Jumla ya 4900 iliyotokana na tozo hizi 2026.
+15/10 (55,500): kwa kila malipo — reco ya siku hiyo ilihesabu ziada hiyo? Je, 1000 imeongezeka mara mbili? Onyesha journal zote mbili.
+BAADA-YA-BATCH §0: tozo ya mfanyakazi kwa GHARAMA (Dr 1120 / Cr 1200), bila 4900; tofauti ya bei ya kuuza iandikwe tu ikilipwa
+  (au kwa makubaliano ya maandishi).
+Kisha onyo la manunuzi, kisha B5.
