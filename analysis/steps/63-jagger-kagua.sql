@@ -12,6 +12,11 @@ SELECT 'J63_KIPINDI|' || m || '|' || coalesce((SELECT status FROM gl_period WHER
 SELECT 'J63_BIDHAA|' || uid || '|' || product_name || '|' || coalesce(current_stock, 0) || '|' || coalesce(current_average_cost, 0)
        || '|' || coalesce(last_purchase_cost, 0) || '|' || coalesce(is_deleted, false)
   FROM products WHERE uid = :'P';
+-- (bx) Kifurushi cha bidhaa: kabla 6 / 6 / 336,000; baada 1 / 1 / 0.
+SELECT 'J63_KIFURUSHI|' || coalesce(pieces_per_package::text, 'null') || '|' || coalesce(whole_package_quantity::text, 'null')
+       || '|' || coalesce(whole_sale_price::text, 'null')
+  FROM products WHERE uid = :'P';
+SELECT 'J63_AUDIT_KIFURUSHI_IPO|' || count(*) FROM audit_trails WHERE action = 'PRODUCT_PACKAGE_CORRECTION' AND additional_data LIKE '%' || :'P' || '%';
 -- Hesabu ya 13/10 (nanga): marekebisho yake na mwendo wake wa stock.
 SELECT 'J63_NANGA|' || a.uid || '|' || a.adjustment_qty || '|' || a.adjustment_value || '|' || coalesce(a.gl_reference_uid, '-')
        || '|' || coalesce(s.uid, '-') || '|' || coalesce(s.stock_before, -1) || '->' || coalesce(s.stock_after, -1)

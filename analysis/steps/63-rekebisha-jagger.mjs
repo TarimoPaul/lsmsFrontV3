@@ -61,9 +61,15 @@ function kagua({ quiet = false } = {}) {
     mwendoIpo: Number(row('J63_MWENDO_IPO')?.[1]),
     journalIpo: Number(row('J63_JOURNAL_IPO')?.[1]),
     auditIpo: Number(row('J63_AUDIT_IPO')?.[1]),
+    kifurushi: (() => { const x = row('J63_KIFURUSHI'); return x && { chupa: x[1], wholeQty: x[2], bei: x[3] }; })(),
+    auditKifurushi: Number(row('J63_AUDIT_KIFURUSHI_IPO')?.[1]),
     tb: Number(row('J63_TB')?.[1]),
   };
 }
+
+// (bx) package: a bottle, not a carton of 6.
+const kifKabla = (k) => !!k.kifurushi && k.kifurushi.chupa === '6' && k.kifurushi.wholeQty === '6' && same(k.kifurushi.bei, 336000);
+const kifBaada = (k) => !!k.kifurushi && k.kifurushi.chupa === '1' && k.kifurushi.wholeQty === '1' && same(k.kifurushi.bei, 0);
 
 function kaguaChecks(k) {
   check('63.k1 kagua imekamilika', k.imekamilika, 'SQL ya kagua ilifika mwisho');
@@ -81,6 +87,10 @@ function kaguaChecks(k) {
   check('63.k9 kila sehemu imeandikwa mara 0 au 1', [k.journalIpo, k.mwendoIpo, k.auditIpo].every((c) => c === 0 || c === 1),
     `journal ${k.journalIpo}, movement ${k.mwendoIpo}, audit ${k.auditIpo}`);
   check('63.k10 TB 0', same(k.tb, 0), money(k.tb));
+  const kif = k.kifurushi ? `chupa_kwa_kifurushi ${k.kifurushi.chupa}, whole_package_quantity ${k.kifurushi.wholeQty}, bei_kifurushi ${k.kifurushi.bei}` : 'HAIPO';
+  check('63.k11 (bx) kifurushi: kabla 6 / 6 / 336,000 au tayari 1 / 1 / 0', kifKabla(k) || kifBaada(k), kif);
+  console.log(`PREVIEW 63: (bx) kifurushi KABLA: ${kif}`);
+  console.log(`PREVIEW 63: (bx) kifurushi BAADA: chupa_kwa_kifurushi 1, whole_package_quantity 1, bei_kifurushi 0 (+ audit)${kifBaada(k) ? ' (TAYARI - itarukwa)' : ''}`);
   const dr = k.cr.length === 1 ? k.cr[0].akaunti : '?';
   if (k.cr.length === 1) console.log(`PREVIEW 63: 13/10 Cr ${dr} ${money(k.cr[0].kiasi)} (${k.cr[0].journal}) -> journal Dr ${dr}`);
   console.log(`PREVIEW 63: journal ${TAREHE} Dr ${dr} ${money(k.nanga?.kiasi)} / Cr 1200 ${money(k.nanga?.kiasi)} "${SABABU}"${k.journalIpo ? ' (TAYARI IPO - itarukwa)' : ''}`);
@@ -168,7 +178,37 @@ SELECT 'J63_BAADA|' || current_stock || '|' || current_average_cost FROM product
   check('63.a3 movement -5 imeandikwa, stock 1 (SQL)', out.includes(`J63_BAADA|${BAADA}|${GHARAMA}.00`), out.filter((l) => l.startsWith('J63_BAADA')).join(' '));
 }
 
-// 3) Checks after.
+// 3) (bx) Package 6 / 6 / 336,000 -> 1 / 1 / 0, with audit, one transaction; skipped when already done.
+if (kifBaada(k)) {
+  check('63.a3b kifurushi tayari 1 / 1 / 0 - imerukwa', true, 'hakuna SQL');
+} else {
+  const out = sql(`\\set ON_ERROR_STOP on
+BEGIN;
+DO $$
+DECLARE a int; w int; b numeric; t timestamp := now() AT TIME ZONE 'Africa/Dar_es_Salaam';
+BEGIN
+  SELECT pieces_per_package, whole_package_quantity, whole_sale_price INTO a, w, b FROM products WHERE uid = '${P}' FOR UPDATE;
+  IF a IS DISTINCT FROM 6 OR w IS DISTINCT FROM 6 OR b IS DISTINCT FROM 336000::numeric THEN
+    RAISE EXCEPTION 'SIYO: kifurushi % / % / % si cha preview (6 / 6 / 336000)', a, w, b;
+  END IF;
+  UPDATE products SET pieces_per_package = 1, whole_package_quantity = 1, whole_sale_price = 0, updated_at = t, updated_by = '${ceoEmail}'
+   WHERE uid = '${P}';
+  INSERT INTO audit_trails (uid, action, module, description, additional_data, timestamp, user_email, user_uid, endpoint)
+  VALUES (replace(gen_random_uuid()::text, '-', ''), 'PRODUCT_PACKAGE_CORRECTION', 'Products',
+          'JAGGER MASTER ni chupa moja (53,000), si kifurushi cha 6: chupa_kwa_kifurushi 6 -> 1, whole_package_quantity 6 -> 1, bei_kifurushi 336000 -> 0 (Chief, 02/11; mmiliki bx)',
+          json_build_object('productUid', '${P}', 'piecesPerPackage', json_build_object('from', a, 'to', 1),
+                            'wholePackageQuantity', json_build_object('from', w, 'to', 1), 'wholeSalePrice', json_build_object('from', b, 'to', 0),
+                            'step', '63')::text,
+          t, '${ceoEmail}', (SELECT uid FROM users WHERE email = '${ceoEmail}' LIMIT 1), 'hatua-63 SQL');
+END $$;
+COMMIT;
+SELECT 'J63_KIFURUSHI_BAADA|' || pieces_per_package || '|' || whole_package_quantity || '|' || whole_sale_price FROM products WHERE uid = '${P}';
+`, { write: true });
+  for (const l of out) console.log(l);
+  check('63.a3b (bx) kifurushi 1 / 1 / 0 (SQL + audit)', out.includes('J63_KIFURUSHI_BAADA|1|1|0.00'), out.filter((l) => l.startsWith('J63_KIFURUSHI_BAADA')).join(' '));
+}
+
+// 4) Checks after.
 const tb1 = await tbAll(today);
 deltaTB('63.a4', 'ya hatua hii', tb0, tb1, tarajio,
   'Rollback: reverse journal ya memo hii kupitia GL, na futa (is_deleted) movement ya marekebisho kwa SQL - niletee log kwanza.');
@@ -178,4 +218,6 @@ check('63.a6 movement na audit vipo mara moja tu', after.mwendoIpo === 1 && afte
 check(`63.a7 stock ${BAADA}, gharama ${money(GHARAMA)}, thamani ${money(BAADA * GHARAMA)}`, after.bidhaa.stock === BAADA && same(after.bidhaa.gharama, GHARAMA),
   `stock ${after.bidhaa.stock} x ${money(after.bidhaa.gharama)} = ${money(after.bidhaa.stock * after.bidhaa.gharama)}`);
 check('63.a8 TB 0', same(after.tb, 0), money(after.tb));
+check('63.a9 (bx) kifurushi 1 / 1 / 0 na audit yake mara moja', kifBaada(after) && after.auditKifurushi === 1,
+  `${after.kifurushi?.chupa} / ${after.kifurushi?.wholeQty} / ${after.kifurushi?.bei}, audit ${after.auditKifurushi}`);
 finish('63 jagger andika');

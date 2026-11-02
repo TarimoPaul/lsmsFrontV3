@@ -10,6 +10,8 @@ rem   MARA YA PILI: andika ANDIKA -^> email + password ya CEO (si root) -^> kagu
 rem     journal 31/10 Dr ^<akaunti ya 13/10^> / Cr 1200 = 265,000 -^> stock movement ADJUSTMENT -5 (6 -^> 1, bei 53,000,
 rem     rejea MAREKEBISHO-COUNT-ADJ-ba9c1a62...) + audit_trails, kwa SQL ndani ya transaction moja -^> ukaguzi: stock 1,
 rem     thamani 53,000, journal na movement mara moja, delta ya TB, TB 0 -^> ---OK---. Ikirudiwa baada ya kukatika: inaendelea.
+rem   (bx) Pia: bidhaa ni CHUPA - chupa_kwa_kifurushi 6 -^> 1, whole_package_quantity 6 -^> 1, bei_kifurushi 336,000 -^> 0 + audit
+rem     (KAGUA inaonyesha kabla/baada; inarukwa ikiwa tayari).
 rem   USIFUNGE OKTOBA kabla ya 63 ANDIKA. Mauzo ya Jagger kati ya KAGUA na ANDIKA yanasimamisha hatua (salama).
 rem Matokeo: analysis\steps\63-rekebisha-jagger.log. Kila output ya Contabo inapita ficha.awk kwenye server.
 setlocal
