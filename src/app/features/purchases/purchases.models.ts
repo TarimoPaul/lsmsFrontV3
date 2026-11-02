@@ -214,11 +214,13 @@ export const COST_JUMP = 3;
  */
 export function costJump(l: RepurchaseLine): number | null {
   const pcs = linePieces(l);
-  const last = l.lastCostPerPiece;
-  if (!last || last <= 0 || !(pcs > 0)) return null;
-  const now = lineTotal(l) / pcs;
-  if (!(now > 0)) return null;
-  const r = now / last;
+  return pcs > 0 ? costJumpRatio(lineTotal(l) / pcs, l.lastCostPerPiece) : null;
+}
+
+/** (cg) the same rule for any cost per piece against a reference (last purchase, else the Store average cost). */
+export function costJumpRatio(costPerPiece: number, reference: number | null | undefined): number | null {
+  if (!reference || reference <= 0 || !(costPerPiece > 0)) return null;
+  const r = costPerPiece / reference;
   return r > COST_JUMP || r < 1 / COST_JUMP ? Math.round(r * 100) / 100 : null;
 }
 
