@@ -148,4 +148,11 @@ Nitaiandaa kama hatua ya faili ikiwa unataka.
 
 ## origin dhidi ya local
 
-ORIGIN_CG
+| repo | tawi | local | origin | hali |
+|---|---|---|---|---|
+| Backend | release/2.4.0 | baf4e31 | 0d1ee71 | TOFAUTI, FF, commit 12 mpya |
+| Backend | main | c98fa07 | c98fa07 | SAWA |
+| V3 | release/3.2.0 | 28afa80 | c540ab8 | TOFAUTI, FF, commit 11 mpya |
+| V3 | main (kabla ya commit ya jedwali hili) | 1773399 | 998dad6 | TOFAUTI, FF, commit 17 mpya |
+
+push-yote bado haijaendeshwa: matawi yote ni FF.
