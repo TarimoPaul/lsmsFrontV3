@@ -81,6 +81,10 @@ import { ReportsService } from './reports.service';
                 <tr><td>− {{ i18n.t('Monthly expenses (rent, salaries…)', 'Gharama za mwezi (pango, mishahara…)') }}</td><td class="n">{{ m(t.monthlyExpenses) }}</td></tr>
                 <tr><td>− {{ i18n.t('Depreciation', 'Uchakavu wa mali') }}</td><td class="n">{{ m(t.depreciation) }}</td></tr>
                 <tr><td>− {{ i18n.t('Stock loss (posted counts)', 'Upotevu wa stoki (uliopostiwa)') }}</td><td class="n" [class.neg]="t.stockLoss > 0">{{ m(t.stockLoss) }}</td></tr>
+                <tr data-test="gl-6700"><td>− {{ i18n.t('Drawer short at day close (6700)', 'Upungufu wa droo kwenye reco (6700)') }}</td><td class="n" [class.neg]="t.cashShortage > 0">{{ m(t.cashShortage) }}</td></tr>
+                <tr data-test="gl-6120"><td>− {{ i18n.t('Debts written off (6110/6120)', 'Madeni yaliyosamehewa (6110/6120)') }}</td><td class="n" [class.neg]="t.debtsWrittenOff > 0">{{ m(t.debtsWrittenOff) }}</td></tr>
+                <tr data-test="gl-dmg"><td>− {{ i18n.t('Stock loss outside counts (damaged…)', 'Upotevu nje ya hesabu (zilizoharibika…)') }}</td><td class="n" [class.neg]="t.stockDamage > 0">{{ m(t.stockDamage) }}</td></tr>
+                <tr data-test="gl-6600"><td>− {{ i18n.t('Loan interest (6600)', 'Riba ya mikopo (6600)') }}</td><td class="n" [class.neg]="t.loanInterest > 0">{{ m(t.loanInterest) }}</td></tr>
                 <tr class="sub"><td>= {{ i18n.t('Net profit', 'Faida halisi') }}</td><td class="n" [class.neg]="t.netProfit < 0">{{ m(t.netProfit) }}</td></tr>
                 <tr><td>− {{ i18n.t('Profit inside debts still unpaid', 'Faida ndani ya madeni yasiyolipwa') }}@if (t.marginInStillOwedEstimated > 0) { <span class="est sm" [title]="estTip()">≈</span> }</td><td class="n">{{ m(t.marginInStillOwed) }}</td></tr>
                 <tr class="sub"><td>= {{ i18n.t('Profit collected', 'Faida iliyokusanywa') }}</td><td class="n" [class.neg]="t.collectedProfit < 0">{{ m(t.collectedProfit) }}</td></tr>
@@ -94,6 +98,7 @@ import { ReportsService } from './reports.service';
               <tbody>
                 <tr><td>{{ i18n.t('Net profit', 'Faida halisi') }}</td><td class="n">{{ m(t.netProfit) }}</td></tr>
                 <tr><td>+ {{ i18n.t('Depreciation (no cash left)', 'Uchakavu (haukutoa pesa)') }}</td><td class="n">{{ m(t.depreciation) }}</td></tr>
+                <tr data-test="ocf-noncash"><td>+ {{ i18n.t('Loan interest and debts written off (no cash left)', 'Riba na madeni yaliyosamehewa (hazikutoa pesa)') }}</td><td class="n">{{ m(t.loanInterest + t.debtsWrittenOff) }}</td></tr>
                 <tr><td>− {{ i18n.t('New debts', 'Madeni mapya') }} <small class="muted">(POS {{ m(t.debtIssuedPos) }} · walk-in {{ m(t.debtIssuedWalkIn) }})</small></td><td class="n">{{ m(t.debtIssuedPos + t.debtIssuedWalkIn) }}</td></tr>
                 <tr><td>+ {{ i18n.t('Debts collected', 'Makusanyo ya madeni') }}</td><td class="n">{{ m(t.debtCollected) }}</td></tr>
                 <tr><td>− {{ i18n.t('Stock value increase (at purchase cost)', 'Ongezeko la thamani ya stoki (bei ya kununua)') }}</td><td class="n" [class.neg]="t.stockChange > 0">{{ signed(t.stockChange) }}</td></tr>
@@ -155,7 +160,7 @@ import { ReportsService } from './reports.service';
                     <td class="n">{{ m(r.revenue) }}</td>
                     <td class="n">{{ m(r.grossProfit) }}</td>
                     <td class="n">{{ m(expenses(r)) }}</td>
-                    <td class="n" [class.neg]="r.stockLoss > 0">{{ r.stockLoss ? m(r.stockLoss) : '—' }}</td>
+                    <td class="n" [class.neg]="loss(r) > 0">{{ loss(r) ? m(loss(r)) : '—' }}</td>
                     <td class="n strong" [class.neg]="r.netProfit < 0">{{ m(r.netProfit) }}</td>
                     <td class="n">{{ issued(r) ? m(issued(r)) : '—' }}</td>
                     <td class="n">{{ r.debtCollected ? m(r.debtCollected) : '—' }}</td>
@@ -172,7 +177,7 @@ import { ReportsService } from './reports.service';
                   <td class="n">{{ m(t.revenue) }}</td>
                   <td class="n">{{ m(t.grossProfit) }}</td>
                   <td class="n">{{ m(expenses(t)) }}</td>
-                  <td class="n">{{ m(t.stockLoss) }}</td>
+                  <td class="n">{{ m(loss(t)) }}</td>
                   <td class="n" [class.neg]="t.netProfit < 0">{{ m(t.netProfit) }}</td>
                   <td class="n">{{ m(issued(t)) }}</td>
                   <td class="n">{{ m(t.debtCollected) }}</td>
@@ -313,8 +318,14 @@ export class ProfitReport {
     return (this.data()?.monthlyItems ?? []).filter((i) => i.month === month);
   }
 
-  protected expenses(r: Pick<PnlDay, 'dailyExpenses' | 'monthlyExpenses' | 'depreciation'>): number {
-    return r.dailyExpenses + r.monthlyExpenses + r.depreciation;
+  /** Day-table "Expenses": also the GL-only charges (6700, 6110/6120, 6600), so the columns add up to Net. */
+  protected expenses(r: Pick<PnlDay, 'dailyExpenses' | 'monthlyExpenses' | 'depreciation' | 'cashShortage' | 'debtsWrittenOff' | 'loanInterest'>): number {
+    return r.dailyExpenses + r.monthlyExpenses + r.depreciation + r.cashShortage + r.debtsWrittenOff + r.loanInterest;
+  }
+
+  /** Day-table "Stock loss": posted counts + loss outside counts (5100). */
+  protected loss(r: Pick<PnlDay, 'stockLoss' | 'stockDamage'>): number {
+    return r.stockLoss + r.stockDamage;
   }
 
   protected issued(r: Pick<PnlDay, 'debtIssuedPos' | 'debtIssuedWalkIn'>): number {
@@ -371,17 +382,19 @@ export class ProfitReport {
       headers: [
         t('Date', 'Tarehe'), t('Sales', 'Mauzo'), t('COGS', 'Gharama ya bidhaa'), t('Gross profit', 'Faida ghafi'),
         t('Daily expenses', 'Gharama za siku'), t('Monthly expenses', 'Gharama za mwezi'), t('Depreciation', 'Uchakavu'),
-        t('Stock loss', 'Upotevu wa stoki'), t('Net profit', 'Faida halisi'), t('New debts POS', 'Madeni mapya POS'),
+        t('Stock loss', 'Upotevu wa stoki'), t('Drawer short (6700)', 'Droo (6700)'), t('Debts written off', 'Madeni yaliyosamehewa'),
+        t('Loss outside counts', 'Upotevu nje ya hesabu'), t('Loan interest (6600)', 'Riba (6600)'), t('Net profit', 'Faida halisi'), t('New debts POS', 'Madeni mapya POS'),
         t('New debts walk-in', 'Madeni mapya walk-in'), t('Collected', 'Makusanyo'), t('Adjusted (non-cash)', 'Marekebisho'),
         t('Still owed', 'Bado deni'), t('Profit in still owed', 'Faida ndani ya bado deni'), t('of which estimated', 'kati yake makadirio'),
         t('Profit collected', 'Faida iliyokusanywa'),
       ],
       rows: (this.data()?.days ?? []).map((r) => [
-        r.date, r.revenue, r.cogs, r.grossProfit, r.dailyExpenses, r.monthlyExpenses, r.depreciation, r.stockLoss, r.netProfit,
+        r.date, r.revenue, r.cogs, r.grossProfit, r.dailyExpenses, r.monthlyExpenses, r.depreciation, r.stockLoss,
+        r.cashShortage, r.debtsWrittenOff, r.stockDamage, r.loanInterest, r.netProfit,
         r.debtIssuedPos, r.debtIssuedWalkIn, r.debtCollected, r.debtAdjusted, r.stillOwed, r.marginInStillOwed,
         r.marginInStillOwedEstimated, r.collectedProfit,
       ].map((c) => (typeof c === 'number' ? Math.round(c) : c))),
-      numeric: Array.from({ length: 16 }, (_, i) => i + 1),
+      numeric: Array.from({ length: 20 }, (_, i) => i + 1),
     };
   }
 

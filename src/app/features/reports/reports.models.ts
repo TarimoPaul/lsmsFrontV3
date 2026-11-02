@@ -230,6 +230,14 @@ export interface PnlDay {
   depreciation: number;
   /** Posted stock loss at cost (negative = net surplus). */
   stockLoss: number;
+  /** From the GL by entry date (backend br): drawer short (6700, negative = over). */
+  cashShortage: number;
+  /** Debts waived / written off (6110/6120). */
+  debtsWrittenOff: number;
+  /** Stock lost outside counts, e.g. damaged goods (5100). */
+  stockDamage: number;
+  /** Loan interest (6600). */
+  loanInterest: number;
   netProfit: number;
   debtIssuedPos: number;
   debtIssuedWalkIn: number;

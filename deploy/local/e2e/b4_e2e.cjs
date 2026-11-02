@@ -95,6 +95,20 @@ function untamper() {
   const un0 = card.locator('tr[data-code="ISIYOELEZEKA"]');
   ok('D4 isiyoelezeka 0.00, si nyekundu', Math.abs(br.unexplained) < 0.005 && !(await un0.getAttribute('class')).includes('bad') && /0\.00/.test(await un0.innerText()), await un0.innerText());
 
+  // (br) the GL-only charges are rows of "How net profit is reached" and the rows add up to the net shown.
+  const pt = (await api('GET', '/api/reports/daily-pnl?from=2026-10-01&to=2026-10-31', ct)).j.data.totals;
+  const rowsBr = [['gl-6700', 'cashShortage'], ['gl-6120', 'debtsWrittenOff'], ['gl-dmg', 'stockDamage'], ['gl-6600', 'loanInterest']];
+  let sameBr = true;
+  for (const [dt, k] of rowsBr) {
+    const t = await page.locator(`tr[data-test="${dt}"] td.n`).innerText();
+    if (Math.abs(num(t) - Math.round(pt[k])) > 1) { sameBr = false; console.log('  tofauti', dt, t, pt[k]); }
+  }
+  ok(`D6 mistari ya GL (droo ${Math.round(pt.cashShortage)}, madeni ${Math.round(pt.debtsWrittenOff)}, DMG ${Math.round(pt.stockDamage)}, riba ${Math.round(pt.loanInterest)}) = API`, sameBr);
+  const sumNet = pt.grossProfit - pt.dailyExpenses - pt.monthlyExpenses - pt.depreciation - pt.stockLoss
+    - pt.cashShortage - pt.debtsWrittenOff - pt.stockDamage - pt.loanInterest;
+  ok(`D7 mistari inajumlika hadi faida halisi ${Math.round(pt.netProfit)} = net ya daraja`,
+    Math.abs(sumNet - pt.netProfit) < 0.05 && Math.abs(pt.netProfit - br.operatingNet) < 0.05, `${sumNet} ${pt.netProfit} ${br.operatingNet}`);
+
   tamper();
   await openProfit();
   const un1 = page.locator('[data-test="daraja"] tr[data-code="ISIYOELEZEKA"]');
