@@ -50,13 +50,22 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
   Hali ya 29/10 (nakala, kusoma tu): Moon Light −9 (18,000), Konyagi −10 (10,000), Golden King −9 (9,000), Gilbeys −9 (9,000),
   Camino 0, Wine 0 → **46,000 kwa gharama, haijaandikwa** (kila hesabu ilipata 0; hakuna stock_adjustment hata moja ya kupima).
 
-## 3. Manunuzi: kifurushi kilichoingizwa kama kipande (uchunguzi (bn) f, nakala ya 29/10)
+## 3. Manunuzi na SKU za Jagger (uchunguzi (bn) f; IMEREKEBISHWA na mmiliki 02/11 bw)
 
-- JAGGER MASTER (kifurushi = chupa 6): 07/09 na 22/09 kifurushi 1 kwa 53,000 → 8,833.33 kwa chupa (sahihi). 11/10 kilekile
-  kiliingizwa PER_PIECE → 53,000 kwa CHUPA, stock +1 badala ya +6. Hesabu ya 12–13/10 ilipata 6 → +5 × 53,000 = 265,000
-  (thamani halisi ya chupa 6 ni 53,000). 1200 imezidi kwa takriban 265,000. Hatua 62 (f) itathibitisha kwenye prod.
-- Kinga inayopendekezwa: bidhaa yenye pieces_per_package > 1 inaponunuliwa PER_PIECE kwa bei iliyo karibu na bei ya kifurushi
-  (mf. ≥ 80% ya gharama ya mwisho ya kifurushi) → onyo/kukataliwa mpaka ithibitishwe.
+- **Uamuzi wa Chief (bw):** JAGGER MASTER 886dc1ed ni CHUPA moja = 53,000 (TAKAWEDO), bei ya kuuza 60,000, dukani ipo 1.
+  Kosa ni hesabu ya 13/10 (6 badala ya 1), si gharama. Hatua 63 v3 inarekebisha (stock 6 → 1, journal 31/10 Dr 5100 /
+  Cr 1200 265,000). Maelezo ya zamani hapa ("kifurushi cha 6, 8,833.33 kwa chupa sahihi") YAMEFUTWA.
+- **Matokeo ya uamuzi huo kwa historia (kusoma tu, hayajarekebishwa):** manunuzi ya 07/09 na 22/09 yaliingizwa kama kifurushi
+  1 = chupa 6 kwa 8,833.33. Ikiwa kila moja lilikuwa chupa 1 ya 53,000, mfumo ulipata +5 za uongo kila mara. Hesabu za
+  13/09 (−4, 35,333.32) na 03/10 (−5, 44,166.65) ziliandika upotevu (5100) wa chupa ambazo hazikuwahi kuwepo, na mauzo
+  ya 30/09 yalipata COGS 8,833.33 badala ya 53,000. Jumla ya faida haibadiliki (53,000 kwa chupa iliingia gharama kwa njia
+  zote mbili), ila mgawanyo COGS / upotevu si sahihi. Bidhaa bado ina pieces_per_package 6 na bei ya kifurushi 336,000.
+- **SKU 4 za Jagger (mmiliki bw):** 886dc1ed JAGGER MASTER (53,000), 4d727520 JAGER MASTER (42,000), 4453f20a JAGER MASTER
+  (29,000), 6dc452f6 JAGGER MASTER (20,000). Majina yaonyeshe saizi (mf. "JAGERMEISTER 1L / 700ML / 350ML / 200ML");
+  zile zenye saizi moja ziunganishwe, nyingine zibadilishwe majina. pieces_per_package ya 886dc1ed irekebishwe ikiwa
+  haiuzwi kwa kifurushi. Orodha ya saizi halisi kutoka kwa Chief kwanza.
+- Kinga inayopendekezwa (onyo la manunuzi, B): bidhaa yenye pieces_per_package > 1 inaponunuliwa kwa gharama kwa kipande
+  > 3× au < ⅓ ya ya mwisho → onyo "carton au chupa?" mpaka ithibitishwe.
 
 ## 4. Malipo ya mwaka kama prepaid 1160 (mmiliki 01/11 br) - KIPAUMBELE: kabla ya 31/12/2026
 - Malipo yanayolipwa kwa mwaka mzima (pango, TRA, n.k.): Dr 1160 (prepaid) / Cr akaunti ya pesa siku ya malipo,
