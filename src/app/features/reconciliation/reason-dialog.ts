@@ -1,8 +1,10 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogShell, Icon } from '@shared/ui';
+
+import { JUNK_HINT, isJunkReason } from './reason-quality';
 
 export interface ReasonDialogData {
   title: string;
@@ -12,6 +14,8 @@ export interface ReasonDialogData {
   danger?: boolean;
   /** Minimum characters before confirming (default 3). */
   min?: number;
+  /** (bv) Refuse a junk reason (one repeated letter, < 4 different letters) — where the server refuses it too. */
+  quality?: boolean;
 }
 
 /** Asks for a required reason (delete a debt, reject a deposit …). Closes with the trimmed text. */
@@ -28,9 +32,12 @@ export interface ReasonDialogData {
         <span>{{ data.label }}</span>
         <textarea rows="3" maxlength="500" [value]="text()" (input)="text.set($any($event.target).value)" autofocus></textarea>
       </label>
+      @if (junk()) {
+        <p class="junk"><lsms-icon name="error" [size]="15" />{{ i18n.t(hint.en, hint.sw) }}</p>
+      }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-        <button [lsmsButton]="data.danger ? 'danger' : 'primary'" [disabled]="text().trim().length < (data.min ?? 3)" (click)="ref.close(text().trim())">{{ data.confirm }}</button>
+        <button [lsmsButton]="data.danger ? 'danger' : 'primary'" [disabled]="text().trim().length < (data.min ?? 3) || junk()" (click)="ref.close(text().trim())">{{ data.confirm }}</button>
       </ng-container>
     </lsms-dialog>
   `,
@@ -42,6 +49,7 @@ export interface ReasonDialogData {
     label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
     textarea { padding: 9px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.86rem; color: var(--c-text); outline: none; resize: vertical; }
     textarea:focus { border-color: var(--c-primary); }
+    .junk { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 0.78rem; color: var(--c-error); }
   `,
 })
 export class ReasonDialog {
@@ -49,4 +57,6 @@ export class ReasonDialog {
   protected readonly ref = inject<DialogRef<string>>(DialogRef);
   protected readonly i18n = inject(LanguageService);
   protected readonly text = signal('');
+  protected readonly hint = JUNK_HINT;
+  protected readonly junk = computed(() => !!this.data.quality && isJunkReason(this.text()));
 }
