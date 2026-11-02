@@ -3,7 +3,9 @@
 Vitu vilivyoamuliwa na mmiliki kufanyika baada ya batch ya 16/11/2026. Havimo kwenye kifurushi. Kila kimoja kinaanza kwa muundo
 na majibu ya mmiliki kabla ya code.
 
-## 0. KIPAUMBELE CHA JUU: punguzo linaloifanya sale kuwa chini ya gharama (mmiliki 02/11 bs)
+## 0. KIPAUMBELE CHA JUU
+
+### 0.1 Punguzo linaloifanya sale kuwa chini ya gharama (mmiliki 02/11 bs)
 - Sababu: sale zote 3 za 2026 zenye punguzo ziliuzwa chini ya gharama (hasara −103,841.22; 101026-2209 punguzo 100,000 kwa
   114,500). Sale 2 zilizofutwa zilikuwa na punguzo la 280,000 na 135,000. Ripoti: analysis/toleo2/RIPOTI-BS-02-11.md.
 - Kanuni (backend, siyo V3 tu): ikiwa total ya sale baada ya punguzo < gharama ya mistari yake (cost_per_piece × idadi,
@@ -14,6 +16,15 @@ na majibu ya mmiliki kabla ya code.
 - V3: POS ionyeshe "chini ya gharama kwa X" kabla ya kuhifadhi; mtumiaji asiye na ruhusa haoni kitufe cha kuendelea.
 - Majaribio: punguzo ndani ya margin → inaruhusiwa; chini ya gharama bila ruhusa → 403; CEO bila sababu → 400;
   CEO + sababu → inaruhusiwa na kurekodiwa; mutation.
+
+### 0.2 Tozo ya mfanyakazi kwa GHARAMA (mmiliki 02/11 bt)
+- Leo (V130, tangu Oktoba): tozo ya hesabu = Dr 1120 bei ya kuuza / Cr 1200 gharama / Cr 4900 tofauti. 2026: 4900 yote
+  (57,486.54) ni ya tozo hizi. Ripoti: analysis/toleo2/RIPOTI-BT-02-11.md.
+- Kanuni mpya: tozo = Dr 1120 / Cr 1200 kwa GHARAMA tu, bila 4900. Tofauti ya bei ya kuuza inaandikwa tu inapolipwa
+  (Dr 1000 / Cr 4900 juu ya sehemu ya gharama) au kwa makubaliano ya maandishi yaliyohifadhiwa (nani, lini, kiasi).
+- Inagusa CountingCharge / postStaffCharge, ripoti ya madai (deni kwa gharama + "tofauti inayodaiwa" kando) na malipo
+  (mgawanyo gharama → 1120 kwanza, kisha 4900).
+- Majaribio: tozo → 1120 = gharama; malipo kamili → 4900 = tofauti; msamaha → 5100 kwa gharama tu; mutation.
 
 ## 1. Akiba ya mkopo kama akaunti halisi 1010 (mmiliki 01/11 bj)
 
