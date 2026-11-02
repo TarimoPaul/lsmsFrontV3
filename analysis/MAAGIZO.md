@@ -514,3 +514,11 @@ Pepsi: andaa 65-futa-tozo-pepsi.cmd (KAGUA → 🛑 → ANDIKA), isiendeshwe bil
   moja + audit, maelezo "Tozo isiyo sahihi: ziada ilifuata". Idadi ya stock ya Pepsi isiguswe — hesabu ijayo itaiweka.
   Onyesha pia: hali ya stock ya Pepsi leo (mfumo dhidi ya hesabu ya mwisho).
 Kisha onyo la manunuzi, kisha B5.
+
+## 2026-11-02 (bz)
+63 ANDIKA imekamilika prod (PASS 21/0): MJ:fc0e0320…, Jagger stock 1 @ 53,000, kifurushi 1/1/0, 1200 4,578,975.35.
+Uchunguzi mpya (kusoma tu, hatua 66): 1200 ya GL (4,578,975.35 baada ya 63) dhidi ya thamani ya daftari la stock
+  (Σ stock × current_average_cost) leo. Tofauti kwa: bidhaa kumi kubwa, na chanzo — movements zisizo na journal
+  (aina, jumla), stock ya mwanzo, purchases bila journal, tofauti ya average vs last cost. Pia: ripoti ya uendeshaji
+  inatumia gharama ipi kwa "Stock value"? Hii lazima ijulikane kabla ya cutover D (hatua 60).
+Kisha (bv), onyo la manunuzi, B5.

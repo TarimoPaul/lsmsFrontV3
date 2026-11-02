@@ -1,0 +1,65 @@
+---MWENDESHO-63--- 
+log ya 62 imekamilika ---OK--- 
+PROD_API ni https://elikom.co.tz 
+---FICHA-KWENDA-CONTABO--- 
+[exit 0] 
+mmiliki ameandika: ANDIKA 
+email iliyoandikwa: tarimo@gmail.com 
+---ANDIKA--- 
+time="2026-11-02T12:06:15+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+J63_TAREHE|2026-11-02
+J63_KIPINDI|10|OPEN
+J63_BIDHAA|886dc1ed-2793-453c-bc9f-2c1e251ec5de|JAGGER MASTER|6|53000.00|53000.00|false
+J63_KIFURUSHI|6|6|336000.00
+J63_AUDIT_KIFURUSHI_IPO|0
+J63_NANGA|92dec6cb-7580-4c68-b928-d52c99c8c77c|5|265000.00|COUNT:92dec6cb-7580-4c68-b928-d52c99c8c77c|e2c00d06-18dc-4aee-afc4-b081493a9ac2|1->6|53000|2026-10-13 09:48:10.847938
+J63_HESABU_CR|5100|265000.00|JE-2026-997155843737872 2026-10-13
+J63_NANGA_1200|265000.00
+J63_MWENDO_BAADA|0|-
+J63_MAUZO_TANGU|0|-
+J63_MWENDO_IPO|0|-
+J63_JOURNAL_IPO|0|-
+J63_AUDIT_IPO|0
+J63_TB|0.00
+J63_KAGUA_IMEKAMILIKA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+PASS 63.k1 kagua imekamilika: SQL ya kagua ilifika mwisho
+PASS 63.k2 Oktoba iko wazi (au journal ya 31/10 imeshaandikwa): Oktoba OPEN
+PASS 63.k3 gharama ya Jagger ni 53,000 (inabaki): wastani 53,000, ya mwisho 53,000, imefutwa=false
+PASS 63.k4 hesabu ya 13/10: +5 kwa 53,000 (1 -> 6), 265,000: qty 5, 265,000, 1->6, bei 53000
+PASS 63.k5 journal ya 13/10 ilipa credit akaunti MOJA tu, kiasi = marekebisho: Cr 5100 265,000 (JE-2026-997155843737872 2026-10-13) / Dr 1200 265,000
+PASS 63.k6 hakuna mwendo wa stock wa Jagger tangu 13/10 (isipokuwa wa hatua hii): 0: -
+PASS 63.k7 hakuna mauzo ya Jagger tangu 13/10: 0: -
+PASS 63.k8 stock ya mfumo bado 6: stock 6
+PASS 63.k9 kila sehemu imeandikwa mara 0 au 1: journal 0, movement 0, audit 0
+PASS 63.k10 TB 0: 0
+PASS 63.k11 (bx) kifurushi: kabla 6 / 6 / 336,000 au tayari 1 / 1 / 0: chupa_kwa_kifurushi 6, whole_package_quantity 6, bei_kifurushi 336000.00
+PREVIEW 63: (bx) kifurushi KABLA: chupa_kwa_kifurushi 6, whole_package_quantity 6, bei_kifurushi 336000.00
+PREVIEW 63: (bx) kifurushi BAADA: chupa_kwa_kifurushi 1, whole_package_quantity 1, bei_kifurushi 0 (+ audit)
+PREVIEW 63: 13/10 Cr 5100 265,000 (JE-2026-997155843737872 2026-10-13) -> journal Dr 5100
+PREVIEW 63: journal 2026-10-31 Dr 5100 265,000 / Cr 1200 265,000 "Hesabu ya 13/10 ilikosewa: 6 badala ya 1 (Chief, 02/11)"
+PREVIEW 63: stock movement ADJUSTMENT -5 (6 -> 1), bei 53,000, rejea MAREKEBISHO-COUNT-ADJ-ba9c1a62-8d71-49e5-b345-9cb44144da2c
+PREVIEW 63: gharama inabaki 53,000; baada: stock 1, thamani 53,000
+PASS 63.a1 namba ni zilezile za preview: Dr 5100 -> 5100; 265,000 -> 265,000; stock 6 -> 6
+MTUMIAJI tarimo@gmail.com | roles: CEO,user | isRoot: false | FINANCE_WRITE: true | prod https://elikom.co.tz
+PASS 63.a2 journal 2026-10-31 Dr 5100 / Cr 1200 265,000 imeandikwa (API): 200 Journal imeandikwa MJ:fc0e0320-8392-464c-836e-65325f4c05d8
+time="2026-11-02T12:06:22+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+J63_BAADA|1|53000.00
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+PASS 63.a3 movement -5 imeandikwa, stock 1 (SQL): J63_BAADA|1|53000.00
+time="2026-11-02T12:06:26+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+J63_KIFURUSHI_BAADA|1|1|0.00
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+PASS 63.a3b (bx) kifurushi 1 / 1 / 0 (SQL + audit): J63_KIFURUSHI_BAADA|1|1|0.00
+  delta ya hatua hii 1200: 4,843,975.35 -> 4,578,975.35 = -265,000 (inatarajiwa -265,000)
+  delta ya hatua hii 5100: 357,935.41 -> 622,935.41 = 265,000 (inatarajiwa 265,000)
+  delta ya hatua hii: akaunti nyingine 25 - delta 0 kama inavyotarajiwa
+PASS 63.a4: TB ya hatua hii: akaunti 27 zote - zilizoguswa = journals, nyingine zote 0
+PASS 63.a5 journal ipo mara moja tu: 1
+PASS 63.a6 movement na audit vipo mara moja tu: movement 1, audit 1
+PASS 63.a7 stock 1, gharama 53,000, thamani 53,000: stock 1 x 53,000 = 53,000
+PASS 63.a8 TB 0: 0
+PASS 63.a9 (bx) kifurushi 1 / 1 / 0 na audit yake mara moja: 1 / 1 / 0.00, audit 1
+MUHTASARI 63 jagger andika (prod): PASS 21, FAIL 0, SKIP 0
+[exit 0] 
+---OK--- 
