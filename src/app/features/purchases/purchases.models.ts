@@ -205,6 +205,23 @@ export function lineTotal(l: RepurchaseLine): number {
   return Math.max(0, Math.round(l.quantity * l.unitPrice * 100) / 100);
 }
 
+/** (owner bo/cf) cost per piece more than this many times the last one (or below 1/x) -> "crate or bottle?". */
+export const COST_JUMP = 3;
+
+/**
+ * Cost per piece of this line ÷ the last purchase's, when it jumped past ×3 or fell below ⅓ — the usual sign of a
+ * crate price typed as a bottle (Jagger 11/10) or the other way round. null when normal or unknown. Warns only.
+ */
+export function costJump(l: RepurchaseLine): number | null {
+  const pcs = linePieces(l);
+  const last = l.lastCostPerPiece;
+  if (!last || last <= 0 || !(pcs > 0)) return null;
+  const now = lineTotal(l) / pcs;
+  if (!(now > 0)) return null;
+  const r = now / last;
+  return r > COST_JUMP || r < 1 / COST_JUMP ? Math.round(r * 100) / 100 : null;
+}
+
 /** Saved at /api/v1/invoices after a repurchase (Flutter `RepurchaseInvoice`). */
 export interface RepurchaseInvoice {
   invoiceNumber: string;

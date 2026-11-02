@@ -14,7 +14,7 @@ import { StoreService } from '../../store/store.service';
 import { HEALTH, StockHealth, StockItem, packagesLabel, stockHealth } from '../../store/store.models';
 import { SuppliersService } from '../../suppliers/suppliers.service';
 import type { PurchaseDetailsResult } from '../purchase-details-dialog';
-import { PURCHASE_STATUS, Purchase, PurchaseStatus, PurchaseType, RepurchasableProduct, RepurchaseLine, linePieces, lineTotal } from '../purchases.models';
+import { PURCHASE_STATUS, Purchase, PurchaseStatus, PurchaseType, RepurchasableProduct, RepurchaseLine, costJump, linePieces, lineTotal } from '../purchases.models';
 import { PurchasesService } from '../purchases.service';
 import { RepurchaseCartStore } from './repurchase-cart.store';
 import type { RepurchaseDoneData } from './repurchase-done-dialog';
@@ -263,6 +263,27 @@ export class RepurchasePage {
     return Math.abs(pct) < 0.1 ? null : pct;
   }
 
+  /** (owner bo/cf) ×ratio vs the last cost per piece when past ×3 / below ⅓, else null. */
+  protected readonly jump = costJump;
+
+  /** "Crate or bottle?" before sending lines whose cost per piece jumped; true = go on. Never refuses. */
+  private async confirmJumps(lines: RepurchaseLine[]): Promise<boolean> {
+    const odd = lines.filter((l) => costJump(l) !== null);
+    if (!odd.length) return true;
+    const rows = odd
+      .map((l) => `• ${l.name}: ${Money.format(this.costPerPiece(l))}/${this.i18n.t('piece', 'kipande')} — ×${costJump(l)} ${this.i18n.t('of the last', 'ya mwisho')} (${Money.format(l.lastCostPerPiece ?? 0)})`)
+      .join('\n');
+    return this.dialogs.confirm({
+      title: this.i18n.t('Crate or bottle?', 'Kreti au chupa?'),
+      message: this.i18n.t(
+        `The cost per piece is far from the last purchase:\n${rows}\n\nCheck the type (crate / piece) and the price before sending.`,
+        `Bei kwa kipande iko mbali sana na manunuzi ya mwisho:\n${rows}\n\nKagua aina (kreti / kipande) na bei kabla ya kutuma.`,
+      ),
+      confirmText: this.i18n.t('The price is right — send', 'Bei ni sahihi — tuma'),
+      cancelText: this.i18n.t('Fix it', 'Rekebisha'),
+    });
+  }
+
   protected margin(l: RepurchaseLine): number | null {
     const sell = l.pieceSalePrice;
     const cost = this.costPerPiece(l);
@@ -338,6 +359,7 @@ export class RepurchasePage {
   protected async submit(): Promise<void> {
     if (!this.canSubmit()) return;
     const lines = this.cart.lines();
+    if (!(await this.confirmJumps(lines))) return;
     this.busy.set(true);
     try {
       const { created, failed } = await this.api.bulkRepurchase(lines);
