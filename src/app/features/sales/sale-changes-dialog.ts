@@ -92,7 +92,7 @@ type Tab = 'pending' | 'history';
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="close()">{{ i18n.t('Close', 'Funga') }}</button>
         @if (tab() === 'pending' && svc.pending().items.length) {
-          <button lsmsButton="primary" icon="done_all" [loading]="busy()" [disabled]="note().trim().length < 3" (click)="ackAll()">
+          <button lsmsButton="primary" icon="done_all" [loading]="busy()" [disabled]="loading() || note().trim().length < 3" (click)="ackAll()">
             {{ i18n.t('Seen (' + svc.pending().items.length + ')', 'Nimeona (' + svc.pending().items.length + ')') }}
           </button>
         }
@@ -169,6 +169,8 @@ export class SaleChangesDialog {
   }
 
   protected async ackAll(): Promise<void> {
+    // (ce) never mark "Seen" on the banner's older list while /pending is still answering
+    if (this.loading()) return;
     this.busy.set(true);
     try {
       const n = await this.svc.ack(this.svc.pending().items.map((c) => c.id), this.note().trim());

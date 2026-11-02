@@ -84,6 +84,8 @@ const bannerCount = async (page) => { await page.waitForTimeout(2500); return pa
   const dlg = page.locator('app-reason-dialog');
   await dlg.waitFor();
   await dlg.locator('textarea').waitFor();  // (bi) the dialog is attached before its text is rendered
+  // (ce) wait for the rule text itself, not just the textarea (run 10 of b1x10 read "")
+  await dlg.filter({ hasText: /approved|imeidhinishwa/i }).waitFor({ timeout: 15000 }).catch(() => undefined);
   const dlgText = await dlg.innerText();
   ok('A1 dialogi ya sababu inaeleza kanuni', /approved|imeidhinishwa/i.test(dlgText), JSON.stringify(dlgText.slice(0, 300)));
   const confirm = dlg.getByRole('button', { name: /^(Delete|Futa)$/ });
@@ -146,16 +148,47 @@ const bannerCount = async (page) => { await page.waitForTimeout(2500); return pa
   await banner.waitFor({ timeout: 30000 });
   ok('D1 banner ya CEO inaonekana', /review|kukagua/i.test(await banner.innerText()));
   ok('D2 banner haina kitufe cha kufunga', (await banner.locator('.x').count()) === 0);
-  await banner.getByRole('button', { name: /Review|Kagua/ }).click();
+  // (ce) /pending answers 3 s late: while the list is loading, "Nimeona" must not be clickable
+  const PENDING = '**/api/v1/sales/changes/pending';
+  const slowPending = () => ceo.route(PENDING, async (r) => { await new Promise((res) => setTimeout(res, 3000)); await r.continue().catch(() => undefined); });
+  // while the skeleton shows (~2 s of the 3 s delay): was a skeleton seen, and was "Nimeona" never clickable?
+  const watchLoading = async () => {
+    let loadingSeen = false, seenLocked = true;
+    for (let i = 0; i < 10; i++) {
+      if (await rv.locator('lsms-skeleton').count()) {
+        loadingSeen = true;
+        if ((await seen.count()) && !(await seen.first().isDisabled())) seenLocked = false;
+      }
+      await ceo.waitForTimeout(200);
+    }
+    return { loadingSeen, seenLocked };
+  };
   const rv = ceo.locator('app-sale-changes-dialog');
+  const seen = rv.getByRole('button', { name: /Seen|Nimeona/ });
+  await slowPending();
+  await banner.getByRole('button', { name: /Review|Kagua/ }).click();
   await rv.waitFor();
+  const w1 = await watchLoading();
+  ok('D2a /pending ikichelewa: "Nimeona" haibofyeki mpaka orodha ionekane', w1.loadingSeen && w1.seenLocked, JSON.stringify(w1));
+  // (ce) read the dialog only when the real list is there (b1x10 run 9 / (ca) read the skeleton)
+  await rv.locator('li').filter({ hasText: s1 }).first().waitFor({ timeout: 30000 }).catch(() => undefined);
+  await ceo.unroute(PENDING);
   const rvText = await rv.innerText();
   ok('D3 Kagua: mauzo, mtumiaji na sababu', rvText.includes(s1) && /jaribio B1/.test(rvText));
   ok('D4 Kagua: S1 "Imerudishwa → #<mpya>"', new RegExp(`(Imerudishwa|Made again) → #${newReceipt}`).test(rvText), newReceipt);
   ok('D5 Kagua: S2 "Haijarudishwa"', (await rv.locator('li').filter({ hasText: s2 }).filter({ hasText: /Haijarudishwa|Not made again/ }).count()) === 1);
-  const seen = rv.getByRole('button', { name: /Seen|Nimeona/ });
   ok('D6 Nimeona inahitaji maelezo', await seen.isDisabled());
   await rv.locator('textarea').fill('Nimeona, sawa');
+  // (ce) maelezo yameshaandikwa, orodha inapakiwa upya (Siku 30 -> Zinasubiri) na /pending inachelewa:
+  // "Nimeona" isibofyeke juu ya orodha ya zamani mpaka mpya ifike
+  await rv.getByRole('radio', { name: /Last 30 days|Siku 30/ }).click();
+  await rv.locator('lsms-skeleton').waitFor({ state: 'detached', timeout: 30000 }).catch(() => undefined);
+  await slowPending();
+  await rv.getByRole('radio', { name: /Waiting|Zinasubiri/ }).click();
+  const w2 = await watchLoading();
+  ok('D2b maelezo yapo + /pending inachelewa: "Nimeona" bado haibofyeki', w2.loadingSeen && w2.seenLocked, JSON.stringify(w2));
+  await rv.locator('li').filter({ hasText: s1 }).first().waitFor({ timeout: 30000 }).catch(() => undefined);
+  await ceo.unroute(PENDING);
   await seen.click();
   ok('D7 toast ya Nimeona', await toast(ceo, /Nimeona|seen/i));
   await rv.getByRole('button', { name: /^(Close|Funga)$/ }).last().click();
