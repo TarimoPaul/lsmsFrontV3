@@ -31,3 +31,11 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
   (thamani halisi ya chupa 6 ni 53,000). 1200 imezidi kwa takriban 265,000. Hatua 62 (f) itathibitisha kwenye prod.
 - Kinga inayopendekezwa: bidhaa yenye pieces_per_package > 1 inaponunuliwa PER_PIECE kwa bei iliyo karibu na bei ya kifurushi
   (mf. ≥ 80% ya gharama ya mwisho ya kifurushi) → onyo/kukataliwa mpaka ithibitishwe.
+
+## 4. Malipo ya mwaka kama prepaid 1160 (mmiliki 01/11 br) - KIPAUMBELE: kabla ya 31/12/2026
+- Malipo yanayolipwa kwa mwaka mzima (pango, TRA, n.k.): Dr 1160 (prepaid) / Cr akaunti ya pesa siku ya malipo,
+  kisha kila mwezi Dr akaunti ya gharama / Cr 1160 = sehemu ya mwezi (amortization).
+- Scheduler ya kila mwezi kama ile ya riba (1150 → 6600): kipindi, kiasi kwa mwezi, siku ya kuanza, salio la 1160 kwa kila
+  malipo; isiandike mara mbili (kinga ya replay) na isiandike kwenye kipindi kilichofungwa.
+- 2026 ISIGUSWE: malipo ya 2026 yanabaki kama yalivyoandikwa. Inaanza na malipo ya kwanza ya 2027.
+- Ripoti ya uendeshaji: "gharama za mwezi" isome amortization hiyo, ili daraja na GL lisipate tofauti ya timing.
