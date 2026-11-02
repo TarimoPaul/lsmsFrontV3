@@ -1,0 +1,13 @@
+{
+  "tarehe": "2026-11-02",
+  "sura": "{\"status\":\"ACTIVE\",\"owed\":1158000,\"repaid\":0,\"awamu\":\"1|2026-11-04|386000|0|UNPAID ; 2|2026-12-04|386000|0|UNPAID ; 3|2027-01-04|386000|0|UNPAID\",\"malipo\":0}",
+  "body": {
+    "amount": 386000,
+    "principal_amount": 386000,
+    "interest_amount": 0,
+    "payment_method": "CASH",
+    "reason": "Kulipa mkopo",
+    "notes": "Awamu 1 ya mkopo A (04/11/2026) - hatua 61",
+    "transaction_date": "2026-11-04T12:00:00"
+  }
+}

@@ -1,0 +1,241 @@
+---MWENDESHO-62--- 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KUSOMA-TU--- 
+time="2026-11-02T11:05:29+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+SAA_YA_SERVER 2026-11-02 1105 EAT
+time="2026-11-02T11:05:29+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+BACKEND_IMAGE 2.3.0
+BACKEND_TZ Africa/Dar_es_Salaam EAT
+time="2026-11-02T11:05:30+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+FLYWAY|135|0 zilizoshindwa
+SAA_YA_DB|2026-11-02 11:05:31|Africa/Dar_es_Salaam
+SALE|311026-2139|sale_date 2026-10-31 21:39:32|created 2026-10-31 21:39:35|jumla 75000.00|PAID|deleted true|deleted_at -|deleted_date 2026-11-01 08:22:37|deleted_by System = HAIJULIKANI|muuzaji macheda|sababu -|maelezo 2026-11-01 08:22:36: SALE DELETED - Deleted on: 2026-11-01 08:22:36, By: System, Reason: 666666, Original Total: 75,000.00, Items: 2, Stock Reversed: SAFARI LAGER kb(20), CASTLE LITE(20), , Payments R
+SALE_IDADI|1
+MALIPO|2026-10-31 21:39:32|CASH|75000.00|CANCELLED|reversal false|reversed_date 2026-11-01 08:22:37|deleted false
+JOURNAL|JE-2026-1153763132515724|SALE_CASH|entry_date 2026-10-31|event_date -|late false|reversal false|ya -|146500.00|posted_by 0d75927b-4aae-442d-9b5f-3a70d85f4bfd|posted_at 2026-10-31 21:39:35|deleted false
+JOURNAL|JE-2026-1192345058723344|SALE_CASH|entry_date 2026-11-01|event_date -|late false|reversal true|ya JE-2026-1153763132515724|146500.00|posted_by System|posted_at 2026-11-01 08:22:37|deleted false
+JOURNAL_MISTARI|JE-2026-1153763132515724|1000|Dr 75000.00|Cr 0.00
+JOURNAL_MISTARI|JE-2026-1153763132515724|4000|Dr 0.00|Cr 75000.00
+JOURNAL_MISTARI|JE-2026-1153763132515724|5000|Dr 71500.00|Cr 0.00
+JOURNAL_MISTARI|JE-2026-1153763132515724|1200|Dr 0.00|Cr 71500.00
+JOURNAL_MISTARI|JE-2026-1192345058723344|1000|Dr 0.00|Cr 75000.00
+JOURNAL_MISTARI|JE-2026-1192345058723344|4000|Dr 75000.00|Cr 0.00
+JOURNAL_MISTARI|JE-2026-1192345058723344|5000|Dr 0.00|Cr 71500.00
+JOURNAL_MISTARI|JE-2026-1192345058723344|1200|Dr 71500.00|Cr 0.00
+KIPINDI|2026-09|CLOSED|closed_at 2026-10-22 19:00:44|closed_by Paul Tarimo
+RECO_SIKU|2026-10-31|macheda macheda|SUBMITTED|submitted 2026-11-01 18:54:47|approved - na -|closed -|reopen 0 -|mauzo 1780800.00|variance 5810.00
+RECO_LOG|2026-10-31 07:51:33|2026-10-30|CREATED|macheda macheda|{"date": "2026-10-30"}
+RECO_LOG|2026-10-31 07:51:34|2026-10-30|PURCHASE_ADDED|macheda macheda|{"amount": 166400, "supplier": "malipo peps"}
+RECO_LOG|2026-10-31 07:52:23|2026-10-30|PURCHASE_ADDED|macheda macheda|{"amount": 153600, "supplier": "malipo coca"}
+RECO_LOG|2026-10-31 07:53:25|2026-10-30|CASH_ENTRY_ADDED|macheda macheda|{"type": "BANK_DEPOSIT", "amount": 220000}
+RECO_LOG|2026-10-31 08:56:57|2026-10-30|MOBILE_ENTRY_ADDED|macheda macheda|{"amount": 372000, "provider": "TIGO"}
+RECO_LOG|2026-10-31 09:45:13|2026-10-31|CREATED|macheda macheda|{"date": "2026-10-31"}
+RECO_LOG|2026-10-31 11:35:27|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "3ef260fb-e9a7-4f56-b156-27ea116b33f6", "itemType": "MOBILE"}
+RECO_LOG|2026-10-31 11:35:28|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "da345e73-8136-4004-80cd-ce16d916fe65", "itemType": "MOBILE"}
+RECO_LOG|2026-10-31 11:35:46|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "322fef8e-abdb-409d-a678-90baa45c7a86", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:35:47|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "dc086de8-5728-4763-8410-f1141a0d4d60", "itemType": "COLLECTION"}
+RECO_LOG|2026-10-31 11:35:55|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "9552771e-5c81-47f5-81b6-33eabdfec60f", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:35:56|2026-10-29|ITEM_UNVERIFIED|Paul Tarimo|{"itemUid": "9552771e-5c81-47f5-81b6-33eabdfec60f", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:35:57|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "9552771e-5c81-47f5-81b6-33eabdfec60f", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:36:03|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "6c678a76-d142-4fbd-9ff5-74678f44240e", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:46:34|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "e8ef7c17-1031-4d94-b9e6-935ce70a888a", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:47:16|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "d1db3372-6ec7-4365-bcc9-a1e6b9fdebbf", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:47:17|2026-10-29|ITEM_UNVERIFIED|Paul Tarimo|{"itemUid": "d1db3372-6ec7-4365-bcc9-a1e6b9fdebbf", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:47:18|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "e17470b0-b5d8-48b3-b228-6c8e3a9767d3", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:47:20|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "d1db3372-6ec7-4365-bcc9-a1e6b9fdebbf", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 11:47:21|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "eb07f529-3a83-44e4-93a2-16e702682afc", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:47:22|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "e8ec4024-11bf-42e2-b852-466866f56a82", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:47:25|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "736a1bd8-bc48-4687-bfd2-4a575863313a", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:47:26|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "d726a53b-02a9-4463-ac26-df69da3e637a", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:47:27|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "bf8be7c8-8f23-4edc-83ef-40d1835e7568", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:47:42|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "c7513a46-c6a1-4dc7-b9da-c307122a4484", "itemType": "MOBILE"}
+RECO_LOG|2026-10-31 11:47:44|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "842dc15a-dae2-4e17-bd2f-90a6f8ea0a5b", "itemType": "MOBILE"}
+RECO_LOG|2026-10-31 11:47:45|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "f207d073-8f3f-40b8-97f5-859a3d1e3dee", "itemType": "CASH"}
+RECO_LOG|2026-10-31 11:47:46|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "ac9d7210-b9ac-4484-a5a6-6e1c63d5a404", "itemType": "CASH"}
+RECO_LOG|2026-10-31 11:49:42|2026-10-29|ITEM_UNVERIFIED|Paul Tarimo|{"itemUid": "bf8be7c8-8f23-4edc-83ef-40d1835e7568", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 11:49:48|2026-10-29|SAFE_BOX_DEPOSIT_SUBMITTED|macheda macheda|{"depositType": "HAND_OVER", "cashEntryUid": "0b458c87-f76c-439a-8496-5f31b492d424", "submittedAmount": 23000}
+RECO_LOG|2026-10-31 11:50:43|2026-10-29|RECONCILIATION_UNSUBMITTED|macheda macheda|{"reason": "rrrrrrr", "newStatus": "DRAFT", "priorStatus": "SUBMITTED"}
+RECO_LOG|2026-10-31 11:50:54|2026-10-29|EXPENSE_REMOVED|macheda macheda|{"expenseUid": "bf8be7c8-8f23-4edc-83ef-40d1835e7568"}
+RECO_LOG|2026-10-31 11:51:48|2026-10-29|CASH_ENTRY_ADDED|macheda macheda|{"type": "PETTY_CASH", "amount": 20000}
+RECO_LOG|2026-10-31 11:52:07|2026-10-29|SUBMITTED|macheda macheda|{"variance": -500.00}
+RECO_LOG|2026-10-31 11:56:37|2026-10-31|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "a2937d95-7b74-48d1-b7fc-5b2dbfaffc69", "itemType": "COLLECTION"}
+RECO_LOG|2026-10-31 11:57:08|2026-10-29|SAFE_BOX_DEPOSIT_CONFIRMED|Paul Tarimo|{"depositUid": "b594ebd6-7a55-45c9-89f9-70b4a680df00", "submittedAmount": 23000.00}
+RECO_LOG|2026-10-31 11:57:11|2026-10-29|SAFE_BOX_DEPOSIT_CONFIRMED|Paul Tarimo|{"depositUid": "b95698bb-fb9e-462e-ae79-955cb31ef57d", "submittedAmount": 100000.00}
+RECO_LOG|2026-10-31 13:22:08|2026-10-29|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "66a99a38-b3bd-4215-b987-a898e269366c", "itemType": "CASH"}
+RECO_LOG|2026-10-31 13:22:12|2026-10-29|REVIEWED|Paul Tarimo|{"reviewer": "03367a4b-ca4b-4409-a800-3e2037038206"}
+RECO_LOG|2026-10-31 13:22:30|2026-10-29|SNAPSHOT_CREATED|Paul Tarimo|{"version": 1, "variance": -500.00, "snapshotDate": "2026-10-29"}
+RECO_LOG|2026-10-31 13:22:30|2026-10-29|APPROVED|Paul Tarimo|{"variance": -500.00, "expectedCash": 19500.00}
+RECO_LOG|2026-10-31 14:23:08|2026-10-30|CASH_ENTRY_ADDED|macheda macheda|{"type": "SAFE_BOX", "amount": 160000}
+RECO_LOG|2026-10-31 14:23:42|2026-10-30|EXPENSE_ADDED|macheda macheda|{"type": "CHAKULA", "amount": 10000}
+RECO_LOG|2026-10-31 14:24:03|2026-10-30|EXPENSE_ADDED|macheda macheda|{"type": "USAFIRI", "amount": 2000}
+RECO_LOG|2026-10-31 14:24:53|2026-10-30|EXPENSE_ADDED|macheda macheda|{"type": "NYINGINE", "amount": 10000}
+RECO_LOG|2026-10-31 14:50:10|2026-10-30|DEBT_ADDED|macheda macheda|{"amount": 26000, "debtor": "igwe", "saleUid": "de353a30-830c-4037-a067-3516b00d6056"}
+RECO_LOG|2026-10-31 14:51:52|2026-10-30|DEBT_ADDED|macheda macheda|{"amount": 10000, "debtor": "saidi", "saleUid": "4a59aeb3-08a8-4831-b821-00983b23f3c4"}
+RECO_LOG|2026-10-31 14:53:47|2026-10-30|DEBT_ADDED|macheda macheda|{"amount": 5000, "debtor": "kijo", "saleUid": "b9af36dd-e948-4347-85ae-10c4111e081d"}
+RECO_LOG|2026-10-31 14:58:24|2026-10-30|DEBT_ADDED|macheda macheda|{"amount": 10000, "debtor": "saidi", "saleUid": "5629d944-f368-4c63-b677-cf100427bf84"}
+RECO_LOG|2026-10-31 15:29:10|2026-10-30|DEBT_ADDED|macheda macheda|{"amount": 30000, "debtor": "diana", "saleUid": "8118a002-4901-4a3f-8521-60d97d082271"}
+RECO_LOG|2026-10-31 15:29:39|2026-10-30|MANUAL_DEBT_UPDATED|macheda macheda|{"amount": 10000, "debtor": "kijo", "saleUid": "b9af36dd-e948-4347-85ae-10c4111e081d"}
+RECO_LOG|2026-10-31 15:30:47|2026-10-30|EXPENSE_ADDED|macheda macheda|{"type": "NYINGINE", "amount": 4000}
+RECO_LOG|2026-10-31 15:35:40|2026-10-30|VARIANCE_UPDATED|macheda macheda|{}
+RECO_LOG|2026-10-31 15:35:50|2026-10-30|SUBMITTED|macheda macheda|{"variance": 17000.00, "zeroCashReason": "All went to the bank"}
+RECO_LOG|2026-10-31 20:36:46|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "535aea9b-e5d8-4871-97ef-800f1f4ddcb6", "itemType": "CASH"}
+RECO_LOG|2026-10-31 20:36:49|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "61f69949-3d2f-43ce-9529-5b62fd1d87b7", "itemType": "MOBILE"}
+RECO_LOG|2026-10-31 20:38:27|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "622f689a-3cf1-403d-bcfa-a5012562973e", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 20:38:29|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "6fafea3c-c2c5-4be5-9e14-58117b7c1b40", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 20:38:34|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "016bd465-3693-4d35-b1e8-6a19e5360cc1", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 20:38:37|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "f0c93f0a-aaf1-4596-888a-226865a769e8", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 20:38:39|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "5d81989b-ec49-4495-8252-68242c96f49c", "itemType": "DEBT"}
+RECO_LOG|2026-10-31 20:38:41|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "71871c84-ebb9-43d3-ae18-75db22850542", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 20:38:50|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "59832458-b2e0-41bd-8c7b-26c76b47d889", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 20:38:52|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "c6b1a7b9-a8f8-4919-a6ee-5f7daa6ba3ec", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 20:38:54|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "c2fd4323-11ca-4ccc-8217-3375b3b8c1c0", "itemType": "EXPENSE"}
+RECO_LOG|2026-10-31 20:38:57|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "c071cd6a-1f67-4dcf-a7aa-aa1b97272ea0", "itemType": "PURCHASE"}
+RECO_LOG|2026-10-31 20:39:00|2026-10-30|ITEM_VERIFIED|Paul Tarimo|{"itemUid": "76f29e73-2fc1-429f-8d46-7cccdc3d157b", "itemType": "PURCHASE"}
+RECO_LOG|2026-10-31 21:42:12|2026-10-31|CASH_ENTRY_ADDED|macheda macheda|{"type": "BANK_DEPOSIT", "amount": 290000}
+RECO_LOG|2026-10-31 21:43:22|2026-10-31|MOBILE_ENTRY_ADDED|macheda macheda|{"amount": 319500, "provider": "VODACOM"}
+RECO_LOG|2026-11-01 07:37:35|2026-10-31|PURCHASE_ADDED|macheda macheda|{"amount": 43000, "supplier": "afya compay"}
+RECO_LOG|2026-11-01 07:38:08|2026-10-31|CASH_ENTRY_ADDED|macheda macheda|{"type": "BANK_DEPOSIT", "amount": 400000}
+RECO_LOG|2026-11-01 07:39:11|2026-10-31|MOBILE_ENTRY_ADDED|macheda macheda|{"amount": 29500, "provider": "VODACOM"}
+RECO_LOG|2026-11-01 07:41:30|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "CHAKULA", "amount": 10000}
+RECO_LOG|2026-11-01 07:44:14|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "USAFIRI", "amount": 2000}
+RECO_LOG|2026-11-01 09:50:30|2026-10-30|SAFE_BOX_DEPOSIT_SUBMITTED|macheda macheda|{"depositType": "BANK_DEPOSIT", "cashEntryUid": "3f55e1cc-d8b4-4088-ad30-754aad6416da", "submittedAmount": 160000}
+RECO_LOG|2026-11-01 09:51:58|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "NYINGINE", "amount": 28000}
+RECO_LOG|2026-11-01 15:18:08|2026-10-30|REVIEWED|Paul Tarimo|{"reviewer": "03367a4b-ca4b-4409-a800-3e2037038206", "zeroCashReason": "All went to the bank"}
+RECO_LOG|2026-11-01 15:18:11|2026-10-30|SNAPSHOT_CREATED|Paul Tarimo|{"version": 1, "variance": 17000.00, "snapshotDate": "2026-10-30"}
+RECO_LOG|2026-11-01 15:18:11|2026-10-30|APPROVED|Paul Tarimo|{"variance": 17000.00, "expectedCash": 17000.00}
+RECO_LOG|2026-11-01 15:19:35|2026-10-30|SAFE_BOX_DEPOSIT_CONFIRMED|Paul Tarimo|{"depositUid": "4d9058ac-3d8e-40a8-ab0e-85db20aa2778", "submittedAmount": 160000.00}
+RECO_LOG|2026-11-01 16:15:07|2026-10-31|CASH_ENTRY_ADDED|macheda macheda|{"type": "SAFE_BOX", "amount": 160000}
+RECO_LOG|2026-11-01 18:28:44|2026-10-31|DEBT_ADDED|macheda macheda|{"amount": 20000, "debtor": "FATHER", "saleUid": "b46e1961-a751-4b87-acce-36dcbc573516"}
+RECO_LOG|2026-11-01 18:29:33|2026-10-31|DEBT_ADDED|macheda macheda|{"amount": 12000, "debtor": "igwe", "saleUid": "2af4467e-2dd6-44af-9a2c-5d9aab9fb49b"}
+RECO_LOG|2026-11-01 18:30:18|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "NYINGINE", "amount": 4000}
+RECO_LOG|2026-11-01 18:31:14|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "UKARABATI", "amount": 3000}
+RECO_LOG|2026-11-01 18:51:08|2026-10-31|DEBT_ADDED|macheda macheda|{"amount": 171000, "debtor": "witty", "saleUid": "2c7a1725-c4e9-4f76-8829-3af1be514df6"}
+RECO_LOG|2026-11-01 18:52:41|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "UMEME", "amount": 10000}
+RECO_LOG|2026-11-01 18:53:07|2026-10-31|EXPENSE_ADDED|macheda macheda|{"type": "NYINGINE", "amount": 1000}
+RECO_LOG|2026-11-01 18:53:43|2026-10-31|SAFE_BOX_DEPOSIT_SUBMITTED|macheda macheda|{"depositType": "BANK_DEPOSIT", "cashEntryUid": "0564935b-9ad5-4091-a46f-d1df4e6963fe", "submittedAmount": 160000}
+RECO_LOG|2026-11-01 18:54:42|2026-10-31|VARIANCE_UPDATED|macheda macheda|{}
+RECO_LOG|2026-11-01 18:54:47|2026-10-31|SUBMITTED|macheda macheda|{"variance": 5810.00, "zeroCashReason": "All went to the bank"}
+RECO_LOG|2026-11-01 20:06:29|2026-11-01|CREATED|macheda macheda|{"date": "2026-11-01"}
+RECO_LOG|2026-11-01 21:53:29|2026-11-01|CASH_ENTRY_ADDED|macheda macheda|{"type": "BANK_DEPOSIT", "amount": 561000}
+RECO_LOG|2026-11-01 21:54:48|2026-11-01|PURCHASE_ADDED|macheda macheda|{"amount": 153600, "supplier": "peps compay"}
+RECO_LOG|2026-11-01 21:55:47|2026-11-01|MOBILE_ENTRY_ADDED|macheda macheda|{"amount": 263000, "provider": "TIGO"}
+RECO_LOG|2026-11-01 21:58:21|2026-11-01|MOBILE_ENTRY_ADDED|macheda macheda|{"amount": 201000, "provider": "VODACOM"}
+RECO_LOG|2026-11-01 22:07:01|2026-11-01|EXPENSE_ADDED|macheda macheda|{"type": "CHAKULA", "amount": 10000}
+RECO_LOG|2026-11-01 22:07:38|2026-11-01|EXPENSE_ADDED|macheda macheda|{"type": "NYINGINE", "amount": 11000}
+RECO_LOG|2026-11-01 22:08:32|2026-11-01|CASH_ENTRY_ADDED|macheda macheda|{"type": "PETTY_CASH", "amount": 100000}
+RECO_LOG|2026-11-01 22:34:58|2026-10-31|SAFE_BOX_DEPOSIT_CONFIRMED|Paul Tarimo|{"depositUid": "a97b2f9b-8fc0-4520-b510-85db00deb25c", "submittedAmount": 160000.00}
+RECO_LOG|2026-11-02 07:31:16|2026-11-01|MOBILE_ENTRY_REMOVED|macheda macheda|{"entryUid": "a3cf7f4f-18da-4e10-a961-e15b038a3094"}
+RECO_LOG|2026-11-02 07:32:32|2026-11-01|MOBILE_ENTRY_ADDED|macheda macheda|{"amount": 204000, "provider": "VODACOM"}
+RECO_LOG|2026-11-02 07:53:56|2026-11-01|EXPENSE_ADDED|macheda macheda|{"type": "MISHAHARA", "amount": 4000}
+RECO_LOG|2026-11-02 07:54:13|2026-11-01|EXPENSE_ADDED|macheda macheda|{"type": "USAFIRI", "amount": 2000}
+RECO_LOG|2026-11-02 09:38:55|2026-11-01|CASH_ENTRY_ADDED|macheda macheda|{"type": "SAFE_BOX", "amount": 140000}
+SALE_MPYA|011126-2141|sale_date 2026-11-01 21:41:15|created 2026-11-01 21:41:16|jumla 129000.00|deleted false|mteja_yuleyule true|kiasi_kilekile false|muuzaji macheda|maelezo 2026-11-01 21:41:15: SALE COMPLETED - Receipt: 011126-2141, Items: 3, Total: 129,000.00, Profit: 6,300.32 Payment Method: Fedha Taslimu | Total Items:
+SALE_MPYA|011126-2146-2|sale_date 2026-11-01 21:46:52|created 2026-11-01 21:46:53|jumla 70000.00|deleted false|mteja_yuleyule true|kiasi_kilekile false|muuzaji macheda|maelezo 2026-11-01 21:46:52: SALE COMPLETED - Receipt: 011126-2146-2, Items: 1, Total: 70,000.00, Profit: 4,000.00 Payment Method: Fedha Taslimu | Total Items
+SALE_MPYA|011126-2149|sale_date 2026-11-01 21:49:23|created 2026-11-01 21:49:24|jumla 76000.00|deleted false|mteja_yuleyule true|kiasi_kilekile false|muuzaji macheda|maelezo 2026-11-01 21:49:24: SALE COMPLETED - Receipt: 011126-2149, Items: 2, Total: 76,000.00, Profit: 3,600.00 Payment Method: Fedha Taslimu | Total Items: 
+IMEFUTWA_TANGU_3110|011126-0720|sale_date 2026-11-01|jumla 39500.00|deleted_at 2026-11-01 07:57:57
+IMEFUTWA_TANGU_3110|301026-2245|sale_date 2026-10-30|jumla 68000.00|deleted_at 2026-10-31 08:10:31
+IMEFUTWA_TANGU_3110|301026-2251|sale_date 2026-10-30|jumla 83500.00|deleted_at 2026-10-31 08:24:16
+IMEFUTWA_TANGU_3110|301026-2253|sale_date 2026-10-30|jumla 135500.00|deleted_at 2026-10-31 08:26:37
+IMEFUTWA_TANGU_3110|311026-0831|sale_date 2026-10-31|jumla 33000.00|deleted_at 2026-10-31 08:32:17
+IMEFUTWA_TANGU_3110|311026-2139|sale_date 2026-10-31|jumla 75000.00|deleted_at 2026-11-01 08:22:37
+RECO_OKT|2026-10-01|macheda macheda|APPROVED|expected -1500.00|accounted 0.00|variance -1500.00|reopen 0|-|ILIWEKWA BANK
+RECO_OKT|2026-10-02|macheda macheda|APPROVED|expected 3500.00|accounted 0.00|variance 3500.00|reopen 0|-|pesa inayobakia haijaonekana
+RECO_OKT|2026-10-03|macheda macheda|APPROVED|expected 1057000.00|accounted 1050000.00|variance 7000.00|reopen 0|-|pesa iliyobakia haijaonekana
+RECO_OKT|2026-10-04|macheda macheda|APPROVED|expected -2000.00|accounted 0.00|variance -2000.00|reopen 1|-|PESA ILIYOZIDIA INATOKANA NA BITHAA KUUZWA PENGINE KUTOKUANDIKWA
+RECO_OKT|2026-10-05|macheda macheda|APPROVED|expected 663000.00|accounted 660000.00|variance 3000.00|reopen 0|-|pesa iliyobakia haijaonekana
+RECO_OKT|2026-10-06|macheda macheda|APPROVED|expected 3000.00|accounted 0.00|variance 3000.00|reopen 0|-|pesa ilyobakia haijaonekana
+RECO_OKT|2026-10-07|macheda macheda|APPROVED|expected 1500.00|accounted 0.00|variance 1500.00|reopen 0|-|pesa iliyobakia haijaonekana
+RECO_OKT|2026-10-08|macheda macheda|APPROVED|expected 2000.00|accounted 0.00|variance 2000.00|reopen 0|-|pesa iliyobakia haijatolewa maelezo mazuri
+RECO_OKT|2026-10-09|macheda macheda|APPROVED|expected 55000.00|accounted 50000.00|variance 5000.00|reopen 0|-|pesa iliyobakia haijaonekana
+RECO_OKT|2026-10-10|macheda macheda|APPROVED|expected 391500.00|accounted 420000.00|variance -28500.00|reopen 0|-|pesa iliyobaki haijulikani ipo wapi
+RECO_OKT|2026-10-11|macheda macheda|APPROVED|expected 6000.00|accounted 0.00|variance 6000.00|reopen 1|-|pesa iliyobakia haionekan
+RECO_OKT|2026-10-12|macheda macheda|APPROVED|expected -15000.00|accounted 0.00|variance -15000.00|reopen 0|-|pesa iliyozidia itakuwa ni ya bithaa ambazo zimeuzwa lkn hazijaandikwa
+RECO_OKT|2026-10-13|macheda macheda|APPROVED|expected -2000.00|accounted 0.00|variance -2000.00|reopen 0|-|pesa iliyozidia ni ya bithaa ambazo zimeuzwa lkn hazikuandikiwa
+RECO_OKT|2026-10-13|Paul Tarimo|APPROVED|expected 0.00|accounted 0.00|variance 0.00|reopen 0|-|-
+RECO_OKT|2026-10-14|macheda macheda|APPROVED|expected -1500.00|accounted 0.00|variance -1500.00|reopen 0|-|NIMEKOSEA
+RECO_OKT|2026-10-15|macheda macheda|APPROVED|expected 500.00|accounted 0.00|variance 500.00|reopen 0|-|PESA ILIYOBAKIA HAIONEKANI
+RECO_OKT|2026-10-16|macheda macheda|APPROVED|expected 62500.00|accounted 60000.00|variance 2500.00|reopen 0|-|nnnn
+RECO_OKT|2026-10-17|macheda macheda|APPROVED|expected 4800.00|accounted 0.00|variance 4800.00|reopen 0|-|nimesahau
+RECO_OKT|2026-10-18|macheda macheda|APPROVED|expected 860000.00|accounted 860000.00|variance 0.00|reopen 0|-|-
+RECO_OKT|2026-10-19|macheda macheda|APPROVED|expected 4000.00|accounted 0.00|variance 4000.00|reopen 0|-|pesa iliyobakia haijaonekana
+RECO_OKT|2026-10-20|macheda macheda|APPROVED|expected 1500.00|accounted 0.00|variance 1500.00|reopen 1|-|pesa iliyobakia haijapatiwa uvumbuzi
+RECO_OKT|2026-10-21|macheda macheda|APPROVED|expected 9000.00|accounted 0.00|variance 9000.00|reopen 0|-|pesa iliyobakia haijapatiwa uvumbuzi
+RECO_OKT|2026-10-22|macheda macheda|APPROVED|expected 925500.00|accounted 920000.00|variance 5500.00|reopen 0|-|pesa iliyobakia haijaonekana
+RECO_OKT|2026-10-23|macheda macheda|APPROVED|expected 6500.00|accounted 0.00|variance 6500.00|reopen 0|-|pesa inabakia haijapatiwa uvumbuzi
+RECO_OKT|2026-10-24|macheda macheda|APPROVED|expected 804500.00|accounted 800000.00|variance 4500.00|reopen 0|-|pesa iliyobakia haijapatiwa uvumbuzi
+RECO_OKT|2026-10-25|macheda macheda|APPROVED|expected 1203000.00|accounted 1200000.00|variance 3000.00|reopen 0|-|pesa iliyobakia haijatolewa ufafanuzi wa kutosha
+RECO_OKT|2026-10-26|macheda macheda|APPROVED|expected 5100.00|accounted 0.00|variance 5100.00|reopen 0|-|nimekosea bbbbb
+RECO_OKT|2026-10-27|macheda macheda|APPROVED|expected 3800.00|accounted 0.00|variance 3800.00|reopen 0|-|pesa iliyobakia haikuonekana
+RECO_OKT|2026-10-28|macheda macheda|APPROVED|expected 7600.00|accounted 0.00|variance 7600.00|reopen 0|-|pesa iliyobakia haijapatiwa ufumbuzi
+RECO_OKT|2026-10-29|macheda macheda|APPROVED|expected 19500.00|accounted 20000.00|variance -500.00|reopen 0|-|-
+RECO_OKT|2026-10-30|macheda macheda|APPROVED|expected 17000.00|accounted 0.00|variance 17000.00|reopen 0|-|pesa iliyobakia hijapatiwa ufumbuzi
+RECO_OKT|2026-10-31|macheda macheda|SUBMITTED|expected 5810.00|accounted 0.00|variance 5810.00|reopen 0|-|pesa iliyobakia haijapatiwa uvumbuzi
+RECO_OKT_JUMLA|siku 31|reco 32|upungufu 23 = 112110.00|ziada 7 = -51000.00
+RECO_INAJIRUDIA|3000|mara 3|siku 05,06,25
+RECO_INAJIRUDIA|-1500|mara 2|siku 01,14
+RECO_INAJIRUDIA|1500|mara 2|siku 07,20
+RECO_INAJIRUDIA|-2000|mara 2|siku 04,13
+GL_FAILURE_IDADI|tangu_3110_1800 0|wazi_zote 0
+UCHAKAVU_3110|journal 9|jumla 146012.42|posted_by SCHEDULER|posted_at 2026-11-01 02:00:00 .. 2026-11-01 02:00:01
+UCHAKAVU_MISTARI_3110|1590|Dr 0.00|Cr 146012.42
+UCHAKAVU_MISTARI_3110|6500|Dr 146012.42|Cr 0.00
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169388561558235|2333.33|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:00
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169388687754959|3823.53|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:00
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169388707874953|1250.00|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:00
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169389052923541|5000.00|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:01
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169389085061111|38716.67|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:01
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169389109087132|20000.00|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:01
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169389211793319|3500.00|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:01
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169389367254327|20000.00|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:01
+UCHAKAVU_KARIBUNI|2026-10-31|JE-2026-1169389536164327|51388.89|reversal false|posted_by SCHEDULER|posted_at 2026-11-01 02:00:01
+UCHAKAVU_KWA_MWEZI|2026-02|2|71388.89
+UCHAKAVU_KWA_MWEZI|2026-03|2|71388.89
+UCHAKAVU_KWA_MWEZI|2026-04|2|71388.89
+UCHAKAVU_KWA_MWEZI|2026-05|3|74888.89
+UCHAKAVU_KWA_MWEZI|2026-06|3|74888.89
+UCHAKAVU_KWA_MWEZI|2026-07|3|74888.89
+UCHAKAVU_KWA_MWEZI|2026-08|3|74888.89
+UCHAKAVU_KWA_MWEZI|2026-09|3|74888.89
+UCHAKAVU_KWA_MWEZI|2026-10|9|146012.42
+MKOPO_ULIOFUNGWA|INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2|MKOPO WA BANK|CLOSED|source LOAN|closed_at 2026-06-11|reclassified_at -|njia IMELIPWA|2100 0.00|1150 0|6600 0|journal LOAN_REPAYMENT 1, LOAN_RECEIVED 1
+MKOPO_JOURNAL|INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2|JE-2026-12655927609324|LOAN_RECEIVED|2026-05-21|INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2|reversal false|244985.00
+MKOPO_JOURNAL|INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2|JE-2026-12655934817275|LOAN_REPAYMENT|2026-06-11|INJ-348d0641-fd27-4945-b87e-dd8f6036a956|reversal false|244985.00
+RIBA_BAADA_YA_KUFUNGWA|INJ-7a64c10a-2fc9-4a36-a099-ef055bb78cb2|MKOPO WA BANK|closed_at 2026-06-11|siku 0|jumla 0|ya_kwanza -|ya_mwisho -
+MIKOPO_YOTE|CLOSED|1
+MIKOPO_YOTE|ACTIVE|2
+JAG_BIDHAA|4d727520-1a98-4c92-8bbc-45941cb94c35|JAGER MASTER|chupa_kwa_kifurushi -|wastani 42000.00|gharama_ya_mwisho 42000.00|bei_chupa 45000.00|bei_kifurushi 0|stock 0|deleted false
+JAG_BIDHAA|4453f20a-679a-44da-a801-0c4909e12de0|JAGER MASTER|chupa_kwa_kifurushi -|wastani 29000.00|gharama_ya_mwisho 29000.00|bei_chupa 36000.00|bei_kifurushi 0|stock 0|deleted false
+JAG_BIDHAA|6dc452f6-38fc-418a-8f3a-8f3831dafc0f|JAGGER MASTER|chupa_kwa_kifurushi -|wastani 20000.00|gharama_ya_mwisho 20000.00|bei_chupa 25000.00|bei_kifurushi 0|stock 0|deleted false
+JAG_BIDHAA|886dc1ed-2793-453c-bc9f-2c1e251ec5de|JAGGER MASTER|chupa_kwa_kifurushi 6|wastani 53000.00|gharama_ya_mwisho 53000.00|bei_chupa 60000.00|bei_kifurushi 336000.00|stock 6|deleted false
+JAG_MANUNUZI|2026-09-07|JAGGER MASTER|886dc1ed|idadi 1.00|chupa_kwa_kifurushi 6|njia PER_PIECE|bei 53000.00|gharama_kwa_chupa 8833.3333|jumla 53000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-09-07 14:51:42
+JAG_MANUNUZI|2026-09-07|JAGER MASTER|4d727520|idadi 1.00|chupa_kwa_kifurushi -|njia PER_PIECE|bei 42000.00|gharama_kwa_chupa 42000.0000|jumla 42000.00|RECEIVED|-|received_by tarimo@gmail.com|created 2026-09-07 14:51:42
+JAG_MANUNUZI|2026-09-07|JAGER MASTER|4453f20a|idadi 1.00|chupa_kwa_kifurushi -|njia PER_PIECE|bei 29000.00|gharama_kwa_chupa 29000.0000|jumla 29000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-09-07 14:51:42
+JAG_MANUNUZI|2026-09-07|JAGGER MASTER|6dc452f6|idadi 1.00|chupa_kwa_kifurushi -|njia PER_PIECE|bei 20000.00|gharama_kwa_chupa 20000.0000|jumla 20000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-09-07 14:51:42
+JAG_MANUNUZI|2026-09-22|JAGGER MASTER|886dc1ed|idadi 1.00|chupa_kwa_kifurushi 6|njia PER_PIECE|bei 53000.00|gharama_kwa_chupa 8833.3333|jumla 53000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-09-22 20:45:33
+JAG_MANUNUZI|2026-10-03|JAGGER MASTER|6dc452f6|idadi 1.00|chupa_kwa_kifurushi -|njia PER_PIECE|bei 20000.00|gharama_kwa_chupa 20000.0000|jumla 20000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-10-03 14:32:00
+JAG_MANUNUZI|2026-10-03|JAGER MASTER|4453f20a|idadi 1.00|chupa_kwa_kifurushi -|njia PER_PIECE|bei 29000.00|gharama_kwa_chupa 29000.0000|jumla 29000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-10-03 14:32:00
+JAG_MANUNUZI|2026-10-11|JAGER MASTER|4d727520|idadi 1.00|chupa_kwa_kifurushi -|njia PER_PIECE|bei 42000.00|gharama_kwa_chupa 42000.0000|jumla 42000.00|RECEIVED|-|received_by tarimo@gmail.com|created 2026-10-11 13:35:23
+JAG_MANUNUZI|2026-10-11|JAGGER MASTER|886dc1ed|idadi 1.00|chupa_kwa_kifurushi 6|njia PER_PIECE|bei 53000.00|gharama_kwa_chupa 53000.0000|jumla 53000.00|RECEIVED|TAKAWEDO|received_by tarimo@gmail.com|created 2026-10-11 13:35:23
+JAG_MWENDO|2026-10-03 10:31:03|JAGGER MASTER|886dc1ed|ADJUSTMENT|-5|5->0|bei 8833.33|COUNT-ADJ-6aa1a3d4-b6b4-433d-98af-e463ebc59d03|Paul Tarimo
+JAG_MWENDO|2026-10-03 14:32:00|JAGGER MASTER|6dc452f6|PURCHASE|1|0->1|bei 20000|PUR-0f52b93e-356a-401a-b5e9-60cc1ec94254|tarimo@gmail.com
+JAG_MWENDO|2026-10-03 14:32:00|JAGER MASTER|4453f20a|PURCHASE|1|0->1|bei 29000|PUR-13195bcb-83fc-4ad4-a119-838ebddb7d10|tarimo@gmail.com
+JAG_MWENDO|2026-10-10 22:44:15|JAGER MASTER|4453f20a|SALE|1|1->0|bei 29000|SALE-101026-2244|macheda macheda
+JAG_MWENDO|2026-10-11 13:35:23|JAGER MASTER|4d727520|PURCHASE|1|0->1|bei 42000|PUR-945216a3-9d32-41b5-a048-616191dec896|tarimo@gmail.com
+JAG_MWENDO|2026-10-11 13:35:23|JAGGER MASTER|886dc1ed|PURCHASE|1|0->1|bei 53000|PUR-d92fb3de-0834-47ad-9bdb-07f928b9d35a|tarimo@gmail.com
+JAG_MWENDO|2026-10-13 09:48:11|JAGGER MASTER|886dc1ed|ADJUSTMENT|5|1->6|bei 53000|COUNT-ADJ-ba9c1a62-8d71-49e5-b345-9cb44144da2c|Paul Tarimo
+JAG_HESABU|2026-10-01|JAGGER MASTER|886dc1ed|mfumo 5|kuhesabu 0|gharama_kwa_chupa 8833.33|thamani -44166.65
+JAG_HESABU|2026-10-02|JAGGER MASTER|886dc1ed|mfumo 5|kuhesabu 0|gharama_kwa_chupa 8833.33|thamani -44166.65
+JAG_HESABU|2026-10-03|JAGGER MASTER|886dc1ed|mfumo 5|kuhesabu 0|gharama_kwa_chupa 8833.33|thamani -44166.65
+JAG_HESABU|2026-10-12|JAGGER MASTER|886dc1ed|mfumo 1|kuhesabu 6|gharama_kwa_chupa 53000.00|thamani 265000.00
+JAG_HESABU|2026-10-13|JAGGER MASTER|886dc1ed|mfumo 1|kuhesabu 6|gharama_kwa_chupa 53000.00|thamani 265000.00
+KIPINDI_OKTOBA|HAKUNA_SAFU (OPEN)
+GHARAMA_ISIYO_KAWAIDA|2026-10-11|JAGGER MASTER|886dc1ed|qty 1.00|gharama_kwa_kipande 53000.00|wastani_wa_mengine 8666.67|mara 6.12|manunuzi_mengine 4|kifurushi 6|njia PER_PIECE|TAKAWEDO
+GHARAMA_ISIYO_KAWAIDA_IDADI|1
+[psql exit 0]
+---USHAHIDI_62_UMEKAMILIKA---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 
