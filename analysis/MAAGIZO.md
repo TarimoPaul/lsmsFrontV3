@@ -473,3 +473,15 @@ Kisha onyo la manunuzi, kisha B5.
 Bidhaa za kupima: hakuna tozo kwa mtu (uamuzi wa Chief, hadi vipimo halisi). Lakini BAADA-YA-BATCH §2:
   hesabu ya wiki kwa chupa nzima → tofauti Dr 5100 / Cr 1200 kwa gharama, bila 1120. Na sasa (kusoma tu):
   jumla ya tofauti ya kupima isiyoandikwa kwa gharama, leo.
+
+## 2026-11-02 (bu)
+Kwanza: tozo ya mfanyakazi (count shortage → 1120) inapunguza stock ya mfumo? Onyesha kwa code + mfano mmoja wa prod-copy
+  (stock kabla/baada ya tozo). Kama HAIPUNGUZI: hesabu ni tozo ngapi za 1M zinarudia chupa ileile (kiasi). Kama inapunguza: sema hivyo.
+  Chunguza zile 5 za Oktoba (16,000) kwa mtazamo huo.
+PEPSI & MIRINDA, CASTLE LITE: kwa kila tozo — unit ya manunuzi (kreti/chupa), unit ya mauzo, na kama hesabu inaruhusu "empties".
+  Kuna mauzo ya kreti yaliyoandikwa kama chupa?
+Andaa hatua 64-rekebisha-15-10.cmd (preview → 🛑 → andika), Oktoba iko wazi → tarehe 15/10:
+  J1: Dr 6700 / Cr 1000 = 28,500 (maelezo: rejea JE-...6802 na JE-...7163).
+  J2: Dr 1120 / Cr 4000 = 17,000 — NA SWALI: iandikwe tu nikisema "J2 ndiyo"; vinginevyo ruka.
+  Inaendeshwa baada ya 63.
+Kisha onyo la manunuzi, kisha B5.
