@@ -579,3 +579,9 @@ Tarehe ya client > dakika 15 mbele ya saa ya server: USIKATAE. Weka saa ya serve
   Jaribio: tarehe +1h → imehifadhiwa kama saa ya server, audit ipo; tarehe ya nyuma halali → inabaki.
 Push: andaa ili Chief aendeshe push-yote mara moja baada ya commit.
 Kisha onyo la manunuzi, B5.
+
+## 2026-11-02 (cg)
+Onyo la manunuzi: ulisema njia 3 za kuingiza manunuzi. Orodhesha zote; zile 2 zisizo Repurchase zipate onyo lilelile + e2e.
+  Kama njia ya 07/09 na 22/09 (Jagger) inajulikana, itaje.
+C2 na C4: kadiria muda SASA (siku), kabla ya kuanza C1. Ikiwa jumla ya kilichobaki > siku 12, pendekeza kipi kitoke kwenye batch.
+Kisha C1.
