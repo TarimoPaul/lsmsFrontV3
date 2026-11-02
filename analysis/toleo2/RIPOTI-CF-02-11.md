@@ -69,7 +69,7 @@ Worktree nyingine zote za backend (Lsms, -a3, -a5, -a6, -jwt, -ops-logs) na lsms
 
 ## 6. Push — tayari kwa `analysis\steps\push-yote.cmd` (haijabadilishwa)
 
-Inapush release/2.4.0 (backend), release/3.2.0 na main (V3). Haitumii force; inakataa push isiyo fast-forward. Ukaguzi wa kusoma tu (fetch + ls-remote + is-ancestor): PUSH_KAGUA.
+Inapush release/2.4.0 (backend), release/3.2.0 na main (V3). Haitumii force; inakataa push isiyo fast-forward. Ukaguzi wa kusoma tu (fetch + ls-remote + is-ancestor): matawi yote 3 ni **fast-forward**. push-yote itapita bila force. Iendeshe mara moja: `analysis\steps\push-yote.cmd`, andika `push`, kisha nitumie `push-yote.log`.
 
 Matawi ya feature (tarehe-eat, v3-onyo-manunuzi, v3-b5) hayapushwi. Yameshaunganishwa kwenye release.
 
@@ -79,4 +79,9 @@ Kifurushi B na C kwa mpangilio wa orodha (be): C1… Nasubiri log ya push-yote.
 
 ## origin dhidi ya local
 
-ORIGIN_JEDWALI
+| repo | tawi | local | origin | hali |
+|---|---|---|---|---|
+| Backend | release/2.4.0 | 0d8463c | 0d1ee71 | TOFAUTI, FF, commit 10 mpya |
+| Backend | main | c98fa07 | c98fa07 | SAWA |
+| V3 | release/3.2.0 | af56318 | c540ab8 | TOFAUTI, FF, commit 7 mpya |
+| V3 | main | commit ya jedwali hili (juu ya 6ebede6) | 998dad6 | TOFAUTI, FF, commit 16 mpya |
