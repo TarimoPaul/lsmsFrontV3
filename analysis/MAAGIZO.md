@@ -498,3 +498,19 @@ Jagger 886dc1ed — Chief amethibitisha: CHUPA moja = 53,000 (TAKAWEDO), bei ya 
   - Baada: stock 1, thamani 53,000, TB 0, journal mara moja.
 BAADA-YA-BATCH §3: SKU 4 za Jagger (JAGER/JAGGER MASTER) — majina yaonyeshe saizi; unganisha au badilisha majina.
 Mpangilio unabaki: (bu), (bv) sehemu ya sale zilizofutwa + A6 reasons, kisha onyo la manunuzi, kisha B5.
+
+## 2026-11-02 (bv) — ilipotea, hii hapa (sehemu ya 63 imeondolewa, (bw) inatawala)
+Sale zilizofutwa tangu 30/10 (zote 6: 301026-2245/2251/2253, 311026-0831, 311026-2139, 011126-0720): kwa kila moja —
+  bidhaa, je ziliingizwa upya (sale ipi, lini, kiasi), na kama bidhaa hizo zilionekana upungufu kwenye hesabu iliyofuata na
+  zikatozwa 1120. Kusoma tu.
+A6: sababu ikatae herufi moja inayojirudia na sababu zenye herufi tofauti < 4 ("6666666666", "rrrrrrrrrr"). Batch + jaribio.
+  Hiyo hiyo kwa sababu za reco (variance reason, unsubmit reason).
+Compose: ROOT_PASSWORD warning → ${ROOT_PASSWORD:-} (C1).
+
+## 2026-11-02 (bx)
+63 ANDIKA iongeze: bidhaa 886dc1ed → chupa_kwa_kifurushi = 1 (au null), bei_kifurushi = 0, pamoja na audit. KAGUA ionyeshe kabla/baada.
+Pepsi: andaa 65-futa-tozo-pepsi.cmd (KAGUA → 🛑 → ANDIKA), isiendeshwe bila "ndiyo" yangu:
+  tozo 14/07 (56,533) na 10/10 (78,400) → Cr 1120 / Dr 1200 tarehe 02/11 (Jul imefungwa), daftari la madai lisasishwe ndani ya transaction
+  moja + audit, maelezo "Tozo isiyo sahihi: ziada ilifuata". Idadi ya stock ya Pepsi isiguswe — hesabu ijayo itaiweka.
+  Onyesha pia: hali ya stock ya Pepsi leo (mfumo dhidi ya hesabu ya mwisho).
+Kisha onyo la manunuzi, kisha B5.
