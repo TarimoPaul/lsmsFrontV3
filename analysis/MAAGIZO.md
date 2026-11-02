@@ -485,3 +485,16 @@ Andaa hatua 64-rekebisha-15-10.cmd (preview → 🛑 → andika), Oktoba iko waz
   J2: Dr 1120 / Cr 4000 = 17,000 — NA SWALI: iandikwe tu nikisema "J2 ndiyo"; vinginevyo ruka.
   Inaendeshwa baada ya 63.
 Kisha onyo la manunuzi, kisha B5.
+
+## 2026-11-02 (bw)
+Jagger 886dc1ed — Chief amethibitisha: CHUPA moja = 53,000 (TAKAWEDO), bei ya kuuza 60,000, dukani ipo 1.
+  Kosa ni hesabu ya 13/10 (6 badala ya 1), siyo gharama. Njia "CARTON" ya 63 IFUTWE.
+63 mpya:
+  - Gharama BAKI 53,000 (hakuna UPDATE ya cost, hakuna price_history).
+  - Idadi 6 → 1 kupitia stock movement halisi (ADJUSTMENT −5, bei 53,000, rejea ya COUNT-ADJ-ba9c1a62..., sababu
+    "Hesabu ya 13/10 ilikosewa: 6 badala ya 1 (Chief, 02/11)") + audit_trails.
+  - Journal tarehe 31/10 (Okt OPEN): Dr <akaunti iliyopewa credit 13/10> / Cr 1200 = 265,000 (kutoka data), maelezo hayo hayo.
+  - KAGUA ithibitishe: stock ya mfumo bado 6, hakuna mauzo ya 886dc1ed tangu 13/10, gharama 53,000. Vinginevyo simama.
+  - Baada: stock 1, thamani 53,000, TB 0, journal mara moja.
+BAADA-YA-BATCH §3: SKU 4 za Jagger (JAGER/JAGGER MASTER) — majina yaonyeshe saizi; unganisha au badilisha majina.
+Mpangilio unabaki: (bu), (bv) sehemu ya sale zilizofutwa + A6 reasons, kisha onyo la manunuzi, kisha B5.
