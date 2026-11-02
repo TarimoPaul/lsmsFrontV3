@@ -544,3 +544,38 @@ Ukurasa wa Store: "Thamani ya mzigo" = Σ stock × current_average_cost (siyo wa
   Kadiria: ≤ saa 1 → batch (B), vinginevyo BAADA. Jaribio: jumla ya ukurasa = daftari.
 HENNESY ce1fd75d: kwa nini stockValueAt inaona 2 wakati current_stock 0? Onyesha mwendo wake; ikiwa ni tarehe ya mwendo, rekebisha stockValueAt (batch).
 65: imekaguliwa — hakuna hatua ya ziada. Kisha onyo la manunuzi, B5.
+
+## 2026-11-02 (cc)
+Saa: HENNESY purchase 18:34 → movement 21:33 (≈ +3h = UTC/EAT). Chunguza (kusoma tu, prod-copy):
+  - kwa stock_movements zote 2026: movement_date − created_at; histogram ya tofauti; ngapi ≈ +3h / −3h; kwa aina na njia ya kuingiza
+    (fomu ya manunuzi, repurchase invoice, n.k.).
+  - Hiyo hiyo kwa purchases.purchase_date na sales.sale_date dhidi ya created_at.
+  - Ngapi zimeangukia siku nyingine kwa sababu hiyo.
+  Rekebisha CHANZO (batch) + PG test: tarehe iliyoingizwa ihifadhiwe kama EAT bila kuhamishwa. stockValueAt ibaki na id-order kama kinga.
+E2E b1 D3/D4: endesha mara 10 mfululizo kwenye build ya mwisho. Kushindwa ≥ 1 → tafuta chanzo (test au app race) kabla ya freeze.
+  Kanuni ya lango: E2E lazima ipite mwendesho wa KWANZA.
+MATAWI.md: PG 4/4.
+Kisha onyo la manunuzi, B5.
+
+## 2026-11-02 (cd)
+b1×10: acha imalizike, lakini haijibu swali (kosa lilikuwa run ya kwanza baada ya nakala safi).
+Soma log ya run iliyoshindwa kwenye (ca), D3/D4: ni timeout au assertion ya thamani? Nukuu mstari wa kosa.
+  - Timeout → ongeza warm-up (login + GET moja) kwenye run-all kabla ya b1; hakuna kingine.
+  - Thamani → rejesha nakala safi ×3, run moja baada ya kila rejesho; tafuta chanzo kwenye app.
+Kisha (cc) uchunguzi wa saa, onyo la manunuzi, B5.
+
+## 2026-11-02 (ce)
+Chaguo 1: rekebisha jaribio (subiri maudhui halisi: li ya S1 kwenye Kagua; maandishi ya kanuni kwenye dialogi ya sababu).
+Pamoja na hilo, app: "Nimeona" (na kitufe chochote cha kuthibitisha kwenye Kagua/banner) kiwe disabled mpaka /pending ijibu.
+  Jaribio: kuchelewesha /pending (route delay) → "Nimeona" haibofyeki mpaka orodha ionekane.
+Lango: b1×10 = 10/10, pamoja na run moja ya kwanza kwenye nakala mpya.
+Kisha (cc).
+
+## 2026-11-02 (cf)
+Kikao kingine cha 19:01: Chief anakifunga. Wewe pekee ndiye unafanya kazi backend + V3 kuanzia sasa.
+  Kagua diff yote isiyocommitiwa (yako + ya kikao kile), orodhesha faili, commit kwa ujumbe unaotaja asili yake.
+Kisha: mvnw test (suite), PG gate, run-all E2E — zote kwenye build hiyo. Ripoti namba.
+Tarehe ya client > dakika 15 mbele ya saa ya server: USIKATAE. Weka saa ya server + audit WARN (tarehe ya client, saa ya server, mtumiaji).
+  Jaribio: tarehe +1h → imehifadhiwa kama saa ya server, audit ipo; tarehe ya nyuma halali → inabaki.
+Push: andaa ili Chief aendeshe push-yote mara moja baada ya commit.
+Kisha onyo la manunuzi, B5.
