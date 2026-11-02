@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { RepurchaseLine, costJump } from './purchases.models';
+import { RepurchaseLine, costJump, costJumpRatio } from './purchases.models';
 
 // (bo/cf) 02/11 — "crate or bottle?": cost per piece vs the last purchase, past ×3 or below ⅓.
 const line = (o: Partial<RepurchaseLine>): RepurchaseLine => ({
@@ -24,5 +24,18 @@ describe('costJump', () => {
   it('is quiet when the last cost or the quantity is unknown', () => {
     expect(costJump(line({ lastCostPerPiece: null, unitPrice: 106_000 }))).toBeNull();
     expect(costJump(line({ quantity: 0, unitPrice: 106_000 }))).toBeNull();
+  });
+});
+
+describe('costJumpRatio (cg: new purchase and edit use the same rule)', () => {
+  it('compares any cost per piece with a reference', () => {
+    expect(costJumpRatio(53_000, 8_833.33)).toBe(6);
+    expect(costJumpRatio(8_833.33, 53_000)).toBe(0.17);
+    expect(costJumpRatio(9_000, 8_833.33)).toBeNull();
+  });
+  it('is quiet without a reference or a cost', () => {
+    expect(costJumpRatio(53_000, null)).toBeNull();
+    expect(costJumpRatio(53_000, 0)).toBeNull();
+    expect(costJumpRatio(0, 8_833.33)).toBeNull();
   });
 });

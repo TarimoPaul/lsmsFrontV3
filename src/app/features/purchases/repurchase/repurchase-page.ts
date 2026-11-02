@@ -16,6 +16,7 @@ import { SuppliersService } from '../../suppliers/suppliers.service';
 import type { PurchaseDetailsResult } from '../purchase-details-dialog';
 import { PURCHASE_STATUS, Purchase, PurchaseStatus, PurchaseType, RepurchasableProduct, RepurchaseLine, costJump, linePieces, lineTotal } from '../purchases.models';
 import { PurchasesService } from '../purchases.service';
+import { confirmCostJump } from '../cost-jump-confirm';
 import { RepurchaseCartStore } from './repurchase-cart.store';
 import type { RepurchaseDoneData } from './repurchase-done-dialog';
 import { buildInvoice } from './repurchase-invoice';
@@ -267,21 +268,11 @@ export class RepurchasePage {
   protected readonly jump = costJump;
 
   /** "Crate or bottle?" before sending lines whose cost per piece jumped; true = go on. Never refuses. */
-  private async confirmJumps(lines: RepurchaseLine[]): Promise<boolean> {
-    const odd = lines.filter((l) => costJump(l) !== null);
-    if (!odd.length) return true;
-    const rows = odd
-      .map((l) => `• ${l.name}: ${Money.format(this.costPerPiece(l))}/${this.i18n.t('piece', 'kipande')} — ×${costJump(l)} ${this.i18n.t('of the last', 'ya mwisho')} (${Money.format(l.lastCostPerPiece ?? 0)})`)
-      .join('\n');
-    return this.dialogs.confirm({
-      title: this.i18n.t('Crate or bottle?', 'Kreti au chupa?'),
-      message: this.i18n.t(
-        `The cost per piece is far from the last purchase:\n${rows}\n\nCheck the type (crate / piece) and the price before sending.`,
-        `Bei kwa kipande iko mbali sana na manunuzi ya mwisho:\n${rows}\n\nKagua aina (kreti / kipande) na bei kabla ya kutuma.`,
-      ),
-      confirmText: this.i18n.t('The price is right — send', 'Bei ni sahihi — tuma'),
-      cancelText: this.i18n.t('Fix it', 'Rekebisha'),
-    });
+  private confirmJumps(lines: RepurchaseLine[]): Promise<boolean> {
+    const rows = lines
+      .filter((l) => costJump(l) !== null)
+      .map((l) => ({ name: l.name, costPerPiece: this.costPerPiece(l), ratio: costJump(l)!, reference: l.lastCostPerPiece ?? 0 }));
+    return confirmCostJump(this.dialogs, this.i18n, rows);
   }
 
   protected margin(l: RepurchaseLine): number | null {

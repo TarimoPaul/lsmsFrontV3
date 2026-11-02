@@ -169,3 +169,14 @@ fieldset {
   align-self: start;
   margin-top: 24px;
 }
+
+/* (cg) cost per piece far from the last purchase / Store average: a warning, never a block */
+.jump {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-warning);
+}
