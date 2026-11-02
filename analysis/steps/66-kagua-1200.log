@@ -1,0 +1,153 @@
+---MWENDESHO-66--- 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KUSOMA-TU--- 
+time="2026-11-02T12:36:24+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+SAA_YA_SERVER 2026-11-02 1236 EAT
+time="2026-11-02T12:36:25+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+BACKEND_IMAGE 2.3.0
+BACKEND_TZ Africa/Dar_es_Salaam EAT
+time="2026-11-02T12:36:27+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+FLYWAY|135|0 zilizoshindwa
+SAA_YA_DB|2026-11-02 12:36:29|Africa/Dar_es_Salaam|read_only on
+JUMLA_GL_1200|4458775.51|POSTED 4458775.51|mistari 5014|journal 5014|mmiliki_63_alisema 4578975.35|tofauti -120199.84
+JUMLA_DAFTARI_AVG|4458766.74|bidhaa_zenye_stock 86|stock_hasi 0 thamani 0|stock_bila_gharama 0
+JUMLA_DAFTARI_LAST|4477537.74|tofauti_na_avg 18771.00|bidhaa_last_0_zenye_stock 0
+JUMLA_RIPOTI_YA_UENDESHAJI|4547537.62|stockValueAt(leo): stock ya store x bei ya manunuzi ya mwisho (avg ikikosekana)|bidhaa_bila_manunuzi 0
+JUMLA_UKURASA_WA_STORE|3553641.96|stock x wastani wa miezi 6 wa bei ya PURCHASE (V3 Store "Thamani ya mzigo")|bidhaa_zenye_stock_bila_manunuzi_miezi_6 22 thamani_avg 840333.00
+JUMLA_BIDHAA_ZILIZOFUTWA|zenye_stock 0|thamani_avg 0.00
+STOCK_DHIDI_YA_STORE|bidhaa 141|current_stock<>stock_after_ya_mwisho 0|bila_mwendo_lakini_stock 0
+DARAJA|1 daftari (stock x avg, bidhaa hai)|4458766.74
+DARAJA|2 - mwendo wa stock bila journal (kiasi x avg ya leo)|959264.69
+DARAJA|3 - stock ya mwanzo (stock_before ya mwendo wa kwanza)|-1079437.61
+DARAJA|4 - stock isiyoelezwa na mwendo (current_stock - mwanzo - jumla ya mwendo)|-291818.33
+DARAJA|5 - gharama (avg ya leo dhidi ya gharama zilizoandikwa)|-643841.51
+DARAJA|6 + GL ya bidhaa zilizofutwa/zisizopo|0.00
+DARAJA|7 + GL isiyo na bidhaa (true-up, journal za mkono...)|1055841.53
+DARAJA|8 = GL 1200|4458775.51|GL_halisi 4458775.51|TOFAUTI_ISIYOELEZEKA 0.00
+DARAJA_UPEKEE|mistari ya 1200 iliyolingana na njia >1 0|njia: 1=2239 2=2379 3=389 4=2 5=1 6=1 7=1
+GL_KWA_AINA|MANUAL_ADJUSTMENT|journal 1|Dr 0|Cr 265000.00|net -265000.00|bila_bidhaa 0|2026-10-31..2026-10-31
+GL_KWA_AINA|OPENING_BALANCE|journal 2|Dr 1055841.53|Cr 0|net 1055841.53|bila_bidhaa 1055841.53|2026-09-30..2026-09-30
+GL_KWA_AINA|PURCHASE_INVENTORY|journal 2239|Dr 266082759.53|Cr 0|net 266082759.53|bila_bidhaa 0|2026-02-05..2026-11-01
+GL_KWA_AINA|SALE_CASH|journal 2363|Dr 3085048.69|Cr 261317919.07|net -258232870.38|bila_bidhaa 0|2026-02-01..2026-11-02
+GL_KWA_AINA|SALE_CREDIT|journal 2|Dr 0|Cr 310315.41|net -310315.41|bila_bidhaa 0|2026-05-29..2026-08-08
+GL_KWA_AINA|SALE_MIXED|journal 14|Dr 0|Cr 2410872.78|net -2410872.78|bila_bidhaa 0|2026-05-03..2026-10-31
+GL_KWA_AINA|SALE_RETURN_CASH|journal 1|Dr 29500.00|Cr 0|net 29500.00|bila_bidhaa 0|2026-05-21..2026-05-21
+GL_KWA_AINA|SHRINKAGE_LOSS|journal 1|Dr 0|Cr 31500.00|net -31500.00|bila_bidhaa 0|2026-10-11..2026-10-11
+GL_KWA_AINA|STAFF_LIABILITY_CHARGE|journal 257|Dr 0|Cr 1197922.24|net -1197922.24|bila_bidhaa 0|2026-07-14..2026-11-02
+GL_KWA_AINA|STOCK_ADJUSTMENT|journal 134|Dr 1145094.15|Cr 1405938.89|net -260844.74|bila_bidhaa 0|2026-07-07..2026-11-02
+GL_BILA_BIDHAA|JE-2026-30804999106059|2026-09-30|OPENING_BALANCE|TRUEUP:INVENTORY:0f086700-9e45-410a-9bb4-eee519150|528773.18|POSTED|posted_by Paul Tarimo|2026-09-30 15:34:07|Opening balance / sub-ledger true-up True-up Inventory at cost to sub-ledger - 2026-09-30: thamani ya stock sasa inatumia current_average_co
+GL_BILA_BIDHAA|JE-2026-12696739779721|2026-09-30|OPENING_BALANCE|TRUEUP:INVENTORY:dcdba478-f063-40d8-b73e-f13099dd2|527068.35|POSTED|posted_by Paul Tarimo|2026-09-30 10:32:19|Opening balance / sub-ledger true-up True-up Inventory at cost to sub-ledger - Rebuild ya GL 2026-09-30: marekebisho ya stock ya zamani (ADJ
+GL_BILA_BIDHAA_IDADI|2|1055841.53
+MWENDO_KWA_AINA|ADJUSTMENT/ADJ|mwendo 273|bila_journal 271|kiasi_bila_journal -3417|thamani_avg_leo -5253250.17|2026-02-20..2026-10-27
+MWENDO_KWA_AINA|ADJUSTMENT/ADJ-RESET|mwendo 29|bila_journal 29|kiasi_bila_journal 3277|thamani_avg_leo 4045202.16|2026-04-09..2026-04-09
+MWENDO_KWA_AINA|ADJUSTMENT/COUNT-ADJ|mwendo 389|bila_journal 0|kiasi_bila_journal 0|thamani_avg_leo 0|2026-07-07..2026-11-02
+MWENDO_KWA_AINA|ADJUSTMENT/MAREKEBISHO|mwendo 1|bila_journal 0|kiasi_bila_journal 0|thamani_avg_leo 0|2026-11-02..2026-11-02
+MWENDO_KWA_AINA|DAMAGE|mwendo 1|bila_journal 0|kiasi_bila_journal 0|thamani_avg_leo 0|2026-10-11..2026-10-11
+MWENDO_KWA_AINA|PURCHASE|mwendo 2239|bila_journal 0|kiasi_bila_journal 0|thamani_avg_leo 0|2026-02-05..2026-11-01
+MWENDO_KWA_AINA|RETURN_TO_STOCK|mwendo 1|bila_journal 0|kiasi_bila_journal 0|thamani_avg_leo 0|2026-05-21..2026-05-21
+MWENDO_KWA_AINA|SALE|mwendo 13020|bila_journal 5|kiasi_bila_journal -13|thamani_avg_leo -17883.33|2026-02-05..2026-11-02
+MWENDO_KWA_AINA|SALE_REVERSAL|mwendo 1193|bila_journal 6|kiasi_bila_journal 165|thamani_avg_leo 266666.65|2026-02-06..2026-11-01
+MWENDO_BILA_JOURNAL_MWEZI|2026-02|ADJUSTMENT/ADJ|11|kiasi 98|thamani_avg_leo 244987.54
+MWENDO_BILA_JOURNAL_MWEZI|2026-03|ADJUSTMENT/ADJ|113|kiasi -880|thamani_avg_leo -1846053.67
+MWENDO_BILA_JOURNAL_MWEZI|2026-04|ADJUSTMENT/ADJ|89|kiasi -2887|thamani_avg_leo -3506245.40
+MWENDO_BILA_JOURNAL_MWEZI|2026-04|ADJUSTMENT/ADJ-RESET|29|kiasi 3277|thamani_avg_leo 4045202.16
+MWENDO_BILA_JOURNAL_MWEZI|2026-04|SALE|3|kiasi -4|thamani_avg_leo -4150.00
+MWENDO_BILA_JOURNAL_MWEZI|2026-05|ADJUSTMENT/ADJ|30|kiasi 1|thamani_avg_leo -164865.01
+MWENDO_BILA_JOURNAL_MWEZI|2026-06|ADJUSTMENT/ADJ|17|kiasi 347|thamani_avg_leo 298365.59
+MWENDO_BILA_JOURNAL_MWEZI|2026-07|ADJUSTMENT/ADJ|4|kiasi -68|thamani_avg_leo -155088.68
+MWENDO_BILA_JOURNAL_MWEZI|2026-08|ADJUSTMENT/ADJ|6|kiasi 62|thamani_avg_leo 43649.76
+MWENDO_BILA_JOURNAL_MWEZI|2026-08|SALE|2|kiasi -9|thamani_avg_leo -13733.33
+MWENDO_BILA_JOURNAL_MWEZI|2026-08|SALE_REVERSAL|6|kiasi 165|thamani_avg_leo 266666.65
+MWENDO_BILA_JOURNAL_MWEZI|2026-09|ADJUSTMENT/ADJ|1|kiasi -90|thamani_avg_leo -168000.30
+COUNT_ADJ_HALI|gl_posted false|1200/5100|COUNTING_ERROR|safu 40|adjustment_value 319738.26|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|1200/5100|OFF_SYSTEM_SALE|safu 3|adjustment_value 12000.00|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|1200/5100|UNRECORDED_DELIVERY|safu 10|adjustment_value 251140.28|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|5100/1200|COUNTING_ERROR|safu 35|adjustment_value -837684.33|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|5100/1200|DAMAGED|safu 2|adjustment_value -20308.00|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|5100/1200|OFF_SYSTEM_SALE|safu 164|adjustment_value -638620.42|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|5100/1200|UNKNOWN|safu 8|adjustment_value -17316.46|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted false|5100/1200|UNRECORDED_DELIVERY|safu 4|adjustment_value -300816.68|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|1120/1200|OFF_SYSTEM_SALE|safu 84|adjustment_value -555643.60|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|1120/1200|UNKNOWN|safu 2|adjustment_value -2874.99|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|1200/5100|COUNTING_ERROR|safu 25|adjustment_value 523807.27|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|1200/5100|OFF_SYSTEM_SALE|safu 3|adjustment_value 16408.34|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|1200/5100|UNRECORDED_DELIVERY|safu 1|adjustment_value 8500.00|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|5100/1200|COUNTING_ERROR|safu 6|adjustment_value -194356.65|mwendo_bila_journal 0|thamani_avg_leo 0
+COUNT_ADJ_HALI|gl_posted true|5100/1200|DAMAGED|safu 2|adjustment_value -36240.00|mwendo_bila_journal 0|thamani_avg_leo 0
+MAUZO_HALI|futwa false|gl_ya_1200 false|mwendo_net HAKUNA|sale 281|kiasi 0|gl 0.00
+MAUZO_HALI|futwa false|gl_ya_1200 true|mwendo_net <>0|sale 2307|kiasi -175100|gl -260954058.57
+MAUZO_HALI|futwa true|gl_ya_1200 false|mwendo_net 0|sale 241|kiasi 0|gl 0.00
+MAUZO_HALI|futwa true|gl_ya_1200 false|mwendo_net <>0|sale 3|kiasi 152|gl 0.00
+MAUZO_HALI|futwa true|gl_ya_1200 false|mwendo_net HAKUNA|sale 15|kiasi 0|gl 0.00
+MAUZO_STOCK_BILA_JOURNAL|RCP-20260807-270000-DCCB|2026-08-07|futwa true|deleted_at -|kiasi 152|thamani_avg_leo 250800.00
+MAUZO_STOCK_BILA_JOURNAL|RCP-20260414-1206-865|2026-04-14|futwa true|deleted_at -|kiasi -4|thamani_avg_leo -4150.00
+MAUZO_STOCK_BILA_JOURNAL|RCP-20260801-379000-CDED|2026-08-01|futwa true|deleted_at -|kiasi 4|thamani_avg_leo 2133.32
+MAUZO_JOURNAL_BILA_STOCK_IDADI|0|gl 0.00
+MWENDO_WA_MAUZO_BILA_SALE|0|kiasi 0
+TANGU_TRUE_UP|true_up 2026-09-30 15:34:07|journal 2|jumla 1055841.53
+TANGU_TRUE_UP_JUMLA|tofauti_leo(daftari-GL) -8.77|mwendo_bila_journal_tangu 0|mabaki (tofauti ya 30/09 baada ya true-up + avg kubadilika + gharama tofauti) -8.77
+STOCK_YA_MWANZO|bidhaa_zenye_mwanzo<>0 12|kiasi 616|thamani_avg_leo 1079437.61|kiasi_kisichoelezwa_bidhaa 20|thamani 291818.33|ndani_yake: mapengo_ya_mnyororo 52 bidhaa, 836 mapengo, kiasi 506 thamani 291818.33; current_stock-stock_after_ya_mwisho kiasi 0 thamani 0.00
+STOCK_YA_MWANZO_BIDHAA|PEPSI TAKE AWAY|44cc3664|mwanzo 0|kisichoelezwa 624|mapengo 29 kiasi 624|current-mwisho 0|avg 866.67|thamani 540802.08
+STOCK_YA_MWANZO_BIDHAA|BRUTA FRUIT 330ML|3a34e9ca|mwanzo 23|kisichoelezwa 23|mapengo 8 kiasi 23|current-mwisho 0|avg 3333.33|thamani 153333.18
+STOCK_YA_MWANZO_BIDHAA|ABSOLUTE VODKA|ddb9ba66|mwanzo 0|kisichoelezwa 8|mapengo 1 kiasi 8|current-mwisho 0|avg 16000.00|thamani 128000.00
+STOCK_YA_MWANZO_BIDHAA|PEPSI && MIRINDA|d4255240|mwanzo 0|kisichoelezwa 192|mapengo 63 kiasi 192|current-mwisho 0|avg 533.33|thamani 102399.36
+STOCK_YA_MWANZO_BIDHAA|ABSOLUTE VODKA|16cbcf37|mwanzo 0|kisichoelezwa 2|mapengo 1 kiasi 2|current-mwisho 0|avg 46000.00|thamani 92000.00
+STOCK_YA_MWANZO_BIDHAA|KONYAGI|99a671ac|mwanzo 0|kisichoelezwa 18|mapengo 35 kiasi 18|current-mwisho 0|avg 3833.33|thamani 68999.94
+STOCK_YA_MWANZO_BIDHAA|KILIMANJARO|cd08ed95|mwanzo 103|kisichoelezwa -63|mapengo 41 kiasi -63|current-mwisho 0|avg 1650.00|thamani 66000.00
+STOCK_YA_MWANZO_BIDHAA|CASTLE LITE|1de00f32|mwanzo 146|kisichoelezwa -108|mapengo 58 kiasi -108|current-mwisho 0|avg 1650.00|thamani 62700.00
+STOCK_YA_MWANZO_BIDHAA|SERENGETI LITE|35117a3d|mwanzo 0|kisichoelezwa 28|mapengo 55 kiasi 28|current-mwisho 0|avg 1576.00|thamani 44128.00
+STOCK_YA_MWANZO_BIDHAA|AFYA|caaedca5|mwanzo 46|kisichoelezwa 8|mapengo 24 kiasi 8|current-mwisho 0|avg 716.67|thamani 38700.18
+STOCK_YA_MWANZO_BIDHAA|SERENGETI LAGER|afb57fa2|mwanzo 110|kisichoelezwa -86|mapengo 61 kiasi -86|current-mwisho 0|avg 1540.00|thamani 36960.00
+STOCK_YA_MWANZO_BIDHAA|COCA && FANTA|aef4d66c|mwanzo 0|kisichoelezwa 40|mapengo 49 kiasi 40|current-mwisho 0|avg 533.33|thamani 21333.20
+STOCK_YA_MWANZO_BIDHAA|SERENGETI LEMON|eba11889|mwanzo 76|kisichoelezwa -70|mapengo 19 kiasi -70|current-mwisho 0|avg 1525.00|thamani 9150.00
+STOCK_YA_MWANZO_BIDHAA|K VANT 250ML|2c9e1039|mwanzo 0|kisichoelezwa 2|mapengo 8 kiasi 2|current-mwisho 0|avg 3375.00|thamani 6750.00
+STOCK_YA_MWANZO_BIDHAA|STRONG|381780df|mwanzo 5|kisichoelezwa -5|mapengo 2 kiasi -5|current-mwisho 0|avg 1700.00|thamani 0.00
+TRUE_UP_1200|JE-2026-12696739779721|2026-09-30|TRUEUP:INVENTORY:dcdba478-f063-40d8-b73e-f13099dd261f|527068.35|posted_by Paul Tarimo|2026-09-30 10:32:19
+TRUE_UP_1200|JE-2026-30804999106059|2026-09-30|TRUEUP:INVENTORY:0f086700-9e45-410a-9bb4-eee519150542|528773.18|posted_by Paul Tarimo|2026-09-30 15:34:07
+MANUNUZI_HALI|CANCELLED|futwa false|3|total_amount 340000.00|zenye_journal 0|gl 0|zenye_stock 0|stock_x_gharama 0
+MANUNUZI_HALI|PENDING|futwa true|6|total_amount 316396.32|zenye_journal 0|gl 0|zenye_stock 0|stock_x_gharama 0
+MANUNUZI_HALI|RECEIVED|futwa false|2239|total_amount 266082759.53|zenye_journal 2239|gl 266082759.53|zenye_stock 2239|stock_x_gharama 266082758.71
+MANUNUZI_STOCK_BILA_JOURNAL_IDADI|0|thamani 0
+MANUNUZI_JOURNAL_BILA_STOCK_IDADI|0|gl 0
+MANUNUZI_GL_DHIDI_YA_STOCK|zenye_vyote 2239|zinazotofautiana>1 0|jumla_tofauti(gl-stock_x_gharama) 0.82
+BIDHAA_KUBWA|COCA && FANTA|aef4d66c|futwa false|stock 2|avg 533.33|last 533.33|daftari 1066.66|gl -498087.87|tofauti 499154.53|bila_journal 477863.68 (count 0.00, adj 172798.92, adj-reset 305064.76, mauzo 0.00, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 21333.20|gharama -42.35|last_vs_avg 0.00
+BIDHAA_KUBWA|PEPSI && MIRINDA|d4255240|futwa false|stock 32|avg 533.33|last 533.33|daftari 17066.56|gl -406193.68|tofauti 423260.24|bila_journal 306131.42 (count 0.00, adj -81599.49, adj-reset 386130.92, mauzo 1599.99, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 102399.36|gharama 14729.46|last_vs_avg 0.00
+BIDHAA_KUBWA|BLACK AND WHITE|fe22ac68|futwa false|stock 4|avg 20583.33|last 20583.33|daftari 82333.32|gl -288160.68|tofauti 370494.00|bila_journal 370499.94 (count 0.00, adj 308749.95, adj-reset 61749.99, mauzo 0.00, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 0.00|gharama -5.94|last_vs_avg 0.00
+BIDHAA_KUBWA|SERENGETI LITE|35117a3d|futwa false|stock 117|avg 1576.00|last 1576.00|daftari 184392.00|gl 503030.30|tofauti -318638.30|bila_journal -34672.00 (count 0.00, adj -446008.00, adj-reset 411336.00, mauzo 0.00, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 44128.00|gharama -328094.30|last_vs_avg 0.00
+BIDHAA_KUBWA|CASTLE LITE|1de00f32|futwa false|stock 43|avg 1650.00|last 1650.00|daftari 70950.00|gl -230453.68|tofauti 301403.68|bila_journal -23100.00 (count 0.00, adj -570900.00, adj-reset 300300.00, mauzo 247500.00, nyingine 0.00)|mwanzo 240900.00|kisichoelezwa -178200.00|gharama 261803.68|last_vs_avg 0.00
+BIDHAA_KUBWA|SAFARI LAGER|a02aeee4|futwa false|stock 59|avg 1650.00|last 1650.00|daftari 97350.00|gl -190413.19|tofauti 287763.19|bila_journal 8250.00 (count 0.00, adj -506550.00, adj-reset 514800.00, mauzo 0.00, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 0.00|gharama 279513.19|last_vs_avg 0.00
+BIDHAA_KUBWA|FLY FISH LEMON 330ML|dbb956de|futwa false|stock 0|avg 1600.00|last 1600.00|daftari 0.00|gl -222400.00|tofauti 222400.00|bila_journal 222400.00 (count 0.00, adj 161600.00, adj-reset 60800.00, mauzo 0.00, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 0.00|gharama 0.00|last_vs_avg 0.00
+BIDHAA_KUBWA|SERENGETI LAGER|afb57fa2|futwa false|stock 82|avg 1540.00|last 1540.00|daftari 126280.00|gl 337356.24|tofauti -211076.24|bila_journal -164780.00 (count 0.00, adj -585200.00, adj-reset 420420.00, mauzo 0.00, nyingine 0.00)|mwanzo 169400.00|kisichoelezwa -132440.00|gharama -83256.24|last_vs_avg 0.00
+BIDHAA_KUBWA|PEPSI TAKE AWAY|44cc3664|futwa false|stock 0|avg 866.67|last 866.67|daftari 0.00|gl 181293.21|tofauti -181293.21|bila_journal -735802.83 (count 0.00, adj -735802.83, adj-reset 0.00, mauzo 0.00, nyingine 0.00)|mwanzo 0.00|kisichoelezwa 540802.08|gharama 13707.54|last_vs_avg 0.00
+BIDHAA_KUBWA|KILIMANJARO|cd08ed95|futwa false|stock 130|avg 1650.00|last 1650.00|daftari 214500.00|gl 57451.68|tofauti 157048.32|bila_journal -67650.00 (count 0.00, adj -306900.00, adj-reset 239250.00, mauzo 0.00, nyingine 0.00)|mwanzo 169950.00|kisichoelezwa -103950.00|gharama 158698.32|last_vs_avg 0.00
+BIDHAA_JUMLA|zenye_tofauti>1 79|kumi_kubwa 1550516.21|zote 1055832.76
+AVG_VS_LAST|K VANT|6a0697be|stock 8|avg 8166.00|last 9416.67|stock_x(last-avg) 10005.36
+AVG_VS_LAST|DROSTDY OFF|040b1b1e|stock 3|avg 12409.09|last 14000.00|stock_x(last-avg) 4772.73
+AVG_VS_LAST|TZEE GIN 200ML|a7e2df66|stock 7|avg 3625.00|last 4166.67|stock_x(last-avg) 3791.69
+AVG_VS_LAST|SAVANA 330ML|42efc759|stock 8|avg 3396.58|last 3416.67|stock_x(last-avg) 160.72
+AVG_VS_LAST|WINDOK|11da0ce2|stock 21|avg 3248.10|last 3250.00|stock_x(last-avg) 39.90
+AVG_VS_LAST|HEINEKEN|41e7127a|stock 20|avg 3249.92|last 3250.00|stock_x(last-avg) 1.60
+AVG_VS_LAST|GORDONS|6350d449|stock 10|avg 10812.60|last 10812.50|stock_x(last-avg) -1.00
+AVG_VS_LAST|FOUR COUSIN DREAM CREAM|5d7d63c0|stock 2|avg 27000.00|last 27000.00|stock_x(last-avg) 0.00
+AVG_VS_LAST|MAGIC MOMENTS|8200201c|stock 1|avg 11000.00|last 11000.00|stock_x(last-avg) 0.00
+AVG_VS_LAST|Moon Light Kupima|6d5cf8a1|stock 9|avg 2000.00|last 2000.00|stock_x(last-avg) 0.00
+RIPOTI_VS_DAFTARI|HENNESY|ce1fd75d|stock_ya_ripoti 2|current_stock 0|bei_ya_ripoti 35000.00|avg 35000.00|ripoti-daftari 70000.00
+RIPOTI_VS_DAFTARI|K VANT|6a0697be|stock_ya_ripoti 8|current_stock 8|bei_ya_ripoti 9416.67|avg 8166.00|ripoti-daftari 10005.33
+RIPOTI_VS_DAFTARI|DROSTDY OFF|040b1b1e|stock_ya_ripoti 3|current_stock 3|bei_ya_ripoti 14000.00|avg 12409.09|ripoti-daftari 4772.73
+RIPOTI_VS_DAFTARI|TZEE GIN 200ML|a7e2df66|stock_ya_ripoti 7|current_stock 7|bei_ya_ripoti 4166.67|avg 3625.00|ripoti-daftari 3791.69
+RIPOTI_VS_DAFTARI|SAVANA 330ML|42efc759|stock_ya_ripoti 8|current_stock 8|bei_ya_ripoti 3416.67|avg 3396.58|ripoti-daftari 160.69
+RIPOTI_VS_DAFTARI|WINDOK|11da0ce2|stock_ya_ripoti 21|current_stock 21|bei_ya_ripoti 3250.00|avg 3248.10|ripoti-daftari 39.90
+RIPOTI_VS_DAFTARI|HEINEKEN|41e7127a|stock_ya_ripoti 20|current_stock 20|bei_ya_ripoti 3250.00|avg 3249.92|ripoti-daftari 1.60
+RIPOTI_VS_DAFTARI|GORDONS|6350d449|stock_ya_ripoti 10|current_stock 10|bei_ya_ripoti 10812.50|avg 10812.60|ripoti-daftari -1.00
+RIPOTI_VS_DAFTARI|CUCA|0d5690cb|stock_ya_ripoti 60|current_stock 60|bei_ya_ripoti 1866.67|avg 1866.67|ripoti-daftari -0.20
+RIPOTI_VS_DAFTARI|PEPSI && MIRINDA|d4255240|stock_ya_ripoti 32|current_stock 32|bei_ya_ripoti 533.33|avg 533.33|ripoti-daftari 0.11
+RIPOTI_VS_DAFTARI_JUMLA|kwa_idadi(stock_ya_ripoti-current_stock)xavg 70000.00|kwa_bei(bei_ya_ripoti-avg)xstock_ya_ripoti 18770.88
+USHAHIDI_66_SQL_UMEKAMILIKA
+[psql exit 0]
+---USHAHIDI_66_UMEKAMILIKA---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+---KICHUJIO-KIMEFUTWA--- 
+/tmp/ficha-lsms.awk imefutwa
+---OK--- 

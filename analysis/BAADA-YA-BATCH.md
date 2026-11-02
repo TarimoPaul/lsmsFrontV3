@@ -49,6 +49,19 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
   si CHARGE_TO_CASHIER). Mfumo ukatae CHARGE_TO_CASHIER kwa bidhaa ya kupima, na hesabu ya kila siku isiilete kama mstari.
   Hali ya 29/10 (nakala, kusoma tu): Moon Light −9 (18,000), Konyagi −10 (10,000), Golden King −9 (9,000), Gilbeys −9 (9,000),
   Camino 0, Wine 0 → **46,000 kwa gharama, haijaandikwa** (kila hesabu ilipata 0; hakuna stock_adjustment hata moja ya kupima).
+- **Manunuzi ya siku kabla ya hesabu (mmiliki 02/11 by):** manunuzi ya siku yaandikwe KABLA ya hesabu, au mzigo usioandikwa
+  utengwe nje ya hesabu. Hesabu iwe na swali la lazima "Kuna mzigo uliofika leo ambao haujaandikwa?". Ikiwa NDIYO, hesabu
+  isubiri manunuzi yaandikwe, au bidhaa hizo ziwekwe alama "mzigo haujaandikwa" na zisitoe tofauti. Chanzo: Pepsi 14/07 na
+  10/10, ambapo hesabu ilifanyika kabla manunuzi hayajaandikwa (MAREKEBISHO-BU-PEPSI-02-11.md). Tozo hizo zilikuwa halisi
+  kwa mfumo, kwa hiyo hakuna hatua 65 (Chief, by).
+
+## 2a. Kipimo kimoja cha thamani ya stock = avg (mmiliki 02/11 by; uchunguzi bz)
+- Leo kuna vipimo vinne (RIPOTI-BZ-02-11.md §1): GL/COGS = `current_average_cost`; ripoti ya uendeshaji
+  (`DailyPnlService.stockValueAt`) = bei ya manunuzi ya MWISHO, na idadi kwa movement_date; ukurasa wa Store wa V3
+  (`/display/stock/summary`) = wastani wa miezi 6 wa bei ya PURCHASE, na 0 kwa bidhaa isiyonunuliwa miezi 6.
+- Badiliko: ripoti ya uendeshaji na ukurasa wa Store zitumie `products.current_average_cost` × `current_stock`
+  (ripoti: stock ya siku × avg). Store isitoe 0 kwa bidhaa iliyopo. Jaribio: Σ ukurasa wa Store = Σ daftari = stock-closing
+  ya ripoti ya leo, na daraja la GL halina mstari wa "tofauti ya bei".
 
 ## 3. Manunuzi na SKU za Jagger (uchunguzi (bn) f; IMEREKEBISHWA na mmiliki 02/11 bw)
 

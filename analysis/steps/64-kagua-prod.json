@@ -1,0 +1,61 @@
+{
+  "saa": "2026-11-02T09:30:12.681Z",
+  "gl1120": 1057301.88,
+  "daftari": 1057301.88,
+  "ipo": {
+    "J1": 0,
+    "J2": 0
+  },
+  "malipo": {
+    "81e32020-b10f-454c-89cf-1c93c574aff4": {
+      "kiasi": 15000,
+      "imefutwa": false,
+      "deni": "47f0c55c-a824-4ce2-9cfa-558b47782d7d",
+      "deniKiasi": 111500,
+      "hali": "PARTIALLY_PAID",
+      "imelipwa": 15000
+    },
+    "f6d20485-7263-4d11-b8ba-670cb6cf43ed": {
+      "kiasi": 2000,
+      "imefutwa": false,
+      "deni": "c81f7ccb-aeea-41ba-ae5a-bb234c0b4f73",
+      "deniKiasi": 44000,
+      "hali": "PARTIALLY_PAID",
+      "imelipwa": 2000
+    }
+  },
+  "chanzo": {
+    "MALIPO_15000": {
+      "nambari": "JE-2026-1170272232836819",
+      "tarehe": "2026-10-15",
+      "aina": "STAFF_LIABILITY_PAYMENT",
+      "imefutwa": false,
+      "reversal": 0,
+      "mistari": "1000 15000.00 0.00;1120 0.00 15000.00"
+    },
+    "MALIPO_2000": {
+      "nambari": "JE-2026-1170382823731062",
+      "tarehe": "2026-10-15",
+      "aina": "STAFF_LIABILITY_PAYMENT",
+      "imefutwa": false,
+      "reversal": 0,
+      "mistari": "1000 2000.00 0.00;1120 0.00 2000.00"
+    },
+    "MALIPO_28500": {
+      "nambari": "JE-2026-1170142847527163",
+      "tarehe": "2026-10-15",
+      "aina": "STAFF_LIABILITY_PAYMENT",
+      "imefutwa": false,
+      "reversal": 0,
+      "mistari": "1000 28500.00 0.00;1120 0.00 28500.00"
+    },
+    "RECO_10_10": {
+      "nambari": "JE-2026-364983712136802",
+      "tarehe": "2026-10-10",
+      "aina": "DAY_CLOSE_VARIANCE",
+      "imefutwa": false,
+      "reversal": 0,
+      "mistari": "1000 28500.00 0.00;6700 0.00 28500.00"
+    }
+  }
+}

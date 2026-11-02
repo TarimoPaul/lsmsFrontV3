@@ -522,3 +522,10 @@ Uchunguzi mpya (kusoma tu, hatua 66): 1200 ya GL (4,578,975.35 baada ya 63) dhid
   (aina, jumla), stock ya mwanzo, purchases bila journal, tofauti ya average vs last cost. Pia: ripoti ya uendeshaji
   inatumia gharama ipi kwa "Stock value"? Hii lazima ijulikane kabla ya cutover D (hatua 60).
 Kisha (bv), onyo la manunuzi, B5.
+
+## 2026-11-02 (by) — ilifika baada ya (bz), hii hapa
+Pepsi: hakuna hatua 65 — tozo zilikuwa halisi (Chief amekubali marekebisho yako).
+BAADA-YA-BATCH §2: manunuzi ya siku yaandikwe kabla ya hesabu, au mzigo usioandikwa utengwe nje ya hesabu;
+  hesabu iwe na swali "kuna mzigo uliofika leo ambao haujaandikwa?".
+BAADA-YA-BATCH: kipimo kimoja cha thamani ya stock = avg (ripoti ya uendeshaji + ukurasa wa Store; Store isitoe 0 kwa bidhaa iliyopo).
+Endelea na (bv).

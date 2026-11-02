@@ -1,0 +1,45 @@
+---MWENDESHO-64--- 
+log ya 63 imekamilika ---OK--- 
+PROD_API ni https://elikom.co.tz 
+---FICHA-KWENDA-CONTABO--- 
+[exit 0] 
+mmiliki ameandika: ANDIKA 
+J2 ITARUKWA - mmiliki hakuandika "J2 ndiyo" 
+email iliyoandikwa: tarimo@gmail.com 
+---ANDIKA--- 
+time="2026-11-02T12:45:18+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+J64_TAREHE|2026-11-02
+J64_KIPINDI|10|OPEN
+J64_CHANZO|MALIPO_15000|JE-2026-1170272232836819|2026-10-15|STAFF_LIABILITY_PAYMENT|false|0|1000 15000.00 0.00;1120 0.00 15000.00
+J64_CHANZO|MALIPO_2000|JE-2026-1170382823731062|2026-10-15|STAFF_LIABILITY_PAYMENT|false|0|1000 2000.00 0.00;1120 0.00 2000.00
+J64_CHANZO|MALIPO_28500|JE-2026-1170142847527163|2026-10-15|STAFF_LIABILITY_PAYMENT|false|0|1000 28500.00 0.00;1120 0.00 28500.00
+J64_CHANZO|RECO_10_10|JE-2026-364983712136802|2026-10-10|DAY_CLOSE_VARIANCE|false|0|1000 28500.00 0.00;6700 0.00 28500.00
+J64_RECO_10_10|28500.00
+J64_MALIPO|81e32020-b10f-454c-89cf-1c93c574aff4|15000.00|false|47f0c55c-a824-4ce2-9cfa-558b47782d7d|111500.00|PARTIALLY_PAID|15000.00
+J64_MALIPO|f6d20485-7263-4d11-b8ba-670cb6cf43ed|2000.00|false|c81f7ccb-aeea-41ba-ae5a-bb234c0b4f73|44000.00|PARTIALLY_PAID|2000.00
+J64_1120|1057301.88|1057301.88
+J64_JOURNAL_IPO|J1|0|-
+J64_JOURNAL_IPO|J2|0|-
+J64_TB|0.00
+J64_KAGUA_IMEKAMILIKA
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+PASS 64.k1 kagua imekamilika: SQL ya kagua ilifika mwisho
+PASS 64.k2 Oktoba iko wazi (au journal zimeshaandikwa): Oktoba OPEN
+PASS 64.k3 RECO_10_10: JE-2026-364983712136802 ipo, hai, haina reversal, mistari kama nakala: JE-2026-364983712136802 2026-10-10 DAY_CLOSE_VARIANCE imefutwa=false reversal=0 [1000 28500.00 0.00;6700 0.00 28500.00]
+PASS 64.k3 MALIPO_28500: JE-2026-1170142847527163 ipo, hai, haina reversal, mistari kama nakala: JE-2026-1170142847527163 2026-10-15 STAFF_LIABILITY_PAYMENT imefutwa=false reversal=0 [1000 28500.00 0.00;1120 0.00 28500.00]
+PASS 64.k3 MALIPO_15000: JE-2026-1170272232836819 ipo, hai, haina reversal, mistari kama nakala: JE-2026-1170272232836819 2026-10-15 STAFF_LIABILITY_PAYMENT imefutwa=false reversal=0 [1000 15000.00 0.00;1120 0.00 15000.00]
+PASS 64.k3 MALIPO_2000: JE-2026-1170382823731062 ipo, hai, haina reversal, mistari kama nakala: JE-2026-1170382823731062 2026-10-15 STAFF_LIABILITY_PAYMENT imefutwa=false reversal=0 [1000 2000.00 0.00;1120 0.00 2000.00]
+PASS 64.k4 reco 10/10: net ya 1000 kwa DAY_CLOSE_VARIANCE = +28,500: 28,500
+PASS 64.k5 malipo 81e32020 15,000 yapo kwenye daftari: kiasi 15,000, imefutwa=false, deni 47f0c55c 111,500 PARTIALLY_PAID, imelipwa 15,000
+PASS 64.k5 malipo f6d20485 2,000 yapo kwenye daftari: kiasi 2,000, imefutwa=false, deni c81f7ccb 44,000 PARTIALLY_PAID, imelipwa 2,000
+PASS 64.k6 1120 ya GL = daftari la madai: GL 1,057,301.88 / daftari 1,057,301.88
+PASS 64.k7 kila journal imeandikwa mara 0 au 1: {"J1":0,"J2":0}
+PASS 64.k8 TB 0: 0
+PREVIEW 64: J1 2026-10-15 Dr 6700 28,500 / Cr 1000 28,500 "J1 15/10: 28,500 mara mbili kwenye 1000 (JE-...6802 + JE-...7163)" (itaandikwa)
+PREVIEW 64: J2 2026-10-15 Dr 1120 17,000 / Cr 4000 17,000 "J2 15/10: 17,000 ni mauzo, si malipo ya deni (JE-...6819 + JE-...1062)" (ITARUKWA isipokuwa mmiliki aandike "J2 ndiyo")
+PREVIEW 64: J2 pia inafuta malipo 81e32020 (15,000) na f6d20485 (2,000) kwenye daftari la madai (SQL + audit), ili 1120 ibaki = daftari: baada ya J2 deni la macheda = 1,074,301.88
+PASS 64.a1 namba ni zilezile za preview: 1120 GL 1,057,301.88 -> 1,057,301.88, daftari 1,057,301.88 -> 1,057,301.88
+LOGIN_IMESHINDWA 401
+[exit 1] 
+---IMESHINDWA-KWENYE: ANDIKA (exit 1)--- 
+---IMESHINDWA--- 
