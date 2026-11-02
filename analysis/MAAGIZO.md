@@ -468,3 +468,8 @@ Kisha onyo la manunuzi, kisha B5. Usisubiri logs zangu — endelea.
 BAADA-YA-BATCH §0: tozo ya mfanyakazi kwa GHARAMA (Dr 1120 / Cr 1200), bila 4900; tofauti ya bei ya kuuza iandikwe tu ikilipwa
   (au kwa makubaliano ya maandishi).
 Kisha onyo la manunuzi, kisha B5.
+
+## 2026-11-02 (bila herufi, baada ya (bt)) — ujumbe haukuwa na kichwa; umehifadhiwa kama ulivyo
+Bidhaa za kupima: hakuna tozo kwa mtu (uamuzi wa Chief, hadi vipimo halisi). Lakini BAADA-YA-BATCH §2:
+  hesabu ya wiki kwa chupa nzima → tofauti Dr 5100 / Cr 1200 kwa gharama, bila 1120. Na sasa (kusoma tu):
+  jumla ya tofauti ya kupima isiyoandikwa kwa gharama, leo.

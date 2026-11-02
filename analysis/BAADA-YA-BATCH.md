@@ -44,8 +44,11 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
 - **Tofauti inayojirudia hesabu 2 mfululizo haiwezi kuwa NO_ACTION tena**: bidhaa ileile yenye tofauti ileile siku ya pili
   inalazimika kuwa ADJUST / CHARGE_TO_CASHIER au recount. Inahitaji kuhifadhi uamuzi wa kila mstari (leo NO_ACTION haiachi alama).
 - **Ziada > 50,000 kwa bidhaa: recount na mtu wa pili kabla ya approve.** Mfano: JAGGER MASTER 13/10 (+265,000, hakuna recount).
-- **Bidhaa za "kupima": upotevu wa kupima uandikwe kama gharama (5100), siyo NO_ACTION.** Mfano: Moon Light / Golden King /
-  Gilbeys Kupima −36,000 kila siku kwa siku 28.
+- **Bidhaa za "kupima" (mmiliki 02/11, baada ya bt): HAKUNA tozo kwa mtu** (uamuzi wa Chief, mpaka kuwe na vipimo halisi).
+  Badala yake: hesabu ya WIKI kwa chupa nzima; tofauti inaandikwa Dr 5100 / Cr 1200 kwa GHARAMA, bila 1120 (si NO_ACTION,
+  si CHARGE_TO_CASHIER). Mfumo ukatae CHARGE_TO_CASHIER kwa bidhaa ya kupima, na hesabu ya kila siku isiilete kama mstari.
+  Hali ya 29/10 (nakala, kusoma tu): Moon Light −9 (18,000), Konyagi −10 (10,000), Golden King −9 (9,000), Gilbeys −9 (9,000),
+  Camino 0, Wine 0 → **46,000 kwa gharama, haijaandikwa** (kila hesabu ilipata 0; hakuna stock_adjustment hata moja ya kupima).
 
 ## 3. Manunuzi: kifurushi kilichoingizwa kama kipande (uchunguzi (bn) f, nakala ya 29/10)
 
