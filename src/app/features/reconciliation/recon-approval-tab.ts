@@ -7,6 +7,7 @@ import { Button, DialogService, Icon, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
 import { AuditEntry, ReconSnapshot, SafeBoxUnconfirmed } from './recon-extra.models';
+import { JUNK_HINT, isJunkReason } from './reason-quality';
 import { ReconStatement } from './recon-statement';
 import { ReconStore } from './recon.store';
 import { CASH_TYPES, EXPENSE_TYPES, Recon, SHORTAGE_REASONS, VerifyType, pendingVerification } from './reconciliation.models';
@@ -71,8 +72,11 @@ const ZERO_CASH_PRESETS = [
               <textarea rows="2" maxlength="1000" [value]="explanation()" (input)="explanation.set($any($event.target).value)"></textarea>
             </label>
           </div>
+          @if (explanationJunk()) {
+            <p class="warn junk-hint">{{ i18n.t(junkHint.en, junkHint.sw) }}</p>
+          }
           <div class="actions">
-            <button lsmsButton="secondary" size="sm" icon="save" [loading]="store.saving()" [disabled]="explanation().trim().length < 3" (click)="saveExplanation()">{{ i18n.t('Save explanation', 'Hifadhi maelezo') }}</button>
+            <button lsmsButton="secondary" size="sm" icon="save" [loading]="store.saving()" [disabled]="explanation().trim().length < 3 || explanationJunk()" (click)="saveExplanation()">{{ i18n.t('Save explanation', 'Hifadhi maelezo') }}</button>
           </div>
         </section>
       }
@@ -156,9 +160,12 @@ const ZERO_CASH_PRESETS = [
               <textarea rows="2" maxlength="500" [value]="promptText()" (input)="promptText.set($any($event.target).value)"></textarea>
             </label>
           </div>
+          @if (promptJunk()) {
+            <p class="warn junk-hint">{{ i18n.t(junkHint.en, junkHint.sw) }}</p>
+          }
           <div class="actions">
             <button lsmsButton="secondary" size="sm" (click)="prompt.set(null)">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-            <button [lsmsButton]="p === 'reopen' ? 'danger' : 'primary'" size="sm" [loading]="store.saving()" [disabled]="promptText().trim().length < promptMin()" (click)="confirmPrompt()">{{ i18n.t('Confirm', 'Thibitisha') }}</button>
+            <button [lsmsButton]="p === 'reopen' ? 'danger' : 'primary'" size="sm" [loading]="store.saving()" [disabled]="promptText().trim().length < promptMin() || promptJunk()" (click)="confirmPrompt()">{{ i18n.t('Confirm', 'Thibitisha') }}</button>
           </div>
         </section>
       }
@@ -275,6 +282,7 @@ const ZERO_CASH_PRESETS = [
     .prompt { border-color: color-mix(in srgb, var(--c-primary) 40%, transparent); }
     .prompt.danger { border-color: color-mix(in srgb, var(--c-error) 40%, transparent); }
     .warn { font-size: 0.78rem; font-weight: 500; color: var(--c-warning); }
+    .warn.junk-hint { margin: 6px 0 0; color: var(--c-error); }
     .timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--c-border); }
     .timeline li { --tc: var(--c-primary); position: relative; display: flex; flex-direction: column; padding: 0 0 12px 12px; font-size: 0.82rem; }
     .timeline li:last-child { padding-bottom: 0; }
@@ -358,6 +366,10 @@ export class ReconApprovalTab {
   });
   protected readonly pending = computed(() => (this.store.current() ? pendingVerification(this.store.current()!) : 0));
   protected readonly checks = computed<CheckItem[]>(() => buildChecks(this.store.current(), this.i18n.isSwahili()));
+  protected readonly junkHint = JUNK_HINT;
+  protected readonly explanationJunk = computed(() => isJunkReason(this.explanation()));
+  /** (bv) unsubmit / reopen reasons are checked by the server (ReasonQuality) — refuse junk here first. */
+  protected readonly promptJunk = computed(() => (this.prompt() === 'unsubmit' || this.prompt() === 'reopen') && isJunkReason(this.promptText()));
   protected readonly promptMin = computed(() => (this.prompt() === 'reopen' ? 10 : this.prompt() === 'unsubmit' ? 5 : 3));
   protected readonly promptTitle = computed(() => {
     const t = (en: string, sw: string) => this.i18n.t(en, sw);
@@ -464,7 +476,7 @@ export class ReconApprovalTab {
   protected async confirmPrompt(): Promise<void> {
     const p = this.prompt();
     const text = this.promptText().trim();
-    if (!p || text.length < this.promptMin()) return;
+    if (!p || text.length < this.promptMin() || this.promptJunk()) return;
     this.prompt.set(null);
     if (p === 'zero-submit') return this.submit(text);
     if (p === 'zero-review') return this.review(text);
@@ -497,6 +509,7 @@ export class ReconApprovalTab {
   }
 
   protected async saveExplanation(): Promise<void> {
+    if (this.explanationJunk()) return;
     const res = await this.store.act((uid) => this.api.explain(uid, this.explanation().trim(), this.reason()), this.i18n.t('Explanation saved', 'Maelezo yamehifadhiwa'));
     this.handle(res);
   }

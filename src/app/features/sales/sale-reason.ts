@@ -29,6 +29,7 @@ export function askSaleReason(
       confirm: o.confirm,
       danger: o.danger ?? true,
       min: SALE_REASON_MIN,
+      quality: true,
     },
   });
 }
