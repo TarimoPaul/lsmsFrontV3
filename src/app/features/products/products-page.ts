@@ -25,6 +25,7 @@ import {
   TableColumn,
   ToastService,
 } from '@shared/ui';
+import { formatDayMonthYear, parseLocal } from '@shared/utils/date-utils';
 import { downloadCsv, printReport } from '@shared/utils/export';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { categoryColor, categoryInitials } from '../categories/categories.models';
@@ -94,6 +95,8 @@ export class ProductsPage {
   protected readonly canCreate = computed(() => this.auth.hasPermission('PRODUCT_WRITE'));
   protected readonly canUpdate = computed(() => this.auth.hasPermission('PRODUCT_UPDATE'));
   protected readonly canDelete = computed(() => this.auth.hasPermission('PRODUCT_DELETE'));
+  /** Buying price is cost data: shown to purchase / profit / finance readers only, not to every PRODUCT_READ holder. */
+  protected readonly canSeeCost = computed(() => this.auth.hasAnyPermission(['PURCHASE_READ', 'PROFIT_REPORT', 'FINANCE_READ']));
 
   protected readonly tiers = TIERS;
   protected readonly healthMeta = HEALTH_META;
@@ -112,6 +115,11 @@ export class ProductsPage {
   protected readonly sortQuarter = this.priceOf(TIERS[1]);
   protected readonly sortHalf = this.priceOf(TIERS[2]);
   protected readonly sortWhole = this.priceOf(TIERS[3]);
+  protected readonly buyingOf = (p: Product) => p.lastPurchaseCost;
+  protected readonly boughtOn = (p: Product) => {
+    const d = parseLocal(p.lastPurchaseDate);
+    return d ? formatDayMonthYear(d) : '';
+  };
   private readonly healthIndex: Record<ProductHealth, number> = { ISSUES: 0, NO_PRICE: 1, READY: 2 };
 
   /** Health is computed once per catalogue change, not per cell render. */
@@ -312,6 +320,7 @@ export class ProductsPage {
     const t = (en: string, sw: string) => this.i18n.t(en, sw);
     const lang = this.i18n.lang();
     const sorted = [...list].sort((a, b) => a.displayName.localeCompare(b.displayName));
+    const cost = this.canSeeCost();
     if (format === 'csv') {
       downloadCsv(
         'products',
@@ -320,6 +329,7 @@ export class ProductsPage {
           t('Category', 'Kategoria'),
           t('Measure', 'Kipimo'),
           t('Pieces/package', 'Vipande/paketi'),
+          ...(cost ? [t('Buying price / piece (TZS)', 'Bei ya kununua / kipande (TZS)'), t('Last bought', 'Ilinunuliwa mwisho')] : []),
           ...TIERS.flatMap((tier) => (tier.qty ? [`${tier.short[lang]} (TZS)`, `${tier.short[lang]} ${t('pcs', 'vipande')}`] : [`${tier.short[lang]} (TZS)`])),
           t('Status', 'Hali'),
         ],
@@ -328,6 +338,7 @@ export class ProductsPage {
           p.categoryName ?? '',
           p.measures.map(measureLabel).join(' / '),
           p.piecesPerPackage,
+          ...(cost ? [p.lastPurchaseCost === null ? '' : Money.round(p.lastPurchaseCost), p.lastPurchaseDate?.slice(0, 10) ?? ''] : []),
           ...TIERS.flatMap((tier) => (tier.qty ? [p[tier.price], p[tier.qty]] : [p[tier.price]])),
           HEALTH_META[this.healthOfRow(p)][lang],
         ]),
@@ -340,11 +351,12 @@ export class ProductsPage {
     printReport({
       title: t('Product Catalogue', 'Orodha ya Bidhaa'),
       subtitle: this.selected().length ? t('Selected products', 'Bidhaa zilizochaguliwa') : undefined,
-      headers: ['#', t('Product', 'Bidhaa'), t('Category', 'Kategoria'), ...TIERS.map((tier) => tier.short[lang]), t('Status', 'Hali')],
+      headers: ['#', t('Product', 'Bidhaa'), t('Category', 'Kategoria'), ...(cost ? [t('Buying / pc', 'Kununua / kip')] : []), ...TIERS.map((tier) => tier.short[lang]), t('Status', 'Hali')],
       rows: sorted.map((p, i) => [
         i + 1,
         p.displayName,
         p.categoryName ?? '',
+        ...(cost ? [price(p.lastPurchaseCost)] : []),
         ...TIERS.map((tier) => price(p[tier.price], tier.qty ? p[tier.qty] : null)),
         HEALTH_META[this.healthOfRow(p)][lang],
       ]),
@@ -354,7 +366,7 @@ export class ProductsPage {
         [HEALTH_META.ISSUES[lang], s.issues],
         [HEALTH_META.NO_PRICE[lang], s.noPrice],
       ],
-      numeric: [0, 3, 4, 5, 6],
+      numeric: cost ? [0, 3, 4, 5, 6, 7] : [0, 3, 4, 5, 6],
     });
   }
 }

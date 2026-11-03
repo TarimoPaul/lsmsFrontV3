@@ -122,7 +122,7 @@
         (selectionChange)="selected.set($event)"
         defaultSortColumn="name"
         [mobileTitle]="nameOf"
-        [mobileColumns]="['piece', 'category', 'health', 'actions']"
+        [mobileColumns]="['piece', 'buying', 'category', 'health', 'actions']"
         [mobileCompactColumns]="['piece']"
         [actionsInlineWithTitle]="true"
         [emptyTitle]="i18n.t('No matching products', 'Hakuna bidhaa zinazolingana')"
@@ -151,6 +151,15 @@
         <ng-template lsmsColumn="category" [label]="i18n.t('Category', 'Kategoria')" [sortBy]="categoryOf" let-row>
           <span class="muted">{{ row.categoryName || '—' }}</span>
         </ng-template>
+        @if (canSeeCost()) {
+          <ng-template lsmsColumn="buying" [label]="i18n.t('Buying / pc', 'Kununua / kip')" [sortBy]="buyingOf" align="end" let-row>
+            @if (row.lastPurchaseCost !== null) {
+              <span class="price buying" [title]="i18n.t('Cost per piece of the last purchase', 'Gharama kwa kipande ya manunuzi ya mwisho')">{{ row.lastPurchaseCost | money: { symbol: false } }}<small>{{ boughtOn(row) }}</small></span>
+            } @else {
+              <span class="muted" [title]="i18n.t('Never bought', 'Haijawahi kununuliwa')">—</span>
+            }
+          </ng-template>
+        }
         <ng-template lsmsColumn="piece" [label]="tiers[0].short[i18n.lang()]" [sortBy]="sortPiece" align="end" let-row>
           @if (row.pieceSalePrice !== null) {
             <span class="price">{{ row.pieceSalePrice | money: { symbol: false } }}</span>
