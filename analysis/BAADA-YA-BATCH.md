@@ -87,3 +87,29 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
   malipo; isiandike mara mbili (kinga ya replay) na isiandike kwenye kipindi kilichofungwa.
 - 2026 ISIGUSWE: malipo ya 2026 yanabaki kama yalivyoandikwa. Inaanza na malipo ya kwanza ya 2027.
 - Ripoti ya uendeshaji: "gharama za mwezi" isome amortization hiyo, ili daraja na GL lisipate tofauti ya timing.
+
+## 5. Kuzima Flyway outOfOrder (mmiliki 02/11 ch) - IMEHAMISHWA KUTOKA C1
+- 2.4.0 inaenda prod na mipangilio ya Flyway ILEILE ya prod ya sasa (out-of-order=true, validate-on-migrate=false,
+  ignore-missing-migrations=true, baseline 38). C1 haibadilishi thamani yoyote.
+- **Kipimo = flyway_schema_history ya DUMP YA PROD 29/10** (`backups\lsms_20261029_1027.dump`, sha256 01cae67bbcb91262…;
+  0200 inatoa matokeo yaleyale), SI nakala mpya ya Docker-local. Zana: `analysis\zana\flyway-historia.py`
+  (inasoma `pg_restore -a -t flyway_schema_history -f -` ya dump, inahesabu checksum kwa njia ya Flyway: CRC32 ya kila
+  mstari; 100/101 zinalingana, kwa hiyo hesabu ni sahihi). Matokeo ya 03/11 dhidi ya release/2.4.0:
+  - safu 102, zilizoshindwa 0, version ya juu 134 (dump ni ya kabla ya 2.3.0; V135 iliingia kwa mpangilio baadaye).
+  - nje ya mpangilio: 5 (V038.1–V038.5, 15/06 16:24, baada ya V039). Za kihistoria; hazizuii kuzima.
+  - zilizotumika bila faili kwenye code: 0. Chini ya baseline (V001–V038): 36, Flyway inazipuuza.
+  - zinazosubiri: V135–V138, zote > 134 → sawa hata na out-of-order=false.
+  - **KIZUIZI: V039.** Prod ina V039 = "Create Repurchase Invoices Tables" (24/05, checksum 484951461). Faili hilo baadaye
+    lilipewa namba V056 (checksum ileile; V056 iliendeshwa tena 15/06). V039 ya code ni "Add Shrinkage Financial Fields To
+    Store" (checksum −1700819509). Kwa validate-on-migrate=true backend ISINGEWAKA (description + checksum mismatch).
+    Safu 2 + index 3 za V039 ya code ZIPO tayari kwenye schema ya prod (dump 29/10), kwa hiyo hakuna DDL inayokosekana.
+- Masharti ya kuzima: (a) mmiliki aamue V039: `flyway repair` (inaandika description/checksum ya code kwenye safu ya V039)
+  au njia nyingine — hakuna repair bila uamuzi wake (MATAWI); (b) kipimo kirudiwe kwenye dump mpya ya siku hiyo:
+  mismatch 0 na "zinazosubiri chini ya max" 0; (c) staging: env `SPRING_FLYWAY_VALIDATE_ON_MIGRATE=true` +
+  `SPRING_FLYWAY_OUT_OF_ORDER=false` → inawaka bila FlywayValidateException; (d) toleo linalofuata: thamani hizo kwenye faili.
+- Hatua za kina za awali: MATAWI.md "Mpango wa kuzima out-of-order".
+
+## 6. Mistari ya takataka kwenye properties (C1/ch)
+- `git211` (application.properties) na `git spring.jpa.show-sql=false` (application-pro.properties; java Properties
+  inaisoma kama key "git") zimeachwa kama zilivyo kwenye jar ya prod 2.3.0, ili C1 iwe 0. Hakuna code inayosoma "git".
+  Kuziondoa = toleo linalofuata (show-sql inabaki false kutoka application.properties).

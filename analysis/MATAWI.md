@@ -97,6 +97,9 @@ lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh   # Playwright YOTE (b1,
 
 ## Mpango wa kuzima `out-of-order` (hatua tofauti, HAIJAANZA)
 
+> 03/11 (ch): kazi hii IMEHAMIA BAADA-YA-BATCH §5. Kipimo ni flyway_schema_history ya dump ya prod (29/10), siyo nakala mpya.
+> Kizuizi kilichopatikana: V039 ya prod ≠ V039 ya code (tazama §5).
+
 **Hali ya leo:**
 - `src/main/resources/application.properties` ni faili **gitignored** linaloingizwa kwenye jar wakati wa build. Mistari 23–29 ina:
   - `out-of-order=true`

@@ -585,3 +585,10 @@ Onyo la manunuzi: ulisema njia 3 za kuingiza manunuzi. Orodhesha zote; zile 2 zi
   Kama njia ya 07/09 na 22/09 (Jagger) inajulikana, itaje.
 C2 na C4: kadiria muda SASA (siku), kabla ya kuanza C1. Ikiwa jumla ya kilichobaki > siku 12, pendekeza kipi kitoke kwenye batch.
 Kisha C1.
+
+## 2026-11-02 (ch)
+C1 = config kwenye git BILA kubadilisha thamani. outOfOrder ibaki kama ilivyo prod sasa.
+  Kuzima outOfOrder → BAADA-YA-BATCH, na kipimo chake ni flyway_schema_history ya DUMP YA PROD (29/10), siyo nakala mpya.
+  Diff ya C1: onyesha kila thamani iliyobadilika dhidi ya .env/properties za prod (zilizofichwa). Lazima iwe 0 isipokuwa ${ROOT_PASSWORD:-}.
+.gitattributes: *.properties eol=lf (onyo la CRLF).
+(cg): makadirio ya C2 + C4 yalikuja? Kama bado, yatoe kwenye ripoti hii.
