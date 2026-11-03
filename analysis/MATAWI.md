@@ -56,6 +56,13 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
   - **CHAGUO la Chief (cq), faida:** env `DAILY_SALES_PROFIT_ROLES` (application.properties: `lsms.daily-sales.profit-roles=${DAILY_SALES_PROFIT_ROLES:}`); ili ifike kwenye container, iongezwe pia kwenye `environment:` ya compose ya prod.
     Tupu (default) = wote wanaona faida, kama leo. `CEO,Executive CEO` = wengine (macheda, MANAGER) wanapata mauzo tu:
     ujumbe bila "Faida", na `totalProfit` null, ambayo V3 tayari inaificha. Chief akiamua: mstari kwenye `.env` + compose, kisha restart ya backend; hakuna build.
+  - **UAMUZI (cr): prod = `DAILY_SALES_PROFIT_ROLES=CEO,Executive CEO`** — sehemu ya deploy ya 2.4.0, kwenye `.env` ya prod
+    NA `environment:` ya compose (`DAILY_SALES_PROFIT_ROLES: ${DAILY_SALES_PROFIT_ROLES}`). Chief anaweza kuongeza `MANAGER` baadaye
+    (`CEO,Executive CEO,MANAGER`) kwa restart tu. Majina yamethibitishwa kwenye dump 29/10: role `CEO` na `Executive CEO` zipo hivyo hasa.
+    Baada ya deploy, thibitisha: notification ya kwanza ya macheda haina "Faida", ya Jess/Paul inayo.
+  - ⚠ **ONYO (cr): env inatumia JINA la role, si uid.** Ukibadilisha jina la role (k.m. "Executive CEO" → "Mkurugenzi"),
+    **sasisha `DAILY_SALES_PROFIT_ROLES` siku hiyohiyo**, vinginevyo wenye role hiyo wataacha kuona faida kimya (watapata mauzo tu).
+    Herufi kubwa/ndogo na nafasi kando hazijalishi; tahajia nyingine yoyote inajalisha.
   - Orodha kwenye dump ya prod 29/10 (status/locked imesomwa moja kwa moja kwenye faili la dump), wote 3 ni ACTIVE, si locked, na wana pia `PROFIT_REPORT`:
 
     | Jina | Email | Role |

@@ -660,3 +660,8 @@ Notification "Muhtasari wa Mauzo": wapokeaji = SALES_READ + status ACTIVE + si l
   Chief ataamua kama MANAGER (macheda) apate sehemu ya FAIDA — andaa chaguo: faida kwa wenye CEO/Executive CEO tu, wengine mauzo tu.
 Hatua 73 / kinga: hifadhi PREFIX ya hash tu (hex 8 za kwanza), siyo hash nzima. Kinga ilinganishe prefix. Rekebisha kabla Chief hajaendesha 73.
 Kisha C3.
+
+## 2026-11-03 (cr)
+Mpango wa deploy: DAILY_SALES_PROFIT_ROLES=CEO,Executive CEO (default ya prod — Chief anaweza kuongeza MANAGER baadaye).
+  Andika onyo: env inatumia JINA la role; ukibadilisha jina la role, sasisha env.
+Kisha C3.
