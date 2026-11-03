@@ -1,3 +1,4 @@
+import { PaymentSource, PaymentSourcePicker, needsAccount, sourceProblem } from '../suppliers/payment-source';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -44,7 +45,7 @@ type Num = number | null;
  */
 @Component({
   selector: 'app-purchase-form-dialog',
-  imports: [ReactiveFormsModule, DialogShell, TextField, Combobox, Button, Icon, MoneyPipe],
+  imports: [ReactiveFormsModule, DialogShell, TextField, Combobox, Button, Icon, MoneyPipe, PaymentSourcePicker],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-form-dialog.html',
   styleUrl: './purchase-form-dialog.scss',
@@ -140,6 +141,17 @@ export class PurchaseFormDialog {
   });
   /** The backend stores "paid now" only on a first-time create (update ignores it). */
   protected readonly canPayNow = computed(() => !this.editing);
+
+  /** C3: the supplier as the server will see it - a name not in the list is NO supplier (paid now in full). */
+  protected readonly registeredSupplier = computed(() => {
+    const n = (this.value().supplierName ?? '').trim().toLowerCase();
+    return n ? (this.suppliersApi.list.value() ?? []).find((s) => s.name.toLowerCase() === n) ?? null : null;
+  });
+  /** C3: something is paid now -> the source is required (no default). */
+  protected readonly needsSource = computed(() => this.calc().total > 0 && (!this.registeredSupplier() || this.calc().paid > 0));
+  protected readonly source = signal<PaymentSource | null>((this.p?.paymentSource as PaymentSource | null) ?? null);
+  protected readonly account = signal<string | null>(this.p?.sourceAccount ?? null);
+  protected readonly triedSource = signal(false);
   protected readonly canSave = computed(() => !this.busy() && !this.checking() && !this.blocked() && !!this.value().productUid && this.calc().total > 0);
   protected readonly dueDays = computed(() => {
     const name = (this.value().supplierName ?? '').toLowerCase();
@@ -231,7 +243,9 @@ export class PurchaseFormDialog {
 
   protected async save(): Promise<void> {
     this.form.markAllAsTouched();
+    this.triedSource.set(true);
     if (this.form.invalid || !this.canSave()) return;
+    if (this.needsSource() && sourceProblem(this.source(), this.account(), this.i18n.isSwahili())) return;
     const jx = this.jump();
     if (jx !== null) {
       const name = this.product()?.displayName ?? this.p?.productName ?? '';
@@ -251,6 +265,8 @@ export class PurchaseFormDialog {
         supplierName: v.supplierName?.trim() || null,
         supplierUid: supplier?.uid ?? null,
         amountPaid: this.canPayNow() ? (v.amountPaid ?? null) : null,
+        paymentSource: this.needsSource() ? this.source() : null,
+        sourceAccount: this.needsSource() && needsAccount(this.source()) ? this.account() : null,
         discountPercentage: v.discountPercentage ?? null,
         discountAmount: v.discountAmount ?? null,
         minimumStockLevel: v.minimumStockLevel ?? null,

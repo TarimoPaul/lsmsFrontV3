@@ -184,6 +184,8 @@
           <small>{{ i18n.t('Notes on the order (printed on the invoice)', 'Maelezo ya agizo (yanachapishwa kwenye ankara)') }}</small>
           <textarea rows="2" maxlength="500" [value]="cart.notes()" (input)="cart.notes.set($any($event.target).value)"></textarea>
         </label>
+        <app-payment-source-picker [(source)]="source" [(account)]="account" [showError]="triedSource()"
+          [label]="i18n.t('Paid from (whole order)', 'Chanzo cha malipo (agizo lote)')" />
         <div class="total">
           <span>{{ i18n.t('Total', 'Jumla') }} <small>· {{ cart.count() }} {{ i18n.t('products', 'bidhaa') }}</small></span>
           <b>{{ cart.total() | money }}</b>

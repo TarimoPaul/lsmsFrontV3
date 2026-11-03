@@ -33,6 +33,9 @@ export interface Purchase {
   supplierName: string | null;
   supplierUid: string | null;
   amountPaid: number;
+  /** C3: where the part paid when bought came from; null before C3 / nothing paid now. */
+  paymentSource: string | null;
+  sourceAccount: string | null;
   paymentStatus: string;
   dueDate: string | null;
   purchaseDate: string | null;
@@ -65,6 +68,9 @@ export interface PurchaseRequest {
   supplierName: string | null;
   supplierUid: string | null;
   amountPaid: number | null;
+  /** C3: required by the server when anything is paid now (no registered supplier = all of it). */
+  paymentSource?: string | null;
+  sourceAccount?: string | null;
   discountPercentage: number | null;
   discountAmount: number | null;
   minimumStockLevel: number | null;
@@ -126,6 +132,8 @@ export function normalizePurchase(r: Record<string, unknown>): Purchase {
     supplierName: str(r['supplierName']),
     supplierUid: str(r['supplierUid']),
     amountPaid: num(r['amountPaid']),
+    paymentSource: str(r['paymentSource']),
+    sourceAccount: str(r['sourceAccount']),
     paymentStatus: String(r['paymentStatus'] ?? 'UNPAID'),
     dueDate: str(r['dueDate']),
     purchaseDate: str(r['purchaseDate']),

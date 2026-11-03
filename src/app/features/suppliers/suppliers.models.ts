@@ -57,6 +57,9 @@ export interface SupplierPayment {
   amount: number;
   paymentMethod: string | null;
   paymentProvider: string | null;
+  /** C3: DROO / BENKI / SIMU / MMILIKI; null on payments made before C3. */
+  paymentSource: string | null;
+  sourceAccount: string | null;
   paymentDate: string | null;
   paidByName: string | null;
   reference: string | null;
@@ -66,8 +69,9 @@ export interface SupplierPayment {
 export interface SupplierPaymentRequest {
   supplierUid: string;
   amount: number;
-  paymentMethod: PaymentMethod;
-  paymentProvider: string | null;
+  /** C3: required, no default. The server derives method/provider from it. */
+  paymentSource: import('./payment-source').PaymentSource;
+  sourceAccount: string | null;
   paymentDate: string;
   reference: string | null;
   notes: string | null;

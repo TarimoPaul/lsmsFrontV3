@@ -115,6 +115,15 @@
           </p>
         }
       </div>
+      @if (needsSource()) {
+        @if (!registeredSupplier()) {
+          <p class="note info" data-test="bila-msambazaji">
+            <lsms-icon name="info" [size]="16" />
+            <span>{{ i18n.t('No registered supplier: the whole purchase counts as paid now.', 'Hakuna msambazaji aliyesajiliwa: ununuzi wote unahesabiwa umelipwa sasa.') }}</span>
+          </p>
+        }
+        <app-payment-source-picker [(source)]="source" [(account)]="account" [showError]="triedSource()" />
+      }
 
       <button type="button" class="more" (click)="showMore.set(!showMore())" [attr.aria-expanded]="showMore()">
         <lsms-icon [name]="showMore() ? 'expand_less' : 'expand_more'" [size]="18" />{{ i18n.t('Discount, stock alerts and notes', 'Punguzo, tahadhari za mzigo na maelezo') }}

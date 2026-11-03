@@ -1,3 +1,4 @@
+import { PaymentSource, PaymentSourcePicker, needsAccount, sourceProblem } from '../../suppliers/payment-source';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -45,7 +46,7 @@ interface Row {
  */
 @Component({
   selector: 'app-repurchase-page',
-  imports: [MoneyInput, RouterLink, Button, Icon, SearchBar, Skeleton, EmptyState, Combobox, MoneyPipe],
+  imports: [MoneyInput, RouterLink, Button, Icon, SearchBar, Skeleton, EmptyState, Combobox, MoneyPipe, PaymentSourcePicker],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './repurchase-page.html',
   styleUrl: './repurchase-page.scss',
@@ -82,6 +83,10 @@ export class RepurchasePage {
   protected readonly cartOpen = signal(false);
   protected readonly adding = signal<Set<string>>(new Set());
   protected readonly busy = signal(false);
+  /** C3: where the money for this order came from - required, no default (from a reconciliation it is still chosen). */
+  protected readonly source = signal<PaymentSource | null>(null);
+  protected readonly account = signal<string | null>(null);
+  protected readonly triedSource = signal(false);
   private readonly queue = signal<Map<string, { uid: string; status: PurchaseStatus }>>(new Map());
 
   protected readonly loading = computed(() => this.api.repurchasable.initialLoading());
@@ -349,11 +354,17 @@ export class RepurchasePage {
 
   protected async submit(): Promise<void> {
     if (!this.canSubmit()) return;
+    this.triedSource.set(true);
+    const source = this.source();
+    if (!source || sourceProblem(source, this.account(), this.i18n.isSwahili())) return;
     const lines = this.cart.lines();
     if (!(await this.confirmJumps(lines))) return;
     this.busy.set(true);
     try {
-      const { created, failed } = await this.api.bulkRepurchase(lines);
+      const { created, failed } = await this.api.bulkRepurchase(lines, {
+        paymentSource: source,
+        sourceAccount: needsAccount(source) ? this.account() : null,
+      });
       const done = new Set(created.map((p) => p.productUid));
       // Lines neither created nor reported failed would silently vanish — keep them with a note.
       for (const l of lines) if (!done.has(l.productUid) && !failed.has(l.productUid)) failed.set(l.productUid, this.i18n.t('Not created', 'Haijaundwa'));

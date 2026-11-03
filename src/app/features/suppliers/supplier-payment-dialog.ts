@@ -6,10 +6,11 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
 import { LsmsValidators } from '@shared/forms/validators';
-import { Button, DialogShell, Icon, SelectField, SelectOption, TextField, ToastService } from '@shared/ui';
+import { Button, DialogShell, Icon, TextField, ToastService } from '@shared/ui';
 import { toLocalDateTime } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
-import { PAYMENT_METHODS, PaymentMethod, Supplier } from './suppliers.models';
+import { PaymentSource, PaymentSourcePicker, needsAccount, sourceProblem } from './payment-source';
+import { Supplier } from './suppliers.models';
 import { SuppliersService } from './suppliers.service';
 
 export interface SupplierPaymentData {
@@ -25,7 +26,7 @@ export interface SupplierPaymentData {
  */
 @Component({
   selector: 'app-supplier-payment-dialog',
-  imports: [ReactiveFormsModule, DialogShell, TextField, SelectField, Button, Icon, MoneyPipe],
+  imports: [ReactiveFormsModule, DialogShell, TextField, PaymentSourcePicker, Button, Icon, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="i18n.t('Pay ' + data.supplier.name, 'Lipa ' + data.supplier.name)" icon="payments">
@@ -41,13 +42,8 @@ export interface SupplierPaymentData {
             <button type="button" (click)="setAmount(half())">½</button>
           </div>
         }
-        <div class="grid">
-          <lsms-select-field formControlName="paymentMethod" [label]="i18n.t('Method', 'Njia')" prefixIcon="account_balance_wallet" [options]="methodOptions()" />
-          @if (value().paymentMethod !== 'CASH') {
-            <lsms-text-field formControlName="paymentProvider" [label]="i18n.t('Provider', 'Mtoa huduma')" [placeholder]="value().paymentMethod === 'BANK_TRANSFER' ? 'CRDB, NMB…' : 'M-Pesa, Tigo Pesa…'" />
-          }
-          <lsms-text-field formControlName="reference" [label]="i18n.t('Reference', 'Kumbukumbu')" [placeholder]="i18n.t('Receipt / transaction no.', 'Namba ya risiti / muamala')" />
-        </div>
+        <app-payment-source-picker [(source)]="source" [(account)]="account" [showError]="tried()" />
+        <lsms-text-field formControlName="reference" [label]="i18n.t('Reference', 'Kumbukumbu')" [placeholder]="i18n.t('Receipt / transaction no.', 'Namba ya risiti / muamala')" />
         <lsms-text-field formControlName="notes" type="textarea" [rows]="2" [label]="i18n.t('Notes', 'Maelezo')" [maxLength]="255" />
         @if (overpay() > 0) {
           <p class="warn" role="alert">
@@ -77,8 +73,6 @@ export interface SupplierPaymentData {
       padding: 2px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); cursor: pointer;
       font: inherit; font-size: 0.74rem; font-weight: 600; color: var(--c-primary);
     }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     .warn { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8rem; color: var(--c-warning); }
   `,
 })
@@ -92,16 +86,15 @@ export class SupplierPaymentDialog {
   protected readonly busy = signal(false);
   protected readonly form = inject(FormBuilder).group({
     amount: [this.data.outstanding > 0 ? this.data.outstanding : (null as number | null), [LsmsValidators.required('Amount'), LsmsValidators.positive('Amount')]],
-    paymentMethod: ['CASH' as PaymentMethod],
-    paymentProvider: [''],
     reference: [''],
     notes: [''],
   });
   protected readonly value = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
 
-  protected readonly methodOptions = computed<SelectOption<PaymentMethod>[]>(() =>
-    (Object.keys(PAYMENT_METHODS) as PaymentMethod[]).map((k) => ({ value: k, label: PAYMENT_METHODS[k][this.i18n.lang()] })),
-  );
+  /** C3: no default - the person must choose where the money came from. */
+  protected readonly source = signal<PaymentSource | null>(null);
+  protected readonly account = signal<string | null>(null);
+  protected readonly tried = signal(false);
   protected readonly half = computed(() => Math.round(this.data.outstanding / 2));
   protected readonly overpay = computed(() => {
     const a = Number(this.value().amount ?? 0);
@@ -114,15 +107,17 @@ export class SupplierPaymentDialog {
 
   protected async save(): Promise<void> {
     this.form.markAllAsTouched();
-    if (this.form.invalid || this.busy()) return;
+    this.tried.set(true);
+    const source = this.source();
+    if (this.form.invalid || this.busy() || !source || sourceProblem(source, this.account(), this.i18n.isSwahili())) return;
     this.busy.set(true);
     try {
       const v = this.form.getRawValue();
       await this.api.recordPayment({
         supplierUid: this.data.supplier.uid,
         amount: Number(v.amount),
-        paymentMethod: v.paymentMethod ?? 'CASH',
-        paymentProvider: v.paymentMethod !== 'CASH' ? v.paymentProvider?.trim() || null : null,
+        paymentSource: source,
+        sourceAccount: needsAccount(source) ? this.account() : null,
         paymentDate: toLocalDateTime(),
         reference: v.reference?.trim() || null,
         notes: v.notes?.trim() || null,
