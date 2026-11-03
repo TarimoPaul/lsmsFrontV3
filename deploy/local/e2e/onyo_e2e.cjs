@@ -55,6 +55,8 @@ const sql = (q) => execFileSync('docker', ['exec', '-i', 'lsms-local-postgres-1'
 
   const send = page.locator('button.send');
   const dlg = page.locator('lsms-confirm-dialog');
+  // (cs) C3: an order needs its payment source (no default) before anything is sent
+  await page.locator('app-payment-source-picker [data-source="DROO"]').click();
   await send.click();
   // (cg) wait for the dialog's text, not just the element
   await dlg.filter({ hasText: /Kreti au chupa|Crate or bottle/ }).waitFor({ timeout: 10000 }).catch(() => undefined);

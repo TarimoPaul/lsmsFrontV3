@@ -35,7 +35,7 @@ let cleanup = async () => undefined;
        and not exists (select 1 from purchases q where q.product_uid = pr.uid and q.status in ('PENDING','APPROVED') and coalesce(q.is_deleted,false) = false)
      order by pr.product_name limit 1`).split('|');
   const SUP = 'E2E-ONYO-' + Date.now();
-  const made = await api('POST', '/api/v1/purchases/repurchase/bulk', token, { items: [{ productUid: hUid, useLastPurchaseData: false, purchaseType: 'INDIVIDUAL_PIECES', priceInputMode: 'PER_PIECE', quantity: 1, purchasePrice: Number(hCost), supplierName: SUP }] });
+  const made = await api('POST', '/api/v1/purchases/repurchase/bulk', token, { paymentSource: 'DROO', items: [{ productUid: hUid, useLastPurchaseData: false, purchaseType: 'INDIVIDUAL_PIECES', priceInputMode: 'PER_PIECE', quantity: 1, purchasePrice: Number(hCost), supplierName: SUP }] });
   const pending = sql(`select uid from purchases where product_uid = '${hUid}' and supplier_name = '${SUP}' and status = 'PENDING'`);
   cleanup = async () => { if (pending) await api('DELETE', `/api/v1/purchases/${pending}`, token); };
   ok('S1 setup: PENDING moja ya bei ya kawaida imeundwa', !!pending, `${hName} ${hCost} ${JSON.stringify(made.j).slice(0, 200)}`);
@@ -132,6 +132,8 @@ let cleanup = async () => undefined;
   ok('N1 ununuzi mpya: bei = wastani -> hakuna onyo', (await jump.count()) === 0);
   await setPrice(AVG * 10);
   ok('N2 ununuzi mpya: bei x10 ya wastani wa Stoo -> onyo', (await jump.count()) === 1 && /wastani wa gharama Stoo|average cost in Store/.test(await jump.innerText()), await jump.count());
+  // (cs) C3: no registered supplier = paid now -> the source is required before the price check runs
+  await form.locator('app-payment-source-picker [data-source="DROO"]').click();
   await save.click();
   await dlg.filter({ hasText: /Kreti au chupa|Crate or bottle/ }).waitFor({ timeout: 10000 }).catch(() => undefined);
   ok('N3 kuhifadhi: dialogi "Kreti au chupa?"', (await dlg.count()) === 1 && /Kreti au chupa|Crate or bottle/.test(await dlg.innerText()));
