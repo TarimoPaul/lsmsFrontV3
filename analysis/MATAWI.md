@@ -46,6 +46,23 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
 - **Orodha ya kifurushi (be), imesasishwa 03/11 (ci):** ✔ A1–A6, ✔ B, ✔ C1 → C2 → C3 → C5/C8 (orodha kwanza) → C6 → C7 → C9.
   **(cj) ✔ bei ya kununua/kipande** kwenye orodha ya bidhaa: backend `release/2.4.0` 8d6413f (ProductDto lastPurchaseCost, bila migration), V3 `release/3.2.0` bf38487; e2e `bei_e2e`.
   **C4 (sales returns) IMETOKA** → BAADA-YA-BATCH §7. Hakuna kazi ya C4 kwenye release/2.4.0 wala release/3.2.0.
+  **(cn) ✔ C2** imeunganishwa: release/2.4.0 `3ab2b3b` (lango kamili limepita, RIPOTI-CN-03-11).
+- **Mpango wa deploy 2.4.0, taarifa kwa watumiaji (co):** prod iko **Contabo, inafanya kazi saa 24**, na schedulers zinaendeshwa usiku.
+  Kwa hiyo baada ya C2, notification **"Muhtasari wa Mauzo: <jana>"** (aina `DAILY_SALES_SUMMARY`) **itatumwa kila usiku saa 00:00 EAT**
+  (`DailySalesNotificationScheduler`, cron `0 0 0 * * *`). Zamani haikutumwa kamwe, kwa sababu safu ya `Object[]` ilikuwa imefungwa.
+  - Ujumbe: "Mauzo ya <tarehe>: Miamala n | Jumla TZS … | Faida TZS …". **Una faida ndani.**
+  - Wapokeaji: kila mtumiaji asiyefutwa ambaye role yake ina `SALES_READ` (`findUsersByPermissionName`). Hali ACTIVE au locked haiangaliwi.
+    Kama hakuna hata mmoja, inatumwa kwa watumiaji wote walio active.
+  - Orodha kwenye dump ya prod 29/10 (nakala ya Docker-local, kusoma tu), wote 3 wana pia `PROFIT_REPORT`:
+
+    | Jina | Email | Role |
+    |---|---|---|
+    | Jess Saimon | jess@elikom.co.tz | Executive CEO |
+    | macheda macheda | macheda@gmail.com | MANAGER, SALES |
+    | Paul Tarimo | tarimo@gmail.com | CEO |
+
+  - Siku ya deploy, orodha hii **ikaguliwe tena** kwenye nakala ya `lsms_audit_*` ya siku hiyo: mtu yeyote mpya mwenye `SALES_READ`
+    ataiona faida. Query iko kwenye RIPOTI-CO-CP-03-11.
 - **Skripti ya staging ya kifurushi (ci):** inarudisha staging kutoka **dump ya prod ya karibuni** (siyo nakala safi), kisha inakagua Flyway:
   V135→V138 zinaingia (`success`), hakuna validate error kwenye log ya boot, safu za V039 na V056 kwenye `flyway_schema_history`
   hazibadiliki (version, description, checksum, installed_on kabla = baada). V039 inabaki kama ilivyo (BAADA §5).
@@ -73,8 +90,10 @@ deploy/local/v3-local.sh up      # nginx.conf ya image ya prod + "edge" nginx: /
 ```
 Lsms (release/2.4.0)      deploy/local/pg-checks.sh       # LoanSqlPgCheck + SaleChangePgCheck + PnlBridgePgCheck, PG15 ya kutupwa kwa kila moja -> PG_CHECKS_OK 3/3
 Lsms (release/2.4.0)      mvnw test                       # suite nzima, Failures 0, Errors 0
+Lsms (release/2.4.0)      deploy/local/c2-check.sh        # (cm) C2QueryPgCheck + C2CorrectnessPgCheck kwenye Docker-local YENYE DATA -> C2_OK 2/2
 lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh   # Playwright YOTE (b1, b2, ...) kwenye v3-local build -> E2E_OK n/n
 ```
+- (cp) `pg-checks.sh` na `c2-check.sh` zinapakia siri za majaribio zenyewe kutoka `deploy/local/.siri-majaribio` (gitignored; `siri-majaribio.sh init`) na zinakataa bila faili la hash za prod `%USERPROFILE%\.lsms-kinga\prod-siri.sha256` (hatua 73) au siri ikilingana na prod.
 - `pg-checks.sh` inatengeneza container `lsms-pgcheck` (:55439) na kuiondoa mwishoni hata ikishindwa, ili isishike RAM. `all` inaongeza JwtRevocationPgCheck + LoginAuditPgCheck.
 - Playwright inaendeshwa dhidi ya Docker-local (image ya digest itakayoenda staging + dump ya karibuni) na build ya V3 itakayoenda staging. Kila kipengele kipya cha V3 kinaongeza `<jina>_e2e.cjs` yake kwenye `deploy/local/e2e/`.
 - Lolote likishindwa → hakuna staging wala prod.

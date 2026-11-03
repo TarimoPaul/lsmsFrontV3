@@ -644,3 +644,13 @@ Kisha unganisha feature/c2-null-params → release/2.4.0 baada ya lango kamili: 
   Sihitaji kusoma diff; nipe muhtasari: faili ngapi, njia ngapi, na orodha ya skrini ambazo namba zake zitabadilika baada ya deploy
   (ili Chief awaambie watumiaji).
 Kisha C3.
+
+## 2026-11-03 (co) — kama hujaipokea
+Prod iko Contabo (siyo EC2) na inafanya kazi 24h — schedulers za 00:05 na 02:00 zinaendeshwa (log ya 62). Kwa hiyo
+"Muhtasari wa Mauzo" ITATUMWA kila usiku baada ya deploy. Orodhesha nani ataipokea (SALES_READ, kwa jina) kwenye mpango wa deploy.
+Sahihisha MATAWI/ripoti zinazotaja EC2 kuzimwa.
+
+## 2026-11-03 (cp)
+pg-checks.sh / c2-check.sh: zipakie secret za MAJARIBIO zenyewe (faili maalum, gitignored). Faili likikosekana → kataa kwa ujumbe wazi.
+  Kinga: ikiona JWT secret au DB password inayolingana na hash ya prod → kataa.
+Kisha C3.

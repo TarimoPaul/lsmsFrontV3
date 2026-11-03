@@ -59,7 +59,9 @@ API zinazobadilika, ambazo hakuna skrini ya V3 inayozitumia:
 
 **Chief anaweza kuwaambia watumiaji:** huenda wakaanza kupokea notification mpya ya **"Muhtasari wa Mauzo: <tarehe>"**, kwa wenye SALES_READ.
 - Zamani haikutumwa kamwe.
-- Cron yake ni 00:00 EAT, saa ileile EC2 huzimwa, kwa hiyo huenda isionekane hata baada ya deploy.
+- ~~Cron yake ni 00:00 EAT, saa ileile EC2 huzimwa, kwa hiyo huenda isionekane hata baada ya deploy.~~
+  **Sahihisho (co):** prod iko Contabo na inafanya kazi saa 24, kwa hiyo **itatumwa kila usiku saa 00:00**.
+  Wapokeaji, kwa jina, wako kwenye MATAWI → "Mpango wa deploy 2.4.0".
 
 ## 4. Push
 `push-yote.cmd` ina matawi 4: release/2.4.0 (sasa 3ab2b3b), release/3.2.0, V3 main, na feature/c2-null-params.

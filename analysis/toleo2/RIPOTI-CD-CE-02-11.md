@@ -51,6 +51,9 @@ run-all yote (b2, b3, b4, mabango, sababu) haijaendeshwa kwenye build hii. b1 pe
 
 Kipimo: EC2 huzimwa 00–07 EAT, na `store.created_at` kwa wiki inaonyesha:
 
+> **Sahihisho (co, 03/11):** prod sasa iko **Contabo na inafanya kazi saa 24**; haizimwi usiku. Hitimisho la TZ halibadiliki,
+> kwa sababu linasimama juu ya kuhama kwa saa za mauzo (saa 4–6 → 21–23) tarehe 17/06, si juu ya server kuzimwa.
+
 | wiki | saa 4–6 | saa 21–23 |
 |---|---:|---:|
 | 01/06 | 379 | 0 |
