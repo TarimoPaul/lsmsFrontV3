@@ -121,3 +121,18 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
   feature flag backend + V3 (default OFF), majaribio upya (54 backend + 23 UI e2e kwenye Docker-local + PG check).
 - Inagusa GL na reco → njia: Docker-local → Contabo staging → prod (MATAWI kanuni ba).
 - C7 (SaleReturnService iliyokufa) inabaki kwenye kifurushi; isiondoe chochote ambacho C4 itahitaji.
+
+## 8. C3 sehemu ya pili: droo kwenye reco (mmiliki 03/11 cs)
+
+> "BAADA-YA-BATCH: mstari wa auto wa droo kwenye reco + kuondoa uandishi wa mkono wa manunuzi (bila kuhesabu mara mbili). 1010: BAADA."
+
+- Leo (2.4.0, C3 toleo dogo): chanzo DROO kinahifadhiwa kwenye `supplier_payments` / `purchases` na GL inaandika Cr 1000,
+  lakini **reco haiguswi**. Macheda anaendelea kuandika manunuzi ya droo kwa mkono kwenye tab ya "Ununuzi" ya reco.
+- Lengo:
+  - malipo / manunuzi yenye chanzo DROO yaingie kwenye reco ya siku hiyo kama mstari wa auto unaopunguza pesa inayotarajiwa;
+  - uandishi wa mkono wa manunuzi uondolewe;
+  - hakuna kinachohesabiwa mara mbili.
+- Kabla ya code (muundo): reco ya mtumiaji gani (aliyerekodi, au aliyeidhinisha); DROO kwenye reco iliyoidhinishwa
+  (kataa kama kanuni ya kufuta sale); siku ambayo reco haijaundwa bado (iingie reco inapoundwa); mistari ya mkono iliyopo
+  (60 = 6,693,500 kwenye dump 29/10, 0 zimeunganishwa na purchase) haibadilishwi.
+- Bahasha ya akiba 1010 kama chanzo cha 5: inasubiri §1.

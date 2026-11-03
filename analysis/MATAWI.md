@@ -45,6 +45,8 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
 - Kifurushi (mmiliki az): hakuna staging/prod mpaka kazi ZOTE zikamilike local. Tarehe ya kufunga ni **16/11/2026**; kisichokamilika na kujaribiwa hadi hapo kinahamia toleo linalofuata. Branches: `release/2.4.0` (backend), `release/3.2.0` (V3).
 - **Orodha ya kifurushi (be), imesasishwa 03/11 (ci):** ✔ A1–A6, ✔ B, ✔ C1 → C2 → C3 → C5/C8 (orodha kwanza) → C6 → C7 → C9.
   **(cj) ✔ bei ya kununua/kipande** kwenye orodha ya bidhaa: backend `release/2.4.0` 8d6413f (ProductDto lastPurchaseCost, bila migration), V3 `release/3.2.0` bf38487; e2e `bei_e2e`.
+  **(cs) ✔ C3 toleo dogo** (chanzo cha malipo kwa msambazaji DROO/BENKI/SIMU/MMILIKI, 2300 "Deni kwa mmiliki - Paul" ndani ya V138):
+  backend `release/2.4.0` c558a3c, V3 `release/3.2.0` c12dd10; e2e `c3_e2e`; reco haiguswi (sehemu ya pili → BAADA §8).
   **C4 (sales returns) IMETOKA** → BAADA-YA-BATCH §7. Hakuna kazi ya C4 kwenye release/2.4.0 wala release/3.2.0.
   **(cn) ✔ C2** imeunganishwa: release/2.4.0 `3ab2b3b` (lango kamili limepita, RIPOTI-CN-03-11).
 - **Mpango wa deploy 2.4.0, taarifa kwa watumiaji (co):** prod iko **Contabo, inafanya kazi saa 24**, na schedulers zinaendeshwa usiku.

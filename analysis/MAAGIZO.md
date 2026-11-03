@@ -665,3 +665,16 @@ Kisha C3.
 Mpango wa deploy: DAILY_SALES_PROFIT_ROLES=CEO,Executive CEO (default ya prod — Chief anaweza kuongeza MANAGER baadaye).
   Andika onyo: env inatumia JINA la role; ukibadilisha jina la role, sasisha env.
 Kisha C3.
+
+## 2026-11-03 (cs)
+C3 toleo dogo (malipo ya msambazaji + malipo wakati wa kununua):
+  - Chanzo cha lazima, bila default: DROO / BENKI (orodha ya akaunti halisi, siyo maandishi) / SIMU (orodha) / MMILIKI.
+  - Kanuni ya cutover: kabla ya gl_config.bank_cutover_date → GL Cr 1000 kwa DROO/BENKI/SIMU (chanzo kihifadhiwe kwenye rekodi);
+    baada ya D → Cr akaunti halisi. Sawa na repayment ya mkopo. PG test pande zote mbili za D.
+  - MMILIKI → Cr akaunti mpya ya madeni "Deni kwa mmiliki – Paul" (kundi 2xxx), SIYO 3000. Migration ya akaunti ndani ya V138
+    ikiwezekana (bado haijaenda prod), vinginevyo V139.
+  - Reco HAIGUSWI. Macheda anaendelea kuandika manunuzi ya droo kwenye reco kama leo.
+BAADA-YA-BATCH: mstari wa auto wa droo kwenye reco + kuondoa uandishi wa mkono wa manunuzi (bila kuhesabu mara mbili).
+1010: BAADA.
+Rekodi za zamani: hazibadilishwi.
+Kadiria upya muda wa toleo hili dogo.
