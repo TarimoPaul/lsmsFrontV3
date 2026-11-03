@@ -601,5 +601,14 @@ C1 = config kwenye git BILA kubadilisha thamani. outOfOrder ibaki kama ilivyo pr
    hakuna validate error, V039/V056 hazibadilishwi.
 Kisha C2.
 
-## 2026-11-03 (cj)
+## 2026-11-03 (cj-a) [ujumbe bila kichwa; kichwa kimewekwa na Claude]
 wakati tunaendelea na maboresho soma module ya product ukishakuwa familia nayo ongeza column ya buying price.. per pieces ambayo utaipata kwenye module ya purchases
+
+## 2026-11-03 (cj)
+Loan A awamu 1 (386,000) ILILIPWA LEO 03/11 kutoka bahasha ya akiba (siyo droo).
+  Rekebisha 61: transaction_date = 2026-11-03T12:00:00 (au isomwe kama kigezo: tarehe ya leo), notes "(03/11/2026)".
+  KAGUA ikubali tarehe ≤ leo. Niambie ikiwa tayari; Chief ataiendesha LEO.
+J2 = HAPANA (uamuzi wa mwisho). 64 imekamilika; usipendekeze J2 tena.
+Reco 31/10: IMEIDHINISHWA. Chief anafunga Oktoba sasa.
+Push: imekamilika (376a31d / 28afa80 / c875238). Repo ni private.
+(ci) bado inatumika. Kisha C2.

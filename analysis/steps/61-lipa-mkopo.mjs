@@ -1,4 +1,7 @@
-// HATUA 61 - MALIPO YA AWAMU 1 YA MKOPO A (04/11/2026, 386,000 CASH) KWENYE PROD 2.3.0 (mmiliki 31/10 bh, u).
+// HATUA 61 - MALIPO YA AWAMU 1 YA MKOPO A (03/11/2026, 386,000 CASH) KWENYE PROD 2.3.0 (mmiliki 31/10 bh, u; 03/11 cj).
+// (cj) 03/11: awamu 1 ILILIPWA 03/11 kutoka bahasha ya akiba (siyo droo) -> tarehe 2026-11-03, notes "(03/11/2026)".
+//   Backend: repay ni Cr 1000 kabla ya bank cut-over (njia haichaguliwi), inakataa tarehe ya baadaye, saa ni ya server.
+//   Kagua mpya: tarehe <= leo. Faili ya kagua ni mpya (61-lipa-kagua-0311.json); ile ya 02/11 haitumiki tena.
 // API TU (kanuni ya 15/10: hakuna query ya DB ya prod). Akaunti ya CEO yenye FINANCE_WRITE (45-lib inakataa root).
 //   TARGET=prod PROD_API=... CEO_EMAIL=... CEO_PASS=... node analysis/steps/61-lipa-mkopo.mjs kagua|lipa
 // Endpoint ya prod (2.3.0): POST /api/v1/capital-monitoring/loans/{uid}/repay
@@ -6,9 +9,9 @@
 //   -> LoanService.repay: Dr 2100 / Cr 1000 (bank_cutover_date haijawekwa - hatua 60 haijaendeshwa), FIFO kwenye awamu.
 //   Haina dryRun, wala kinga ya kurudia: hatua hii ndiyo kinga (repaid lazima 0 kabla ya POST; hali ya kuandika).
 // kagua (HAIANDIKI): A ACTIVE, deni 1,158,000, repaid 0, awamu 1 = 04/11 386,000 haijalipwa, hakuna LOAN_REPAYMENT ya A.
-//   Inahifadhi analysis/steps/61-lipa-kagua.json -> ---SIMAMA-PREVIEW--- (mmiliki analeta log kwa Claude).
-// lipa: leo >= 04/11; kagua ya LEO ipo na hali bado ni ileile -> POST moja -> ukaguzi: deni 772,000, repaid 386,000,
-//   awamu 1 PAID (386,000), awamu 2-3 hazijaguswa, journal LOAN_REPAYMENT ya 04/11 = Dr 2100 386,000 / Cr 1000 386,000,
+//   Inahifadhi analysis/steps/61-lipa-kagua-0311.json -> ---SIMAMA-PREVIEW--- (mmiliki analeta log kwa Claude).
+// lipa: leo >= 03/11; kagua ya LEO ipo na hali bado ni ileile -> POST moja -> ukaguzi: deni 772,000, repaid 386,000,
+//   awamu 1 PAID (386,000), awamu 2-3 hazijaguswa, journal LOAN_REPAYMENT ya 03/11 = Dr 2100 386,000 / Cr 1000 386,000,
 //   2100 delta +386,000, TB = 0. Ikirudiwa baada ya kukatika: malipo yaliyokwisha andikwa yanaonekana (repaid 386,000)
 //   na POST HAIRUDIWI - inakaguliwa tu.
 import fs from 'node:fs';
@@ -18,11 +21,11 @@ const MODE = process.argv[2];
 if (TARGET !== 'prod' || !['kagua', 'lipa'].includes(MODE)) { console.log('IMEKATALIWA: TARGET=prod na kagua|lipa'); process.exit(1); }
 const A = 'INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637';
 const CM = '/api/v1/capital-monitoring';
-const TAREHE = '2026-11-04';
+const TAREHE = '2026-11-03';
 const KIASI = 386000;
-const KAGUA = 'analysis/steps/61-lipa-kagua.json';
+const KAGUA = 'analysis/steps/61-lipa-kagua-0311.json';
 const body = { amount: KIASI, principal_amount: KIASI, interest_amount: 0, payment_method: 'CASH', reason: 'Kulipa mkopo',
-  notes: 'Awamu 1 ya mkopo A (04/11/2026) - hatua 61', transaction_date: `${TAREHE}T12:00:00` };
+  notes: 'Awamu 1 ya mkopo A (03/11/2026) - hatua 61', transaction_date: `${TAREHE}T12:00:00` };
 const r2 = (n) => Math.round(Number(n) * 100) / 100;
 
 const loanA = async () => { const q = await call('GET', `${CM}/loans/${A}`); return q.ok ? q.data : null; };
@@ -61,6 +64,7 @@ if (MODE === 'kagua') {
     `repaid ${money(a0.card.repaid)}, malipo ${malipo(a0).length}, journal ${j0.length} (lazima 0 - vinginevyo yameshaandikwa, USILIPE tena)`);
   check('2-awamu-3-hazijalipwa', awamu(a0) === '1|2026-11-04|386000|0|UNPAID ; 2|2026-12-04|386000|0|UNPAID ; 3|2027-01-04|386000|0|UNPAID',
     `awamu: ${awamu(a0)}`);
+  check('3-tarehe-<=-leo', TAREHE <= today, `tarehe ya malipo ${TAREHE}, leo ${today} (lazima <= leo - backend inakataa tarehe ya baadaye)`);
   const [wazi, nov] = await novWazi();
   check('3-Novemba-wazi', wazi, `kipindi ${nov} (lazima OPEN - vinginevyo journal ingehamia mwezi mwingine)`);
   const tb = await tbAll(today);

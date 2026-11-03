@@ -1,16 +1,17 @@
 @echo off
-rem HATUA 61 - MALIPO YA AWAMU 1 YA MKOPO A KWENYE PROD (2.3.0): 386,000 CASH tarehe 04/11/2026. INABADILISHA PRODUCTION.
+rem HATUA 61 - MALIPO YA AWAMU 1 YA MKOPO A KWENYE PROD (2.3.0): 386,000 CASH tarehe 03/11/2026. INABADILISHA PRODUCTION.
 rem   (mmiliki 31/10 bh, na 28/10 u). API TU - hakuna ssh, hakuna query ya DB ya prod. Akaunti ya CEO yenye FINANCE_WRITE (si root).
 rem   Endpoint: POST /api/v1/capital-monitoring/loans/INJ-0c98b69e.../repay - Dr 2100 / Cr 1000 (bank cut-over haijawekwa),
 rem     awamu zinalipwa FIFO (awamu 1 -^> PAID). Backend haina dryRun wala kinga ya kurudia: kinga ziko kwenye 61-lipa-mkopo.mjs.
 rem   MARA YA KWANZA: KAGUA (haiandiki) - mkopo A ACTIVE, deni 1,158,000, repaid 0, awamu 3 UNPAID, hakuna malipo/journal
 rem     -^> inaonyesha kitakachoandikwa -^> ---SIMAMA-PREVIEW---. Nitumie log; USIANDIKE LIPA mpaka nikuthibitishie.
-rem   MARA YA PILI (endesha 61 tena, tarehe 04/11 au baadaye, KAGUA ya siku hiyo hiyo): unaandika LIPA -^> POST moja
-rem     -^> ukaguzi: deni 772,000, repaid 386,000, awamu 1 PAID, awamu 2-3 UNPAID, journal 04/11 Dr 2100 / Cr 1000 386,000,
+rem   MARA YA PILI (endesha 61 tena, tarehe 03/11 au baadaye, KAGUA ya siku hiyo hiyo): unaandika LIPA -^> POST moja
+rem     -^> ukaguzi: deni 772,000, repaid 386,000, awamu 1 PAID, awamu 2-3 UNPAID, journal 03/11 Dr 2100 / Cr 1000 386,000,
 rem     2100 +386,000, TB 0 -^> ---OK---.
 rem   KUKATIKA: ikiwa malipo yameshaandikwa, 61 ikiendeshwa tena HAILIPI tena - inakagua tu. Ikiwa POST ilianza lakini
 rem     haionekani -^> SIMAMA, nitumie log (usijaribu tena).
-rem   Fedha: 386,000 zinatoka 1000 (CASH ya biashara). Zisitoke kwenye droo ya siku bila kuandikwa kwenye reco.
+rem   Fedha (cj 03/11): 386,000 zililipwa 03/11 kutoka BAHASHA YA AKIBA (siyo droo) - kwenye vitabu ni 1000 (CASH ya biashara);
+rem     reco ya droo ya 03/11 haiguswi. Kagua ya 02/11 (61-lipa-kagua.json) haitumiki: kagua mpya ni 61-lipa-kagua-0311.json.
 rem Matokeo: analysis\steps\61-lipa-mkopo.log. Ikishindwa: ---IMESHINDWA-KWENYE: ^<sehemu^> (exit N)---.
 setlocal
 cd /d "D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3"
@@ -51,7 +52,7 @@ if not defined CEO_PASS (
   set RC=1
   goto fail
 )
-if not exist analysis\steps\61-lipa-kagua.json goto kagua
+if not exist analysis\steps\61-lipa-kagua-0311.json goto kagua
 set "JIBU="
 set /p JIBU=Andika LIPA kuandika malipo ya 386,000 kwenye PROD (baada ya Claude kuthibitisha preview), KAGUA = kagua upya, kingine = simama:
 if /i "%JIBU%"=="KAGUA" goto kagua
@@ -75,7 +76,7 @@ if errorlevel 1 (
   goto fail
 )
 echo ---OK--- >> %L%
-echo OK - PROD: malipo ya awamu 1 ya mkopo A ^(386,000 CASH, 04/11^) yameandikwa na kukaguliwa. Matokeo: %L%. Nitumie log.
+echo OK - PROD: malipo ya awamu 1 ya mkopo A ^(386,000 CASH, 03/11^) yameandikwa na kukaguliwa. Matokeo: %L%. Nitumie log.
 goto end
 :kagua
 set STEP=KAGUA-HAIANDIKI
