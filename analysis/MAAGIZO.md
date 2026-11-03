@@ -627,3 +627,11 @@ Agent mwingine (C2) amekatwa. Wewe pekee ndiye agent kuanzia sasa.
 2. (ck): IMEFUNGWA — Chief amethibitisha kwenye GL (03/11, Dr 2100 / Cr 1000 386,000, bila riba).
    THIBITISHA: maliza jaribio la .cmd, kisha commit .mjs + .cmd + MAAGIZO (ck, cl). Log za Chief zicommitiwe kama zilivyo.
 3. Kisha C2 — ukianzia pale agent wa C2 alipoishia kama kazi yake ni salama, au upya. Niambie ulichagua lipi na kwa nini.
+
+## 2026-11-03 (cm)
+C2 — nyongeza kwenye harness kabla ya "0":
+  - Kwa kila njia HAI iliyorekebishwa: assertion ya USAHIHI, siyo "haitupi kosa" tu. Tarehe imewekwa → idadi ya safu = SQL ya mkono
+    yenye kichujio kilekile kwenye dump; tarehe null → kichujio kimeondolewa kweli. Angalau kesi moja kwa kila njia.
+  - Tofautisha JPQL (cast(:d as LocalDateTime)) na native (CAST(:d AS timestamp)); harness ionyeshe aina ya kila njia.
+  - Mpangilio: njia zinazogusa pesa/GL/stock/reco kwanza.
+Push ya feature/c2-null-params mwisho wa siku (push-yote iongeze tawi hili au itumie git push -u).

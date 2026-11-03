@@ -1,0 +1,316 @@
+target	kind	status	combo	outcome	detail
+CapitalExpenditureRepository.findByStatusAndDate(ExpenditureStatus,Integer,Integer,Pageable)	JPQL	live	set	OK	page 0/0
+CapitalExpenditureRepository.findByStatusAndDate(ExpenditureStatus,Integer,Integer,Pageable)	JPQL	live	null-all	OK	page 5/339
+CapitalExpenditureRepository.findByStatusAndDate(ExpenditureStatus,Integer,Integer,Pageable)	JPQL	live	null:year	OK	page 0/0
+CapitalExpenditureRepository.findByStatusAndDate(ExpenditureStatus,Integer,Integer,Pageable)	JPQL	live	null:month	OK	page 0/0
+CapitalExpenditureRepository.getSummaryStatistics()	JPQL	live	set	WRAPPED	one row came back as {{...}} (5 columns)
+CapitalExpenditureRepositoryExtended.getExpenditureStatisticsByDateRange(Long,String,String,LocalDateTime,LocalDateTime)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: relation "capital_expenditures" does not exist
+CapitalExpenditureRepositoryExtended.getExpenditureStatisticsByDateRange(Long,String,String,LocalDateTime,LocalDateTime)	native	DEAD-C7	null-all	FAIL	PSQLException: ERROR: relation "capital_expenditures" does not exist
+CapitalExpenditureRepositoryExtended.getExpenditureStatisticsByDateRange(Long,String,String,LocalDateTime,LocalDateTime)	native	DEAD-C7	null:capitalType	FAIL	PSQLException: ERROR: relation "capital_expenditures" does not exist
+CapitalExpenditureRepositoryExtended.getExpenditureStatisticsByDateRange(Long,String,String,LocalDateTime,LocalDateTime)	native	DEAD-C7	null:status	FAIL	PSQLException: ERROR: relation "capital_expenditures" does not exist
+CapitalExpenditureRepositoryExtended.getPerformanceTestData(Long,LocalDateTime)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: relation "capital_expenditures" does not exist
+CustomerRepository.countUnpaidCustomers(String)	JPQL	live	set	OK	Long
+CustomerRepository.countUnpaidCustomers(String)	JPQL	live	null:search	OK	Long
+CustomerRepository.findCustomersPaged(String,Pageable)	JPQL	live	set	OK	page 0/0
+CustomerRepository.findCustomersPaged(String,Pageable)	JPQL	live	null:search	OK	page 5/159
+CustomerRepository.findCustomersWithOutstandingBalances(String)	JPQL	live	set	OK	rows 0
+CustomerRepository.findCustomersWithOutstandingBalances(String)	JPQL	live	null:search	OK	rows 85
+CustomerRepository.findCustomersWithOutstandingBalancesPaged(String,Pageable)	JPQL	live	set	OK	page 0/0
+CustomerRepository.findCustomersWithOutstandingBalancesPaged(String,Pageable)	JPQL	live	null:search	OK	page 5/85
+CustomerRepository.sumUnpaidOutstanding(String)	JPQL	live	set	OK	BigDecimal
+CustomerRepository.sumUnpaidOutstanding(String)	JPQL	live	null:search	OK	BigDecimal
+DailyFinancialSnapshotRepository.findClosingCashBefore(LocalDate,String,Pageable)	JPQL	live	set	OK	rows 0
+DailyFinancialSnapshotRepository.findClosingCashBefore(LocalDate,String,Pageable)	JPQL	live	null:branchUid	OK	rows 5
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	set	OK	page 0/0
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	null-all	OK	page 5/145
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	null:userUid	OK	page 0/0
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	null:status	OK	page 0/0
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	null:branchUid	OK	page 0/0
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	null:fromDate	OK	page 0/0
+DailyReconciliationRepository.findByFilters(String,ReconciliationStatus,String,LocalDate,LocalDate,Pageable)	JPQL	live	null:toDate	OK	page 0/0
+DailyReconciliationRepository.findPendingApproval(String)	JPQL	live	set	OK	rows 0
+DailyReconciliationRepository.findPendingApproval(String)	JPQL	live	null:branchUid	OK	rows 0
+DailyReconciliationRepository.findVarianceReport(LocalDate,LocalDate,String)	JPQL	live	set	OK	rows 0
+DailyReconciliationRepository.findVarianceReport(LocalDate,LocalDate,String)	JPQL	live	null:branchUid	OK	rows 1
+JournalEntryLineRepository.cumulativeBalances(LocalDate,String)	JPQL	live	set	OK	rows 0
+JournalEntryLineRepository.cumulativeBalances(LocalDate,String)	JPQL	live	null:branchUid	OK	rows 19
+JournalEntryLineRepository.findLedgerLines(String,LocalDate,LocalDate,String)	JPQL	live	set	OK	rows 0
+JournalEntryLineRepository.findLedgerLines(String,LocalDate,LocalDate,String)	JPQL	live	null:branchUid	OK	rows 0
+JournalEntryLineRepository.sumDebitCreditBefore(String,LocalDate,String)	JPQL	live	set	WRAPPED	one row came back as {{...}} (2 columns)
+JournalEntryLineRepository.sumDebitCreditBefore(String,LocalDate,String)	JPQL	live	null:branchUid	WRAPPED	one row came back as {{...}} (2 columns)
+JournalEntryLineRepository.sumDebitCreditForAccount(String,LocalDate,LocalDate,String)	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (2 columns)
+JournalEntryLineRepository.sumDebitCreditForAccount(String,LocalDate,LocalDate,String)	JPQL	DEAD-C7	null:branchUid	WRAPPED	one row came back as {{...}} (2 columns)
+JournalEntryLineRepository.trialBalanceTotals(LocalDate,LocalDate,String)	JPQL	live	set	OK	rows 0
+JournalEntryLineRepository.trialBalanceTotals(LocalDate,LocalDate,String)	JPQL	live	null:branchUid	OK	rows 6
+JournalEntryRepository.findByFilters(LocalDate,LocalDate,String,String,Pageable)	JPQL	live	set	OK	page 0/0
+JournalEntryRepository.findByFilters(LocalDate,LocalDate,String,String,Pageable)	JPQL	live	null-all	OK	page 5/28
+JournalEntryRepository.findByFilters(LocalDate,LocalDate,String,String,Pageable)	JPQL	live	null:referenceType	OK	page 0/0
+JournalEntryRepository.findByFilters(LocalDate,LocalDate,String,String,Pageable)	JPQL	live	null:branchUid	OK	page 0/0
+MaterializedViewRepository.getAggregateSalesByDateRange(LocalDate,LocalDate)	native	DEAD-C7	set	WRAPPED	one row came back as {{...}} (3 columns)
+PaymentRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	set	OK	rows 0
+PaymentRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	null-all	OK	rows 2806
+PaymentRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	null:startDate	OK	rows 0
+PaymentRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	null:endDate	OK	rows 0
+PaymentRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	null:saleUid	OK	rows 0
+PaymentRepository.findBySaleUidsAndBranch(List,String)	JPQL	live	set	OK	rows 0
+PaymentRepository.findBySaleUidsAndBranch(List,String)	JPQL	live	null:branchUid	OK	rows 0
+PaymentRepository.getCashFlowReceiptsByMethod(LocalDateTime,LocalDateTime,String)	JPQL	live	set	OK	rows 0
+PaymentRepository.getCashFlowReceiptsByMethod(LocalDateTime,LocalDateTime,String)	JPQL	live	null:branchUid	OK	rows 0
+PaymentRepository.getPaymentStatistics()	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (5 columns)
+PaymentRepository.getPaymentStatisticsByDateRange(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (5 columns)
+PermissionRepository.searchPermissions(String,String,String,Pageable)	JPQL	live	set	OK	page 0/0
+PermissionRepository.searchPermissions(String,String,String,Pageable)	JPQL	live	null-all	OK	page 5/228
+PermissionRepository.searchPermissions(String,String,String,Pageable)	JPQL	live	null:search	OK	page 0/0
+PermissionRepository.searchPermissions(String,String,String,Pageable)	JPQL	live	null:module	OK	page 0/0
+PermissionRepository.searchPermissions(String,String,String,Pageable)	JPQL	live	null:groupName	OK	page 0/0
+ProductRepository.searchProductsAdvanced(String,String,Boolean)	JPQL	live	set	OK	rows 0
+ProductRepository.searchProductsAdvanced(String,String,Boolean)	JPQL	live	null-all	OK	rows 141
+ProductRepository.searchProductsAdvanced(String,String,Boolean)	JPQL	live	null:searchTerm	OK	rows 0
+ProductRepository.searchProductsAdvanced(String,String,Boolean)	JPQL	live	null:categoryUid	OK	rows 0
+ProductRepository.searchProductsAdvanced(String,String,Boolean)	JPQL	live	null:hasPricing	OK	rows 0
+ProductStockSettingsRepository.getStockStatusSummary()	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (4 columns)
+PromotionsRepository.countPromotionsByDateRange(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.countPromotionsByDateRange(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.countPromotionsByDateRange(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.countPromotionsByDateRange(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.findPromotionsByDateRangeDto(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.findPromotionsByDateRangeDto(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.findPromotionsByDateRangeDto(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PromotionsRepository.findPromotionsByDateRangeDto(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	set	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null-all	OK	rows 2210
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:productName	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:categoryUid	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:purchaseType	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:supplierName	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:startDate	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:endDate	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:minPrice	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:maxPrice	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:minQuantity	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:maxQuantity	OK	rows 0
+PurchaseRepository.advancedSearchPurchases(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean)	JPQL	live	null:hasDiscount	OK	rows 0
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:productName	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:categoryUid	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:purchaseType	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:supplierName	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:minPrice	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:maxPrice	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:minQuantity	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:maxQuantity	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.advancedSearchPurchasesPageable(String,String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal,BigDecimal,BigDecimal,Boolean,Pageable)	JPQL	DEAD-C7	null:hasDiscount	FAIL	PSQLException: ERROR: could not determine data type of parameter $9
+PurchaseRepository.calculateTotalPurchaseValue(String,boolean)	JPQL	live	set	OK	BigDecimal
+PurchaseRepository.calculateTotalPurchaseValue(String,boolean)	JPQL	live	null:productUid	OK	BigDecimal
+PurchaseRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	set	OK	rows 0
+PurchaseRepository.findByDateRangeAndFilters(LocalDateTime,LocalDateTime,String)	JPQL	live	null:productUid	OK	rows 0
+PurchaseRepository.findByDateRangeAndFiltersPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	live	set	OK	page 0/0
+PurchaseRepository.findByDateRangeAndFiltersPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	live	null:productUid	OK	page 0/0
+PurchaseRepository.findPurchaseStatsByProduct(String)	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (3 columns)
+PurchaseRepository.findPurchasesByDateRangeAndSupplier(LocalDateTime,LocalDateTime,String)	JPQL	live	set	OK	rows 0
+PurchaseRepository.findPurchasesByDateRangeAndSupplier(LocalDateTime,LocalDateTime,String)	JPQL	live	null-all	OK	rows 2210
+PurchaseRepository.findPurchasesByDateRangeAndSupplier(LocalDateTime,LocalDateTime,String)	JPQL	live	null:startDate	OK	rows 0
+PurchaseRepository.findPurchasesByDateRangeAndSupplier(LocalDateTime,LocalDateTime,String)	JPQL	live	null:endDate	OK	rows 0
+PurchaseRepository.findPurchasesByDateRangeAndSupplier(LocalDateTime,LocalDateTime,String)	JPQL	live	null:supplierName	OK	rows 0
+PurchaseRepository.findPurchasesByDateRangeAndSupplierPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PurchaseRepository.findPurchasesByDateRangeAndSupplierPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PurchaseRepository.findPurchasesByDateRangeAndSupplierPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PurchaseRepository.findPurchasesByDateRangeAndSupplierPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PurchaseRepository.findPurchasesByDateRangeAndSupplierPageable(LocalDateTime,LocalDateTime,String,Pageable)	JPQL	DEAD-C7	null:supplierName	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+PurchaseRepository.getPriceAnalyticsForProduct(String,LocalDateTime)	JPQL	live	set	WRAPPED	one row came back as {{...}} (5 columns)
+PurchaseRepository.getPurchaseSummaryStatistics(LocalDateTime)	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (6 columns)
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	set	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null-all	OK	rows 2210
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:productName	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:purchaseType	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:supplierName	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:minDate	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:maxDate	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:minPrice	OK	rows 0
+PurchaseRepository.searchPurchases(String,PurchaseType,String,LocalDateTime,LocalDateTime,BigDecimal,BigDecimal)	JPQL	live	null:maxPrice	OK	rows 0
+ReconciliationDebtCollectionRepository.getCashFlowCollectionsInRange(LocalDate,LocalDate,String)	JPQL	live	set	OK	BigDecimal
+ReconciliationDebtCollectionRepository.getCashFlowCollectionsInRange(LocalDate,LocalDate,String)	JPQL	live	null:branchUid	OK	BigDecimal
+RepurchaseInvoiceRepository.findWithFilters(LocalDateTime,LocalDateTime,String,String)	native	live	set	OK	rows 0
+RepurchaseInvoiceRepository.findWithFilters(LocalDateTime,LocalDateTime,String,String)	native	live	null-all	OK	rows 218
+RepurchaseInvoiceRepository.findWithFilters(LocalDateTime,LocalDateTime,String,String)	native	live	null:startDate	OK	rows 0
+RepurchaseInvoiceRepository.findWithFilters(LocalDateTime,LocalDateTime,String,String)	native	live	null:endDate	OK	rows 0
+RepurchaseInvoiceRepository.findWithFilters(LocalDateTime,LocalDateTime,String,String)	native	live	null:buyerName	OK	rows 0
+RepurchaseInvoiceRepository.findWithFilters(LocalDateTime,LocalDateTime,String,String)	native	live	null:createdBy	OK	rows 0
+RoleRepository.searchRoles(String,Status,Pageable)	JPQL	live	set	OK	page 0/0
+RoleRepository.searchRoles(String,Status,Pageable)	JPQL	live	null-all	OK	page 5/7
+RoleRepository.searchRoles(String,Status,Pageable)	JPQL	live	null:search	OK	page 5/7
+RoleRepository.searchRoles(String,Status,Pageable)	JPQL	live	null:status	OK	page 0/0
+SalesDetailsRepository.findDetailsByPackageType(String)	JPQL	live	set	OK	rows 0
+SalesDetailsRepository.findDetailsByPackageType(String)	JPQL	live	null:packageType	OK	rows 12704
+SalesDetailsRepository.findDetailsBySaleType(PurchaseType)	JPQL	live	set	OK	rows 5138
+SalesDetailsRepository.findDetailsBySaleType(PurchaseType)	JPQL	live	null:saleType	OK	rows 12704
+SalesDetailsRepository.getProductSalesByDayOfWeek(String,LocalDateTime,LocalDateTime)	native	live	set	OK	rows 0
+SalesDetailsRepository.getProductSalesByDayOfWeek(String,LocalDateTime,LocalDateTime)	native	live	null-all	OK	rows 0
+SalesDetailsRepository.getProductSalesByDayOfWeek(String,LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	rows 0
+SalesDetailsRepository.getProductSalesByDayOfWeek(String,LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	rows 0
+SalesDetailsRepository.getProductSalesByHourOfDay(String,LocalDateTime,LocalDateTime)	native	live	set	OK	rows 0
+SalesDetailsRepository.getProductSalesByHourOfDay(String,LocalDateTime,LocalDateTime)	native	live	null-all	OK	rows 0
+SalesDetailsRepository.getProductSalesByHourOfDay(String,LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	rows 0
+SalesDetailsRepository.getProductSalesByHourOfDay(String,LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	rows 0
+SalesDetailsRepository.getProductSalesCountByMonth(String,LocalDateTime,LocalDateTime)	native	live	set	OK	rows 0
+SalesDetailsRepository.getProductSalesCountByMonth(String,LocalDateTime,LocalDateTime)	native	live	null-all	OK	rows 0
+SalesDetailsRepository.getProductSalesCountByMonth(String,LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	rows 0
+SalesDetailsRepository.getProductSalesCountByMonth(String,LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	rows 0
+SalesDetailsRepository.getProductSalesStats(String,LocalDateTime,LocalDateTime)	native	live	set	WRAPPED	one row came back as {{...}} (6 columns)
+SalesDetailsRepository.getProductSalesStats(String,LocalDateTime,LocalDateTime)	native	live	null-all	WRAPPED	one row came back as {{...}} (6 columns)
+SalesDetailsRepository.getProductSalesStats(String,LocalDateTime,LocalDateTime)	native	live	null:startDate	WRAPPED	one row came back as {{...}} (6 columns)
+SalesDetailsRepository.getProductSalesStats(String,LocalDateTime,LocalDateTime)	native	live	null:endDate	WRAPPED	one row came back as {{...}} (6 columns)
+SalesDetailsRepository.getProductSalesSummary(String,LocalDateTime,LocalDateTime)	native	live	set	OK	Object[0]
+SalesDetailsRepository.getProductSalesSummary(String,LocalDateTime,LocalDateTime)	native	live	null-all	OK	Object[0]
+SalesDetailsRepository.getProductSalesSummary(String,LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	Object[0]
+SalesDetailsRepository.getProductSalesSummary(String,LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	Object[0]
+SalesDetailsRepository.getProductSalesTrendByMonth(String,LocalDateTime,LocalDateTime)	native	live	set	OK	rows 0
+SalesDetailsRepository.getProductSalesTrendByMonth(String,LocalDateTime,LocalDateTime)	native	live	null-all	OK	rows 0
+SalesDetailsRepository.getProductSalesTrendByMonth(String,LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	rows 0
+SalesDetailsRepository.getProductSalesTrendByMonth(String,LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	rows 0
+SalesDetailsRepository.getTopSellingProductsByProfit(LocalDateTime,LocalDateTime,int)	native	live	set	OK	rows 0
+SalesDetailsRepository.getTopSellingProductsByProfit(LocalDateTime,LocalDateTime,int)	native	live	null-all	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByProfit(LocalDateTime,LocalDateTime,int)	native	live	null:startDate	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByProfit(LocalDateTime,LocalDateTime,int)	native	live	null:endDate	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByQuantity(LocalDateTime,LocalDateTime,int)	native	live	set	OK	rows 0
+SalesDetailsRepository.getTopSellingProductsByQuantity(LocalDateTime,LocalDateTime,int)	native	live	null-all	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByQuantity(LocalDateTime,LocalDateTime,int)	native	live	null:startDate	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByQuantity(LocalDateTime,LocalDateTime,int)	native	live	null:endDate	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByRevenue(LocalDateTime,LocalDateTime,int)	native	live	set	OK	rows 0
+SalesDetailsRepository.getTopSellingProductsByRevenue(LocalDateTime,LocalDateTime,int)	native	live	null-all	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByRevenue(LocalDateTime,LocalDateTime,int)	native	live	null:startDate	OK	rows 1
+SalesDetailsRepository.getTopSellingProductsByRevenue(LocalDateTime,LocalDateTime,int)	native	live	null:endDate	OK	rows 1
+SalesRepository.calculateTotalProfitByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	set	OK	empty
+SalesRepository.calculateTotalProfitByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	null-all	OK	present
+SalesRepository.calculateTotalProfitByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	null:startDate	OK	present
+SalesRepository.calculateTotalProfitByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	null:endDate	OK	present
+SalesRepository.calculateTotalSalesByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	set	OK	empty
+SalesRepository.calculateTotalSalesByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	null-all	OK	present
+SalesRepository.calculateTotalSalesByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	null:startDate	OK	present
+SalesRepository.calculateTotalSalesByDateRange(LocalDateTime,LocalDateTime)	JPQL	live	null:endDate	OK	present
+SalesRepository.countActiveSalesByDateRange(LocalDateTime,LocalDateTime)	native	live	set	OK	Long
+SalesRepository.countActiveSalesByDateRange(LocalDateTime,LocalDateTime)	native	live	null-all	OK	Long
+SalesRepository.countActiveSalesByDateRange(LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	Long
+SalesRepository.countActiveSalesByDateRange(LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	Long
+SalesRepository.countSettledDebts(LocalDateTime,LocalDateTime,String)	native	live	set	OK	Long
+SalesRepository.countSettledDebts(LocalDateTime,LocalDateTime,String)	native	live	null-all	OK	Long
+SalesRepository.countSettledDebts(LocalDateTime,LocalDateTime,String)	native	live	null:fromDate	OK	Long
+SalesRepository.countSettledDebts(LocalDateTime,LocalDateTime,String)	native	live	null:toDate	OK	Long
+SalesRepository.countSettledDebts(LocalDateTime,LocalDateTime,String)	native	live	null:search	OK	Long
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	set	OK	rows 0
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	null-all	OK	rows 1
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	null:fromDate	OK	rows 0
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	null:toDate	OK	rows 0
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	null:receiver	OK	rows 0
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	null:search	OK	rows 0
+SalesRepository.findDebtPayments(LocalDateTime,LocalDateTime,String,String,String,int,int)	native	live	null:reconState	OK	rows 0
+SalesRepository.findMissingSalesDays(LocalDate,LocalDate,String)	native	live	set	OK	rows 1
+SalesRepository.findMissingSalesDays(LocalDate,LocalDate,String)	native	live	null:userUid	OK	rows 0
+SalesRepository.findSalesByDateRangeAndFilters(LocalDateTime,LocalDateTime,String,String)	JPQL	live	set	OK	rows 0
+SalesRepository.findSalesByDateRangeAndFilters(LocalDateTime,LocalDateTime,String,String)	JPQL	live	null-all	OK	rows 2241
+SalesRepository.findSalesByDateRangeAndFilters(LocalDateTime,LocalDateTime,String,String)	JPQL	live	null:startDate	OK	rows 0
+SalesRepository.findSalesByDateRangeAndFilters(LocalDateTime,LocalDateTime,String,String)	JPQL	live	null:endDate	OK	rows 0
+SalesRepository.findSalesByDateRangeAndFilters(LocalDateTime,LocalDateTime,String,String)	JPQL	live	null:customerUid	OK	rows 0
+SalesRepository.findSalesByDateRangeAndFilters(LocalDateTime,LocalDateTime,String,String)	JPQL	live	null:userUid	OK	rows 0
+SalesRepository.findSalesPagedByUser(String,Pageable)	JPQL	live	set	OK	page 0/0
+SalesRepository.findSalesPagedByUser(String,Pageable)	JPQL	live	null:userUid	OK	page 5/2241
+SalesRepository.findSettledDebts(LocalDateTime,LocalDateTime,String,int,int)	native	live	set	OK	rows 0
+SalesRepository.findSettledDebts(LocalDateTime,LocalDateTime,String,int,int)	native	live	null-all	OK	rows 1
+SalesRepository.findSettledDebts(LocalDateTime,LocalDateTime,String,int,int)	native	live	null:fromDate	OK	rows 0
+SalesRepository.findSettledDebts(LocalDateTime,LocalDateTime,String,int,int)	native	live	null:toDate	OK	rows 0
+SalesRepository.findSettledDebts(LocalDateTime,LocalDateTime,String,int,int)	native	live	null:search	OK	rows 0
+SalesRepository.getLiveDailySummary(LocalDate)	native	live	set	WRAPPED	one row came back as {{...}} (3 columns)
+SalesRepository.getOptimizedSalesComparisonData(LocalDateTime,LocalDateTime)	native	DEAD-C7	set	WRAPPED	one row came back as {{...}} (3 columns)
+SalesRepository.getProfitSummaryRaw(LocalDateTime,LocalDateTime,String)	native	live	set	WRAPPED	one row came back as {{...}} (9 columns)
+SalesRepository.getProfitSummaryRaw(LocalDateTime,LocalDateTime,String)	native	live	null-all	WRAPPED	one row came back as {{...}} (9 columns)
+SalesRepository.getProfitSummaryRaw(LocalDateTime,LocalDateTime,String)	native	live	null:startDate	WRAPPED	one row came back as {{...}} (9 columns)
+SalesRepository.getProfitSummaryRaw(LocalDateTime,LocalDateTime,String)	native	live	null:endDate	WRAPPED	one row came back as {{...}} (9 columns)
+SalesRepository.getProfitSummaryRaw(LocalDateTime,LocalDateTime,String)	native	live	null:userUid	WRAPPED	one row came back as {{...}} (9 columns)
+SalesRepository.getSalesComparisonData(LocalDateTime,LocalDateTime)	native	live	set	WRAPPED	one row came back as {{...}} (3 columns)
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	set	OK	rows 1
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	null-all	OK	rows 1
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	null:fromDate	OK	rows 1
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	null:toDate	OK	rows 1
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	null:receiver	OK	rows 1
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	null:search	OK	rows 1
+SalesRepository.summarizeDebtPayments(LocalDateTime,LocalDateTime,String,String,String)	native	live	null:reconState	OK	rows 1
+SalesRepositoryExtended.calculateTotalProfitByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalProfitByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	null-all	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalProfitByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalProfitByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalSalesByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalSalesByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	null-all	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalSalesByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.calculateTotalSalesByDateRange(Long,LocalDateTime,LocalDateTime)	native	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.getSalesComparison(Long,LocalDateTime,LocalDateTime,LocalDateTime,LocalDateTime)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.getSalesPerformanceTestData(Long,LocalDateTime)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: column "business_id" does not exist
+SalesRepositoryExtended.getTodaySalesSummary(Long)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: column s.business_id does not exist
+SalesReturnItemRepository.getExchangeValueStatistics(LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (3 columns)
+SalesReturnRepository.getAggregateStats(LocalDateTime,LocalDateTime)	native	live	set	OK	rows 1
+SalesReturnRepository.getAggregateStats(LocalDateTime,LocalDateTime)	native	live	null-all	OK	rows 1
+SalesReturnRepository.getAggregateStats(LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	rows 1
+SalesReturnRepository.getAggregateStats(LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	rows 1
+StoreRepository.calculateInventoryValue(String,LocalDateTime)	JPQL	live	set	OK	Object[0]
+StoreRepository.calculateStockTurnover(String,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	set	WRAPPED	one row came back as {{...}} (2 columns)
+StoreRepository.findByDateRangePaginated(LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+StoreRepository.findByDateRangePaginated(LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+StoreRepository.findByDateRangePaginated(LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+StoreRepository.findByDateRangePaginated(LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $1
+StoreRepository.findByMovementTypeInAndDateRangePaginated(Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $2
+StoreRepository.findByMovementTypeInAndDateRangePaginated(Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $2
+StoreRepository.findByMovementTypeInAndDateRangePaginated(Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $2
+StoreRepository.findByMovementTypeInAndDateRangePaginated(Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $2
+StoreRepository.getMovementStatistics(String,LocalDateTime,LocalDateTime)	JPQL	live	set	WRAPPED	one row came back as {{...}} (5 columns)
+StoreRepository.getMovementSummaryByType(LocalDateTime,LocalDateTime)	JPQL	live	set	OK	rows 0
+StoreRepository.getMovementSummaryByType(LocalDateTime,LocalDateTime)	JPQL	live	null-all	OK	rows 6
+StoreRepository.getMovementSummaryByType(LocalDateTime,LocalDateTime)	JPQL	live	null:startDate	OK	rows 5
+StoreRepository.getMovementSummaryByType(LocalDateTime,LocalDateTime)	JPQL	live	null:endDate	OK	rows 5
+StoreRepository.getStockBreakdownByProductUid(String)	native	live	set	WRAPPED	one row came back as {{...}} (3 columns)
+StoreRepository.searchByTermAndDateRangePaginated(String,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	set	OK	page 0/0
+StoreRepository.searchByTermAndDateRangePaginated(String,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null-all	OK	page 5/16809
+StoreRepository.searchByTermAndDateRangePaginated(String,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null:searchTerm	OK	page 0/0
+StoreRepository.searchByTermAndDateRangePaginated(String,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null:startDate	OK	page 0/0
+StoreRepository.searchByTermAndDateRangePaginated(String,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null:endDate	OK	page 0/0
+StoreRepository.searchByTermAndTypesPaginated(String,Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	set	OK	page 0/0
+StoreRepository.searchByTermAndTypesPaginated(String,Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null-all	OK	page 0/0
+StoreRepository.searchByTermAndTypesPaginated(String,Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null:searchTerm	OK	page 0/0
+StoreRepository.searchByTermAndTypesPaginated(String,Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null:startDate	OK	page 0/0
+StoreRepository.searchByTermAndTypesPaginated(String,Collection,LocalDateTime,LocalDateTime,Pageable)	JPQL	live	null:endDate	OK	page 0/0
+StoreRepository.searchStoreEntries(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	set	OK	rows 0
+StoreRepository.searchStoreEntries(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null-all	OK	rows 16809
+StoreRepository.searchStoreEntries(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:searchTerm	OK	rows 0
+StoreRepository.searchStoreEntries(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:movementType	OK	rows 0
+StoreRepository.searchStoreEntries(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:startDate	OK	rows 0
+StoreRepository.searchStoreEntries(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:endDate	OK	rows 0
+StoreRepository.searchStoreEntriesByProductNameOnly(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	set	FAIL	PSQLException: ERROR: could not determine data type of parameter $5
+StoreRepository.searchStoreEntriesByProductNameOnly(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null-all	FAIL	PSQLException: ERROR: could not determine data type of parameter $5
+StoreRepository.searchStoreEntriesByProductNameOnly(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:searchTerm	FAIL	PSQLException: ERROR: could not determine data type of parameter $5
+StoreRepository.searchStoreEntriesByProductNameOnly(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:movementType	FAIL	PSQLException: ERROR: could not determine data type of parameter $5
+StoreRepository.searchStoreEntriesByProductNameOnly(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:startDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $5
+StoreRepository.searchStoreEntriesByProductNameOnly(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	DEAD-C7	null:endDate	FAIL	PSQLException: ERROR: could not determine data type of parameter $5
+StoreRepository.searchStoreEntriesNative(String,String,LocalDateTime,LocalDateTime)	native	live	set	OK	rows 0
+StoreRepository.searchStoreEntriesNative(String,String,LocalDateTime,LocalDateTime)	native	live	null-all	OK	rows 500
+StoreRepository.searchStoreEntriesNative(String,String,LocalDateTime,LocalDateTime)	native	live	null:searchTerm	OK	rows 0
+StoreRepository.searchStoreEntriesNative(String,String,LocalDateTime,LocalDateTime)	native	live	null:movementType	OK	rows 0
+StoreRepository.searchStoreEntriesNative(String,String,LocalDateTime,LocalDateTime)	native	live	null:startDate	OK	rows 0
+StoreRepository.searchStoreEntriesNative(String,String,LocalDateTime,LocalDateTime)	native	live	null:endDate	OK	rows 0
+StoreRepository.searchStoreEntriesUltraSafe(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	set	OK	rows 0
+StoreRepository.searchStoreEntriesUltraSafe(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null-all	OK	rows 16809
+StoreRepository.searchStoreEntriesUltraSafe(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:searchTerm	OK	rows 0
+StoreRepository.searchStoreEntriesUltraSafe(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:movementType	OK	rows 0
+StoreRepository.searchStoreEntriesUltraSafe(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:startDate	OK	rows 0
+StoreRepository.searchStoreEntriesUltraSafe(String,MovementType,LocalDateTime,LocalDateTime)	JPQL	live	null:endDate	OK	rows 0
+StoreRepositoryExtended.getInventoryPerformanceTestData(Long)	native	DEAD-C7	set	FAIL	PSQLException: ERROR: relation "inventory_items" does not exist
+StoreRepositoryExtended.getInventoryValueSummary(Long)	native	KNOWN	set	FAIL	PSQLException: ERROR: relation "inventory_items" does not exist
+UserRepository.searchUsers(String,Status,List,Pageable)	JPQL	live	set	OK	page 0/0
+UserRepository.searchUsers(String,Status,List,Pageable)	JPQL	live	null-all	OK	page 5/5
+UserRepository.searchUsers(String,Status,List,Pageable)	JPQL	live	null:search	OK	page 0/0
+UserRepository.searchUsers(String,Status,List,Pageable)	JPQL	live	null:status	OK	page 0/0
+UserRepository.searchUsers(String,Status,List,Pageable)	JPQL	live	null:roleUids	OK	page 0/0
+UserRepository.searchUsersSimple(String,Status,Pageable)	JPQL	live	set	OK	page 0/0
+UserRepository.searchUsersSimple(String,Status,Pageable)	JPQL	live	null-all	OK	page 5/5
+UserRepository.searchUsersSimple(String,Status,Pageable)	JPQL	live	null:search	OK	page 0/0
+UserRepository.searchUsersSimple(String,Status,Pageable)	JPQL	live	null:status	OK	page 0/0
