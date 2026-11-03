@@ -592,3 +592,11 @@ C1 = config kwenye git BILA kubadilisha thamani. outOfOrder ibaki kama ilivyo pr
   Diff ya C1: onyesha kila thamani iliyobadilika dhidi ya .env/properties za prod (zilizofichwa). Lazima iwe 0 isipokuwa ${ROOT_PASSWORD:-}.
 .gitattributes: *.properties eol=lf (onyo la CRLF).
 (cg): makadirio ya C2 + C4 yalikuja? Kama bado, yatoe kwenye ripoti hii.
+
+## 2026-11-03 (ci)
+1. C4: IMETOKA kwenye batch → BAADA-YA-BATCH. Rekebisha MATAWI.md na mpango wa kifurushi.
+2. Kanuni ya pili ya onyo la manunuzi: ieleze kwa mstari mmoja (nini, kwa nini, gharama) — nitaamua.
+3. Hatua ya release ya C1: ndiyo — andaa (kuhamisha siri za dev kwenda Lsms\config\application.properties, kukagua backend inawaka local).
+4. V039: BAADA. Lakini script ya staging LAZIMA itumie dump ya prod ya karibuni (siyo nakala safi) na ikague Flyway: V135→V138 zinaingia,
+   hakuna validate error, V039/V056 hazibadilishwi.
+Kisha C2.

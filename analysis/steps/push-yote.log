@@ -1,8 +1,16 @@
 ---MWENDESHO-PUSH-YOTE--- 
-saa Mon 11/02/2026 10:59:29.85 
+saa Tue 11/03/2026 13:11:56.93 
 ---KAGUA--- 
-TAWI_1 release/2.4.0 local 0d1ee71d3c8030aed4e6b88ec77c93c87c53599c origin 0d1ee71d3c8030aed4e6b88ec77c93c87c53599c - TAYARI, hakuna cha kupush 
-TAWI_2 release/3.2.0 local c540ab8af42c59b7e90593b151b760ca5f407afa origin c540ab8af42c59b7e90593b151b760ca5f407afa - TAYARI, hakuna cha kupush 
-TAWI_3 main local 998dad6348d2a780451a9c54e4cfc7bff7840012 origin 998dad6348d2a780451a9c54e4cfc7bff7840012 - TAYARI, hakuna cha kupush 
----HAKUNA-CHA-KUPUSH: origin iko sawa na local kwa matawi yote--- 
+TAWI_1 release/2.4.0 local 376a31de268e3ebb254d7245c8d5fecae12fdb3a origin 0d1ee71d3c8030aed4e6b88ec77c93c87c53599c - FF, commit 14 mpya 
+TAWI_2 release/3.2.0 local 28afa80d046ce9d0de411f4f130127d43eab13bd origin c540ab8af42c59b7e90593b151b760ca5f407afa - FF, commit 11 mpya 
+TAWI_3 main local c875238855a5ae3d45ba039d1483e1e9d2acc376 origin c875238855a5ae3d45ba039d1483e1e9d2acc376 - TAYARI, hakuna cha kupush 
+mmiliki ameandika: push 
+---PUSH--- 
+To https://github.com/TarimoPaul/lsmsBackend.git
+   0d1ee71..376a31d  release/2.4.0 -> release/2.4.0
+PUSH_1 release/2.4.0 SAWA origin = local = 376a31de268e3ebb254d7245c8d5fecae12fdb3a 
+To https://github.com/TarimoPaul/lsmsFrontV3.git
+   c540ab8..28afa80  release/3.2.0 -> release/3.2.0
+PUSH_2 release/3.2.0 SAWA origin = local = 28afa80d046ce9d0de411f4f130127d43eab13bd 
+PUSH_3 main - TAYARI, imerukwa 
 ---OK--- 

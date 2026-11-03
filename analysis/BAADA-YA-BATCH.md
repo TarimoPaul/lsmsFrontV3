@@ -113,3 +113,11 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
 - `git211` (application.properties) na `git spring.jpa.show-sql=false` (application-pro.properties; java Properties
   inaisoma kama key "git") zimeachwa kama zilivyo kwenye jar ya prod 2.3.0, ili C1 iwe 0. Hakuna code inayosoma "git".
   Kuziondoa = toleo linalofuata (show-sql inabaki false kutoka application.properties).
+
+## 7. C4 Sales returns + exchange (mmiliki 03/11 ci) - IMETOKA kwenye kifurushi 2.4.0/3.2.0
+- Backend `feature/sales-returns` 9425223 (juu ya 2.2.71, migration ya muda V135) na V3 `feature/sales-returns` e199712 (juu ya 3.1.11).
+- Kazi iliyokadiriwa (cg §3): siku 3–4 — kuhamisha juu ya release (faili 6 zinagongana: SaleService, ReconciliationService,
+  PostingEngine, SalesController, SalesDto, SaleServiceDeletionTest), namba mpya ya migration (baada ya V138, wakati wa merge),
+  feature flag backend + V3 (default OFF), majaribio upya (54 backend + 23 UI e2e kwenye Docker-local + PG check).
+- Inagusa GL na reco → njia: Docker-local → Contabo staging → prod (MATAWI kanuni ba).
+- C7 (SaleReturnService iliyokufa) inabaki kwenye kifurushi; isiondoe chochote ambacho C4 itahitaji.

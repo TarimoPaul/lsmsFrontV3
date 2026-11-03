@@ -4,8 +4,8 @@
 |---|---|---|
 | `main` | **= prod.** Prod inaendesha 2.2.71. main = `d2298fb` (ssh -n), imepushwa. | `D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms` |
 | `hotfix/2.2.72` | **Hotfix**: root boot, hakuna password ya default, kinga ya mwezi uliofungwa, `Assert-ReleaseBranch`. HEAD = `d2298fb`; kazi bado haijacommitiwa. | worktree `...\Lsms\Lsms-hotfix-2272` |
-| `feature/sales-returns` | **WIP**: returns + exchange, migration ya muda `V135`. Haijajaribiwa staging, **si ya prod**. Commit `9425223`, haijapushwa. | backend (branch tu) |
-| `feature/sales-returns` (V3) | **WIP**: UI ya returns (faili 12). Commit `e199712`, haijapushwa. | lsmsFrontV3 |
+| `feature/sales-returns` | **WIP**: returns + exchange, migration ya muda `V135`. Haijajaribiwa staging, **si ya prod**. Commit `9425223`, haijapushwa. **03/11 (ci): C4 IMETOKA kwenye kifurushi 2.4.0 → BAADA-YA-BATCH §7.** Migration itapata namba baada ya V138 wakati wa merge yake. | backend (branch tu) |
+| `feature/sales-returns` (V3) | **WIP**: UI ya returns (faili 12). Commit `e199712`, haijapushwa. **Nje ya 3.2.0 (ci).** | lsmsFrontV3 |
 | `feature/mikopo-2.3.0` | Bado haipo. Itaanzishwa baada ya MUUNDO kukubaliwa (`analysis\toleo2\MUUNDO-2.3.0.md`). | |
 
 Toleo 2 = **2.3.0** (mmiliki 26/10).
@@ -43,6 +43,11 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
 - Kifurushi chenye migrations + infra (2.4.0 / 3.2.0): Docker-local kwa kila kipengele, kisha staging MOJA (script moja), kisha prod MOJA.
 - Majaribio ya SQL ya native yaendeshwe pia kwenye PG15.
 - Kifurushi (mmiliki az): hakuna staging/prod mpaka kazi ZOTE zikamilike local. Tarehe ya kufunga ni **16/11/2026**; kisichokamilika na kujaribiwa hadi hapo kinahamia toleo linalofuata. Branches: `release/2.4.0` (backend), `release/3.2.0` (V3).
+- **Orodha ya kifurushi (be), imesasishwa 03/11 (ci):** ✔ A1–A6, ✔ B, ✔ C1 → C2 → C3 → C5/C8 (orodha kwanza) → C6 → C7 → C9.
+  **C4 (sales returns) IMETOKA** → BAADA-YA-BATCH §7. Hakuna kazi ya C4 kwenye release/2.4.0 wala release/3.2.0.
+- **Skripti ya staging ya kifurushi (ci):** inarudisha staging kutoka **dump ya prod ya karibuni** (siyo nakala safi), kisha inakagua Flyway:
+  V135→V138 zinaingia (`success`), hakuna validate error kwenye log ya boot, safu za V039 na V056 kwenye `flyway_schema_history`
+  hazibadiliki (version, description, checksum, installed_on kabla = baada). V039 inabaki kama ilivyo (BAADA §5).
 
 **Kiolezo (kimoja kwa kila toleo):** `deploy/local/` ya backend (release/2.4.0 `804e4da`).
 ```
@@ -52,7 +57,7 @@ deploy/local/local.sh token | psql "<sql>" | down
 ```
 - Ports: PG 127.0.0.1:55415, backend 127.0.0.1:18090. Siri ni za kutupwa (`deploy/local/.siri`, gitignored).
 - Schedulers zimezimwa kwa default (`APP_SCHEDULERS_ENABLED=true` ili kuziwasha).
-- `build` inahitaji `application.properties` ya worktree ya main (kama build ya prod) mpaka C1 iiweke kwenye git.
+- ~~`build` inahitaji `application.properties` ya worktree ya main~~ — C1 (release/2.4.0) imeiweka kwenye git. Siri za dev: `<worktree>\config\application.properties` (gitignored); hatua ya release ya main: `analysis\steps\72-c1-siri-dev.cmd`.
 - Jaribio la kwanza (31/10): release/2.4.0 `d0fc776` + dump ya 29/10 10:27 → restore SAWA, Flyway 134 → 137 kwenye PG15, uid 10001 inaandika /app/logs.
 
 **V3 (mmiliki 31/10 bg): hakuna `ng serve`.** V3 inajaribiwa kwa production build:
