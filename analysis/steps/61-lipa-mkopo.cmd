@@ -12,6 +12,9 @@ rem   KUKATIKA: ikiwa malipo yameshaandikwa, 61 ikiendeshwa tena HAILIPI tena - 
 rem     haionekani -^> SIMAMA, nitumie log (usijaribu tena).
 rem   Fedha (cj 03/11): 386,000 zililipwa 03/11 kutoka BAHASHA YA AKIBA (siyo droo) - kwenye vitabu ni 1000 (CASH ya biashara);
 rem     reco ya droo ya 03/11 haiguswi. Kagua ya 02/11 (61-lipa-kagua.json) haitumiki: kagua mpya ni 61-lipa-kagua-0311.json.
+rem   THIBITISHA (ck 03/11, KUSOMA TU - chaguo la kwanza, Enter): malipo YALIKUWA yameshaandikwa kabla ya 61. Inaonyesha malipo
+rem     na journal zake (tarehe, mistari, riba, payment_method, posted_by, reference, created_at) -^> ---THIBITISHA-SAWA--- au
+rem     ---THIBITISHA-INA-TOFAUTI--- pamoja na marekebisho yaliyoelezwa. Haiandiki chochote. Nitumie log.
 rem Matokeo: analysis\steps\61-lipa-mkopo.log. Ikishindwa: ---IMESHINDWA-KWENYE: ^<sehemu^> (exit N)---.
 setlocal
 cd /d "D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3"
@@ -52,6 +55,9 @@ if not defined CEO_PASS (
   set RC=1
   goto fail
 )
+set "JIBU0="
+set /p JIBU0=Enter = THIBITISHA malipo yaliyopo (kusoma tu). Andika KAGUA kwa kagua/lipa ya zamani:
+if /i not "%JIBU0%"=="KAGUA" goto thibitisha
 if not exist analysis\steps\61-lipa-kagua-0311.json goto kagua
 set "JIBU="
 set /p JIBU=Andika LIPA kuandika malipo ya 386,000 kwenye PROD (baada ya Claude kuthibitisha preview), KAGUA = kagua upya, kingine = simama:
@@ -77,6 +83,22 @@ if errorlevel 1 (
 )
 echo ---OK--- >> %L%
 echo OK - PROD: malipo ya awamu 1 ya mkopo A ^(386,000 CASH, 03/11^) yameandikwa na kukaguliwa. Matokeo: %L%. Nitumie log.
+goto end
+:thibitisha
+set STEP=THIBITISHA-KUSOMA-TU
+echo ---%STEP%--- >> %L%
+node analysis\steps\61-lipa-mkopo.mjs thibitisha >> %L% 2>&1
+set RC=%errorlevel%
+echo [exit %RC%] >> %L%
+findstr /b /l /c:"MUHTASARI 61 lipa mkopo thibitisha" %L% | findstr /c:"FAIL 0," > nul
+if errorlevel 1 goto thibitisha_tofauti
+if not "%RC%"=="0" goto thibitisha_tofauti
+echo ---THIBITISHA-SAWA--- >> %L%
+echo THIBITISHA SAWA - malipo yaliyopo ni sahihi; hakuna kilichoandikwa. Matokeo: %L%. Nitumie log.
+goto end
+:thibitisha_tofauti
+echo ---THIBITISHA-INA-TOFAUTI--- >> %L%
+echo THIBITISHA INA TOFAUTI - marekebisho yameelezwa kwenye %L% (hakuna kilichoandikwa). USIENDESHE LIPA. Nitumie log.
 goto end
 :kagua
 set STEP=KAGUA-HAIANDIKI

@@ -14,11 +14,17 @@
 //   awamu 1 PAID (386,000), awamu 2-3 hazijaguswa, journal LOAN_REPAYMENT ya 03/11 = Dr 2100 386,000 / Cr 1000 386,000,
 //   2100 delta +386,000, TB = 0. Ikirudiwa baada ya kukatika: malipo yaliyokwisha andikwa yanaonekana (repaid 386,000)
 //   na POST HAIRUDIWI - inakaguliwa tu.
+// thibitisha (ck 03/11, KUSOMA TU - hakuna POST/PUT): malipo yalikuwa yameshaandikwa kabla ya 61. Inaonyesha kila malipo ya
+//   LOAN_REPAYMENT ya A (tarehe, kiasi, principal/interest, payment_method, created_by, created_at, notes) na kila journal yake
+//   (tarehe, mistari yote, posted_by, reference, posted_at). PASS: malipo 1 na journal 1 tu, tarehe 2026-11-03, mistari
+//   Dr 2100 / Cr 1000 386,000 TU, riba 0, hakuna 6600/1150 kwenye journal ya malipo, kadi 772,000 / awamu 1 PAID, TB 0.
+//   Vinginevyo inaeleza marekebisho (bila kuandika). Riba ya kila siku (LOAN_INTEREST_ACCRUAL Dr 6600 / Cr 1150) ni journal
+//   tofauti ya ratiba - inaonyeshwa kama TAARIFA tu.
 import fs from 'node:fs';
 import { API, TARGET, check, failed, login, call, pages, bal, tbAll, finish, today, money, same, haliSoma, haliAndika } from './45-lib.mjs';
 
 const MODE = process.argv[2];
-if (TARGET !== 'prod' || !['kagua', 'lipa'].includes(MODE)) { console.log('IMEKATALIWA: TARGET=prod na kagua|lipa'); process.exit(1); }
+if (TARGET !== 'prod' || !['kagua', 'lipa', 'thibitisha'].includes(MODE)) { console.log('IMEKATALIWA: TARGET=prod na kagua|lipa|thibitisha'); process.exit(1); }
 const A = 'INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637';
 const CM = '/api/v1/capital-monitoring';
 const TAREHE = '2026-11-03';
@@ -55,6 +61,62 @@ console.log(`  A: [${a0.reason}] ${a0.card.loanStatus}, deni ${money(a0.card.owe
 console.log(`  awamu: ${awamu(a0)}`);
 const safi = (l, j) => l.card.loanStatus === 'ACTIVE' && same(l.card.owed, 1158000) && same(l.card.repaid, 0) && malipo(l).length === 0 && j.length === 0
   && awamu(l) === '1|2026-11-04|386000|0|UNPAID ; 2|2026-12-04|386000|0|UNPAID ; 3|2027-01-04|386000|0|UNPAID';
+
+if (MODE === 'thibitisha') {
+  const v = (o, ...k) => { for (const x of k) if (o?.[x] !== undefined && o?.[x] !== null) return o[x]; return null; };
+  const ts = malipo(a0);
+  // LOAN_REPAYMENT zote za A tangu 04/10, PAMOJA na zilizoreversiwa (zinaonyeshwa; hai ni j0).
+  const zote = (await pages(`/api/v1/gl/journal-entries?startDate=2026-10-04&endDate=${today}&referenceType=LOAN_REPAYMENT`))
+    .filter((j) => j.referenceNumber === A);
+  console.log(`  MALIPO (LOAN_REPAYMENT) ya A: ${ts.length}`);
+  for (const t of ts) {
+    console.log(`    malipo ${t.uid}: transaction_date ${v(t, 'transaction_date', 'transactionDate')} | amount ${money(t.amount)} | principal_amount ${money(v(t, 'principal_amount', 'principalAmount'))}`
+      + ` | interest_amount ${money(v(t, 'interest_amount', 'interestAmount'))} | payment_method ${v(t, 'payment_method', 'paymentMethod')}`
+      + ` | created_by ${v(t, 'created_by', 'createdBy')} | created_at ${v(t, 'created_at', 'createdAt')}`);
+    console.log(`      reason "${t.reason ?? ''}" | notes "${t.notes ?? ''}"`);
+  }
+  console.log(`  JOURNAL za LOAN_REPAYMENT za A: ${zote.length} (hai ${j0.length})`);
+  for (const j of zote) {
+    console.log(`    journal ${j.entryNumber}: entryDate ${j.entryDate} | status ${j.status} | reversal ${!!j.isReversal} | late ${!!j.isLateEntry}`
+      + ` | reference ${j.referenceType}/${j.referenceNumber} uid ${j.referenceUid} | posted_by ${j.postedBy} | posted_at ${j.postedAt}`);
+    console.log(`      maelezo "${j.description ?? ''}"`);
+    for (const l of j.lines ?? []) console.log(`      ${l.accountCode} ${l.accountName ?? ''}: Dr ${money(l.debitAmount)} | Cr ${money(l.creditAmount)}`);
+  }
+  const t = ts[0], j = j0[0];
+  check('T1-malipo-1', ts.length === 1, `malipo ${ts.length} (lazima 1)`);
+  check('T2-journal-1', j0.length === 1 && zote.length === 1 && !!t && j?.referenceUid === t.uid,
+    `journal hai ${j0.length}, zote ${zote.length}, inaelekeza malipo ${j?.referenceUid ?? '-'} (lazima 1, 1, ${t?.uid ?? '-'})`);
+  const td = String(v(t, 'transaction_date', 'transactionDate') ?? '').slice(0, 10);
+  check('T3-tarehe-2026-11-03', j?.entryDate === TAREHE && td === TAREHE, `journal ${j?.entryDate ?? '-'}, malipo ${td || '-'} (lazima ${TAREHE})`);
+  check('T4-mistari-2100-1000-tu', mistari(j) === '1000|0|386000 ; 2100|386000|0', `${mistari(j) || '-'} (lazima 1000|0|386000 ; 2100|386000|0)`);
+  check('T5-riba-0', !!t && same(v(t, 'interest_amount', 'interestAmount') ?? 0, 0) && same(v(t, 'principal_amount', 'principalAmount'), KIASI) && same(t.amount, KIASI),
+    `amount ${money(t?.amount)}, principal ${money(v(t, 'principal_amount', 'principalAmount'))}, interest ${money(v(t, 'interest_amount', 'interestAmount'))} (lazima 386,000 / 386,000 / 0)`);
+  const riba = (j?.lines ?? []).filter((l) => ['6600', '1150'].includes(l.accountCode));
+  check('T6-bila-6600-1150', !!j && riba.length === 0, `mistari ya 6600/1150 kwenye journal ya malipo: ${riba.length}`);
+  check('T7-kadi', a0.card.loanStatus === 'ACTIVE' && same(a0.card.owed, 772000) && same(a0.card.repaid, KIASI)
+    && awamu(a0) === '1|2026-11-04|386000|386000|PAID ; 2|2026-12-04|386000|0|UNPAID ; 3|2027-01-04|386000|0|UNPAID',
+    `${a0.card.loanStatus}, deni ${money(a0.card.owed)}, repaid ${money(a0.card.repaid)}, awamu ${awamu(a0)}`);
+  const tb = await tbAll(today);
+  check('T8-TB-0', !!tb && same(Object.values(tb).reduce((s, x) => s + x, 0), 0), tb ? 'TB inasomeka na jumla ni 0' : 'TB haikusomwa');
+  console.log(`  TAARIFA payment_method ${v(t, 'payment_method', 'paymentMethod') ?? '-'} (njia haibadilishi akaunti kabla ya bank cut-over: Cr 1000)`);
+  // TAARIFA: journal nyingine za A tangu 03/11 (riba ya ratiba Dr 6600 / Cr 1150 ni ya kawaida, si sehemu ya malipo).
+  const siku = (await pages(`/api/v1/gl/journal-entries?startDate=${TAREHE}&endDate=${today}`))
+    .filter((x) => (x.referenceNumber === A || String(x.referenceUid ?? '').includes(A)) && x.referenceType !== 'LOAN_REPAYMENT');
+  console.log(`  TAARIFA journal nyingine za A tangu ${TAREHE}: ${siku.length}`);
+  for (const x of siku) console.log(`    ${x.referenceType} ${x.entryDate} ${x.status} | ${mistari(x)}`);
+  if (failed()) {
+    console.log('  MAREKEBISHO (HAKUNA KILICHOANDIKWA - Claude ataandaa hatua ya marekebisho baada ya kusoma log hii):');
+    if (ts.length > 1 || j0.length > 1) console.log('    - malipo/journal zaidi ya 1: malipo ya ziada yarudishwe kwa marekebisho ya mkopo (POST /loans/{A}/correct, dryRun kwanza):'
+      + ' Dr 1000 / Cr 2100 kiasi cha ziada, tarehe ya malipo hayo; kisha awamu zikaguliwe (FIFO).');
+    if (ts.length === 0 || j0.length === 0) console.log('    - hakuna malipo/journal hai: kadi na GL hazikubaliani - SIMAMA, usilipe; Claude akague kwanza.');
+    if (j && j.entryDate !== TAREHE) console.log(`    - tarehe ${j.entryDate} badala ya ${TAREHE}: marekebisho mawili (dryRun kwanza): tarehe ${j.entryDate} Dr 1000 / Cr 2100 386,000`
+      + ` (kurudisha) na tarehe ${TAREHE} Dr 2100 / Cr 1000 386,000. Ikiwa ${String(j.entryDate).slice(0, 7)} imefungwa, correct inakataa - kipindi kifunguliwe kwanza au uamuzi wako.`);
+    if (j && mistari(j) !== '1000|0|386000 ; 2100|386000|0') console.log('    - mistari si Dr 2100 / Cr 1000 386,000 tu: marekebisho ya tofauti ya kila akaunti (mf. Cr 102x -> Cr 1000:'
+      + ' Dr 102x / Cr 1000; mstari wa 6600/1150: kinyume chake), dryRun kwanza, tarehe 2026-11-03.');
+    if (t && !same(v(t, 'interest_amount', 'interestAmount') ?? 0, 0)) console.log('    - interest_amount si 0: rekodi ya malipo inahitaji kurekebishwa pamoja na mgawanyo wa riba (1150) - Claude aandae.');
+  } else console.log('  MALIPO YALIYOPO NI SAHIHI - hakuna marekebisho. LIPA haiendeshwi.');
+  finish('61 lipa mkopo thibitisha');
+}
 
 if (MODE === 'kagua') {
   fs.rmSync(KAGUA, { force: true });

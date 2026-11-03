@@ -1,0 +1,26 @@
+---MWENDESHO-61--- 
+---AKAUNTI-YA-CEO--- 
+PROD_API ni https://elikom.co.tz 
+email iliyoandikwa: tarimo@gmail.com 
+---KAGUA-HAIANDIKI--- 
+61 LIPA MKOPO A PROD https://elikom.co.tz - kagua - leo 2026-11-03 - saa 2026-11-03T12:33:18.045Z
+MTUMIAJI tarimo@gmail.com | roles: CEO,user | isRoot: false | FINANCE_WRITE: true | prod https://elikom.co.tz
+PASS 1-GET-mkopo-A: GET /loans/INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637: kadi ya 2.3.0 ipo
+  A: [kwa miezi 3 kila mwezi ni 386000] ACTIVE, deni 772,000, repaid 386,000, malipo 1, journal LOAN_REPAYMENT 1
+  awamu: 1|2026-11-04|386000|386000|PAID ; 2|2026-12-04|386000|0|UNPAID ; 3|2027-01-04|386000|0|UNPAID
+PASS 2-A-ACTIVE: hali ACTIVE
+FAIL 2-deni-1158000: deni (2100) 772,000 (lazima 1,158,000)
+FAIL 2-bila-malipo: repaid 386,000, malipo 1, journal 1 (lazima 0 - vinginevyo yameshaandikwa, USILIPE tena)
+FAIL 2-awamu-3-hazijalipwa: awamu: 1|2026-11-04|386000|386000|PAID ; 2|2026-12-04|386000|0|UNPAID ; 3|2027-01-04|386000|0|UNPAID
+PASS 3-tarehe-<=-leo: tarehe ya malipo 2026-11-03, leo 2026-11-03 (lazima <= leo - backend inakataa tarehe ya baadaye)
+PASS 3-Novemba-wazi: kipindi 2026-11 OPEN (lazima OPEN - vinginevyo journal ingehamia mwezi mwingine)
+PASS 3-TB-0: TB inasomeka na jumla ni 0
+  LIPA ITAFANYA (tarehe 2026-11-03): POST /api/v1/capital-monitoring/loans/INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637/repay {"amount":386000,"principal_amount":386000,"interest_amount":0,"payment_method":"CASH","reason":"Kulipa mkopo","notes":"Awamu 1 ya mkopo A (03/11/2026) - hatua 61","transaction_date":"2026-11-03T12:00:00"}
+    journal: Dr 2100 386,000 / Cr 1000 386,000 (CASH; bank cut-over haijawekwa)
+    deni 1,158,000 -> 772,000; repaid 0 -> 386,000; awamu 1 -> PAID; awamu 2 (04/12) na 3 (04/01) hazibadiliki; riba (1150 -> 6600) inaendelea kwa ratiba.
+  kagua HAIKUHIFADHIWA (kuna FAIL) - lipa haitaweza kuendeshwa
+PREVIEW_TAYARI
+MUHTASARI 61 lipa mkopo kagua (prod): PASS 5, FAIL 3, SKIP 0
+[exit 1] 
+---IMESHINDWA-KWENYE: KAGUA-HAIANDIKI (exit 1)--- 
+---IMESHINDWA--- 
