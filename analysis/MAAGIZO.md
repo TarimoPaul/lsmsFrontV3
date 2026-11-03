@@ -600,3 +600,6 @@ C1 = config kwenye git BILA kubadilisha thamani. outOfOrder ibaki kama ilivyo pr
 4. V039: BAADA. Lakini script ya staging LAZIMA itumie dump ya prod ya karibuni (siyo nakala safi) na ikague Flyway: V135→V138 zinaingia,
    hakuna validate error, V039/V056 hazibadilishwi.
 Kisha C2.
+
+## 2026-11-03 (cj)
+wakati tunaendelea na maboresho soma module ya product ukishakuwa familia nayo ongeza column ya buying price.. per pieces ambayo utaipata kwenye module ya purchases

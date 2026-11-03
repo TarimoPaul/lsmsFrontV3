@@ -44,6 +44,7 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
 - Majaribio ya SQL ya native yaendeshwe pia kwenye PG15.
 - Kifurushi (mmiliki az): hakuna staging/prod mpaka kazi ZOTE zikamilike local. Tarehe ya kufunga ni **16/11/2026**; kisichokamilika na kujaribiwa hadi hapo kinahamia toleo linalofuata. Branches: `release/2.4.0` (backend), `release/3.2.0` (V3).
 - **Orodha ya kifurushi (be), imesasishwa 03/11 (ci):** ✔ A1–A6, ✔ B, ✔ C1 → C2 → C3 → C5/C8 (orodha kwanza) → C6 → C7 → C9.
+  **(cj) ✔ bei ya kununua/kipande** kwenye orodha ya bidhaa: backend `release/2.4.0` 8d6413f (ProductDto lastPurchaseCost, bila migration), V3 `release/3.2.0` bf38487; e2e `bei_e2e`.
   **C4 (sales returns) IMETOKA** → BAADA-YA-BATCH §7. Hakuna kazi ya C4 kwenye release/2.4.0 wala release/3.2.0.
 - **Skripti ya staging ya kifurushi (ci):** inarudisha staging kutoka **dump ya prod ya karibuni** (siyo nakala safi), kisha inakagua Flyway:
   V135→V138 zinaingia (`success`), hakuna validate error kwenye log ya boot, safu za V039 na V056 kwenye `flyway_schema_history`
