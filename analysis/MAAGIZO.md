@@ -635,3 +635,12 @@ C2 — nyongeza kwenye harness kabla ya "0":
   - Tofautisha JPQL (cast(:d as LocalDateTime)) na native (CAST(:d AS timestamp)); harness ionyeshe aina ya kila njia.
   - Mpangilio: njia zinazogusa pesa/GL/stock/reco kwanza.
 Push ya feature/c2-null-params mwisho wa siku (push-yote iongeze tawi hili au itumie git push -u).
+
+## 2026-11-03 (cn)
+1. Njia 25 zilizokufa → C7.
+2. getInventoryValueSummary: rekebisha → Σ stock × current_average_cost (chanzo kilekile cha ukurasa wa Store/daftari). PG test: = daftari.
+3. CapEx: approvedCount/assetCount zirudishe idadi halisi; min/max ziwe sehemu zenye majina sahihi ikiwa V3 inazitumia. Jaribio.
+Kisha unganisha feature/c2-null-params → release/2.4.0 baada ya lango kamili: suite + pg-checks + c2-check + run-all E2E kwenye build hiyo.
+  Sihitaji kusoma diff; nipe muhtasari: faili ngapi, njia ngapi, na orodha ya skrini ambazo namba zake zitabadilika baada ya deploy
+  (ili Chief awaambie watumiaji).
+Kisha C3.
