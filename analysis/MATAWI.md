@@ -51,9 +51,12 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
   Kwa hiyo baada ya C2, notification **"Muhtasari wa Mauzo: <jana>"** (aina `DAILY_SALES_SUMMARY`) **itatumwa kila usiku saa 00:00 EAT**
   (`DailySalesNotificationScheduler`, cron `0 0 0 * * *`). Zamani haikutumwa kamwe, kwa sababu safu ya `Object[]` ilikuwa imefungwa.
   - Ujumbe: "Mauzo ya <tarehe>: Miamala n | Jumla TZS … | Faida TZS …". **Una faida ndani.**
-  - Wapokeaji: kila mtumiaji asiyefutwa ambaye role yake ina `SALES_READ` (`findUsersByPermissionName`). Hali ACTIVE au locked haiangaliwi.
-    Kama hakuna hata mmoja, inatumwa kwa watumiaji wote walio active.
-  - Orodha kwenye dump ya prod 29/10 (nakala ya Docker-local, kusoma tu), wote 3 wana pia `PROFIT_REPORT`:
+  - Wapokeaji **(cq)**: role ina `SALES_READ` + status **ACTIVE** + **si locked** + si kufutwa. Hakuna tena fallback ya "watumiaji wote":
+    asipokuwepo hata mmoja, haitumwi (log WARN).
+  - **CHAGUO la Chief (cq), faida:** env `DAILY_SALES_PROFIT_ROLES` (application.properties: `lsms.daily-sales.profit-roles=${DAILY_SALES_PROFIT_ROLES:}`); ili ifike kwenye container, iongezwe pia kwenye `environment:` ya compose ya prod.
+    Tupu (default) = wote wanaona faida, kama leo. `CEO,Executive CEO` = wengine (macheda, MANAGER) wanapata mauzo tu:
+    ujumbe bila "Faida", na `totalProfit` null, ambayo V3 tayari inaificha. Chief akiamua: mstari kwenye `.env` + compose, kisha restart ya backend; hakuna build.
+  - Orodha kwenye dump ya prod 29/10 (status/locked imesomwa moja kwa moja kwenye faili la dump), wote 3 ni ACTIVE, si locked, na wana pia `PROFIT_REPORT`:
 
     | Jina | Email | Role |
     |---|---|---|
@@ -94,6 +97,7 @@ Lsms (release/2.4.0)      deploy/local/c2-check.sh        # (cm) C2QueryPgCheck 
 lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh   # Playwright YOTE (b1, b2, ...) kwenye v3-local build -> E2E_OK n/n
 ```
 - (cp) `pg-checks.sh` na `c2-check.sh` zinapakia siri za majaribio zenyewe kutoka `deploy/local/.siri-majaribio` (gitignored; `siri-majaribio.sh init`) na zinakataa bila faili la hash za prod `%USERPROFILE%\.lsms-kinga\prod-siri.sha256` (hatua 73) au siri ikilingana na prod.
+  (cq) Faili lina **prefix ya hex 8 tu** ya kila hash (hash nzima haitoki server). Kinga inalinganisha prefix, na inakataa faili lenye hash nzima.
 - `pg-checks.sh` inatengeneza container `lsms-pgcheck` (:55439) na kuiondoa mwishoni hata ikishindwa, ili isishike RAM. `all` inaongeza JwtRevocationPgCheck + LoginAuditPgCheck.
 - Playwright inaendeshwa dhidi ya Docker-local (image ya digest itakayoenda staging + dump ya karibuni) na build ya V3 itakayoenda staging. Kila kipengele kipya cha V3 kinaongeza `<jina>_e2e.cjs` yake kwenye `deploy/local/e2e/`.
 - Lolote likishindwa → hakuna staging wala prod.

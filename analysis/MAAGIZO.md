@@ -654,3 +654,9 @@ Sahihisha MATAWI/ripoti zinazotaja EC2 kuzimwa.
 pg-checks.sh / c2-check.sh: zipakie secret za MAJARIBIO zenyewe (faili maalum, gitignored). Faili likikosekana → kataa kwa ujumbe wazi.
   Kinga: ikiona JWT secret au DB password inayolingana na hash ya prod → kataa.
 Kisha C3.
+
+## 2026-11-03 (cq)
+Notification "Muhtasari wa Mauzo": wapokeaji = SALES_READ + status ACTIVE + si locked. Jaribio.
+  Chief ataamua kama MANAGER (macheda) apate sehemu ya FAIDA — andaa chaguo: faida kwa wenye CEO/Executive CEO tu, wengine mauzo tu.
+Hatua 73 / kinga: hifadhi PREFIX ya hash tu (hex 8 za kwanza), siyo hash nzima. Kinga ilinganishe prefix. Rekebisha kabla Chief hajaendesha 73.
+Kisha C3.

@@ -1,8 +1,8 @@
 @echo off
 rem HATUA 73 - KINGA YA SIRI ZA MAJARIBIO (mmiliki 03/11 cp), PROD, KUSOMA TU. Hakuna kinachobadilika kwenye server.
-rem   Inasoma ~/lsms-deployment/.env KWENYE server na kurudisha hash tu (sha256 ya "lsms-kinga-v1:" + thamani) za kila
-rem   siri (jina lenye PASS/SECRET/TOKEN/KEY). Hash zinaandikwa %USERPROFILE%\.lsms-kinga\prod-siri.sha256 (NJE ya git).
-rem   Log ina majina ya siri na idadi tu - HAINA hash wala thamani. pg-checks.sh / c2-check.sh za backend zinakataa
+rem   Inasoma ~/lsms-deployment/.env KWENYE server na kurudisha PREFIX tu - hex 8 za kwanza za sha256("lsms-kinga-v1:" +
+rem   thamani) - za kila siri (jina lenye PASS/SECRET/TOKEN/KEY; mmiliki cq: hash nzima haitoki server).
+rem   Prefix zinaandikwa %USERPROFILE%\.lsms-kinga\prod-siri.sha256 (NJE ya git). Log ina majina na idadi tu. pg-checks.sh / c2-check.sh za backend zinakataa
 rem   kuendesha bila faili hilo, au siri yao ya majaribio ikilingana na hash yoyote humo.
 rem Server: 73-kinga-hash.sh (+ ficha.awk). Matokeo: analysis\steps\73-kinga-hash.log
 setlocal
