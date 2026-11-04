@@ -685,3 +685,9 @@ au (2) kinazuia deploy. Vinginevyo → BAADA-YA-BATCH bila kuuliza. Hii inatumik
 BAADA: hatua 74 ("Umelipa sasa" ya zamani), orodha ya benki zilizowashwa (kabla ya cutover D), wasambazaji wa mkopo, deni kwa mmiliki kwa Jess.
 Batch iliyobaki: C5/C8 → C6 → C7 → C9 → script ya staging → script ya prod. Kisha staging.
 Ukigundua kosa jipya: liandike, sema kama linatimiza (1) au (2), na uendelee.
+
+## 2026-11-04 (ct) [herufi ileile mara ya pili; Claude anaiita (ct-2)]
+Uamuzi wa Chief: kazi ZOTE — batch iliyobaki (C5/C8, C6, C7, C9, script za staging/prod) PAMOJA NA BAADA-YA-BATCH yote — zinamalizika kabla ya staging.
+ORODHA IMEFUNGWA LEO 04/11: kosa jipya litakalogunduliwa → liandike tu; liingie ikiwa linaandika pesa/stock/data isiyo sahihi kwenye prod. Hakuna vipengele vipya vingine.
+Kwanza (kabla ya code): jedwali la kila kipengele cha BAADA — jina, makadirio (siku), kinategemea uamuzi/data ya Chief (ndiyo/hapana, nini).
+  Pendekeza mpangilio (pesa/GL kwanza) na tarehe mpya ya freeze. Kisha endelea kwa mpangilio huo.

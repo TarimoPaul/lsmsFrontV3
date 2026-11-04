@@ -1,6 +1,7 @@
 # Orodha ya BAADA ya batch (2.4.0 / 3.2.0)
 
-Vitu vilivyoamuliwa na mmiliki kufanyika baada ya batch ya 16/11/2026. Havimo kwenye kifurushi. Kila kimoja kinaanza kwa muundo
+**(ct-2) 04/11: vyote hapa SASA viko ndani ya kifurushi** na vinamalizika kabla ya staging; orodha imefungwa 04/11.
+Mpangilio na makadirio: analysis/toleo2/MPANGO-CT2-04-11.md. (Awali: vitu vya baada ya batch ya 16/11/2026.) Kila kimoja kinaanza kwa muundo
 na majibu ya mmiliki kabla ya code.
 
 ## 0. KIPAUMBELE CHA JUU

@@ -47,6 +47,8 @@ Toleo 2 = **2.3.0** (mmiliki 26/10).
   **FREEZE (ct) 04/11:** kitu kipya kinaingia batch IKIWA TU (1) kinaandika pesa/stock/data isiyo sahihi kwenye prod, au (2) kinazuia deploy.
   Vinginevyo kinaenda BAADA-YA-BATCH bila kuuliza, hata mapendekezo ya mmiliki. Batch iliyobaki: C5/C8 → C6 → C7 → C9 → script ya staging →
   script ya prod, kisha staging. Kosa jipya: liandike, sema kama ni (1) au (2), endelea.
+  **(ct-2) 04/11:** BAADA-YA-BATCH YOTE imeingia kwenye kifurushi; orodha IMEFUNGWA. Kosa jipya linaingia tu likiandika pesa/stock/data
+  isiyo sahihi kwenye prod. Tarehe mpya: code yote local 12/12/2026, staging 14–15/12, prod kabla ya 19/12 (MPANGO-CT2-04-11.md).
   **(cj) ✔ bei ya kununua/kipande** kwenye orodha ya bidhaa: backend `release/2.4.0` 8d6413f (ProductDto lastPurchaseCost, bila migration), V3 `release/3.2.0` bf38487; e2e `bei_e2e`.
   **(cs) ✔ C3 toleo dogo** (chanzo cha malipo kwa msambazaji DROO/BENKI/SIMU/MMILIKI, 2300 "Deni kwa mmiliki - Paul" ndani ya V138):
   backend `release/2.4.0` c558a3c, V3 `release/3.2.0` c12dd10; e2e `c3_e2e`; reco haiguswi (sehemu ya pili → BAADA §8).
