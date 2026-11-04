@@ -103,12 +103,14 @@ deploy/local/v3-local.sh up      # nginx.conf ya image ya prod + "edge" nginx: /
 - Kivinjari: http://127.0.0.1:4300/v3/ (backend Docker-local lazima iwe juu). Edge inatuma `Origin: https://elikom.co.tz` kama prod.
 - Majaribio ya Playwright yanaendeshwa YOTE upya kwenye build hiyo kabla ya merge kwenye release/3.2.0.
 
+**(cu-a, 04/11): E2E/Playwright IMEONDOLEWA kwenye lango - haitumiki tena; V3 inakaguliwa kwenye staging ya Contabo.**
+
 **Lango la staging (mmiliki 01/11 bi): yote matatu lazima yapite kwenye build ya MWISHO kabla ya prod.** Log zake zinaambatishwa kwenye ripoti ya staging.
 ```
-Lsms (release/2.4.0)      deploy/local/pg-checks.sh       # LoanSqlPgCheck + SaleChangePgCheck + PnlBridgePgCheck, PG15 ya kutupwa kwa kila moja -> PG_CHECKS_OK 3/3
+Lsms (release/2.4.0)      deploy/local/pg-checks.sh       # LoanSqlPgCheck + SaleChangePgCheck + PnlBridgePgCheck, PG15 ya kutupwa kwa kila moja -> PG_CHECKS_OK n/n (8 na `all`)
 Lsms (release/2.4.0)      mvnw test                       # suite nzima, Failures 0, Errors 0
 Lsms (release/2.4.0)      deploy/local/c2-check.sh        # (cm) C2QueryPgCheck + C2CorrectnessPgCheck kwenye Docker-local YENYE DATA -> C2_OK 2/2
-lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh   # Playwright YOTE (b1, b2, ...) kwenye v3-local build -> E2E_OK n/n
+~~lsmsFrontV3 (release/3.2.0) deploy/local/e2e/run-all.sh~~   # (cu-a 04/11) E2E/Playwright HAITUMIKI TENA - V3 inakaguliwa kwenye staging ya Contabo
 ```
 - (cp) `pg-checks.sh` na `c2-check.sh` zinapakia siri za majaribio zenyewe kutoka `deploy/local/.siri-majaribio` (gitignored; `siri-majaribio.sh init`) na zinakataa bila faili la hash za prod `%USERPROFILE%\.lsms-kinga\prod-siri.sha256` (hatua 73) au siri ikilingana na prod.
   (cq) Faili lina **prefix ya hex 8 tu** ya kila hash (hash nzima haitoki server). Kinga inalinganisha prefix, na inakataa faili lenye hash nzima.
