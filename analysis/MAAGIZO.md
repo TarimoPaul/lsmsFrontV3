@@ -678,3 +678,10 @@ BAADA-YA-BATCH: mstari wa auto wa droo kwenye reco + kuondoa uandishi wa mkono w
 1010: BAADA.
 Rekodi za zamani: hazibadilishwi.
 Kadiria upya muda wa toleo hili dogo.
+
+## 2026-11-04 (ct)
+FREEZE YA VIPENGELE kuanzia leo. Kitu kipya kinaingia batch IKIWA TU: (1) kinaandika pesa/stock/data isiyo sahihi kwenye prod,
+au (2) kinazuia deploy. Vinginevyo → BAADA-YA-BATCH bila kuuliza. Hii inatumika pia kwa mapendekezo yangu.
+BAADA: hatua 74 ("Umelipa sasa" ya zamani), orodha ya benki zilizowashwa (kabla ya cutover D), wasambazaji wa mkopo, deni kwa mmiliki kwa Jess.
+Batch iliyobaki: C5/C8 → C6 → C7 → C9 → script ya staging → script ya prod. Kisha staging.
+Ukigundua kosa jipya: liandike, sema kama linatimiza (1) au (2), na uendelee.

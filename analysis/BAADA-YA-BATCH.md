@@ -136,3 +136,47 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
   (kataa kama kanuni ya kufuta sale); siku ambayo reco haijaundwa bado (iingie reco inapoundwa); mistari ya mkono iliyopo
   (60 = 6,693,500 kwenye dump 29/10, 0 zimeunganishwa na purchase) haibadilishwi.
 - Bahasha ya akiba 1010 kama chanzo cha 5: inasubiri §1.
+
+## 9. Hatua 74: "Umelipa sasa" ya zamani (mmiliki 04/11 ct)
+- Chanzo: RIPOTI-CS, jambo 1. `createPurchaseEntity` ilikuwa inapoteza `amountPaid`. Tangu Julai, ununuzi wenye msambazaji
+  ulibaki na AP kamili hata pale "Umelipa sasa" ilipojazwa. Kwa mwezi ni 2–6 tu.
+- 2.4.0 inarekebisha ununuzi MPYA tu. Rekodi za zamani hazibadilishwi (cs).
+- Hatua 74 (prod, baada ya batch): kwanza KAGUA ununuzi huo kwa kusoma tu (kiasi kilicholipwa hakijahifadhiwa, kwa hiyo kinahitaji
+  ushahidi wa nje, kama risiti au daftari la Macheda). Kisha marekebisho kwa journal, kama mmiliki ataamua.
+
+## 10. Orodha ya benki/simu zilizowashwa (mmiliki 04/11 ct) - kabla ya cutover D
+- Leo picker ya C3 inaonyesha akaunti zote za benki na simu (CRDB 1020, NMB 1021, NBC 1022, Selcom 1023, PCB 1024, M-Pesa 1030, Tigo 1031,
+  Halopesa 1032, Airtel 1033).
+- Lengo: mmiliki awashe zile tu ambazo duka linatumia kweli. Ifanyike KABLA ya kuweka `gl_config.bank_cutover_date`, kwa sababu baada ya D
+  Cr inakwenda kwenye akaunti hiyo hasa.
+
+## 11. Wasambazaji wa mkopo (mmiliki 04/11 ct)
+- ~300 ununuzi kwa mwezi hauna msambazaji aliyesajiliwa, kwa hiyo GL inahesabu umelipwa wote sasa (RIPOTI-CS, jambo 2).
+  Agizo la "Nunua tena" linatuma jina la msambazaji tu, bila uid.
+- Lengo: msambazaji anayekopesha (AP halisi) asajiliwe na achaguliwe kwa uid kwenye fomu na kwenye "Nunua tena".
+
+## 12. Deni kwa mmiliki kwa Jess (mmiliki 04/11 ct)
+- 2.4.0 ina akaunti moja tu, 2300 "Deni kwa mmiliki - Paul", kwa chanzo MMILIKI.
+- Lengo: akaunti ya deni la mmiliki kwa Jess pia (kundi 2xxx), na chaguo la mmiliki gani kwenye fomu.
+
+## 13. Movements za reco kwenda benki/simu/sefu (C5, Toleo 2 §2.2; freeze ct 04/11)
+- Hazijajengwa. Leo BANK_DEPOSIT, simu na SAFE_BOX za reco hazihamishi GL 1000 kwenda 102x/103x/1040. Kwa hiyo 1000 inazidi na benki zinapungua,
+  kama ilivyojulikana tangu 15/10. Reco haisomi GL, kwa hiyo hakuna skrini ya reco inayokosea.
+- Inategemea cutover D, §10 (benki zilizowashwa) na §8 (droo kwenye reco). Kadirio: siku 3–4 (tukio jipya, reverse kwenye reopen,
+  kukataa approval bila jina la benki, V3, staging).
+- Si (1) wala (2) kwa batch hii, kwa sababu ni hali ya zamani isiyoweza kurekebishwa kabla ya D.
+
+## 14. Maelezo ya supplier payment (C5, M-9 / jaribio 2.ae; freeze ct)
+- Endpoint ya PATCH notes tu (bila journal, ikiwa na audit) na Edit kwenye V3. Kadirio: saa 2–3. Ni maelezo tu, si pesa → si (1)/(2).
+
+## 15. Kusafisha payment_status ya purchases za ZAMANI (C5, jaribio 2.af; freeze ct)
+- Kwenye nakala ya 29/10: Okt 298 bila msambazaji = UNPAID (36,379,452), ingawa GL iliziandika zimelipwa (Cr 1000). Agosti–Septemba
+  zina PAID nyingi, na 11 UNPAID (Sep, 1,515,000).
+- Hakuna skrini inayosoma safu hii kwa ununuzi bila msambazaji (AP inachuja `supplier_uid IS NOT NULL`), kwa hiyo ni hatua ya data,
+  dryRun kwanza, baada ya mmiliki kuthibitisha orodha.
+- Zenye msambazaji UNPAID (Ago 6 / 208,600, Sep 3 / 136,200, Okt 2 / 66,000) zinaonekana kama deni kwenye AP; zinaendana na §9 (hatua 74).
+- Kuzuia rekodi MPYA zisiandikwe vibaya ni kosa (1), na liko kwenye batch (RIPOTI-CT).
+
+## 16. Audit ya kuidhinisha capex (C8; freeze ct)
+- Leo approver anachukuliwa kwenye session (si kutoka kwa client), kuna maker-checker, na approved_by / approved_at / status_change_reason
+  ziko kwenye safu ya capex. Hakuna safu ya audit_trails ya kila badiliko. Kuongeza historia hiyo si (1)/(2).
