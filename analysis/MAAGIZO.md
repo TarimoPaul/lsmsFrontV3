@@ -691,3 +691,16 @@ Uamuzi wa Chief: kazi ZOTE — batch iliyobaki (C5/C8, C6, C7, C9, script za sta
 ORODHA IMEFUNGWA LEO 04/11: kosa jipya litakalogunduliwa → liandike tu; liingie ikiwa linaandika pesa/stock/data isiyo sahihi kwenye prod. Hakuna vipengele vipya vingine.
 Kwanza (kabla ya code): jedwali la kila kipengele cha BAADA — jina, makadirio (siku), kinategemea uamuzi/data ya Chief (ndiyo/hapana, nini).
   Pendekeza mpangilio (pesa/GL kwanza) na tarehe mpya ya freeze. Kisha endelea kwa mpangilio huo.
+
+## 2026-11-04 (cu)
+Uamuzi wa Chief: STAGING + PROD JUMATATU 09/11 (dirisha la TANESCO — duka limesimama).
+Toleo la 1 = release/2.4.0 + release/3.2.0 kama zilivyo IJUMAA 06/11 jioni (code freeze), pamoja na K0–K2 zikipita lango.
+Mpangilio hadi Ijumaa:
+  1. pg-checks + c2-check za K1 (Chief anafunga programu kwa RAM) → unganisha K0+K1 → K2.
+  2. Script ya STAGING (Jumamosi/Jumapili 07–08/11 kwenye ~/lsms-staging, dump ya prod ya karibuni, Flyway V135→V138).
+  3. Script ya PROD: backup (pg_dump + B2) → 2.4.0 + 3.2.0 dirisha moja → ukaguzi → rollback ya 2.3.0/3.1.11 iliyoandikwa.
+     LAZIMA iweze kuendelea baada ya kukatika (umeme/mtandao wa Chief) — kila hatua idempotent, na hali yake ihifadhiwe.
+     Env mpya (DAILY_SALES_PROFIT_ROLES, ROOT_PASSWORD:-) ndani ya script.
+  4. C9 (deploy-v3 -n).
+NJE ya Jumatatu: C6 (DROP), C7 (Flutter/dead code), na BAADA yote → toleo la 2 (matawi mapya baada ya freeze ya Ijumaa).
+Lango la staging linahitaji hatua 73 — Chief ataiendesha kabla ya Jumamosi.
