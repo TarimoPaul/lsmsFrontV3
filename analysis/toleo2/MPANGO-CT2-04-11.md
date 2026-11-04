@@ -72,3 +72,14 @@ ninakiruka na kuendelea na kinachofuata, kisha ninakirudia.
 10. (3) Saizi za SKU 4 za Jagger.
 11. (5) Ruhusa ya `flyway repair` kwa V039.
 12. (C6) Nakala ya B2 itaendeshwa na Chief (hatua nitaandaa).
+
+## 5. Makosa mapya ya 04/11 (orodha imefungwa: yanaingia kwa sababu yanaandika pesa/stock/data isiyo sahihi)
+
+| # | Kosa | (1)? | Hali |
+|---|---|---|---|
+| K0 | Ununuzi bila msambazaji unahifadhiwa UNPAID / amount_paid 0, lakini GL inauandika umelipwa wote. Okt: 298 / 36,379,452. CashFlowService "purchasesPaid" = SUM(amount_paid) (API, haina skrini ya V3) | Ndiyo | Imejengwa: feature/k0-purchase-paid 3d220b8 |
+| K1 | Kufuta (cancel) ununuzi ulioAPPROVED: stock na WAC zinarudishwa, lakini journal Dr 1200 / Cr chanzo inabaki POSTED. Kwa hiyo GL 1200 inazidi na 1000 inapungua. last_purchase_cost inabaki ya ununuzi uliofutwa. V3 inaruhusu ("Futa manunuzi" kwa yaliyoidhinishwa). Nakala ya 29/10: 0 (haijawahi kutokea) | Ndiyo | Imejengwa: b1643a7 |
+| K2 | Cancel hiyo hiyo inahesabu upya current_average_cost kwa wastani wa miezi 6 wa ununuzi RECEIVED, badala ya kugeuza moving average ya approval. Avg mpya ≠ avg ya kabla ya approval, kwa hiyo COGS na daraja la 1200 (Σ stock×avg) vinahama | Ndiyo | Inafuata |
+
+Majaribio ya K0+K1 kwenye Docker-local (nakala safi ya dump 29/10 10:27, image local-b1643a7): K0_API 9/0. Control kwenye c558a3c: 6 zimeshindwa
+(B1/C2 UNPAID; D2 1000 −2000 / 1200 +2000 baada ya cancel; D3 gharama 1000 ya ununuzi uliofutwa). E2E_OK 11/11 mwendesho wa kwanza.
