@@ -83,3 +83,16 @@ ninakiruka na kuendelea na kinachofuata, kisha ninakirudia.
 
 Majaribio ya K0+K1 kwenye Docker-local (nakala safi ya dump 29/10 10:27, image local-b1643a7): K0_API 9/0. Control kwenye c558a3c: 6 zimeshindwa
 (B1/C2 UNPAID; D2 1000 −2000 / 1200 +2000 baada ya cancel; D3 gharama 1000 ya ununuzi uliofutwa). E2E_OK 11/11 mwendesho wa kwanza.
+
+## (dn) 09/11 — nyongeza ya toleo 2 (kosa la pesa: gharama za mwezi) + footer
+Uamuzi: 2a kwa DATA bila deploy (benki zisizotumika -> is_active=false kwa hatua; prepaid 2027 -> journal za mkono). Viporo vyote kwanza, kisha deploy MOJA ya toleo 2.
+Kipaumbele cha kwanza: hatua 79 (prod, kusoma tu) -> pendekezo la marekebisho (KAGUA -> ANDIKA, kanuni za vipindi vilivyofungwa).
+Code (chanzo kimeonekana 09/11):
+- **G1 Scheduler mbele:** `CapitalExpenditureService.SCHEDULER_HORIZON_MONTHS = 12` -> `materializeMonthlyBudgets()` inaunda watoto hadi now+12 (11/2027);
+  `createRecurringMonthlyBudget` inaunda hadi 12/<mwaka wa kuanzia> hata ukianza miezi ya nyuma (backfill). Lengo: mwezi wa sasa tu (au ujao siku ya 1),
+  hakuna backfill kwenye kipindi kilichofungwa bila uamuzi wa CEO. (Journal za mwezi ujao hazijaandikwa mpaka tarehe ifike - postDueApprovedCapex -
+  lakini tarehe ikiangukia kipindi kilichofungwa, `PostingEngine.firstOpenDate` inahamisha kitabu siku ya kwanza iliyo wazi.)
+- **G2 Stop:** `stopRecurringMonthlyBudget` inafuta miezi > mwezi huu tu; iulize "na ya mwezi huu ambayo bado haijalipwa?" -> reversal kwa uthibitisho.
+- **G3 Kinga ya nakala:** budget/gharama mpya yenye jina au kiasi kinachofanana na iliyopo (mwezi uleule, daily+monthly+annual) -> onyo.
+- **G4 Capital (V3):** gharama za mwaka zionekane pamoja na za mwezi; orodha ionekane bila kuandika tena (bug ya skrini).
+- **F1 Footer:** "© 2026 Elikom Group Company Limited" -> jina la biashara lililosajiliwa (Chief atalitaja), kwa config (si hard-coded).

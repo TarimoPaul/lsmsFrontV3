@@ -792,3 +792,22 @@ PROD 2.4.0 + 3.2.0 IMEKAMILIKA (Chief amekagua browser: mikopo, login audit n.k.
 Kesho asubuhi: hatua ya kusoma tu (prod): gl_posting_failure tangu deploy, LOANINT ya 10/11, notification za "Muhtasari wa Mauzo"
   (nani, ina faida au la), login_audit ya saa 24 za kwanza, ERROR kwenye log ya backend.
 Kisha: toleo la 2 — MPANGO-CT2 kwa mpangilio wake (pesa/GL kwanza). Usafi wa image tarehe 16/11 (hatua tofauti).
+
+## 2026-11-09 (dn)
+Uamuzi wa Chief: 2a kwa njia ya DATA bila deploy (benki zisizotumika → is_active=false kwa hatua; prepaid 2027 → journal za mkono).
+Viporo vyote vinamalizika kwanza, kisha deploy moja ya toleo la 2.
+
+KIPAUMBELE CHA KWANZA — gharama za mwezi (Capital → Expenses / Monthly budgets). Hatua 79 (prod, KUSOMA TU):
+  a) OPE-MON zenye tarehe > leo: idadi, jumla, kwa budget, na journal zake (tarehe, akaunti). Kwa nini "malipo ya wafanyakazi" ina 14 created (hadi 11/2027)?
+  b) Budget zilizo STOPPED: gharama zilizoundwa kabla na baada ya stop; zilizo kwenye mwezi wa sasa.
+  c) Nakala: zaidi ya gharama moja kwa (jina linalofanana, mwezi) — Azam, TTCL, Frame, TRA.
+  d) "Malipo Ya TRA" 250,000×11 tangu 01/2026: zimeundwa lini (backfill?), journal zake zimeangukia kipindi gani (vilivyofungwa → siku ya kwanza wazi?).
+  e) Kodi ya Frame: 2.4M ya mwaka (01/01) + budget 200,000/mwezi — mwingiliano.
+  f) Jumla ya athari kwenye GL kwa mwezi (2026 na 2027).
+  Hakuna kuandika. Kisha pendekeza hatua ya marekebisho (KAGUA → ANDIKA), kwa kanuni za vipindi vilivyofungwa.
+Code (toleo la 2, kosa la pesa):
+  - Scheduler isiunde gharama za mwezi ujao kabla ya mwezi huo (au ieleze kwa nini 12 mbele). Hakuna backfill kwenye vipindi vilivyofungwa bila uamuzi wa CEO.
+  - Stop: iulize "na gharama ya mwezi huu ambayo bado haijalipwa?" → ikatwe (reversal) kwa uthibitisho.
+  - Kinga ya nakala: budget mpya yenye jina/kiasi kinachofanana na iliyopo → onyo.
+  - Capital: gharama za mwaka zionekane pamoja na za mwezi; orodha ionekane bila kuandika tena (bug ya skrini).
+Footer "© 2026 Elikom Group Company Limited": iwe jina la biashara lililosajiliwa (Chief atalitaja) mpaka kampuni isajiliwe; liwe la kubadilika (config).
