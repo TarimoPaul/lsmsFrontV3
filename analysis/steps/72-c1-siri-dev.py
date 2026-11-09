@@ -157,8 +157,16 @@ else:
         say('funguo za release ambazo dev haina (zitatoka release):', ', '.join(only_rel))
     for k in ('spring.datasource.password', 'jwt.secret'):
         v = oldp.get(k, '')
-        if not v or '${' in v:
-            fail('%s ya dev haina thamani halisi' % k)
+        # (db) 09/11: dev ina ${DB_PASSWORD:<default>} / ${JWT_SECRET:<default>}; env hizo hazipo kwenye Windows,
+        # kwa hiyo thamani halisi ni default. Mstari unahamishwa KAMA ULIVYO (tabia ya dev haibadiliki).
+        m = re.fullmatch(r'\$\{([A-Za-z0-9_.]+):(.+)\}', v)
+        if m:
+            src = 'default ya ${%s:...} (urefu %d)' % (m.group(1), len(m.group(2)))
+            if os.environ.get(m.group(1)):
+                src += '; ONYO: env %s ipo kwenye mazingira haya na ingetumika badala ya default' % m.group(1)
+            say('   %s: %s' % (k, src))
+        elif not v or '${' in v:
+            fail('%s ya dev haina thamani halisi (wala ${JINA:default})' % k)
         if k not in diff:
             fail('%s haimo kwenye orodha ya kuhamisha' % k)
     say('KAGUA SAWA. Hakuna kilichobadilika mpaka sasa.')

@@ -740,3 +740,8 @@ Chief anataka prod LEO kama lango linaruhusu. Fuata (cz) 1–6 kwa haraka, kwa m
   - 15:00 = rollback ya mwisho (mauzo ya karatasi yanaanza 16:00).
   - Usiruke lango lolote ili kuwahi muda. Ukiona hutafika 13:30, sema mapema (11:30) na endelea na maandalizi ya kesho.
 Kipaumbele cha script: rollback kwanza (2.3.0 + 3.1.11 zibaki), kisha deploy, kisha smoke. Image iliyotangulia HAIFUTWI leo.
+
+## 2026-11-09 (db)
+72 imeshindwa 10:47: "spring.datasource.password ya dev haina thamani halisi". Tafuta dev inapata password wapi (env var ya Windows?
+  faili jingine? docker-compose ya local?). Rekebisha 72 ishughulikie hali hiyo (au iulize password kwa siri) — usiweke password kwenye git.
+  Jaribu kwenye nakala kabla Chief hajaendesha tena.
