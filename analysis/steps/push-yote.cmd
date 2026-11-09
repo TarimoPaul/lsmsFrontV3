@@ -5,6 +5,7 @@ rem   2. V3       lsmsFrontV3  release/3.2.0
 rem   3. V3       lsmsFrontV3  main
 rem   4. backend  lsmsBackend  feature/c2-null-params (C2, jipya kwenye origin mara ya kwanza)
 rem   5. backend  lsmsBackend  main (09/11 cz: main = 2.4.0 + .backend-version; image zinajengwa kutoka main)
+rem   Tag (09/11 dm): 6. backend v2.4.0  7. V3 v3.2.0 - annotated; tag ikiwa tayari origin kwa hash TOFAUTI = KATAA (hakuna force).
 rem   Hatua ya 1 (KAGUA, haibadilishi kitu): git fetch, hash ya local na ya origin, na kama push ni fast-forward tu.
 rem     origin ina commit ambazo local haina (si fast-forward) = KATAA tawi hilo na hakuna push hata moja.
 rem   Kituo: andika  push  kuendelea; kingine chochote = simama bila kupush.
@@ -27,6 +28,8 @@ call :kagua "%V3%" release/3.2.0 2
 call :kagua "%V3%" main 3
 call :kagua "%BE%" feature/c2-null-params 4
 call :kagua "%BE%" main 5
+call :kagua_tag "%BE%" v2.4.0 6
+call :kagua_tag "%V3%" v3.2.0 7
 if not "%KOSA%"=="0" (
   echo ---IMEKATALIWA: tawi %KOSA_LA% halipushiki bila force - hakuna kilichopushwa--- >> %L%
   echo IMEKATALIWA - soma %L%. Hakuna kilichopushwa.
@@ -35,7 +38,7 @@ if not "%KOSA%"=="0" (
 if "%KAZI%"=="0" (
   echo ---HAKUNA-CHA-KUPUSH: origin iko sawa na local kwa matawi yote--- >> %L%
   echo ---OK--- >> %L%
-  echo Hakuna cha kupush - matawi yote 5 yako sawa na origin. Matokeo: %L%
+  echo Hakuna cha kupush - matawi 5 na tag 2 yako sawa na origin. Matokeo: %L%
   goto end
 )
 type %L%
@@ -59,6 +62,10 @@ if not "%KOSA%"=="0" goto fail
 call :push "%BE%" feature/c2-null-params 4
 if not "%KOSA%"=="0" goto fail
 call :push "%BE%" main 5
+if not "%KOSA%"=="0" goto fail
+call :push_tag "%BE%" v2.4.0 6
+if not "%KOSA%"=="0" goto fail
+call :push_tag "%V3%" v3.2.0 7
 if not "%KOSA%"=="0" goto fail
 echo ---OK--- >> %L%
 echo OK - push imekamilika. Matokeo: %L%. Nitumie log hii.
@@ -122,6 +129,65 @@ for /f "usebackq delims=" %%h in (`git -C "%R%" rev-parse --verify --quiet refs/
 git -C "%R%" push origin refs/heads/%B%:refs/heads/%B% >> %L% 2>&1
 set RC=!errorlevel!
 for /f "usebackq tokens=1" %%h in (`git -C "%R%" ls-remote origin refs/heads/%B%`) do set "RH=%%h"
+if not "!RC!"=="0" (
+  echo PUSH_%~3 %B% SIYO: git push exit !RC! >> %L%
+  set KOSA=%~3
+  set "KOSA_LA=%B%"
+  goto :eof
+)
+if not "!RH!"=="!LH!" (
+  echo PUSH_%~3 %B% SIYO: baada ya push origin !RH! si sawa na local !LH! >> %L%
+  set KOSA=%~3
+  set "KOSA_LA=%B%"
+  goto :eof
+)
+echo PUSH_%~3 %B% SAWA origin = local = !LH! >> %L%
+goto :eof
+
+rem :kagua_tag "<repo>" <tag> <namba> - tag lazima iwe local; origin HAKUNA = MPYA, sawa = TAYARI, tofauti = KATAA.
+:kagua_tag
+set "R=%~1"
+set "B=%~2"
+set "LH="
+set "RH="
+for /f "usebackq delims=" %%h in (`git -C "%R%" rev-parse --verify --quiet refs/tags/%B%`) do set "LH=%%h"
+if not defined LH (
+  echo TAG_%~3 %B% SIYO: haipo local kwenye %R% >> %L%
+  set KOSA=%~3
+  set "KOSA_LA=%B%"
+  goto :eof
+)
+for /f "usebackq tokens=1" %%h in (`git -C "%R%" ls-remote origin refs/tags/%B%`) do set "RH=%%h"
+if not defined RH (
+  echo TAG_%~3 %B% local !LH! origin HAKUNA - itaundwa MPYA >> %L%
+  set "HALI_%~3=MPYA"
+  set /a KAZI+=1
+  goto :eof
+)
+if "!RH!"=="!LH!" (
+  echo TAG_%~3 %B% local !LH! origin !RH! - TAYARI >> %L%
+  set "HALI_%~3=TAYARI"
+  goto :eof
+)
+echo TAG_%~3 %B% local !LH! origin !RH! - SIYO: origin ina tag hii kwa hash nyingine - KATAA, hakuna force >> %L%
+set KOSA=%~3
+set "KOSA_LA=%B%"
+goto :eof
+
+rem :push_tag "<repo>" <tag> <namba> - push ya tag moja bila force, kisha origin lazima = local.
+:push_tag
+set "R=%~1"
+set "B=%~2"
+if "!HALI_%~3!"=="TAYARI" (
+  echo PUSH_%~3 %B% - TAYARI, imerukwa >> %L%
+  goto :eof
+)
+set "LH="
+set "RH="
+for /f "usebackq delims=" %%h in (`git -C "%R%" rev-parse --verify --quiet refs/tags/%B%`) do set "LH=%%h"
+git -C "%R%" push origin refs/tags/%B%:refs/tags/%B% >> %L% 2>&1
+set RC=!errorlevel!
+for /f "usebackq tokens=1" %%h in (`git -C "%R%" ls-remote origin refs/tags/%B%`) do set "RH=%%h"
 if not "!RC!"=="0" (
   echo PUSH_%~3 %B% SIYO: git push exit !RC! >> %L%
   set KOSA=%~3

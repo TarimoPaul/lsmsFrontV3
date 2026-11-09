@@ -811,3 +811,16 @@ Code (toleo la 2, kosa la pesa):
   - Kinga ya nakala: budget mpya yenye jina/kiasi kinachofanana na iliyopo → onyo.
   - Capital: gharama za mwaka zionekane pamoja na za mwezi; orodha ionekane bila kuandika tena (bug ya skrini).
 Footer "© 2026 Elikom Group Company Limited": iwe jina la biashara lililosajiliwa (Chief atalitaja) mpaka kampuni isajiliwe; liwe la kubadilika (config).
+
+## 2026-11-09 (dp)
+Chief: Flutter HAITUMIKI tena. Gharama za mwaka: soma jinsi Flutter ilivyofanya (skrini, sehemu, API, mtiririko) na uhamishie V3 —
+  UI/mtiririko kama ulivyo Flutter, LAKINI uandishi wa GL uwe mpya: Dr 1160 prepaid / Cr chanzo (C3) → 1/12 kwa mwezi kwenda gharama.
+  Onyesha kwenye ripoti kwa Chief: Flutter iliandika nini kwenye GL (kwa mfano Frame 2.4M 01/01) dhidi ya muundo mpya.
+Kabla ya C7: orodha ya kila kitu Flutter inacho ambacho V3 haina — Chief ataamua kipi kihamishwe.
+
+## 2026-11-09 (dm) [ilifika baada ya (dp)]
+Tag: v2.4.0 → commit ya backend iliyojenga image (9b6678a), v3.2.0 → commit ya V3 iliyojenga image (922c3ac).
+  Annotated, digest ya image ndani ya ujumbe. push-yote izipushe (bila force).
+"2a" = chaguo la kufanya prepaid 1160 + orodha ya benki kabla ya Desemba; Chief amechagua njia ya DATA bila deploy (dn).
+G4 (Capital): gharama ya mwezi ujao isiandikwe "Approved · in the books" — iwe "Imepangwa" mpaka journal iandikwe.
+G1: backfill ya budget mpya kwenye kipindi kilichofungwa → KATAA (siyo kuhamishia siku ya kwanza wazi), isipokuwa kwa uamuzi wa CEO.

@@ -96,3 +96,7 @@ Code (chanzo kimeonekana 09/11):
 - **G3 Kinga ya nakala:** budget/gharama mpya yenye jina au kiasi kinachofanana na iliyopo (mwezi uleule, daily+monthly+annual) -> onyo.
 - **G4 Capital (V3):** gharama za mwaka zionekane pamoja na za mwezi; orodha ionekane bila kuandika tena (bug ya skrini).
 - **F1 Footer:** "© 2026 Elikom Group Company Limited" -> jina la biashara lililosajiliwa (Chief atalitaja), kwa config (si hard-coded).
+- (dm) **G1 nyongeza:** budget mpya yenye mwezi ndani ya kipindi KILICHOFUNGWA -> **KATAA** (si firstOpenDate), isipokuwa uamuzi wa CEO.
+- (dm) **G4 nyongeza:** gharama ya mwezi ujao isionyeshwe "Approved · in the books" -> "Imepangwa" mpaka journal iandikwe.
+- (dp) **G5 Gharama za mwaka (Flutter -> V3):** UI/mtiririko kama Flutter; GL MPYA: Dr 1160 prepaid / Cr chanzo (C3), kisha 1/12 kila mwezi 1160 -> gharama.
+  Ripoti kwa Chief: Flutter iliandika nini (mf. Frame 2.4M 01/01) dhidi ya muundo mpya. Kabla ya C7: orodha ya kila kitu Flutter inacho ambacho V3 haina.
