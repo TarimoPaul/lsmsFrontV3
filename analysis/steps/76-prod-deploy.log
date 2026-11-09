@@ -1,0 +1,66 @@
+﻿[14:01:49] ===== 76 prod deploy 2026-11-09 =====
+[14:02:10] script zimenakiliwa server (~/lsms-240)
+[14:02:15] ANZISHWA
+[14:02:15] nafuatilia ~/lsms-240/logs/prod-deploy.log (mtandao ukikatika: endesha '76-deploy-240.cmd prod fuata')
+[14:02:26] [76 prod 14:02:13] === K1-KAGUA
+[14:02:26] [76 prod 14:02:14] inaendesha: backend 2.3.0, frontend-v3 3.1.11, Flyway 135
+[14:02:26] [76 prod 14:02:14] image za rollback zipo: 2.3.0 + 3.1.11
+[14:02:26] [76 prod 14:02:14] diski wazi 181G
+[14:02:26] [76 prod 14:02:14] K1-KAGUA IMEKAMILIKA (1s)
+[14:02:26] [76 prod 14:02:14] === K2-BACKUP
+[14:02:26] [76 prod 14:02:17] DUMP lsms_kabla_240_20261109_140214.dump bytes 9734863 sha256 cac4201d3c38fda7... pg_restore --list entries 1140, kusoma faili lote SAWA
+[14:02:35] [76 prod 14:02:30] B2 SAWA: deploy/lsms_kabla_240_20261109_140214.dump (9734863 bytes)
+[14:02:35] [76 prod 14:02:30] K2-BACKUP IMEKAMILIKA (16s)
+[14:02:35] [76 prod 14:02:30] === K3-PULL
+[14:02:35] docker.io/chiefmaster/my-lsms-backend:2.4.0
+[14:02:44] docker.io/chiefmaster/lsms-frontend-v3:3.2.0
+[14:02:44] [76 prod 14:02:34] digest: sha256:246cf49a8f67 / sha256:04a20c198842
+[14:02:44] [76 prod 14:02:34] K3-PULL IMEKAMILIKA (4s)
+[14:02:44] [76 prod 14:02:34] === K4-ENV
+[14:02:44] [76 prod 14:02:35] compose config: ADMIN_* 2 imeondoka, DAILY_SALES_PROFIT_ROLES=***FICHWA***
+[14:02:44] [76 prod 14:02:35] .env: ADMIN_EMAIL ADMIN_PASSWORD DOCKERHUB_PASSWORD DOCKERHUB_USERNAME zimeondolewa
+[14:02:44] [76 prod 14:02:35] K4-ENV IMEKAMILIKA (1s)
+[14:02:44] [76 prod 14:02:35] === K5-BADILI
+[14:02:44]  Container lsms-deployment-backend-1 Recreate 
+[14:02:44]  Container lsms-deployment-frontend-v3-1 Recreate 
+[14:02:44]  Container lsms-deployment-frontend-v3-1 Recreated 
+[14:02:44]  Container lsms-deployment-backend-1 Recreated 
+[14:02:44]  Container lsms-deployment-backend-1 Starting 
+[14:02:44]  Container lsms-deployment-frontend-v3-1 Starting 
+[14:02:44]  Container lsms-deployment-backend-1 Started 
+[14:02:44]  Container lsms-deployment-frontend-v3-1 Started 
+[14:03:25] [76 prod 14:03:22] backend: 'Started LsmsApplication' baada ya ~39s
+[14:03:33] [76 prod 14:03:23] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[14:03:33] [76 prod 14:03:23] HEALTH SAWA: backend 2.4.0, frontend-v3 3.2.0
+[14:03:33] [76 prod 14:03:25] Flyway: 136:true 137:true 138:true (max 138)
+[14:03:33] [76 prod 14:03:25] K5-BADILI IMEKAMILIKA (50s)
+[14:03:33] [76 prod 14:03:25] === K6-SMOKE
+[14:03:33] [76 prod 14:03:26] backend: 'Started LsmsApplication' baada ya ~0s
+[14:03:33] [76 prod 14:03:26] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[14:03:33] [76 prod 14:03:26] HEALTH SAWA: backend 2.4.0, frontend-v3 3.2.0
+[14:03:33] [76 prod 14:03:26] container ya backend: DAILY_SALES_PROFIT_ROLES=***FICHWA***
+[14:03:33] [76 prod 14:03:26] container haina ADMIN_*/DOCKERHUB_*
+[14:03:33] [76 prod 14:03:28] jedwali 5 mapya + akaunti 2300 SAWA
+[14:03:33] [76 prod 14:03:28] ERROR baada ya kuanza (maombi ya moja kwa moja): 0
+[14:03:33] [76 prod 14:03:28] K6-SMOKE IMEKAMILIKA (3s)
+[14:03:33] [76 prod 14:03:29] backend 2.4.0 | frontend-v3 3.2.0 | .env BACKEND_VERSION=***FICHWA***
+[14:03:33] [76 prod 14:03:29] Flyway ya mwisho: 138
+[14:03:33] [76 prod 14:03:29] .env HAINA ADMIN_EMAIL
+[14:03:33] [76 prod 14:03:29] .env HAINA ADMIN_PASSWORD
+[14:03:33] [76 prod 14:03:29] .env HAINA DOCKERHUB_USERNAME
+[14:03:33] [76 prod 14:03:29] .env HAINA DOCKERHUB_PASSWORD
+[14:03:33] [76 prod 14:03:29] .env ina DAILY_SALES_PROFIT_ROLES
+[14:03:33] [76 prod 14:03:29] image IPO chiefmaster/my-lsms-backend:2.3.0
+[14:03:33] [76 prod 14:03:29] image IPO chiefmaster/lsms-frontend-v3:3.1.11
+[14:03:33] [76 prod 14:03:29] image IPO chiefmaster/my-lsms-backend:2.4.0
+[14:03:33] [76 prod 14:03:30] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[14:03:33] [76 prod 14:03:30] .backend.prev=2.3.0 .frontend-v3.prev=3.1.11
+[14:03:33] [hali] DONE K1-KAGUA 2026-11-09T14:02:14 1s
+[14:03:33] [hali] DONE K2-BACKUP 2026-11-09T14:02:30 16s
+[14:03:33] [hali] DONE K3-PULL 2026-11-09T14:02:34 4s
+[14:03:33] [hali] DONE K4-ENV 2026-11-09T14:02:35 1s
+[14:03:33] [hali] DONE K5-BADILI 2026-11-09T14:03:25 50s
+[14:03:33] [hali] DONE K6-SMOKE 2026-11-09T14:03:28 3s
+[14:03:33] [76 prod 14:03:30] DEPLOY_OK 2.4.0 + 3.2.0 (jumla 77s)
+[14:03:33] ---76_MWISHO---
+[14:03:33] ---76_OK--- (78s)

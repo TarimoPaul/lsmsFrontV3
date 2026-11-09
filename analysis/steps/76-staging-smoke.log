@@ -1,0 +1,17 @@
+﻿[13:56:26] ===== 76 staging smoke 2026-11-09 =====
+[13:56:48] script zimenakiliwa server (~/lsms-240)
+[13:57:06] === 76-kazi staging smoke | backend 2.4.0 | KAZI76-135702
+[13:57:06] PASS login (2.4.0)
+[13:57:06] PASS GET /api/v1/sales
+[13:57:06] PASS GET /api/v1/purchases
+[13:57:06] PASS GET /api/v1/gl/trial-balance
+[13:57:06] PASS GET /api/v1/gl/journal-entries
+[13:57:06] PASS GET /api/v1/gl/accounts
+[13:57:06] PASS GET /api/v1/notifications/unread-counts
+[13:57:06] PASS GET /api/v1/sales/changes/pending (2.4.0)
+[13:57:06] PASS login_audit imeandika login hii (2.4.0)
+[13:57:06] SMOKE_MATOKEO PASS 9 FAIL 0
+[13:57:06] SMOKE_OK 9/9
+[13:57:06] ---76K_MWISHO---
+[13:57:06] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[13:57:06] ---76_OK--- smoke

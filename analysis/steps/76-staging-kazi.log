@@ -23,3 +23,64 @@
 [13:44:26] ---76K_IMESHINDWA---
 [13:44:26] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
 [13:44:26] ---76_IMESHINDWA--- kazi
+[13:50:17] ===== 76 staging kazi 2026-11-09 =====
+[13:50:37] script zimenakiliwa server (~/lsms-240)
+[13:51:27] === 76-kazi staging kazi | backend 2.3.0 | KAZI76-135108
+[13:51:27] PASS login (2.3.0)
+[13:51:27] bidhaa ya sale: PEPSI && MIRINDA | bei 1000.00 | stock 174
+[13:51:27] PASS sale cash imeandikwa (091126-1351 1000.00)
+[13:51:27] PASS stock 174 -> 173
+[13:51:27] GL ya sale: 1000:1000,1200:-533,4000:-1000,5000:533 (1 0.00)
+[13:51:27] PASS GL journal ya sale ipo, inagusa 1000 (1000:1000,1200:-533,4000:-1000,5000:533)
+[13:51:27] PASS sale imefutwa (API)
+[13:51:27] PASS sales.is_active=false
+[13:51:27] PASS stock imerudi 174
+[13:51:27] PASS GL reversal ya sale ipo (1)
+[13:51:27] bidhaa ya ununuzi: VICE ROY | msambazaji wa malipo: grepa
+[13:51:27] PASS ununuzi umeandikwa (PENDING 100.00)
+[13:51:27] PASS ununuzi APPROVED
+[13:51:27] PASS GL ya ununuzi (1000:-100,1200:100)
+[13:51:27] PASS malipo ya msambazaji yameandikwa
+[13:51:27] PASS GL ya malipo (1000:-100,2000:100)
+[13:51:27] PASS malipo yamefutwa (reversal)
+[13:51:27] PASS sale-B ya reco imeandikwa (inabaki mpaka reco iishe)
+[13:51:27] PASS reco ya leo ipo (DRAFT)
+[13:51:27] PASS reco expense imeongezwa
+[13:51:27] PASS reco expense imefutwa
+[13:51:27] PASS sale-B imefutwa baada ya reco (stock 174)
+[13:51:27] KAZI_MATOKEO (2.3.0) PASS 19 FAIL 0 | rekodi za jaribio: alama KAZI76-135108
+[13:51:27] KAZI_OK 19/19
+[13:51:27] ---76K_MWISHO---
+[13:51:27] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[13:51:27] ---76_OK--- kazi
+[13:54:07] ===== 76 staging kazi 2026-11-09 =====
+[13:54:30] script zimenakiliwa server (~/lsms-240)
+[13:55:22] === 76-kazi staging kazi | backend 2.4.0 | KAZI76-135455
+[13:55:22] PASS login (2.4.0)
+[13:55:22] bidhaa ya sale: PEPSI && MIRINDA | bei 1000.00 | stock 174
+[13:55:22] PASS sale cash imeandikwa (091126-1354 1000.00)
+[13:55:22] PASS stock 174 -> 173
+[13:55:22] GL ya sale: 1000:1000,1200:-533,4000:-1000,5000:533 (1 0.00)
+[13:55:22] PASS GL journal ya sale ipo, inagusa 1000 (1000:1000,1200:-533,4000:-1000,5000:533)
+[13:55:22] PASS sale imefutwa (API)
+[13:55:22] PASS sales.is_active=false
+[13:55:22] PASS stock imerudi 174
+[13:55:22] PASS GL reversal ya sale ipo (1)
+[13:55:22] PASS sale_change_audit DELETE/ALLOWED (2.4.0)
+[13:55:22] bidhaa ya ununuzi: DONE WINE | msambazaji wa malipo: grepa
+[13:55:22] PASS ununuzi umeandikwa (PENDING 100.00)
+[13:55:22] PASS ununuzi APPROVED
+[13:55:22] PASS GL ya ununuzi (1000:-100,1200:100)
+[13:55:22] PASS malipo ya msambazaji yameandikwa
+[13:55:22] PASS GL ya malipo (1000:-100,2000:100)
+[13:55:22] PASS malipo yamefutwa (reversal)
+[13:55:22] PASS sale-B ya reco imeandikwa (inabaki mpaka reco iishe)
+[13:55:22] PASS reco ya leo ipo (DRAFT)
+[13:55:22] PASS reco expense imeongezwa
+[13:55:22] PASS reco expense imefutwa
+[13:55:22] PASS sale-B imefutwa baada ya reco (stock 174)
+[13:55:22] KAZI_MATOKEO (2.4.0) PASS 20 FAIL 0 | rekodi za jaribio: alama KAZI76-135455
+[13:55:22] KAZI_OK 20/20
+[13:55:22] ---76K_MWISHO---
+[13:55:22] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[13:55:22] ---76_OK--- kazi

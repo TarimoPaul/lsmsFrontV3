@@ -1,0 +1,32 @@
+﻿[13:59:47] ===== 76 prod smoke 2026-11-09 =====
+[14:00:13] script zimenakiliwa server (~/lsms-240)
+[14:01:30] === 76-kazi prod smoke | backend 2.3.0 | KAZI76-140127
+[14:01:30] PASS login (2.3.0)
+[14:01:30] PASS GET /api/v1/sales
+[14:01:30] PASS GET /api/v1/purchases
+[14:01:30] PASS GET /api/v1/gl/trial-balance
+[14:01:30] PASS GET /api/v1/gl/journal-entries
+[14:01:30] PASS GET /api/v1/gl/accounts
+[14:01:30] PASS GET /api/v1/notifications/unread-counts
+[14:01:30] SMOKE_MATOKEO PASS 7 FAIL 0
+[14:01:30] SMOKE_OK 7/7
+[14:01:30] ---76K_MWISHO---
+[14:01:30] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 15, mistari iliyofichwa/kubadilishwa: 0
+[14:01:30] ---76_OK--- smoke
+[14:03:54] ===== 76 prod smoke 2026-11-09 =====
+[14:04:16] script zimenakiliwa server (~/lsms-240)
+[14:05:23] === 76-kazi prod smoke | backend 2.4.0 | KAZI76-140517
+[14:05:23] PASS login (2.4.0)
+[14:05:23] PASS GET /api/v1/sales
+[14:05:23] PASS GET /api/v1/purchases
+[14:05:23] PASS GET /api/v1/gl/trial-balance
+[14:05:23] PASS GET /api/v1/gl/journal-entries
+[14:05:23] PASS GET /api/v1/gl/accounts
+[14:05:23] PASS GET /api/v1/notifications/unread-counts
+[14:05:23] PASS GET /api/v1/sales/changes/pending (2.4.0)
+[14:05:23] PASS login_audit imeandika login hii (2.4.0)
+[14:05:23] SMOKE_MATOKEO PASS 9 FAIL 0
+[14:05:23] SMOKE_OK 9/9
+[14:05:23] ---76K_MWISHO---
+[14:05:23] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[14:05:23] ---76_OK--- smoke

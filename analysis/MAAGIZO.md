@@ -786,3 +786,9 @@ Kisha: rollback → 76-kazi kwenye 2.3.0 → deploy → 76-kazi kwenye 2.4.0. Ni
 76 staging kazi 2.3.0: PASS 14 / FAIL 1 — reco: "Hakuna mauzo yaliyorekodiwa kwa tarehe hii" (sale ya jaribio ilifutwa kabla ya reco;
 staging haina mauzo ya leo). Rekebisha mpangilio: sale ya pili ya jaribio IBAKI mpaka reco (create + expense + kufuta expense) ikamilike,
 kisha ifutwe. Jaribu local. Kisha Chief: kazi tena kwenye 2.3.0 → deploy → kazi kwenye 2.4.0 → smoke.
+
+## 2026-11-09 (dl)
+PROD 2.4.0 + 3.2.0 IMEKAMILIKA (Chief amekagua browser: mikopo, login audit n.k. SAWA). Hifadhi log zote za prod + staging.
+Kesho asubuhi: hatua ya kusoma tu (prod): gl_posting_failure tangu deploy, LOANINT ya 10/11, notification za "Muhtasari wa Mauzo"
+  (nani, ina faida au la), login_audit ya saa 24 za kwanza, ERROR kwenye log ya backend.
+Kisha: toleo la 2 — MPANGO-CT2 kwa mpangilio wake (pesa/GL kwanza). Usafi wa image tarehe 16/11 (hatua tofauti).
