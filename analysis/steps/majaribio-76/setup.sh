@@ -35,4 +35,4 @@ if [ "$T" = prod ]; then cp "$D/docker-compose.yml" "$D/docker-compose.aws.yml";
 echo 2.2.72 > "$D/.backend.prev"
 echo 2.3.0 > "$C/fk/be"; echo 3.1.11 > "$C/fk/v3"; echo 135 > "$C/fk/fly"
 printf 'chiefmaster/my-lsms-backend:2.3.0\nchiefmaster/lsms-frontend-v3:3.1.11\n' > "$C/fk/images"
-head -c 6000000 /dev/zero > "$C/home/backups/daily/lsms_$(TZ=Africa/Dar_es_Salaam date +%Y%m%d)_0200.dump"
+cp "$FK_REAL_DUMP" "$C/home/backups/daily/lsms_$(TZ=Africa/Dar_es_Salaam date +%Y%m%d)_0200.dump"

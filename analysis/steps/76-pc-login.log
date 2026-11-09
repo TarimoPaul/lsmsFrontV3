@@ -1,0 +1,20 @@
+﻿[12:56:41] ===== 76 pc login 2026-11-09 =====
+[12:57:00] script zimenakiliwa server (~/lsms-240)
+[12:57:25] SIYO: token imekataliwa na Docker Hub: Error response from daemon: Get "https://registry-1.docker.io/v2/": unauthorized: incorrect username or password
+[12:57:25] login ya server HAIJABADILIKA
+[12:57:25] ---76L_IMESHINDWA---
+[12:57:25] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[12:57:25] SIYO: login haikukamilika
+[12:58:45] ===== 76 pc login 2026-11-09 =====
+[12:59:08] script zimenakiliwa server (~/lsms-240)
+[12:59:48] SIYO: token tupu
+[12:59:48] ---76L_IMESHINDWA---
+[12:59:48] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[12:59:48] SIYO: login haikukamilika
+[12:59:59] ===== 76 pc login 2026-11-09 =====
+[13:00:21] script zimenakiliwa server (~/lsms-240)
+[13:01:19] token ya majaribio SAWA (login + pull chiefmaster/lsms-frontend-v3:3.1.11 kwenye config ya muda)
+[13:01:19] docker logout SAWA
+[13:01:19] docker login (token read-only) SAWA; pull chiefmaster/lsms-frontend-v3:3.1.11 SAWA
+[13:01:19] ---76L_OK---
+[13:01:19] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0

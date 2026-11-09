@@ -1,0 +1,9 @@
+﻿[13:02:04] ===== 76 staging refresh-db 2026-11-09 =====
+[13:02:35] script zimenakiliwa server (~/lsms-240)
+[13:02:45] ANZISHWA
+[13:02:45] nafuatilia ~/lsms-240/logs/staging-refresh-db.log (mtandao ukikatika: endesha '76-deploy-240.cmd staging fuata')
+[13:03:02] [76 staging 13:02:42] === REFRESH-DB staging <- lsms_20261109_0200.dump (9714806 bytes)
+[13:03:02] pg_restore: error: input file is too short (read 0, expected 5)
+[13:03:02] [76 staging 13:02:43] SIYO: pg_restore --list haiwezi kusoma /home/chief/backups/daily/lsms_20261109_0200.dump
+[13:03:02] ---76_IMESHINDWA---
+[13:03:02] ---76_IMESHINDWA--- soma log hapo juu

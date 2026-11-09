@@ -768,3 +768,11 @@ Rollback — kabla ya script: orodhesha kila safu iliyoongezwa na V136–V138 kw
 Staging, baada ya rollback kwenda 2.3.0 + 3.1.11, thibitisha KAZI halisi (siyo boot tu): login, sale (cash), kufuta sale,
   ununuzi + malipo ya msambazaji, reco entry, GL journal ya sale. Kisha deploy 2.4.0 tena na kurudia smoke.
 Push: baada ya kujenga image, Chief ataendesha push-yote (backend main + V3 main).
+
+## 2026-11-09 (di)
+76 staging refresh-db: "pg_restore: input file is too short (read 0, expected 5)" kwenye lsms_20261109_0200.dump (9,714,806 bytes).
+1. Thibitisha dump ni nzima: pg_restore --list kwa njia sahihi (docker exec -i ... < file, au nakili ndani ya container). Ripoti idadi ya entries.
+   Fanya hivyo pia kwa lsms_20261108_0200.dump. Ikiwa mbovu → SIMAMA, niambie (tatizo la backup za kila usiku).
+2. Rekebisha 76 (refresh-db NA K2 ya prod — njia ileile) + jaribio kwenye server ya kuigiza linalotumia faili halisi la .dump.
+3. Thibitisha DB ya staging haikuguswa.
+Kisha Chief ataendesha refresh-db tena.

@@ -27,9 +27,14 @@ if [ "$1" = compose ]; then
       shift; while [ "${1#-}" != "$1" ]; do [ "$1" = -e ] && { export "$2"; shift; }; shift; done
       svc=$1; shift
       all="$*"
-      if [[ "$all" == *pg_dump* ]]; then head -c 6000000 /dev/zero | tr '\0' 'x'; exit 0; fi
-      if [[ "$all" == *"pg_restore --list"* ]]; then cat > /dev/null; exit 0; fi
-      if [[ "$all" == *pg_restore* ]]; then cat > /dev/null; echo 135 > "$S/fly"; exit 0; fi
+      # (di) pg_dump = faili HALISI la dump; pg_restore inasoma stdin KWELI kwa pg_restore halisi (postgres:15, Docker Desktop)
+      RD="/c/Program Files/Docker/Docker/resources/bin/docker.exe"
+      if [[ "$all" == *pg_dump* ]]; then cat "$FK_REAL_DUMP"; exit 0; fi
+      if [[ "$all" == *"pg_restore --list"* ]]; then
+        "$RD" run --rm -i postgres:15 pg_restore --list > "$S/list.out"; rc=$?
+        cat "$S/list.out"; grep -vc '^;' "$S/list.out" >> "$S/list-counts"; exit $rc; fi
+      if [[ "$all" == *"pg_restore -f /dev/null"* ]]; then "$RD" run --rm -i postgres:15 pg_restore -f /dev/null; exit $?; fi
+      if [[ "$all" == *pg_restore* ]]; then "$RD" run --rm -i postgres:15 pg_restore -f /dev/null || exit 1; echo 135 > "$S/fly"; exit 0; fi
       if [[ "$all" == *dropdb* ]]; then exit 0; fi
       case "$SQL" in
         *"max(version::int)"*) cat "$S/fly" ;;

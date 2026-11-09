@@ -39,7 +39,9 @@ fi
 
 say()  { echo "[76 $TARGET $(date +%H:%M:%S)] $*"; }
 die()  { echo "[76 $TARGET $(date +%H:%M:%S)] SIYO: $*"; echo "---76_IMESHINDWA---"; exit 1; }
-DC()   { docker compose -p "$PROJ" "$@" < /dev/null; }
+# (di) BILA "< /dev/null" hapa: ingefuta "< dump" ya anayeita (pg_restore ilisoma bytes 0). stdin ya script
+# tayari ni /dev/null (nohup ya driver / ssh -n).
+DC()   { docker compose -p "$PROJ" "$@"; }
 done_k() { grep -q "^DONE $1 " "$HALI" 2>/dev/null; }
 mark()   { echo "DONE $1 $(date +%Y-%m-%dT%H:%M:%S) $(( $(date +%s) - KT ))s" >> "$HALI"; say "$1 IMEKAMILIKA ($(( $(date +%s) - KT ))s)"; }
 unmark() { [ -f "$HALI" ] && sed -i "/^DONE $1 /d" "$HALI"; }
@@ -48,6 +50,15 @@ psql_q() { DC exec -T -e "SQL=$1" postgres sh -c 'psql -X -U "$POSTGRES_USER" -d
 tag_of() { local c; c=$(DC ps -q "$1" | head -n1); [ -n "$c" ] && docker inspect --format '{{.Config.Image}}' "$c" | sed 's/.*://'; }
 envv()   { sed -n "s/^$1=//p" "$DIR/.env" | tr -d '\r' | head -n1; }
 code()   { curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H "Host: $SITE_HOST" "$@" 2>/dev/null || true; }
+# (di) dump nzima? 1) --list: TOC + idadi ya entries  2) pg_restore -f /dev/null: inasoma FAILI LOTE
+#      (--list peke yake inapita hata dump iliyokatwa, kwa sababu TOC iko mwanzoni)
+dump_ok() {
+  local n
+  n=$(DC exec -T postgres pg_restore --list < "$1" | grep -vc '^;') || { say "pg_restore --list imeshindwa: $1"; return 1; }
+  [ "$n" -gt 100 ] || { say "pg_restore --list: entries $n tu"; return 1; }
+  DC exec -T postgres pg_restore -f /dev/null < "$1" || { say "pg_restore haikusoma faili lote (limekatika?): $1"; return 1; }
+  DUMP_INFO="pg_restore --list entries $n, kusoma faili lote SAWA"
+}
 fly_max(){ psql_q "select max(version::int) from flyway_schema_history where success and version ~ '^[0-9]+\$'"; }
 
 cd "$DIR" 2>/dev/null || die "folda $DIR haipo"
@@ -156,9 +167,9 @@ k2() {
   DC exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -Fc "$POSTGRES_DB"' > "$D" || die "pg_dump imeshindwa"
   local sz; sz=$(stat -c %s "$D")
   [ "$sz" -gt $((5*1024*1024)) ] || die "dump ni bytes $sz tu (> 5MB inatarajiwa)"
-  DC exec -T postgres pg_restore --list < "$D" > /dev/null || die "pg_restore --list haiwezi kusoma dump"
+  dump_ok "$D" || die "dump ya K2 si nzima"
   (cd "$BK" && sha256sum "$(basename "$D")" > "$(basename "$D").sha256") || die "sha256 imeshindwa"
-  say "DUMP $(basename "$D") bytes $sz sha256 $(cut -c1-16 "$D.sha256")... pg_restore --list SAWA"
+  say "DUMP $(basename "$D") bytes $sz sha256 $(cut -c1-16 "$D.sha256")... $DUMP_INFO"
   if [ "$B2" = 1 ]; then
     rclone copy "$D" b2:elikom-lsms-backups/deploy/ && rclone copy "$D.sha256" b2:elikom-lsms-backups/deploy/ || die "rclone kwenda B2 imeshindwa"
     local rs; rs=$(rclone lsl "b2:elikom-lsms-backups/deploy/$(basename "$D")" | awk '{print $1}')
@@ -285,7 +296,8 @@ refresh_db() {
   [ -n "$J" ] && [ -s "$J" ] || die "dump ya leo haipo kwenye $H/backups/daily (au toa njia kama hoja ya 3)"
   KT=$(date +%s); say "=== REFRESH-DB staging <- $(basename "$J") ($(stat -c %s "$J") bytes)"
   [ "$(tag_of backend)" = "$OLD_BE" ] || die "staging lazima iwe $OLD_BE kabla ya refresh (ni $(tag_of backend)) - endesha rollback kwanza"
-  DC exec -T postgres pg_restore --list < "$J" > /dev/null || die "pg_restore --list haiwezi kusoma $J"
+  dump_ok "$J" || die "dump $J si nzima - DB ya staging HAIJAGUSWA"
+  say "dump: $DUMP_INFO"
   DC stop backend || die "stop backend"
   DC exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" --if-exists --force "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"' || die "drop/create DB"
   DC exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --exit-on-error' < "$J" || die "pg_restore imeshindwa"
