@@ -1,0 +1,77 @@
+======================================================================
+72-c1-siri-dev 2026-11-09 10:47:35
+MAIN    D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms
+RELEASE D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms-release-240
+MAIN tawi main c98fa07
+release/2.4.0 b3e04ef
+faili la zamani: funguo 78, sha256 bb521fd55106
+funguo zitakazohamia config (tofauti na release): 3
+    jwt.secret | release: ipo
+    spring.datasource.password | release: ipo
+    spring.datasource.url | release: ipo
+funguo za release ambazo dev haina (zitatoka release): lsms.daily-sales.profit-roles
+KOSA: spring.datasource.password ya dev haina thamani halisi
+---IMESHINDWA---
+======================================================================
+72-c1-siri-dev 2026-11-09 10:52:14
+MAIN    D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms
+RELEASE D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms-release-240
+MAIN tawi main c98fa07
+release/2.4.0 b3e04ef
+faili la zamani: funguo 78, sha256 bb521fd55106
+funguo zitakazohamia config (tofauti na release): 3
+    jwt.secret | release: ipo
+    spring.datasource.password | release: ipo
+    spring.datasource.url | release: ipo
+funguo za release ambazo dev haina (zitatoka release): lsms.daily-sales.profit-roles
+   spring.datasource.password: default ya ${DB_PASSWORD:...} (urefu 4)
+   jwt.secret: default ya ${JWT_SECRET:...} (urefu 88)
+KAGUA SAWA. Hakuna kilichobadilika mpaka sasa.
+STOP: andika HAMISHA kuendelea (kingine chochote = simama):
+jibu: NDIYO
+nakala (nje ya repo): D:\MY PROJECT\DUKA PROJECT\Lsms\c1-kabla-application.properties-20261109_105224 sha256 bb521fd55106
+ukaguzi: release + config\application.properties = faili la zamani (funguo 78, zote SAWA)
+faili la zamani limefutwa: src\main\resources\application.properties
+git status (la zamani + config): ?? config/
+ANZA itajenga jar ya release/2.4.0 (b3e04ef) na kuiwasha kutoka MAIN kwenye port 18096.
+Inatumia DB ya dev ya config (ddl-auto=update na initializers kama run ya kawaida ya dev; schedulers zimezimwa).
+STOP: andika ANZA kuendelea (kingine chochote = simama):
+jibu: NDIYO
+mvnw package (bila majaribio)...
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-enforcer-plugin:3.4.1:enforce (enforce-jdk-21) on project Lsms: 
+[ERROR] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion failed with message:
+[ERROR] LSMS backend hujengwa kwa JDK 21 tu, lakini Maven inatumia Java 23+37-2369 (C:\Program Files\Java\jdk-23). Weka JAVA_HOME kwenye JDK 21, au tumia deploy\deploy-backend.ps1 (inaitafuta yenyewe: JAVA_HOME_21, kisha ~\.jdks na Program Files).
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+
+KOSA: mvnw package imeshindwa
+---IMESHINDWA---
+======================================================================
+72-c1-siri-dev 2026-11-09 10:58:26
+MAIN    D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms
+RELEASE D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms-release-240
+MAIN tawi main c98fa07
+release/2.4.0 b3e04ef
+TAYARI: faili la zamani halipo na config\application.properties ipo (hatua ilishafanyika?) - ruka kwenda ANZA
+git status (la zamani + config): ?? config/
+ANZA itajenga jar ya release/2.4.0 (b3e04ef) na kuiwasha kutoka MAIN kwenye port 18096.
+Inatumia DB ya dev ya config (ddl-auto=update na initializers kama run ya kawaida ya dev; schedulers zimezimwa).
+STOP: andika ANZA kuendelea (kingine chochote = simama):
+jibu: NDIYO
+mvnw package (bila majaribio)...
+jar D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms-release-240\target\Lsms-0.0.1-SNAPSHOT.jar sha256 50f1bc371fb9
+java -jar ... cwd = D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms | log ya boot: D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3\analysis\steps\72-c1-siri-dev-boot.log
+BOOT: Started LsmsApplication in 12.661 seconds
+   log: HikariPool-\d+ - Start completed              x1
+   log: No active profile set                         x1
+POST /api/auth/login (mtumiaji asiyekuwepo) -> 401
+backend imezimwa (port 18096 iko wazi)
+MATOKEO: siri za dev ziko config\application.properties; backend ya release/2.4.0 b3e04ef imewaka ikisoma config tu; login inajibu 401.
+Sasa merge ya release/2.4.0 -> main haitagusa siri (config\application.properties ni gitignored kwenye release).
+---OK---

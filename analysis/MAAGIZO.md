@@ -745,3 +745,18 @@ Kipaumbele cha script: rollback kwanza (2.3.0 + 3.1.11 zibaki), kisha deploy, ki
 72 imeshindwa 10:47: "spring.datasource.password ya dev haina thamani halisi". Tafuta dev inapata password wapi (env var ya Windows?
   faili jingine? docker-compose ya local?). Rekebisha 72 ishughulikie hali hiyo (au iulize password kwa siri) — usiweke password kwenye git.
   Jaribu kwenye nakala kabla Chief hajaendesha tena.
+
+## 2026-11-09 (dd)
+72 ANZA: Maven ilitumia JDK 23 kwenye CMD ya Chief. Script zote zinazojenga (72, staging, prod) zitafute JDK 21 zenyewe
+kama deploy-backend.ps1 (JAVA_HOME_21 → ~\.jdks → Program Files) na zisimame kwa ujumbe wazi zisipoipata.
+
+## 2026-11-09 (de)
+Kutoka 75:
+- Script ya deploy (prod + staging): ondoa ADMIN_EMAIL/ADMIN_PASSWORD kwenye compose (aws.yml:37, yml:36; staging yml:49) na .env (backup kwanza).
+- DOCKERHUB: docker logout → docker login --password-stdin (token read-only) → ondoa DOCKERHUB_USERNAME/PASSWORD kwenye .env. Prod na staging.
+- Staging: pakia dump ya LEO (lsms_20261109_0200 au pg_dump mpya) kabla ya deploy ya majaribio.
+- Image: SIKU YA DEPLOY usifute chochote. Baada ya prod kuthibitishwa (siku 7 au deploy inayofuata): futa 2.2.58–2.2.71, 2.3.0-rc1, 2.3.0-rc2;
+  baki na 2.3.0 (iliyotangulia) + 2.4.0. Sasisha .backend.prev=2.3.0 na .frontend-v3.prev=3.1.11 wakati wa deploy.
+- Toleo la 2 (C7): Flutter 2.2.53 + docker-compose.aws.yml.
+Diski: 183G wazi — nafasi siyo kizuizi.
+Endelea: merge main → lango (hash halisi) → script → staging.

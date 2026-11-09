@@ -100,6 +100,45 @@ def jparse_text(raw):
     return out
 
 
+def jdk_major(home):
+    """Toleo kuu la JDK kwenye <home> (0 = si JDK). Kama Get-JdkMajor ya deploy-backend.ps1: faili 'release' kwanza."""
+    exe = os.path.join(home or '', 'bin', 'java.exe' if os.name == 'nt' else 'java')
+    if not home or not os.path.isfile(exe):
+        return 0
+    txt = ''
+    rel_f = os.path.join(home, 'release')
+    if os.path.isfile(rel_f):
+        for line in open(rel_f, encoding='utf-8', errors='replace'):
+            if line.startswith('JAVA_VERSION='):
+                txt = line
+                break
+    if not txt:
+        r = subprocess.run([exe, '-version'], capture_output=True, text=True, errors='replace')
+        txt = ((r.stderr or r.stdout).splitlines() or [''])[0]
+    m = re.search(r'"(\d+)', txt)
+    return int(m.group(1)) if m else 0
+
+
+def find_jdk21():
+    """(dd) JDK 21 kama Find-Jdk21 ya deploy-backend.ps1: JAVA_HOME_21 -> JAVA_HOME (ikiwa 21) -> ~/.jdks -> Program Files."""
+    cands = [os.environ.get('JAVA_HOME_21'), os.environ.get('JAVA_HOME')]
+    test_roots = os.environ.get('LSMS72_JDK_ROOTS')  # majaribio tu: mizizi iliyotenganishwa kwa ';'
+    if test_roots is not None:
+        roots = [r for r in test_roots.split(';') if r]
+    else:
+        pf = r'C:\Program Files'
+        roots = [os.path.join(os.path.expanduser('~'), '.jdks')] + [os.path.join(pf, d) for d in (
+            'Java', 'Eclipse Adoptium', 'Microsoft', 'Zulu', 'Amazon Corretto', 'BellSoft')]
+    for root in roots:
+        if os.path.isdir(root):
+            cands += [os.path.join(root, d) for d in sorted(os.listdir(root), reverse=True)
+                      if os.path.isdir(os.path.join(root, d))]
+    for c in cands:
+        if c and jdk_major(c) == 21:
+            return c.rstrip('\\/')
+    return None
+
+
 def h(b):
     return hashlib.sha256(b).hexdigest()[:12]
 
@@ -216,8 +255,21 @@ if git('status', '--porcelain', cwd=RELEASE).strip():
     fail('worktree ya release ina mabadiliko yasiyocommitiwa')
 if git('rev-parse', '--short', 'HEAD', cwd=RELEASE).strip() != rel_head:
     fail('worktree ya release haiko kwenye release/2.4.0 HEAD')
+jdk21 = find_jdk21()
+if not jdk21:
+    jh = os.environ.get('JAVA_HOME')
+    say('JAVA_HOME ya sasa: %s (Java %s)' % (jh or 'haijawekwa', jdk_major(jh) if jh else '-'))
+    say('Weka JAVA_HOME_21 ielekeze kwenye JDK 21, mfano:  setx JAVA_HOME_21 "%USERPROFILE%\\.jdks\\openjdk-21.0.2"')
+    say('kisha fungua CMD mpya na uendeshe 72 tena. Hakuna kilichojengwa.')
+    fail('JDK 21 haipatikani (JAVA_HOME_21, JAVA_HOME, ~\\.jdks, Program Files)')
+if os.environ.get('JAVA_HOME_21') and jdk_major(os.environ['JAVA_HOME_21']) != 21:
+    say('ONYO: JAVA_HOME_21 = %s si JDK 21 - imepuuzwa' % os.environ['JAVA_HOME_21'])
+say('JDK 21:', jdk21, '(JAVA_HOME + PATH kwa run hii tu; CMD yako haibadiliki)')
+JAVA = os.path.join(jdk21, 'bin', 'java')
 say('mvnw package (bila majaribio)...')
 env_b = {k: v for k, v in os.environ.items() if k != 'MSYS_NO_PATHCONV'}
+env_b['JAVA_HOME'] = jdk21
+env_b['PATH'] = os.path.join(jdk21, 'bin') + os.pathsep + env_b.get('PATH', '')
 r = subprocess.run([os.path.join(RELEASE, MVNW) if not os.path.isabs(MVNW) else MVNW, '-q', '-DskipTests', 'package'],
                    cwd=RELEASE, env=env_b, capture_output=True, text=True, encoding='utf-8', errors='replace', shell=False)
 if r.returncode != 0:
@@ -232,7 +284,7 @@ env = {k: v for k, v in os.environ.items() if k.upper() not in SECRET_ENV}
 for k in SECRET_ENV:
     if k in os.environ:
         say('env %s imeondolewa kwa run hii (siri zitoke config tu)' % k)
-cmd = ['java', '-jar', jar, '--server.port=%d' % PORT, '--server.address=127.0.0.1', '--app.schedulers.enabled=false'] + EXTRA
+cmd = [JAVA, '-jar', jar, '--server.port=%d' % PORT, '--server.address=127.0.0.1', '--app.schedulers.enabled=false'] + EXTRA
 bootlog = LOG.replace('.log', '-boot.log')
 say('java -jar ... cwd =', MAIN, '| log ya boot:', bootlog)
 p = subprocess.Popen(cmd, cwd=MAIN, env=env, stdout=open(bootlog, 'w', encoding='utf-8', errors='replace'),

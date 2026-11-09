@@ -1,0 +1,125 @@
+---MWENDESHO-75--- 
+Mon 11/09/2026 11:01:58.66 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KAGUA--- 
+=== lsms-deployment
+--- ENV_FUNGUO (majina tu)
+POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD SERVER_PORT JWT_SECRET JWT_EXPIRATION ADMIN_EMAIL ADMIN_PASSWORD DOCKERHUB_USERNAME DOCKERHUB_PASSWORD ROOT_EMAIL FRONTEND_V3_VERSION BACKEND_VERSION 
+--- ENV_VERSION
+***MSTARI-WA-ENV-UMEFICHWA***
+***MSTARI-WA-ENV-UMEFICHWA***
+--- COMPOSE_FAILI
+docker-compose.aws.yml
+docker-compose.override.yml
+docker-compose.yml
+--- COMPOSE_VARS (${...} zinazotumika)
+ADMIN_EMAIL ADMIN_PASSWORD BACKEND_VERSION FRONTEND_V3_VERSION JWT_EXPIRATION JWT_SECRET POSTGRES_DB POSTGRES_PASSWORD POSTGRES_USER ROOT_EMAIL ROOT_PASSWORD SERVER_PORT 
+--- ADMIN/DOCKERHUB kwenye compose/scripts (mstari na faili tu)
+docker-compose.aws.yml:37
+docker-compose.yml:36
+--- PS
+time="2026-11-09T11:02:17+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+backend chiefmaster/my-lsms-backend:2.3.0 Up 11 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 3 weeks
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.11 Up 2 weeks (healthy)
+nginx nginx:1.31.2 Up 3 weeks
+postgres postgres:15 Up 3 weeks (healthy)
+--- ENV_ZA_CONTAINER_YA_BACKEND (majina tu)
+SERVER_PORT ADMIN_PASSWORD DB_USERNAME JAVA_OPTS ROOT_PASSWORD SPRING_FLYWAY_ENABLED ADMIN_EMAIL DB_URL TZ DB_PASSWORD SPRING_DATASOURCE_URL SPRING_DATASOURCE_USERNAME JWT_EXPIRATION SPRING_DATASOURCE_PASSWORD SPRING_PROFILES_ACTIVE ROOT_EMAIL JWT_SECRET PATH JAVA_HOME LANG LANGUAGE LC_ALL JAVA_VERSION  
+--- FLYWAY (5 za mwisho)
+time="2026-11-09T11:02:18+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+103|135|t|2026-10-29
+102|134|t|2026-10-21
+101|133|t|2026-10-14
+100|132|t|2026-10-14
+99|131|t|2026-10-11
+--- PREV_FILES
+.backend.prev 2.2.72
+.frontend-v3.prev 3.1.10
+--- ENV_BACKUPS
+.env.bak.69-kabla-ya-230-20261029-102720
+.env.bak.backend.20261029-102744-2971788-20810
+.env.bak.59-kabla-ya-2272-20261028-094016
+.env.bak.backend.20261028-094039-2211792-18003
+.env.bak.45i.20261022_190709
+=== lsms-staging
+--- ENV_FUNGUO (majina tu)
+POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD SERVER_PORT JWT_SECRET JWT_EXPIRATION ADMIN_EMAIL ADMIN_PASSWORD DOCKERHUB_USERNAME DOCKERHUB_PASSWORD ROOT_EMAIL FRONTEND_V3_VERSION APP_SCHEDULERS_ENABLED BACKEND_VERSION 
+--- ENV_VERSION
+***MSTARI-WA-ENV-UMEFICHWA***
+***MSTARI-WA-ENV-UMEFICHWA***
+***MSTARI-WA-ENV-UMEFICHWA***
+--- COMPOSE_FAILI
+docker-compose.yml
+--- COMPOSE_VARS (${...} zinazotumika)
+ADMIN_EMAIL ADMIN_PASSWORD APP_SCHEDULERS_ENABLED BACKEND_VERSION FRONTEND_V3_VERSION JWT_EXPIRATION JWT_SECRET POSTGRES_DB POSTGRES_PASSWORD POSTGRES_USER ROOT_EMAIL ROOT_PASSWORD SERVER_PORT 
+--- ADMIN/DOCKERHUB kwenye compose/scripts (mstari na faili tu)
+docker-compose.yml:49
+--- PS
+time="2026-11-09T11:02:18+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+backend chiefmaster/my-lsms-backend:2.3.0 Up 11 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 weeks
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.11 Up 2 weeks (healthy)
+nginx nginx:1.31.2 Up 2 weeks
+postgres postgres:15 Up 2 weeks (healthy)
+--- ENV_ZA_CONTAINER_YA_BACKEND (majina tu)
+SPRING_DATASOURCE_USERNAME JWT_SECRET ROOT_PASSWORD TZ ADMIN_PASSWORD JAVA_OPTS ROOT_EMAIL DB_USERNAME JWT_EXPIRATION SPRING_PROFILES_ACTIVE SERVER_PORT APP_SCHEDULERS_ENABLED SPRING_DATASOURCE_PASSWORD DB_URL ADMIN_EMAIL DB_PASSWORD SPRING_DATASOURCE_URL SPRING_FLYWAY_ENABLED PATH JAVA_HOME LANG LANGUAGE LC_ALL JAVA_VERSION  
+--- FLYWAY (5 za mwisho)
+time="2026-11-09T11:02:19+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+103|135|t|2026-10-29
+102|134|t|2026-10-21
+101|133|t|2026-10-14
+100|132|t|2026-10-14
+99|131|t|2026-10-11
+--- PREV_FILES
+--- ENV_BACKUPS
+.env.bak.kabla-ya-63b-rc2
+.env.bak.kabla-ya-63-rc1
+.env.bak.kabla-ya-68-230
+.env.bak.kabla-ya-2272-toleo
+.env.bak.kabla-ya-2272
+=== IMAGE
+chiefmaster/lsms-frontend-v3:3.1.10 3 weeks ago 109MB
+chiefmaster/lsms-frontend-v3:3.1.11 2 weeks ago 109MB
+chiefmaster/lsms-frontend:2.2.53 5 weeks ago 159MB
+chiefmaster/my-lsms-backend:2.2.58 5 weeks ago 618MB
+chiefmaster/my-lsms-backend:2.2.59 5 weeks ago 618MB
+chiefmaster/my-lsms-backend:2.2.60 5 weeks ago 618MB
+chiefmaster/my-lsms-backend:2.2.61 4 weeks ago 618MB
+chiefmaster/my-lsms-backend:2.2.62 4 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.63 4 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.65 4 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.66 4 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.67 4 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.68 4 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.69 3 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.70 3 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.71 2 weeks ago 619MB
+chiefmaster/my-lsms-backend:2.2.72 13 days ago 619MB
+chiefmaster/my-lsms-backend:2.3.0 11 days ago 620MB
+chiefmaster/my-lsms-backend:2.3.0-rc1 11 days ago 620MB
+chiefmaster/my-lsms-backend:2.3.0-rc2 11 days ago 620MB
+=== DISK_RAM
+/dev/sda1       193G   11G  183G   6% /
+Mem:           11960        2200        9407         223         897        9759
+Swap:              0           0           0
+=== BACKUP
+lsms_20261109_0200.dump
+lsms_20261108_0200.dump
+lsms_20261107_0200.dump
+/home/chief/backups/daily/lsms_20261109_0200.dump 9714806
+/home/chief/backups/daily/lsms_20261108_0200.dump 9653308
+backup-lsms.sh IPO
+6:docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -Fc "$POSTGRES_DB"' > "$OUT"
+11:rclone copy "$OUT" b2:elikom-lsms-backups/daily/
+12:rclone delete b2:elikom-lsms-backups/daily --min-age 30d
+=== DOCKER_LOGIN (registry tu)
+"https://index.docker.io/v1/"
+=== CRON (backup/docker)
+0 2 * * * /home/chief/backup-lsms.sh >> /home/chief/backups/cron.log 2>&1
+---75_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 5
+[exit 0] 
+faili za /tmp zimefutwa
+---OK--- 
