@@ -717,3 +717,26 @@ Ripoti ya UTAYARI mara moja, kabla ya kitu kingine:
   - Script ya prod: hatua kwa hatua na muda; rollback imejaribiwa wapi?
   - Amri ya kuendesha staging (moja), na inachohitaji kutoka kwa Chief (password, token).
 Ikiwa kimoja ni ❌ kinachozuia: sema wazi "HAKUNA PROD LEO" na sababu.
+
+## 2026-11-09 (cz) — inachukua nafasi ya (cv)(cw)(cx) zilizopotea
+Endelea. Mpangilio:
+ 1. Hatua 72 (C1 siri za dev) → unganisha release/2.4.0 → main na release/3.2.0 → main (image zinajengwa kutoka main).
+ 2. Lango kwa hash HALISI (73): suite, pg-checks, c2-check. E2E run-all INARUDI kama lango la mwisho (local, build ya mwisho);
+    V3 pia ikaguliwe kwa mkono kwenye staging.
+ 3. ADMIN_PASSWORD: grep 2.3.0 + release/2.4.0 — kinachoisoma? Ikiwa hakuna → script ya prod iiondoe kwenye .env (backup kwanza).
+    DOCKERHUB: token MBILI — (a) ya kupush kwenye PC (read/write, Chief anaingiza kwa siri wakati wa hatua); (b) ya server READ-ONLY
+    (docker login --password-stdin), DOCKERHUB_PASSWORD iondolewe kwenye .env.
+ 4. Script ya STAGING = script ileile ya prod (pamoja na rollback). Iendeshwe LEO kwenye ~/lsms-staging na dump ya prod ya leo.
+ 5. Script ya PROD: backup (pg_dump + B2 + sha256) → deploy 2.4.0+3.2.0 → smoke → rollback iliyoandikwa; inaendelea baada ya kukatika;
+    muda kwa kila hatua (lengo ≤ saa 2). Env mpya: DAILY_SALES_PROFIT_ROLES=CEO,Executive CEO.
+ 6. Image: baki na MBILI tu (mpya + iliyotangulia) kwenye server na PC; za zamani zaidi zifutwe. Iliyotangulia ifutwe baada ya siku 7
+    bila tatizo au kwenye deploy inayofuata. KAMWE usifute iliyotangulia siku ya deploy.
+Prod: Jumatano 11/11, 08:30–11:30 (baada ya reco; wafanyakazi wanaanza 12:00). Uamuzi wa rollback: 11:30.
+Ripoti baada ya kila hatua 1–5.
+
+## 2026-11-09 (da)
+Chief anataka prod LEO kama lango linaruhusu. Fuata (cz) 1–6 kwa haraka, kwa masharti haya:
+  - 13:30 = uamuzi: staging (pamoja na rollback iliyojaribiwa) imepita → prod 13:30–15:00; vinginevyo prod KESHO 10/11 08:30–11:30.
+  - 15:00 = rollback ya mwisho (mauzo ya karatasi yanaanza 16:00).
+  - Usiruke lango lolote ili kuwahi muda. Ukiona hutafika 13:30, sema mapema (11:30) na endelea na maandalizi ya kesho.
+Kipaumbele cha script: rollback kwanza (2.3.0 + 3.1.11 zibaki), kisha deploy, kisha smoke. Image iliyotangulia HAIFUTWI leo.
