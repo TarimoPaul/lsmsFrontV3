@@ -1,0 +1,25 @@
+﻿[13:43:25] ===== 76 staging kazi 2026-11-09 =====
+[13:43:51] script zimenakiliwa server (~/lsms-240)
+[13:44:26] === 76-kazi staging kazi | backend 2.3.0 | KAZI76-134409
+[13:44:26] PASS login (2.3.0)
+[13:44:26] bidhaa ya sale: PEPSI && MIRINDA | bei 1000.00 | stock 174
+[13:44:26] PASS sale cash imeandikwa (091126-1344 1000.00)
+[13:44:26] PASS stock 174 -> 173
+[13:44:26] GL ya sale: 1000:1000,1200:-533,4000:-1000,5000:533 (1 0.00)
+[13:44:26] PASS GL journal ya sale ipo, inagusa 1000 (1000:1000,1200:-533,4000:-1000,5000:533)
+[13:44:26] PASS sale imefutwa (API)
+[13:44:26] PASS sales.is_active=false
+[13:44:26] PASS stock imerudi 174
+[13:44:26] PASS GL reversal ya sale ipo (1)
+[13:44:26] bidhaa ya ununuzi: Amarula | msambazaji wa malipo: grepa
+[13:44:26] PASS ununuzi umeandikwa (PENDING 100.00)
+[13:44:26] PASS ununuzi APPROVED
+[13:44:26] PASS GL ya ununuzi (1000:-100,1200:100)
+[13:44:26] PASS malipo ya msambazaji yameandikwa
+[13:44:26] PASS GL ya malipo (1000:-100,2000:100)
+[13:44:26] PASS malipo yamefutwa (reversal)
+[13:44:26] FAIL reco ya leo HTTP 200: Hakuna mauzo yaliyorekodiwa kwa tarehe hii
+[13:44:26] KAZI_MATOKEO (2.3.0) PASS 14 FAIL 1 | rekodi za jaribio: alama KAZI76-134409
+[13:44:26] ---76K_IMESHINDWA---
+[13:44:26] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[13:44:26] ---76_IMESHINDWA--- kazi

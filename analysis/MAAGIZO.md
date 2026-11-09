@@ -781,3 +781,8 @@ Kisha Chief ataendesha refresh-db tena.
 Staging deploy SAWA (74s). Thibitisha kama refresh-db ilipita kabla (data ya leo?); kama siyo → refresh-db + deploy tena.
 Kisha: rollback → 76-kazi kwenye 2.3.0 → deploy → 76-kazi kwenye 2.4.0. Nipe amri za Chief kwa mpangilio.
 (dg) K6 ya prod: ongeza smoke ya API ya kusoma tu kabla ya kesho.
+
+## 2026-11-09 (dk)
+76 staging kazi 2.3.0: PASS 14 / FAIL 1 — reco: "Hakuna mauzo yaliyorekodiwa kwa tarehe hii" (sale ya jaribio ilifutwa kabla ya reco;
+staging haina mauzo ya leo). Rekebisha mpangilio: sale ya pili ya jaribio IBAKI mpaka reco (create + expense + kufuta expense) ikamilike,
+kisha ifutwe. Jaribu local. Kisha Chief: kazi tena kwenye 2.3.0 → deploy → kazi kwenye 2.4.0 → smoke.

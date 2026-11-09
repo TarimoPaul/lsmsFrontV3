@@ -74,6 +74,7 @@ BODY=$(cat <<J
  "payments":[{"customerUid":null,"customerName":"Mteja wa jaribio 76","paymentMethod":"CASH","totalAmount":$PP,"amountPaid":$PP,"paymentDate":"$NOW","paymentNotes":null}]}
 J
 )
+SBODY=$BODY   # (dk) inatumika tena kwa sale-B ya reco
 api POST /api/v1/sales/partial "$BODY"
 SU=$(q "select uid from sales where sale_notes like '%$RUN%' order by id desc limit 1")
 if okb && [ -n "$SU" ]; then pass "sale cash imeandikwa ($(q "select receipt_number||' '||total_amount from sales where uid='$SU'"))"; else fail "sale HTTP $HC: $(msg)"; fi
@@ -140,6 +141,11 @@ if [ -n "$PY" ]; then
   okb && [ "$D" = 0 ] && pass "malipo yamefutwa (reversal)" || fail "kufuta malipo HTTP $HC (bado: $D) $(msg)"
 fi
 # 4. RECO ENTRY (expense: ongeza + futa) ---------------------------------------------------------------------
+# (dk) reco ya siku inahitaji mauzo ya siku hiyo: sale-B ya jaribio INABAKI mpaka reco (create + expense + kufuta
+# expense) ikamilike, kisha inafutwa. (Staging haina mauzo ya leo - duka limefungwa.)
+api POST /api/v1/sales/partial "${SBODY//"$RUN sale ya jaribio"/"$RUN sale-B ya reco"}"
+SB=$(q "select uid from sales where sale_notes like '%$RUN sale-B%' order by id desc limit 1")
+if okb && [ -n "$SB" ]; then pass "sale-B ya reco imeandikwa (inabaki mpaka reco iishe)"; else fail "sale-B HTTP $HC: $(msg)"; fi
 api POST /api/v1/reconciliation "{\"reconciliationDate\":\"$TODAY\"}"
 RU=$(q "select uid from daily_reconciliation where reconciliation_date='$TODAY' and user_uid='$UID_ME' order by id desc limit 1")
 if [ -n "$RU" ]; then pass "reco ya leo ipo ($(q "select status from daily_reconciliation where uid='$RU'"))"; else fail "reco ya leo HTTP $HC: $(msg)"; fi
@@ -152,6 +158,11 @@ if [ -n "$RU" ]; then
     G=$(q "select count(*) from reconciliation_expenses where uid='$EU' and coalesce(is_deleted,false)=false")
     okb && [ "$G" = 0 ] && pass "reco expense imefutwa" || fail "kufuta reco expense HTTP $HC (bado ipo: $G) $(msg)"
   fi
+fi
+if [ -n "$SB" ]; then
+  api DELETE "/api/v1/sales/$SB?deleteReason=$(printf '%s' "Jaribio 76 kufuta sale-B $RUN" | sed 's/ /%20/g')"
+  A=$(q "select coalesce(is_active::text,'?') from sales where uid='$SB'"); S4=$(q "select current_stock from products where uid='$PU'")
+  okb && [ "$A" = false ] && [ "$S4" = "$PS" ] && pass "sale-B imefutwa baada ya reco (stock $S4)" || fail "kufuta sale-B HTTP $HC active=$A stock=$S4 $(msg)"
 fi
 echo "KAZI_MATOKEO ($BE) PASS $ok FAIL $bad | rekodi za jaribio: alama $RUN"
 [ "$bad" = 0 ] && { echo "KAZI_OK $ok/$ok"; echo "---76K_MWISHO---"; exit 0; } || { echo "---76K_IMESHINDWA---"; exit 1; }
