@@ -105,3 +105,11 @@ Code (chanzo kimeonekana 09/11):
   Toleo 2: kataa kwa ujumbe wazi au hifadhi memo kwenye description. Haiandiki data mbaya -> si (1)/(2).
 - (80, 09/11) **Daily-profit vs GL:** row ya Flutter "KODI YA FRAME (Mwaka mzima)" `allocated_month=0` 200,000 inakatwa KILA mwezi kwenye daily-profit, na
   REN-MON Nov 200,000 pia -> Novemba daily-profit inahesabu Frame mara 2. GL inarekebishwa na 80b; daily-profit inarekebishwa na G5 (gharama za mwaka mpya).
+- (dt) **G6 "Lipa deni la gharama / kodi":** V3 leo ina njia ya JUMLA tu: GL -> "Journal ya mkono" (ManualJournalDialog, FINANCE_WRITE, akaunti zote) ->
+  Dr 2400 (au 2200) / Cr 1000 inafanya kazi LEO. Haina: kikomo cha salio la deni, chanzo cha C3 (droo/benki/simu + kanuni ya cutover), wala skrini ya madeni.
+  Toleo 2: dialog "Lipa deni" (Capital au GL -> Madeni): chagua deni (2200 / 2300 / 2400 + salio), kiasi <= salio, chanzo (C3 picker), tarehe, maelezo
+  -> backend POST /api/v1/gl/liability-payments: Dr deni / Cr chanzo (cutover rule), inakataa kiasi > salio, kipindi kilichofungwa; reco haiguswi (kama C3).
+  Malipo ya 01/01/27 (2400 600,000) na 2200 (65,000) yafanyike kwa njia hii; ikichelewa, kwa "Journal ya mkono" Dr 2400 / Cr 1000.
+- **G1 IMEKAMILIKA (backend feature/t2-gharama 1ef3b08, 09/11):** rows hadi mwezi wa SASA tu; kipindi kilichofungwa -> kataa. Suite 605/0/1; mutations 2/2.
+  Data: watoto 12 wa "malipo ya wafanyakazi" 12/2026..11/2027 bado wapo prod (APPROVED bila journal) - hawana madhara kwenye GL (postDue inawaandika
+  mwezi wao ukifika, ambao ndio ukweli); G4 itawaonyesha "Imepangwa". Kuwafuta ni uamuzi wa Chief (hatua ndogo kama 80a).

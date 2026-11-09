@@ -861,3 +861,9 @@ TRA 185,000 ILILIPWA KUTOKA BIASHARA. Kwa hiyo hatua 80 (marekebisho ya Novemba)
  Akaunti za madeni (pango linalodaiwa, TRA inayodaiwa): tumia zilizopo kwenye chart ikiwa zipo; vinginevyo ziongeze kwa hatua hiyo hiyo.
  KAGUA: kila journal + salio la 1000, 2300, madeni, gharama ya pango 2026 (=2.4M baada ya Des), TRA 2026 (=250k); TB 0.
  Mpangilio: (dq-1) futa watoto 11 → (ds) → (dq) nyingine.
+
+## 2026-11-09 (dt)
+80 a–d IMEKAMILIKA prod: 1000 14,199,464.87 | 2200 −65,000 | 2300 −1,800,000 | 2400 −400,000 | 6000 2,200,000 | 6800 250,000 | 6200 6,048,300 | TB 0.
+e = 01/12 (Chief). Malipo ya 2400 (600k ~01/01/27) na 2200 (65k) lazima yatumie njia inayopunguza deni (siyo gharama mpya) —
+  hakikisha V3 ina njia hiyo (Lipa deni la gharama / kodi), au andaa hatua; ingiza kwenye toleo la 2 ikiwa haipo.
+Kisha: endelea na viporo vya toleo la 2 kwa mpangilio (G1–G5 kwanza, kwa sababu ndivyo vilivyosababisha makosa haya).
