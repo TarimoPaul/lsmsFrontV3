@@ -1,26 +1,18 @@
 ---MWENDESHO-PUSH-YOTE--- 
-saa Tue 11/03/2026 19:45:42.43 
+saa Tue 11/03/2026 21:52:38.89 
 ---KAGUA--- 
-TAWI_1 release/2.4.0 local 8d6413f6f98444ad967a94a9132e76ea9a14f534 origin 376a31de268e3ebb254d7245c8d5fecae12fdb3a - FF, commit 2 mpya 
-TAWI_2 release/3.2.0 local bf38487f2fae822d66ef468ba4afc65c24a7bd12 origin 28afa80d046ce9d0de411f4f130127d43eab13bd - FF, commit 2 mpya 
-TAWI_3 main local 696711b5f85f8134b69383b587db212dbed85979 origin c875238855a5ae3d45ba039d1483e1e9d2acc376 - FF, commit 5 mpya 
-TAWI_4 feature/c2-null-params local 3ab2b3b66785a17051701ae5f5847120d291f895 origin HAKUNA - litaundwa MPYA 
+TAWI_1 release/2.4.0 local 5abe4846a2a4dda728b5e263ffeba76eae01d661 origin 8d6413f6f98444ad967a94a9132e76ea9a14f534 - FF, commit 5 mpya 
+TAWI_2 release/3.2.0 local bf38487f2fae822d66ef468ba4afc65c24a7bd12 origin bf38487f2fae822d66ef468ba4afc65c24a7bd12 - TAYARI, hakuna cha kupush 
+TAWI_3 main local 367376608887d322c5f88179eb77dffec435e3ac origin 696711b5f85f8134b69383b587db212dbed85979 - FF, commit 6 mpya 
+TAWI_4 feature/c2-null-params local 3ab2b3b66785a17051701ae5f5847120d291f895 origin 3ab2b3b66785a17051701ae5f5847120d291f895 - TAYARI, hakuna cha kupush 
 mmiliki ameandika: push 
 ---PUSH--- 
 To https://github.com/TarimoPaul/lsmsBackend.git
-   376a31d..8d6413f  release/2.4.0 -> release/2.4.0
-PUSH_1 release/2.4.0 SAWA origin = local = 8d6413f6f98444ad967a94a9132e76ea9a14f534 
+   8d6413f..5abe484  release/2.4.0 -> release/2.4.0
+PUSH_1 release/2.4.0 SAWA origin = local = 5abe4846a2a4dda728b5e263ffeba76eae01d661 
+PUSH_2 release/3.2.0 - TAYARI, imerukwa 
 To https://github.com/TarimoPaul/lsmsFrontV3.git
-   28afa80..bf38487  release/3.2.0 -> release/3.2.0
-PUSH_2 release/3.2.0 SAWA origin = local = bf38487f2fae822d66ef468ba4afc65c24a7bd12 
-To https://github.com/TarimoPaul/lsmsFrontV3.git
-   c875238..696711b  main -> main
-PUSH_3 main SAWA origin = local = 696711b5f85f8134b69383b587db212dbed85979 
-remote: 
-remote: Create a pull request for 'feature/c2-null-params' on GitHub by visiting:        
-remote:      https://github.com/TarimoPaul/lsmsBackend/pull/new/feature/c2-null-params        
-remote: 
-To https://github.com/TarimoPaul/lsmsBackend.git
- * [new branch]      feature/c2-null-params -> feature/c2-null-params
-PUSH_4 feature/c2-null-params SAWA origin = local = 3ab2b3b66785a17051701ae5f5847120d291f895 
+   696711b..3673766  main -> main
+PUSH_3 main SAWA origin = local = 367376608887d322c5f88179eb77dffec435e3ac 
+PUSH_4 feature/c2-null-params - TAYARI, imerukwa 
 ---OK--- 

@@ -707,3 +707,13 @@ Lango la staging linahitaji hatua 73 — Chief ataiendesha kabla ya Jumamosi.
 
 ## 2026-11-04 (cu-a) [ujumbe bila kichwa, baada ya (cu); kichwa kimewekwa na Claude]
 sasa hivi hatumii kabisa E@E tunatumia contabo hiyo iinode kabisa na usitumie tena
+
+## 2026-11-09 (cy)
+LEO ni staging + prod (TANESCO 08:00–16:00; prod lazima ianze kabla ya 11:00; rollback ya mwisho 14:00).
+Ripoti ya UTAYARI mara moja, kabla ya kitu kingine:
+  - (cx) 1–5: kila kimoja ✅/❌ (K2, ADMIN_PASSWORD, DOCKERHUB token, script ya staging, script ya prod, C9).
+  - Hash za mwisho: backend release/2.4.0, V3 release/3.2.0; origin = local?
+  - Lango kwenye build hiyo: suite, pg-checks (hash halisi), c2-check, run-all E2E.
+  - Script ya prod: hatua kwa hatua na muda; rollback imejaribiwa wapi?
+  - Amri ya kuendesha staging (moja), na inachohitaji kutoka kwa Chief (password, token).
+Ikiwa kimoja ni ❌ kinachozuia: sema wazi "HAKUNA PROD LEO" na sababu.

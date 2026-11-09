@@ -1,0 +1,16 @@
+---MWENDESHO-73--- 
+Thu 11/05/2026  7:45:34.68 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---HASH--- 
+HASH POSTGRES_PASSWORD
+HASH JWT_SECRET
+HASH ADMIN_PASSWORD
+HASH DOCKERHUB_PASSWORD
+HASH_IDADI 4
+---73_SERVER_MWISHO--- 
+[ficha] .env
+[exit 0] 
+HASH_FAILI C:\Users\chief\.lsms-kinga\prod-siri.sha256 
+faili za /tmp zimefutwa
+---OK--- 
