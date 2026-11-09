@@ -1,9 +1,10 @@
 @echo off
-rem PUSH-YOTE (mmiliki 01/11 bn; 03/11 cm + tawi 4) - matawi 4 kwenda origin, BILA force, kwa mpangilio:
+rem PUSH-YOTE (mmiliki 01/11 bn; 03/11 cm + tawi 4) - matawi 5 kwenda origin, BILA force, kwa mpangilio:
 rem   1. backend  lsmsBackend  release/2.4.0
 rem   2. V3       lsmsFrontV3  release/3.2.0
 rem   3. V3       lsmsFrontV3  main
 rem   4. backend  lsmsBackend  feature/c2-null-params (C2, jipya kwenye origin mara ya kwanza)
+rem   5. backend  lsmsBackend  main (09/11 cz: main = 2.4.0 + .backend-version; image zinajengwa kutoka main)
 rem   Hatua ya 1 (KAGUA, haibadilishi kitu): git fetch, hash ya local na ya origin, na kama push ni fast-forward tu.
 rem     origin ina commit ambazo local haina (si fast-forward) = KATAA tawi hilo na hakuna push hata moja.
 rem   Kituo: andika  push  kuendelea; kingine chochote = simama bila kupush.
@@ -25,6 +26,7 @@ call :kagua "%BE%" release/2.4.0 1
 call :kagua "%V3%" release/3.2.0 2
 call :kagua "%V3%" main 3
 call :kagua "%BE%" feature/c2-null-params 4
+call :kagua "%BE%" main 5
 if not "%KOSA%"=="0" (
   echo ---IMEKATALIWA: tawi %KOSA_LA% halipushiki bila force - hakuna kilichopushwa--- >> %L%
   echo IMEKATALIWA - soma %L%. Hakuna kilichopushwa.
@@ -33,7 +35,7 @@ if not "%KOSA%"=="0" (
 if "%KAZI%"=="0" (
   echo ---HAKUNA-CHA-KUPUSH: origin iko sawa na local kwa matawi yote--- >> %L%
   echo ---OK--- >> %L%
-  echo Hakuna cha kupush - matawi yote 4 yako sawa na origin. Matokeo: %L%
+  echo Hakuna cha kupush - matawi yote 5 yako sawa na origin. Matokeo: %L%
   goto end
 )
 type %L%
@@ -55,6 +57,8 @@ if not "%KOSA%"=="0" goto fail
 call :push "%V3%" main 3
 if not "%KOSA%"=="0" goto fail
 call :push "%BE%" feature/c2-null-params 4
+if not "%KOSA%"=="0" goto fail
+call :push "%BE%" main 5
 if not "%KOSA%"=="0" goto fail
 echo ---OK--- >> %L%
 echo OK - push imekamilika. Matokeo: %L%. Nitumie log hii.
