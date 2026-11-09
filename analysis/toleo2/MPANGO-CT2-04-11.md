@@ -100,3 +100,8 @@ Code (chanzo kimeonekana 09/11):
 - (dm) **G4 nyongeza:** gharama ya mwezi ujao isionyeshwe "Approved · in the books" -> "Imepangwa" mpaka journal iandikwe.
 - (dp) **G5 Gharama za mwaka (Flutter -> V3):** UI/mtiririko kama Flutter; GL MPYA: Dr 1160 prepaid / Cr chanzo (C3), kisha 1/12 kila mwezi 1160 -> gharama.
   Ripoti kwa Chief: Flutter iliandika nini (mf. Frame 2.4M 01/01) dhidi ya muundo mpya. Kabla ya C7: orodha ya kila kitu Flutter inacho ambacho V3 haina.
+- (dr) **2400 Accrued Expenses / Gharama Zinazodaiwa:** imeongezwa kwa data (hatua 80b); toleo 2: migration `INSERT ... ON CONFLICT (account_code) DO NOTHING` ili DB mpya zilingane.
+- (80, 09/11) **Kosa dogo:** journal ya mkono yenye maelezo (memo) > herufi 100 inaanguka kwa kosa la SQL (memo -> journal_entry.reference_number varchar(100)).
+  Toleo 2: kataa kwa ujumbe wazi au hifadhi memo kwenye description. Haiandiki data mbaya -> si (1)/(2).
+- (80, 09/11) **Daily-profit vs GL:** row ya Flutter "KODI YA FRAME (Mwaka mzima)" `allocated_month=0` 200,000 inakatwa KILA mwezi kwenye daily-profit, na
+  REN-MON Nov 200,000 pia -> Novemba daily-profit inahesabu Frame mara 2. GL inarekebishwa na 80b; daily-profit inarekebishwa na G5 (gharama za mwaka mpya).

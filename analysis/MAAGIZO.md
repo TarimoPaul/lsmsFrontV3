@@ -824,3 +824,29 @@ Tag: v2.4.0 → commit ya backend iliyojenga image (9b6678a), v3.2.0 → commit 
 "2a" = chaguo la kufanya prepaid 1160 + orodha ya benki kabla ya Desemba; Chief amechagua njia ya DATA bila deploy (dn).
 G4 (Capital): gharama ya mwezi ujao isiandikwe "Approved · in the books" — iwe "Imepangwa" mpaka journal iandikwe.
 G1: backfill ya budget mpya kwenye kipindi kilichofungwa → KATAA (siyo kuhamishia siku ya kwanza wazi), isipokuwa kwa uamuzi wa CEO.
+
+## 2026-11-09 (dq)
+Kutoka 79 — hatua 80 (KAGUA → 🛑 → ANDIKA), mpangilio:
+ 1. HARAKA (leo, kabla ya postDue ijayo): futa (soft-delete + audit) watoto 11 walioidhinishwa BILA journal:
+    TAX-MON 2026-01..2026-10 (10×250,000) + REN-MON-20261001-...-F4B73208 (200,000). Hakuna GL inayoguswa. KAGUA ithibitishe journal = 0 kwa kila mmoja.
+    Sema postDue inaendeshwa saa ngapi, na 2.4.0 ingefanya nini nazo (gl_posting_failure au kuhamia Nov?).
+ 2. Novemba (wazi) — reversal kwa uthibitisho: Azam 2 kati ya 3 (baki ya budget hai 1F69FDCB ikiwa ndiyo ya Nov iliyo hai — onyesha unayoibakiza),
+    TTCL 1 kati ya 2 (baki Kifurushi C1B0BA4D; reverse Malipo Ya Bando A4A2EBD8). Nakala za Desemba za budget zilizosimamishwa: thibitisha zimefutwa.
+ 3. TRA: jumla ya 2026 = 250,000 → marekebisho ya Novemba −20,833.33 (Nov ibaki 229,166.67). Akaunti: ileile ya TAX-MON Nov (6800).
+ 4. Frame: SUBIRI majibu ya Chief (lini, kipindi, chanzo). Andaa chaguo: (a) 2.0M Novemba, (b) 200k/mwezi Nov–Des + 1.6M Novemba, ukionyesha athari.
+ G4: gharama za mbele zionyeshwe "Imepangwa". G1: backfill ya vipindi vilivyofungwa → kataa. G4: orodha ionekane baada ya kuhifadhi (chanzo cha nakala za 04/11).
+
+## 2026-11-09 (dr)
+Majibu ya Chief:
+ - Frame 2,400,000/mwaka (Jan–Des 2026). Jan–Sep (1,800,000) ALILIPA CHIEF KUTOKA MFUKONI → 2300 Deni kwa mmiliki – Paul.
+   Okt–Des (600,000) HAIJALIPWA → italipwa ~01/01/27 kutoka akiba ya kila siku (~7k).
+ - TRA 250,000/mwaka; 65,000 bado haijalipwa. (Chief atasema 185,000 ililipwa lini/kutoka wapi.)
+ - Azam = 1 (TV), TTCL = 1 (bando), zote kila mwezi → nakala za Nov: reverse Azam ×2, TTCL ×1.
+Hatua 80 (KAGUA → 🛑 → ANDIKA), marekebisho yote Novemba (kipindi cha kwanza wazi), maelezo "Marekebisho ya 2026 …":
+ a) Futa watoto 11 bila journal (dq-1) — KWANZA.
+ b) Pango: GL ya 2026 iwe 2,400,000 gharama; Cr 2300 1,800,000; Cr akaunti ya madeni ya gharama zinazodaiwa (tafuta iliyopo kwenye chart, vinginevyo ongeza kwa hatua) 600,000 kufikia Desemba;
+    rekebisha Cr 1000 za 01/01 (200k) na Nov (200k) kwani hazikutoka kwenye biashara. Desemba: accrual 200k (siyo Cr 1000).
+ c) TRA: gharama 2026 = 250,000; 65,000 → inayodaiwa; 185,000 → chanzo kitathibitishwa na Chief (subiri kabla ya ANDIKA ya sehemu hii).
+ d) Azam ×2, TTCL ×1 reversal (dq-2).
+ KAGUA ionyeshe: kila journal, na salio la 1000/2300/inayodaiwa/6xxx kabla na baada; TB 0. Malipo ya 01/01/27 (600k) yatafanyika kwa "Lipa" ya kawaida.
+Budget ya pango: usiifungue tena kwa Cr 1000 — Desemba inashughulikiwa na accrual ya (b).
