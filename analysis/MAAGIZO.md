@@ -776,3 +776,8 @@ Push: baada ya kujenga image, Chief ataendesha push-yote (backend main + V3 main
 2. Rekebisha 76 (refresh-db NA K2 ya prod — njia ileile) + jaribio kwenye server ya kuigiza linalotumia faili halisi la .dump.
 3. Thibitisha DB ya staging haikuguswa.
 Kisha Chief ataendesha refresh-db tena.
+
+## 2026-11-09 (dj)
+Staging deploy SAWA (74s). Thibitisha kama refresh-db ilipita kabla (data ya leo?); kama siyo → refresh-db + deploy tena.
+Kisha: rollback → 76-kazi kwenye 2.3.0 → deploy → 76-kazi kwenye 2.4.0. Nipe amri za Chief kwa mpangilio.
+(dg) K6 ya prod: ongeza smoke ya API ya kusoma tu kabla ya kesho.

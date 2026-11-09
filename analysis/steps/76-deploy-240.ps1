@@ -8,6 +8,8 @@
 #   76-deploy-240.cmd <staging|prod> rollback
 #   76-deploy-240.cmd <staging|prod> hali    kusoma tu
 #   76-deploy-240.cmd <staging|prod> fuata   fuatilia log ya kazi inayoendelea (baada ya mtandao kukatika)
+#   76-deploy-240.cmd <staging|prod> smoke   KUSOMA TU: login + GET za kawaida (dg: baada ya deploy ya prod)
+#   76-deploy-240.cmd staging kazi           INAANDIKA: sale cash+GL, kufuta sale, ununuzi+malipo ya msambazaji+GL, reco expense
 #
 # Deploy/rollback/refresh-db zinaendeshwa kwenye server kwa nohup: mtandao/umeme wa PC ukikatika KAZI INAENDELEA server.
 # Endesha amri ileile tena (au 'fuata'): ikiwa bado inaendesha, inafuatilia tu; ikiwa ilisimama, inaendelea pale ilipoishia.
@@ -21,10 +23,10 @@ $SshO  = @('-o', 'BatchMode=yes', '-o', 'ConnectTimeout=20', '-o', 'ServerAliveI
 $R     = '~/lsms-240'
 
 if ($A1 -in 'build', 'login') { $Target = 'pc'; $Action = $A1 } else { $Target = $A1; $Action = $A2 }
-if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db')) {
+if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db', 'kazi', 'smoke')) {
     Write-Host "MATUMIZI: 76-deploy-240.cmd build | login | <staging|prod> <deploy|rollback|hali|fuata> | staging refresh-db"; exit 2
 }
-if ($Action -eq 'refresh-db' -and $Target -ne 'staging') { Write-Host 'SIYO: refresh-db ni ya staging tu'; exit 2 }
+if ($Action -in 'refresh-db', 'kazi' -and $Target -ne 'staging') { Write-Host "SIYO: $Action ni ya staging tu (inaandika)"; exit 2 }
 $LogDir = if ($env:L76_LOGDIR) { $env:L76_LOGDIR } else { $Steps }   # L76_LOGDIR: majaribio tu
 $Log = Join-Path $LogDir ("76-{0}-{1}.log" -f $Target, $Action)
 function L([string]$m) { $line = "[{0}] {1}" -f (Get-Date -Format 'HH:mm:ss'), $m; Write-Host $line; Add-Content -Path $Log -Value $line -Encoding UTF8 }
@@ -62,7 +64,7 @@ if ($Action -eq 'build') {
 
 # ── nakili script kwenda server ─────────────────────────────────────────────────────────────────────────────
 Remote "mkdir -p $R/logs && chmod 700 $R" | Out-Null
-foreach ($f in '76-deploy-240.sh', '76-login.sh', 'ficha.awk') {
+foreach ($f in '76-deploy-240.sh', '76-login.sh', '76-kazi.sh', 'ficha.awk') {
     & scp @SshO (Join-Path $Steps $f) "contabo:$R/$f" 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { L "SIYO: scp $f imeshindwa (mtandao?)"; exit 1 }
 }
@@ -79,6 +81,18 @@ if ($Action -eq 'login') {
     $out | ForEach-Object { L $_ }
     if (-not ($out -match '^---76L_OK---$')) { L 'SIYO: login haikukamilika'; exit 1 }
     exit 0
+}
+
+# ── kazi / smoke (moja kwa moja; email + password kwa stdin, haziandikwi popote) ────────────────────────────
+if ($Action -in 'kazi', 'smoke') {
+    $email = Read-Host 'Email ya CEO (mtumiaji wa jaribio)'
+    $sec = Read-Host -AsSecureString 'Password yake (haionekani)'
+    $b = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
+    try { $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b) } finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b) }
+    $out = ("$email`n$plain") | & ssh @SshO contabo "bash $R/76-kazi.sh $Target $Action 2>&1 | $F" 2>&1 | ForEach-Object { "$_" }
+    $plain = $null
+    $out | ForEach-Object { L $_ }
+    if ($out -match '^---76K_MWISHO---$') { L "---76_OK--- $Action"; exit 0 } else { L "---76_IMESHINDWA--- $Action"; exit 1 }
 }
 
 # ── hali (kusoma tu, moja kwa moja) ─────────────────────────────────────────────────────────────────────────

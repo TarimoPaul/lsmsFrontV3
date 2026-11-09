@@ -1,0 +1,40 @@
+﻿[13:31:40] ===== 76 staging rollback 2026-11-09 =====
+[13:32:04] script zimenakiliwa server (~/lsms-240)
+[13:32:10] ANZISHWA
+[13:32:11] nafuatilia ~/lsms-240/logs/staging-rollback.log (mtandao ukikatika: endesha '76-deploy-240.cmd staging fuata')
+[13:32:25] [76 staging 13:32:08] === ROLLBACK kwenda 2.3.0 + 3.1.11
+[13:32:25] [log] 2026-11-09 13:24:50 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disabl
+[13:32:25] [log] 2026-11-09 13:24:54 WARN  c.L.u.e.GlobalExceptionHandler - Validation failed: {password=***FICHWA***
+[13:32:25] [log] 2026-11-09 13:24:56 WARN  c.L.u.e.GlobalExceptionHandler - Validation failed: {password=***FICHWA***
+[13:32:25] [76 staging 13:32:09] .env + compose zimerudishwa kutoka /home/chief/lsms-240/staging/backup
+[13:32:25] time="2026-11-09T13:32:09+03:00" level=warning msg="The \"ROOT_PASSWORD\" variable is not set. Defaulting to a blank string."
+[13:32:25]  Container lsms-staging-backend-1 Recreate 
+[13:32:25]  Container lsms-staging-frontend-v3-1 Recreate 
+[13:32:25]  Container lsms-staging-frontend-v3-1 Recreated 
+[13:32:25]  Container lsms-staging-backend-1 Recreated 
+[13:32:25]  Container lsms-staging-frontend-v3-1 Starting 
+[13:32:25]  Container lsms-staging-backend-1 Starting 
+[13:32:25]  Container lsms-staging-frontend-v3-1 Started 
+[13:32:25]  Container lsms-staging-backend-1 Started 
+[13:32:49] [76 staging 13:32:39] backend: 'Started LsmsApplication' baada ya ~27s
+[13:32:49] [76 staging 13:32:39] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[13:32:49] [76 staging 13:32:40] HEALTH SAWA: backend 2.3.0, frontend-v3 3.1.11
+[13:32:49] [76 staging 13:32:40] Flyway ya mwisho: 138 (DB HAIJARUDISHWA - safu za V136-V138 ni za kuongeza/nullable/default; 2.3.0 inazipuuza)
+[13:32:49] [76 staging 13:32:40] ROLLBACK SAWA (32s): 2.3.0 + 3.1.11 zinafanya kazi
+[13:32:49] [76 staging 13:32:40] backend 2.3.0 | frontend-v3 3.1.11 | .env BACKEND_VERSION=***FICHWA***
+[13:32:49] [76 staging 13:32:40] Flyway ya mwisho: 138
+[13:32:49] [76 staging 13:32:40] .env ina ADMIN_EMAIL
+[13:32:49] [76 staging 13:32:40] .env ina ADMIN_PASSWORD
+[13:32:49] [76 staging 13:32:40] .env ina DOCKERHUB_USERNAME
+[13:32:49] [76 staging 13:32:40] .env ina DOCKERHUB_PASSWORD
+[13:32:49] [76 staging 13:32:40] .env HAINA DAILY_SALES_PROFIT_ROLES
+[13:32:49] [76 staging 13:32:41] image IPO chiefmaster/my-lsms-backend:2.3.0
+[13:32:49] [76 staging 13:32:41] image IPO chiefmaster/lsms-frontend-v3:3.1.11
+[13:32:49] [76 staging 13:32:41] image IPO chiefmaster/my-lsms-backend:2.4.0
+[13:32:49] [76 staging 13:32:41] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[13:32:49] [76 staging 13:32:41] .backend.prev=2.3.0 .frontend-v3.prev=3.1.11
+[13:32:49] [hali] DONE K1-KAGUA 2026-11-09T13:23:53 1s
+[13:32:49] [hali] DONE K2-BACKUP 2026-11-09T13:23:56 3s
+[13:32:49] [hali] ROLLBACK 2026-11-09T13:32:40 32s rc=0
+[13:32:49] ---76_MWISHO---
+[13:32:49] ---76_OK--- (38s)

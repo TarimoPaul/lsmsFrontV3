@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# docker ya kuigiza ya 76-kazi: compose exec postgres -> container HALISI lsms-local-postgres-1 (Docker-local, 2.4.0)
+RD="/c/Program Files/Docker/Docker/resources/bin/docker.exe"
+if [ "$1" = compose ]; then
+  shift; [ "$1" = -p ] && shift 2
+  case "$1" in
+    ps) echo cid-backend ;;
+    exec) shift; envs=(); while [ "${1#-}" != "$1" ]; do [ "$1" = -e ] && { envs+=(-e "$2"); shift; }; shift; done
+          shift; MSYS_NO_PATHCONV=1 exec "$RD" exec -i "${envs[@]}" -e POSTGRES_USER=postgres -e POSTGRES_DB=Lsms lsms-local-postgres-1 "$@" ;;
+  esac; exit 0
+fi
+[ "$1" = inspect ] && { echo "chiefmaster/my-lsms-backend:${FK_BE:-2.4.0}"; exit 0; }
+exit 0

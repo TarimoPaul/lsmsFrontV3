@@ -71,7 +71,7 @@ wait_started() {  # backend: START_MARK ndani ya 240s bila kuanguka
   cid=$(DC ps -q backend | head -n1); [ -n "$cid" ] || { say "hakuna container ya backend"; return 1; }
   while [ $w -lt 240 ]; do
     # (pipefail) grep -q ingefunga pipe mapema -> SIGPIPE; soma log kwenye kigeu kwanza
-    lg=$(docker logs "$cid" 2>&1); grep -q "$START_MARK" <<<"$lg" && { say "backend: '$START_MARK' baada ya ~${w}s"; return 0; }
+    lg=$(docker logs ${UP_TS:+--since "$UP_TS"} "$cid" 2>&1); grep -q "$START_MARK" <<<"$lg" && { say "backend: '$START_MARK' baada ya ~${w}s"; return 0; }
     st=$(docker inspect --format '{{.State.Status}} {{.RestartCount}}' "$cid" 2>/dev/null || echo 'gone 0')
     [ "$st" = "running 0" ] || { say "backend container ni '$st' - imeanguka"; return 1; }
     sleep "$SLEEP"; w=$((w+3))
@@ -99,7 +99,7 @@ health() {  # health <be> <v3>
   http_ok || return 1
   local cid bad
   cid=$(DC ps -q backend | head -n1)
-  bad=$(docker logs "$cid" 2>&1 | sed "/$START_MARK/q" | grep -E ' (ERROR|FATAL) |FlywayException|Migration .* failed|APPLICATION FAILED TO START' | head -5)
+  bad=$(docker logs ${UP_TS:+--since "$UP_TS"} "$cid" 2>&1 | sed "/$START_MARK/q" | grep -E ' (ERROR|FATAL) |FlywayException|Migration .* failed|APPLICATION FAILED TO START' | head -5)
   [ -z "$bad" ] || { say "ERROR kwenye log ya kuanza:"; echo "$bad" | cut -c1-250; return 1; }
   say "HEALTH SAWA: backend $1, frontend-v3 $2"
 }
@@ -240,6 +240,7 @@ k5() {
   anza K5-BADILI
   echo "$OLD_BE" > .backend.prev; echo "$OLD_V3" > .frontend-v3.prev
   set_line BACKEND_VERSION "$NEW_BE" && set_line FRONTEND_V3_VERSION "$NEW_V3" || { rollback_core; die ".env haikubadilika salama - ROLLBACK"; }
+  UP_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)   # log za container hii tu tangu sasa (si "Started" ya zamani)
   DC up -d --no-deps backend frontend-v3 || { rollback_core; die "compose up imeshindwa - ROLLBACK"; }
   if ! health "$NEW_BE" "$NEW_V3"; then rollback_core; die "$NEW_BE/$NEW_V3 hazikupita health - ROLLBACK imefanyika"; fi
   local fm; fm=$(fly_max)
@@ -278,6 +279,7 @@ rollback_core() {
     say ".env + compose zimerudishwa kutoka $BK"
   fi
   set_line BACKEND_VERSION "$OLD_BE"; set_line FRONTEND_V3_VERSION "$OLD_V3"
+  UP_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   DC up -d --no-deps backend frontend-v3
   local rc=0
   health "$OLD_BE" "$OLD_V3" || rc=1
@@ -303,6 +305,7 @@ refresh_db() {
   DC exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --exit-on-error' < "$J" || die "pg_restore imeshindwa"
   [ "$(fly_max)" = "$FLY_OLD" ] || die "Flyway ya dump si $FLY_OLD"
   say "restore SAWA: Flyway $FLY_OLD, sales $(psql_q 'select count(*) from sales'), users $(psql_q 'select count(*) from users')"
+  UP_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   DC up -d --no-deps backend || die "up backend"
   health "$OLD_BE" "$OLD_V3" || die "staging haikuwaka baada ya refresh"
   rm -f "$HALI"; rm -rf "$BK"

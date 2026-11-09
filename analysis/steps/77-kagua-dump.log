@@ -1,0 +1,33 @@
+---MWENDESHO-77--- 
+Mon 11/09/2026 13:17:08.95 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KAGUA--- 
+=== lsms_20261109_0200.dump bytes 9714806 sha256 f4e062b81be18ed2
+kichwa: 0000000   P   G   D   M   P
+LIST_ENTRIES 1140 (exit 0)
+KUSOMA_LOTE exit 0
+TABLE_DATA 89
+=== lsms_20261108_0200.dump bytes 9653308 sha256 4a66163133413cec
+kichwa: 0000000   P   G   D   M   P
+LIST_ENTRIES 1140 (exit 0)
+KUSOMA_LOTE exit 0
+TABLE_DATA 89
+=== STAGING (haijaguswa?)
+backend chiefmaster/my-lsms-backend:2.3.0 Up 11 days
+frontend chiefmaster/lsms-frontend:2.2.53 Up 2 weeks
+frontend-v3 chiefmaster/lsms-frontend-v3:3.1.11 Up 2 weeks (healthy)
+nginx nginx:1.31.2 Up 2 weeks
+postgres postgres:15 Up 2 weeks (healthy)
+flyway_max 103/135
+sales 2747 | max sale_date 2026-10-28 13:57:14 | users 8
+db_created/oid: Lsms 29789
+total 8
+drwx------ 2 chief chief 4096 Nov  9 13:02 .
+drwx------ 4 chief chief 4096 Nov  9 13:02 ..
+-rw-rw-r-- 1 chief chief    0 Nov  9 13:02 lock
+---77_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 14, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+faili za /tmp zimefutwa
+---OK--- 
