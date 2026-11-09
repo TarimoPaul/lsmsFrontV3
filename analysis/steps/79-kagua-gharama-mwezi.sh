@@ -65,6 +65,13 @@ echo "=== e) KODI YA FRAME: rows zote (mwaka + mwezi) na journal"
 q "select c.reference_number, c.description, c.expenditure_type, c.expenditure_frequency, c.amount, c.monthly_allocation_amount, $MW, c.transaction_date::date, c.status, coalesce(c.is_deleted,false), coalesce($JL,'-')
    from capital_expenditure c where c.description ilike '%frame%' order by c.id"
 
+echo "--- e2) GHARAMA ZOTE ZA MWAKA za Flutter (dp): njia A = row moja allocated_month=0 (kiasi = jumla/12, journal mara moja);"
+echo "        njia B = parent ANNUAL_EXPENSE + watoto 12. ref | maelezo | aina | kiasi | mwaka | status | journal"
+q "select c.reference_number, left(c.description,70), c.expenditure_type, c.amount, c.allocated_year, c.status, coalesce(c.is_deleted,false), coalesce($JL,'-')
+   from capital_expenditure c where (coalesce(c.allocated_month,-1)=0 and c.expenditure_type='MONTHLY_EXPENSE') or c.expenditure_type='ANNUAL_EXPENSE' order by c.id"
+q "select p.reference_number, count(c.uid), sum(c.amount), count(*) filter (where exists (select 1 from journal_entry e where e.reference_uid=c.uid)) as zina_journal
+   from capital_expenditure p join capital_expenditure c on c.parent_capital_expenditure_uid=p.uid where p.expenditure_type='ANNUAL_EXPENSE' group by p.reference_number"
+
 echo "=== f) ATHARI KWENYE GL KWA MWEZI WA KITABU (journal za capex, si reversal, debit kwenye 5xxx/6xxx/7xxx)"
 q "select to_char(e.entry_date,'YYYY-MM'), count(distinct e.uid), sum(l.debit_amount)
    from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid join capital_expenditure c on c.uid=e.reference_uid
