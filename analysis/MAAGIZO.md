@@ -850,3 +850,14 @@ Hatua 80 (KAGUA → 🛑 → ANDIKA), marekebisho yote Novemba (kipindi cha kwan
  d) Azam ×2, TTCL ×1 reversal (dq-2).
  KAGUA ionyeshe: kila journal, na salio la 1000/2300/inayodaiwa/6xxx kabla na baada; TB 0. Malipo ya 01/01/27 (600k) yatafanyika kwa "Lipa" ya kawaida.
 Budget ya pango: usiifungue tena kwa Cr 1000 — Desemba inashughulikiwa na accrual ya (b).
+
+## 2026-11-09 (ds)
+TRA 185,000 ILILIPWA KUTOKA BIASHARA. Kwa hiyo hatua 80 (marekebisho ya Novemba):
+ Pango: Dr 1000 400,000 + Dr <gharama ya pango> 1,800,000 / Cr 2300 1,800,000 + Cr <pango linalodaiwa> 400,000.
+        Desemba (01/12, accrual): Dr <gharama ya pango> 200,000 / Cr <pango linalodaiwa> 200,000. Hakuna Cr 1000.
+ TRA:   Dr 1000 85,833.33 / Cr <gharama ya TRA, 6800> 20,833.33 + Cr <TRA inayodaiwa> 65,000.
+ Azam ×2 + TTCL ×1: reversal (Dr 1000 111,000 / Cr gharama).
+ Akaunti ya pango: Jan ilitumia 6200, Nov 6000 — chagua moja (ya "Rent"), na marekebisho yaende hiyo.
+ Akaunti za madeni (pango linalodaiwa, TRA inayodaiwa): tumia zilizopo kwenye chart ikiwa zipo; vinginevyo ziongeze kwa hatua hiyo hiyo.
+ KAGUA: kila journal + salio la 1000, 2300, madeni, gharama ya pango 2026 (=2.4M baada ya Des), TRA 2026 (=250k); TB 0.
+ Mpangilio: (dq-1) futa watoto 11 → (ds) → (dq) nyingine.

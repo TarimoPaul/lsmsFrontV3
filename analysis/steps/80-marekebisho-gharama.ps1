@@ -2,16 +2,18 @@
 #   80-marekebisho-gharama.cmd kagua        PROD, kusoma tu -> analysis\steps\80-kagua.log
 #   80-marekebisho-gharama.cmd andika a     watoto 11 bila journal -> CANCELLED (hakuna GL)
 #   80-marekebisho-gharama.cmd andika d     Azam x2 + TTCL x1 za Novemba -> CANCELLED (journal zinabatilishwa)
-#   80-marekebisho-gharama.cmd andika b     Pango la Frame: 2400 + journal ya mkono ya Novemba
-#   (c) TRA imezuiwa mpaka chanzo cha 185,000 kithibitishwe.
-# andika: unaandika neno la kuthibitisha (ANDIKA-A / ANDIKA-D / ANDIKA-B), kisha email + password ya CEO (haionekani).
+#   80-marekebisho-gharama.cmd andika b     Pango la Frame: 2400 + journal ya Novemba (pango lote 6000)
+#   80-marekebisho-gharama.cmd andika c     TRA: Dr 1000 85,833.33 / Cr 6200 20,833.33 + Cr 2200 65,000
+#   80-marekebisho-gharama.cmd andika e     DESEMBA (>= 01/12): Dr 6000 200,000 / Cr 2400 200,000
+#   Mpangilio (ds): a -> b, c -> d ; e tarehe 01/12.
+# andika: unaandika neno la kuthibitisha (ANDIKA-A, -B, -C, -D, -E), kisha email + password ya CEO (haionekani).
 param([string]$Mode = '', [string]$Part = '')
 $ErrorActionPreference = 'Continue'
 $Steps = 'D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3\analysis\steps'
 $SshO = @('-o', 'BatchMode=yes', '-o', 'ConnectTimeout=20', '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=4')
 $R = '~/lsms-240'
-if ($Mode -notin 'kagua', 'andika' -or ($Mode -eq 'andika' -and $Part -notin 'a', 'b', 'c', 'd')) {
-    Write-Host 'MATUMIZI: 80-marekebisho-gharama.cmd kagua | andika <a|d|b>'; exit 2 }
+if ($Mode -notin 'kagua', 'andika' -or ($Mode -eq 'andika' -and $Part -notin 'a', 'b', 'c', 'd', 'e')) {
+    Write-Host 'MATUMIZI: 80-marekebisho-gharama.cmd kagua | andika <a|b|c|d|e>'; exit 2 }
 $Log = Join-Path $Steps ($(if ($Mode -eq 'kagua') { '80-kagua.log' } else { "80-andika-$Part.log" }))
 function L([string]$m) { $line = "[{0}] {1}" -f (Get-Date -Format 'HH:mm:ss'), $m; Write-Host $line; Add-Content -Path $Log -Value $line -Encoding UTF8 }
 L "===== 80 $Mode $Part $(Get-Date -Format 'yyyy-MM-dd') ====="
