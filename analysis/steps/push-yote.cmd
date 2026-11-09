@@ -6,6 +6,10 @@ rem   3. V3       lsmsFrontV3  main
 rem   4. backend  lsmsBackend  feature/c2-null-params (C2, jipya kwenye origin mara ya kwanza)
 rem   5. backend  lsmsBackend  main (09/11 cz: main = 2.4.0 + .backend-version; image zinajengwa kutoka main)
 rem   Tag (09/11 dm): 6. backend v2.4.0  7. V3 v3.2.0 - annotated; tag ikiwa tayari origin kwa hash TOFAUTI = KATAA (hakuna force).
+rem   8+. (09/11 dv) MATAWI YA TOLEO 2 - yanaongezwa KIOTOMATIKI: kila tawi la local linaloitwa feature/t2-*
+rem       kwenye backend NA V3 (k.m. feature/t2-gharama). Tawi jipya la toleo 2 = liite feature/t2-<jina>,
+rem       hakuna haja ya kubadilisha faili hili. Sheria ni zile zile: fast-forward tu, bila force.
+rem   Majaribio: set PUSH_YOTE_LOG=<faili> ili log iende mahali pengine.
 rem   Hatua ya 1 (KAGUA, haibadilishi kitu): git fetch, hash ya local na ya origin, na kama push ni fast-forward tu.
 rem     origin ina commit ambazo local haina (si fast-forward) = KATAA tawi hilo na hakuna push hata moja.
 rem   Kituo: andika  push  kuendelea; kingine chochote = simama bila kupush.
@@ -14,6 +18,7 @@ rem   Tags hazipushwi hapa. Matokeo: analysis\steps\push-yote.log
 setlocal EnableDelayedExpansion
 cd /d "D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3"
 set L=analysis\steps\push-yote.log
+if defined PUSH_YOTE_LOG set "L=%PUSH_YOTE_LOG%"
 set "BE=D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms"
 set "V3=D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3"
 if exist %L% copy /y %L% %L%.awali > nul
@@ -21,6 +26,7 @@ echo ---MWENDESHO-PUSH-YOTE--- > %L%
 echo saa %DATE% %TIME% >> %L%
 set KOSA=0
 set KAZI=0
+set IDADI=7
 
 echo ---KAGUA--- >> %L%
 call :kagua "%BE%" release/2.4.0 1
@@ -30,6 +36,11 @@ call :kagua "%BE%" feature/c2-null-params 4
 call :kagua "%BE%" main 5
 call :kagua_tag "%BE%" v2.4.0 6
 call :kagua_tag "%V3%" v3.2.0 7
+rem 8+: matawi ya toleo 2 (feature/t2-*) yanagunduliwa kiotomatiki
+call :gundua "%BE%"
+call :gundua "%V3%"
+set /a T2=IDADI-7
+echo MATAWI_YA_TOLEO_2 feature/t2-*: %T2% yamegunduliwa >> %L%
 if not "%KOSA%"=="0" (
   echo ---IMEKATALIWA: tawi %KOSA_LA% halipushiki bila force - hakuna kilichopushwa--- >> %L%
   echo IMEKATALIWA - soma %L%. Hakuna kilichopushwa.
@@ -38,7 +49,7 @@ if not "%KOSA%"=="0" (
 if "%KAZI%"=="0" (
   echo ---HAKUNA-CHA-KUPUSH: origin iko sawa na local kwa matawi yote--- >> %L%
   echo ---OK--- >> %L%
-  echo Hakuna cha kupush - matawi 5 na tag 2 yako sawa na origin. Matokeo: %L%
+  echo Hakuna cha kupush - matawi na tag zote %IDADI% ziko sawa na origin. Matokeo: %L%
   goto end
 )
 type %L%
@@ -67,6 +78,10 @@ call :push_tag "%BE%" v2.4.0 6
 if not "%KOSA%"=="0" goto fail
 call :push_tag "%V3%" v3.2.0 7
 if not "%KOSA%"=="0" goto fail
+for /l %%i in (8,1,%IDADI%) do (
+  call :push "!AUTO_R_%%i!" !AUTO_B_%%i! %%i
+  if not "!KOSA!"=="0" goto fail
+)
 echo ---OK--- >> %L%
 echo OK - push imekamilika. Matokeo: %L%. Nitumie log hii.
 goto end
@@ -201,6 +216,16 @@ if not "!RH!"=="!LH!" (
   goto :eof
 )
 echo PUSH_%~3 %B% SAWA origin = local = !LH! >> %L%
+goto :eof
+
+rem :gundua "<repo>" - kila feature/t2-* ya local: namba IDADI+1, AUTO_R_n / AUTO_B_n, kisha :kagua.
+:gundua
+for /f "usebackq delims=" %%b in (`git -C "%~1" for-each-ref --format^=%%^(refname:short^) refs/heads/feature/t2-*`) do (
+  set /a IDADI+=1
+  set "AUTO_R_!IDADI!=%~1"
+  set "AUTO_B_!IDADI!=%%b"
+  call :kagua "%~1" %%b !IDADI!
+)
 goto :eof
 
 :end

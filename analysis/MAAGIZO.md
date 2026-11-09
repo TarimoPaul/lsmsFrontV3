@@ -873,3 +873,8 @@ Health: 1200 GL 6,288,769 vs daftari 6,290,186 → tofauti 1,417 (02/11 ilikuwa 
   tofauti kwa bidhaa (zile zenye tofauti > 0) na tangu lini; mwendo wa stock tangu 02/11 unaohusika (ununuzi uliofutwa/K2, rounding ya avg).
   Pendekeza: kizingiti cha onyo (k.m. < 5,000 = taarifa tu, siyo "books need correcting"), na kama ni bug ya K2.
 Chief asibofye "Correct" mpaka ripoti hii.
+
+## 2026-11-09 (dv)
+H1: kizingiti = max(5,000, 0.1% ya thamani ya stock). Chini yake → "taarifa" (siyo onyo jekundu) + mwelekeo wa siku 7 (tofauti kila siku).
+  Ikiongezeka siku 3 mfululizo → onyo hata kama iko chini ya kizingiti. "Correct" ibaki kwa CEO (inapendekezwa mwisho wa mwezi).
+push-yote: ongeza kila tawi la feature/* la toleo 2 linalotumika (kwa sasa feature/t2-gharama), au utaratibu wa kuongeza matawi mapya kiotomatiki.

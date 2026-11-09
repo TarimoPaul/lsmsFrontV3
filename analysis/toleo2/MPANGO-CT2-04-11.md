@@ -116,3 +116,12 @@ Code (chanzo kimeonekana 09/11):
 - (du) **H1 Kizingiti cha Health (inventory 1200 vs daftari):** leo TOLERANCE = 1.00 (GlReconciliationService) -> tofauti ndogo ya rounding inaonyesha
   "Vitabu vinahitaji kurekebishwa" (capital-overview). Pendekezo: |tofauti| < max(5,000, 0.1% ya thamani ya stock) = TAARIFA (rangi ya kawaida, "tofauti ndogo")
   bila onyo jekundu wala kitufe cha "Correct"; >= hapo = onyo kama leo. Uamuzi wa kiasi: Chief. Chanzo cha 1,417 kitatoka hatua 78-7 (kesho).
+- (dv) **H1 IMEAMULIWA NA IMEJENGWA** (backend feature/t2-afya 2a64f7e, V3 main):
+  - Ngazi: SAWA (|tofauti| <= 1.00) / TAARIFA (INVENTORY chini ya max(5,000, 0.1% ya thamani ya stock)) / ONYO (juu yake; au imeongezeka siku 3 mfululizo,
+    hata ikiwa chini ya kizingiti). Akaunti nyingine (madeni ya wateja/wasambazaji/wafanyakazi, mikopo) hazina kizingiti: zaidi ya 1.00 = ONYO kama leo.
+  - Mwelekeo wa siku 7: jedwali jipya gl_control_snapshot (V139) - row 1 kwa siku kwa kila ukaguzi; inaandikwa 23:55 (scheduler) na kila mtu anapofungua ukurasa leo.
+    Tarehe ya zamani haiandikwi kamwe. Siku iliyokosekana inakata mfululizo. Mwelekeo unaanza kujaa kuanzia siku ya deploy (hakuna historia ya nyuma).
+  - "Correct" (true-up): backend inakataa asiye CEO (root au role CEO; Executive CEO si CEO). V3 inaonyesha kitufe kwa CEO tu, na maelezo "inapendekezwa mwisho wa mwezi".
+  - V3: banner ya Capital "Vitabu vinahitaji kurekebishwa" inatoka kwa ONYO tu; ripoti (fedha, stock, madeni) zinaonyesha TAARIFA kama "info", si nyekundu.
+    Backend ya zamani (bila "level") -> V3 inarudi kwenye kanuni ya zamani (reconciled), kwa hiyo V3 inaweza kutangulia backend.
+  - Migration: V139 = H1. G5 (1160/2400) itachukua V140+.
