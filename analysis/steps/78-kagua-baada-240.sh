@@ -30,4 +30,40 @@ grep ' ERROR ' <<<"$L" | sed -E 's/^[0-9T:.+-]+ +//; s/[0-9a-f]{8}-[0-9a-f-]{27}
 echo "=== 6 SCHEDULER za usiku (00:05 / 02:00)"
 grep -E 'LoanInterest|DailySales|Muhtasari|backup|Scheduler' <<<"$L" | grep -E ' (INFO|WARN|ERROR) ' | cut -c1-200 | tail -12
 ls -la /home/chief/backups/daily/ | tail -2
+echo "=== 7 (du) INVENTORY: GL 1200 vs daftari (Health: tofauti 1,417 leo; 02/11 ilikuwa -8.77). KUSOMA TU - Chief asibofye Correct"
+S='2026-11-02'
+echo "--- 7a jumla: GL 1200 | daftari (stock x avg, avg>0) | bidhaa zenye stock lakini avg<=0 (zinatumia gharama mbadala)"
+q "select (select coalesce(sum(l.debit_amount-l.credit_amount),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where l.account_code='1200' and e.status='POSTED'),
+          (select coalesce(sum(p.current_stock*p.current_average_cost),0)::numeric(19,2) from products p where coalesce(p.is_deleted,false)=false and p.current_stock>0 and p.current_average_cost>0),
+          (select count(*)||' bidhaa, stock x last_purchase_cost = '||coalesce(sum(p.current_stock*coalesce(p.last_purchase_cost,0)),0)::numeric(19,2) from products p where coalesce(p.is_deleted,false)=false and p.current_stock>0 and coalesce(p.current_average_cost,0)<=0)"
+q "select p.product_name, p.current_stock, p.current_average_cost, p.last_purchase_cost, p.last_cost_update::date from products p where coalesce(p.is_deleted,false)=false and p.current_stock>0 and coalesce(p.current_average_cost,0)<=0 order by 2 desc limit 15"
+echo "--- 7b GL 1200 tangu $S kwa siku na aina (Dr-Cr)"
+q "select e.entry_date, e.reference_type, case when coalesce(e.is_reversal,false) then 'REV' else '' end, count(distinct e.uid), sum(l.debit_amount-l.credit_amount)::numeric(19,2)
+   from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where l.account_code='1200' and e.status='POSTED' and e.entry_date >= '$S' group by 1,2,3 order by 1,2,3"
+echo "--- 7c ununuzi ULIOFUTWA tangu $S (K1/K2): ref | bidhaa | kiasi | ilifutwa | journal 1200 (asili+reversal) | avg sasa | last_purchase_cost"
+q "select pu.uid, pr.product_name, pu.total_amount, pu.cancellation_date::timestamp(0), coalesce(pu.cancellation_reason,'-'),
+   (select string_agg(e.entry_date||case when coalesce(e.is_reversal,false) then ' REV ' else ' ' end||(l.debit_amount-l.credit_amount)::numeric(19,2), ' ; ' order by e.id) from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.reference_uid=pu.uid and l.account_code='1200'),
+   pr.current_average_cost, pr.last_purchase_cost
+   from purchases pu join products pr on pr.uid=pu.product_uid where pu.status='CANCELLED' and pu.cancellation_date >= '$S' order by pu.cancellation_date"
+echo "--- 7d kila SALE tangu $S: Cr 1200 ya journal vs gharama ya mistari (sum total_cost; na piece x cost_per_piece) - zenye tofauti >= 1"
+q "with s as (select e.reference_uid su, sum(l.credit_amount-l.debit_amount) cr from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid
+     where l.account_code='1200' and e.status='POSTED' and not coalesce(e.is_reversal,false) and e.reference_type like 'SALE%' and e.entry_date >= '$S' group by 1),
+   d as (select sd.sale_uid su, sum(coalesce(sd.total_cost,0)) tc, sum(coalesce(sd.piece_quantity,0)*coalesce(sd.cost_per_piece,0)) pc from sales_details sd group by 1)
+   select count(*), sum(s.cr - d.tc)::numeric(19,2) as cr_minus_totalcost, sum(s.cr - d.pc)::numeric(19,2) as cr_minus_pieces_x_cost from s join d on d.su=s.su where abs(s.cr - d.pc) >= 1"
+q "with s as (select e.reference_uid su, sum(l.credit_amount-l.debit_amount) cr from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid
+     where l.account_code='1200' and e.status='POSTED' and not coalesce(e.is_reversal,false) and e.reference_type like 'SALE%' and e.entry_date >= '$S' group by 1)
+   select pr.product_name, count(distinct s.su), sum(sd.piece_quantity), min(sd.cost_per_piece), max(sd.cost_per_piece), pr.current_average_cost
+   from s join sales_details sd on sd.sale_uid=s.su join products pr on pr.uid=sd.product_uid
+   where abs(s.cr - (select sum(coalesce(x.piece_quantity,0)*coalesce(x.cost_per_piece,0)) from sales_details x where x.sale_uid=s.su)) >= 1
+   group by pr.product_name, pr.current_average_cost order by 2 desc limit 20"
+echo "--- 7e sale zilizofutwa tangu $S: Dr 1200 ya reversal vs Cr 1200 ya asili (zinapaswa kulingana)"
+q "select count(*), sum(r.amt + o.amt)::numeric(19,2) from
+   (select e.reference_uid su, sum(l.debit_amount-l.credit_amount) amt from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where l.account_code='1200' and e.is_reversal and e.reference_type like 'SALE%' and e.entry_date >= '$S' group by 1) r
+   join (select e.reference_uid su, sum(l.debit_amount-l.credit_amount) amt from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where l.account_code='1200' and not coalesce(e.is_reversal,false) and e.reference_type like 'SALE%' group by 1) o on o.su=r.su"
+echo "--- 7f marekebisho ya stock (counting) tangu $S: thamani vs GL"
+q "select count(*), coalesce(sum(adjustment_value),0)::numeric(19,2), count(*) filter (where not coalesce(gl_posted,false)) as bila_gl from stock_adjustment where created_at >= '$S'"
+echo "--- 7g mwendo wa store tangu $S kwa aina (idadi, vipande)"
+q "select movement_type, count(*), sum(quantity) from store where movement_date >= '$S' and coalesce(is_deleted,false)=false group by 1 order by 2 desc"
+echo "--- 7h bidhaa ambazo avg imebadilika tangu $S: idadi"
+q "select count(*) from products where last_cost_update >= '$S'"
 echo "---78_SERVER_MWISHO---"

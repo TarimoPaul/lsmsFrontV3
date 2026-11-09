@@ -867,3 +867,9 @@ TRA 185,000 ILILIPWA KUTOKA BIASHARA. Kwa hiyo hatua 80 (marekebisho ya Novemba)
 e = 01/12 (Chief). Malipo ya 2400 (600k ~01/01/27) na 2200 (65k) lazima yatumie njia inayopunguza deni (siyo gharama mpya) —
   hakikisha V3 ina njia hiyo (Lipa deni la gharama / kodi), au andaa hatua; ingiza kwenye toleo la 2 ikiwa haipo.
 Kisha: endelea na viporo vya toleo la 2 kwa mpangilio (G1–G5 kwanza, kwa sababu ndivyo vilivyosababisha makosa haya).
+
+## 2026-11-09 (du)
+Health: 1200 GL 6,288,769 vs daftari 6,290,186 → tofauti 1,417 (02/11 ilikuwa −8.77). Ongeza kwenye hatua 78 (kesho):
+  tofauti kwa bidhaa (zile zenye tofauti > 0) na tangu lini; mwendo wa stock tangu 02/11 unaohusika (ununuzi uliofutwa/K2, rounding ya avg).
+  Pendekeza: kizingiti cha onyo (k.m. < 5,000 = taarifa tu, siyo "books need correcting"), na kama ni bug ya K2.
+Chief asibofye "Correct" mpaka ripoti hii.

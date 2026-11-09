@@ -113,3 +113,6 @@ Code (chanzo kimeonekana 09/11):
 - **G1 IMEKAMILIKA (backend feature/t2-gharama 1ef3b08, 09/11):** rows hadi mwezi wa SASA tu; kipindi kilichofungwa -> kataa. Suite 605/0/1; mutations 2/2.
   Data: watoto 12 wa "malipo ya wafanyakazi" 12/2026..11/2027 bado wapo prod (APPROVED bila journal) - hawana madhara kwenye GL (postDue inawaandika
   mwezi wao ukifika, ambao ndio ukweli); G4 itawaonyesha "Imepangwa". Kuwafuta ni uamuzi wa Chief (hatua ndogo kama 80a).
+- (du) **H1 Kizingiti cha Health (inventory 1200 vs daftari):** leo TOLERANCE = 1.00 (GlReconciliationService) -> tofauti ndogo ya rounding inaonyesha
+  "Vitabu vinahitaji kurekebishwa" (capital-overview). Pendekezo: |tofauti| < max(5,000, 0.1% ya thamani ya stock) = TAARIFA (rangi ya kawaida, "tofauti ndogo")
+  bila onyo jekundu wala kitufe cha "Correct"; >= hapo = onyo kama leo. Uamuzi wa kiasi: Chief. Chanzo cha 1,417 kitatoka hatua 78-7 (kesho).
