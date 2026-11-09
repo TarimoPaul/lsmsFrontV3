@@ -1,0 +1,25 @@
+# V3 Docker-local (owner 31/10 bg): the PRODUCTION build of this worktree, served by the prod image's nginx.conf,
+# behind an "edge" nginx like the server's. Needs the backend Docker-local running (backend repo deploy/local,
+# network lsms-local_default). Run it through v3-local.sh. Browser: http://127.0.0.1:4300/v3/
+name: lsms-v3-local
+
+services:
+  v3:
+    image: nginx:1.31.2-alpine
+    volumes:
+      - ../nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../dist/lsmsFrontV3/browser:/usr/share/nginx/html/v3:ro
+    networks: [lsms]
+
+  edge:
+    image: nginx:1.31.2-alpine
+    volumes:
+      - ./edge.conf:/etc/nginx/conf.d/default.conf:ro
+    ports: ["127.0.0.1:${V3_LOCAL_PORT:-4300}:80"]
+    depends_on: [v3]
+    networks: [lsms]
+
+networks:
+  lsms:
+    name: lsms-local_default
+    external: true

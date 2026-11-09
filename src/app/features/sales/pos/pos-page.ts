@@ -17,9 +17,10 @@ import type { HoldData, HoldResult } from './hold-dialog';
 import type { MissingDaysData, MissingDaysResult } from './missing-days-dialog';
 import type { SaleDoneData } from './sale-done-dialog';
 import { categoryColor, categoryInitials } from '../../categories/categories.models';
-import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, SaleRequest, SaleType, methodLabel } from '../sales.models';
+import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel, shortReceipt } from '../sales.models';
 import { SalesService } from '../sales.service';
 import { CartCustomer, CartLine, CartStore } from './cart.store';
+import { RemakeStore } from './remake.store';
 
 type StockFilter = 'all' | 'in' | 'low';
 
@@ -45,6 +46,13 @@ export class PosPage {
   protected readonly auth = inject(AuthService);
   protected readonly cart = inject(CartStore);
   protected readonly drafts = inject(DraftsStore);
+  private readonly remakeStore = inject(RemakeStore);
+  /**
+   * Receipt of the deleted sale this cart is making again (deleted list -> "Make again", owner 31/10 bf). A deleted
+   * sale is never restored; the new sale's notes name it.
+   */
+  protected readonly remakeOf = signal<{ uid: string; receipt: string } | null>(null);
+  protected readonly shortReceipt = shortReceipt;
   private readonly api = inject(SalesService);
   private readonly customersApi = inject(CustomersService);
   private readonly store = inject(StoreService);
@@ -162,6 +170,8 @@ export class PosPage {
       subtitle: this.i18n.t(this.products().length + ' products available', 'Bidhaa ' + this.products().length + ' zinapatikana'),
     }));
     void this.reload(false);
+    const remake = this.remakeStore.take();
+    if (remake) void this.loadRemake(remake);
     void this.api.paymentMethods.load().catch(() => undefined);
     if (this.auth.hasPermission('CUSTOMER_READ')) void this.customersApi.list.load().catch(() => undefined);
     void this.loadMissing();
@@ -472,7 +482,57 @@ export class PosPage {
     if (ok) this.resetSale();
   }
 
+  /**
+   * Fill the cart from a deleted sale: same products, sale types and quantities at today's price (a hand-set price
+   * is kept), same customer and discount. Products no longer sold are flagged, like a resumed held order.
+   */
+  private async loadRemake(sale: Sale): Promise<void> {
+    const t = (en: string, sw: string) => this.i18n.t(en, sw);
+    if (this.cart.count()) {
+      this.toast.warning(t('The cart is not empty — hold or clear it, then choose “Make again” again.',
+        'Kapu lina bidhaa — lihifadhi au lifute, kisha chagua “Tengeneza upya” tena.'));
+      return;
+    }
+    try {
+      await this.api.posStock.load(false);
+      const lines: CartLine[] = sale.lines.map((l) => {
+        const type = l.saleType as SaleType;
+        const p = this.product(l.productUid);
+        const o = p ? this.option(p, type) : undefined;
+        const qty = l.packages > 0 ? l.packages : l.pieces;
+        const base: CartLine = {
+          key: `${l.productUid}|${type}${l.priceOverridden ? '*' : ''}`,
+          productUid: l.productUid,
+          name: l.productName,
+          category: l.category,
+          saleType: type,
+          unitPieces: o?.pieces ?? 1,
+          qty,
+          unitPrice: l.priceOverridden || !o ? l.unitPrice : o.price,
+          defaultPrice: o?.price ?? l.unitPrice,
+          costPerPiece: p?.averageCost ?? l.costPerPiece,
+          piecesPerPackage: p?.piecesPerPackage ?? null,
+          abbreviation: l.packageAbbreviation,
+          error: null,
+          previousPrice: l.unitPrice,
+        };
+        return p && o ? base : { ...base, error: t('No longer sold at this price — remove it', 'Haiuzwi tena kwa bei hii — iondoe') };
+      });
+      const customer: CartCustomer | null = sale.customerUid
+        ? { uid: sale.customerUid, name: sale.customerName ?? '', phone: sale.customerPhone }
+        : null;
+      this.cart.load({ lines, customer, discount: sale.discount, heldSince: null });
+      this.remakeOf.set({ uid: sale.uid, receipt: sale.receiptNumber });
+      this.cartOpen.set(true);
+      this.toast.success(t(`Cart filled from deleted sale ${sale.receiptNumber} — check it, then complete the sale.`,
+        `Kapu limejazwa kutoka mauzo yaliyofutwa ${sale.receiptNumber} — likague kisha kamilisha mauzo.`));
+    } catch (e) {
+      this.toast.error(ApiError.from(e).message);
+    }
+  }
+
   private resetSale(): void {
+    this.remakeOf.set(null);
     this.cart.clear();
     this.received.set(null);
     this.method.set('CASH');
@@ -495,7 +555,9 @@ export class PosPage {
       userUid: user?.uid ?? null,
       userName: this.auth.displayName() || null,
       discountAmount: this.cart.discount(),
+      replacesSaleUid: this.remakeOf()?.uid ?? null,
       saleNotes: [
+        this.remakeOf() ? `Badala ya mauzo yaliyofutwa: ${this.remakeOf()!.receipt}` : '',
         `Payment Method: ${methodLabel(this.method(), true)}`,
         `Total Items: ${this.cart.count()}`,
         `Total Pieces: ${this.cart.pieces()}`,

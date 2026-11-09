@@ -6,7 +6,7 @@ import { toIsoDate } from '@shared/utils/date-utils';
 import { GlService } from '../general-ledger/gl.service';
 import { IncomeStatement } from '../general-ledger/gl.models';
 import { SalesService } from '../sales/sales.service';
-import { AgingKey, ArCustomer, ArInvoice, DailyPnl, DeletedDebt, PnlDay, SLOW_ACTIONS, SlowAction, SlowMovers } from './reports.models';
+import { AgingKey, ArCustomer, ArInvoice, DailyPnl, DeletedDebt, PnlBridge, PnlDay, SLOW_ACTIONS, SlowAction, SlowMovers } from './reports.models';
 
 type Raw = Record<string, unknown>;
 const num = (v: unknown) => (v === null || v === undefined || v === '' ? 0 : Number(v) || 0);
@@ -46,6 +46,27 @@ export class ReportsService {
     return this.gl.incomeStatement(toIsoDate(from), toIsoDate(to));
   }
 
+  /** "Daraja na GL": the operating net → named differences → the GL net, same period (PROFIT_REPORT). */
+  async pnlBridge(from: string, to: string): Promise<PnlBridge> {
+    const r = await this.api.get<Raw>('/api/v1/reports/pnl-bridge', { params: { from, to } });
+    return {
+      from: String(r['from'] ?? from),
+      to: String(r['to'] ?? to),
+      operatingNet: num(r['operatingNet']),
+      glNet: num(r['glNet']),
+      lines: ((r['lines'] as Raw[] | null) ?? []).map((l) => ({
+        code: String(l['code'] ?? ''),
+        nameSw: String(l['nameSw'] ?? ''),
+        nameEn: String(l['nameEn'] ?? ''),
+        amount: num(l['amount']),
+        count: num(l['count']),
+      })),
+      explained: num(r['explained']),
+      unexplained: num(r['unexplained']),
+      notes: ((r['notes'] as Raw[] | null) ?? []).map((n) => ({ code: String(n['code'] ?? ''), message: String(n['message'] ?? ''), count: num(n['count']) })),
+    };
+  }
+
   /**
    * Day-by-day profit with the cash view (GET /api/reports/daily-pnl, PROFIT_REPORT).
    * Built server-side from the registers, not the GL — see DailyPnlService.
@@ -61,6 +82,10 @@ export class ReportsService {
       monthlyExpenses: num(d['monthlyExpenses']),
       depreciation: num(d['depreciation']),
       stockLoss: num(d['stockLoss']),
+      cashShortage: num(d['cashShortage']),
+      debtsWrittenOff: num(d['debtsWrittenOff']),
+      stockDamage: num(d['stockDamage']),
+      loanInterest: num(d['loanInterest']),
       netProfit: num(d['netProfit']),
       debtIssuedPos: num(d['debtIssuedPos']),
       debtIssuedWalkIn: num(d['debtIssuedWalkIn']),

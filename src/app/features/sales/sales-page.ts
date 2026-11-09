@@ -42,7 +42,7 @@ import { DebtApprovalsPanel } from './debt-approvals-panel';
 import { ProfitPanel } from './profit-panel';
 import { ReturnsPanel } from './returns-panel';
 import { SalesService } from './sales.service';
-import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
+import { askSaleReason, recordedMessage } from './sale-reason';
 
 type Period = 'current' | 'today' | 'week' | 'month' | 'custom';
 type Status = 'ALL' | 'OWING' | 'PAID' | 'RETURNED';
@@ -261,19 +261,13 @@ export class SalesPage {
   protected async deleteSelected(): Promise<void> {
     const list = this.picked();
     const t = (en: string, sw: string) => this.i18n.t(en, sw);
-    const reason = await this.dialogs.openAsync<string, ReasonDialogData>(ReasonDialog, {
-      size: 'sm',
-      data: {
-        title: t(`Delete ${list.length} sale(s)?`, `Futa mauzo ${list.length}?`),
-        message: t(
-          `${Money.format(this.pickedTotal())} leaves sales and their items go back into stock. They can be restored from “Deleted”.`,
-          `${Money.format(this.pickedTotal())} vitaondoka kwenye mauzo na bidhaa zitarudi stoo. Yanaweza kurejeshwa kwenye “Yaliyofutwa”.`,
-        ),
-        label: t('Reason', 'Sababu'),
-        confirm: t('Delete', 'Futa'),
-        danger: true,
-        min: 5,
-      },
+    const reason = await askSaleReason(this.dialogs, this.i18n, {
+      title: t(`Delete ${list.length} sale(s)?`, `Futa mauzo ${list.length}?`),
+      message: t(
+        `${Money.format(this.pickedTotal())} leaves sales and their items go back into stock. A deleted sale cannot be restored — it can only be made again as a new sale.`,
+        `${Money.format(this.pickedTotal())} vitaondoka kwenye mauzo na bidhaa zitarudi stoo. Mauzo yaliyofutwa hayarudishwi — yanaweza tu kutengenezwa upya kama mauzo mapya.`,
+      ),
+      confirm: t('Delete', 'Futa'),
     });
     if (!reason) return;
     this.bulkBusy.set(true);
@@ -426,17 +420,18 @@ export class SalesPage {
   }
 
   protected async remove(s: Sale): Promise<void> {
-    const ok = await this.dialogs.confirmDelete({
+    const reason = await askSaleReason(this.dialogs, this.i18n, {
       title: this.i18n.t(`Delete sale ${s.receiptNumber}?`, `Futa mauzo ${s.receiptNumber}?`),
       message: this.i18n.t(
-        `The ${s.lines.length} item(s) go back into stock and ${Money.format(s.total)} is removed from sales. It can be restored later.`,
-        `Bidhaa ${s.lines.length} zitarudi stoo na ${Money.format(s.total)} vitaondolewa kwenye mauzo. Yanaweza kurejeshwa baadaye.`,
+        `The ${s.lines.length} item(s) go back into stock and ${Money.format(s.total)} is removed from sales. A deleted sale cannot be restored.`,
+        `Bidhaa ${s.lines.length} zitarudi stoo na ${Money.format(s.total)} vitaondolewa kwenye mauzo. Mauzo yaliyofutwa hayarudishwi.`,
       ),
+      confirm: this.i18n.t('Delete', 'Futa'),
     });
-    if (!ok) return;
+    if (!reason) return;
     try {
-      await this.api.remove(s.uid);
-      this.toast.success(this.i18n.t('Sale deleted', 'Mauzo yamefutwa'));
+      const msg = await this.api.remove(s.uid, reason);
+      this.toast.success(recordedMessage(this.i18n, msg));
       void this.refresh();
     } catch (e) {
       this.toast.error(ApiError.from(e).message);

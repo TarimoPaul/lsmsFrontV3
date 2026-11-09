@@ -8,7 +8,7 @@ import { DateRange, dayOnly, endOfDay, parseLocal, rangeForPreset, toIsoDate } f
 import { Cell, downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
 import { ReportFrame } from './report-frame';
-import { DAILY_PNL_MAX_DAYS, DailyPnl, PnlDay } from './reports.models';
+import { DAILY_PNL_MAX_DAYS, DailyPnl, PnlBridge, PnlBridgeLine, PnlDay } from './reports.models';
 import { ReportsService } from './reports.service';
 
 /**
@@ -16,7 +16,9 @@ import { ReportsService } from './reports.service';
  * profit" takes out the profit still sitting inside unpaid debts; "money with
  * debtors" is every shilling customers owe at the period end; operating cash
  * flow adds the stock build-up so the owner sees why profit and cash differ.
- * All figures come from GET /api/reports/daily-pnl.
+ * All figures come from GET /api/reports/daily-pnl. "Daraja na GL" (owner 01/11 bm) walks from this report's net
+ * profit to the GL's for the same period, one named line per known difference, and shows in red what no line
+ * explains (GET /api/v1/reports/pnl-bridge). The two reports stay separate.
  */
 @Component({
   selector: 'app-profit-report',
@@ -79,6 +81,10 @@ import { ReportsService } from './reports.service';
                 <tr><td>− {{ i18n.t('Monthly expenses (rent, salaries…)', 'Gharama za mwezi (pango, mishahara…)') }}</td><td class="n">{{ m(t.monthlyExpenses) }}</td></tr>
                 <tr><td>− {{ i18n.t('Depreciation', 'Uchakavu wa mali') }}</td><td class="n">{{ m(t.depreciation) }}</td></tr>
                 <tr><td>− {{ i18n.t('Stock loss (posted counts)', 'Upotevu wa stoki (uliopostiwa)') }}</td><td class="n" [class.neg]="t.stockLoss > 0">{{ m(t.stockLoss) }}</td></tr>
+                <tr data-test="gl-6700"><td>− {{ i18n.t('Drawer short at day close (6700)', 'Upungufu wa droo kwenye reco (6700)') }}</td><td class="n" [class.neg]="t.cashShortage > 0">{{ m(t.cashShortage) }}</td></tr>
+                <tr data-test="gl-6120"><td>− {{ i18n.t('Debts written off (6110/6120)', 'Madeni yaliyosamehewa (6110/6120)') }}</td><td class="n" [class.neg]="t.debtsWrittenOff > 0">{{ m(t.debtsWrittenOff) }}</td></tr>
+                <tr data-test="gl-dmg"><td>− {{ i18n.t('Stock loss outside counts (damaged…)', 'Upotevu nje ya hesabu (zilizoharibika…)') }}</td><td class="n" [class.neg]="t.stockDamage > 0">{{ m(t.stockDamage) }}</td></tr>
+                <tr data-test="gl-6600"><td>− {{ i18n.t('Loan interest (6600)', 'Riba ya mikopo (6600)') }}</td><td class="n" [class.neg]="t.loanInterest > 0">{{ m(t.loanInterest) }}</td></tr>
                 <tr class="sub"><td>= {{ i18n.t('Net profit', 'Faida halisi') }}</td><td class="n" [class.neg]="t.netProfit < 0">{{ m(t.netProfit) }}</td></tr>
                 <tr><td>− {{ i18n.t('Profit inside debts still unpaid', 'Faida ndani ya madeni yasiyolipwa') }}@if (t.marginInStillOwedEstimated > 0) { <span class="est sm" [title]="estTip()">≈</span> }</td><td class="n">{{ m(t.marginInStillOwed) }}</td></tr>
                 <tr class="sub"><td>= {{ i18n.t('Profit collected', 'Faida iliyokusanywa') }}</td><td class="n" [class.neg]="t.collectedProfit < 0">{{ m(t.collectedProfit) }}</td></tr>
@@ -92,6 +98,7 @@ import { ReportsService } from './reports.service';
               <tbody>
                 <tr><td>{{ i18n.t('Net profit', 'Faida halisi') }}</td><td class="n">{{ m(t.netProfit) }}</td></tr>
                 <tr><td>+ {{ i18n.t('Depreciation (no cash left)', 'Uchakavu (haukutoa pesa)') }}</td><td class="n">{{ m(t.depreciation) }}</td></tr>
+                <tr data-test="ocf-noncash"><td>+ {{ i18n.t('Loan interest and debts written off (no cash left)', 'Riba na madeni yaliyosamehewa (hazikutoa pesa)') }}</td><td class="n">{{ m(t.loanInterest + t.debtsWrittenOff) }}</td></tr>
                 <tr><td>− {{ i18n.t('New debts', 'Madeni mapya') }} <small class="muted">(POS {{ m(t.debtIssuedPos) }} · walk-in {{ m(t.debtIssuedWalkIn) }})</small></td><td class="n">{{ m(t.debtIssuedPos + t.debtIssuedWalkIn) }}</td></tr>
                 <tr><td>+ {{ i18n.t('Debts collected', 'Makusanyo ya madeni') }}</td><td class="n">{{ m(t.debtCollected) }}</td></tr>
                 <tr><td>− {{ i18n.t('Stock value increase (at purchase cost)', 'Ongezeko la thamani ya stoki (bei ya kununua)') }}</td><td class="n" [class.neg]="t.stockChange > 0">{{ signed(t.stockChange) }}</td></tr>
@@ -103,6 +110,30 @@ import { ReportsService } from './reports.service';
             <p class="pad muted">{{ i18n.t('Supplier credit and owner money are not part of this figure.', 'Madeni ya wasambazaji na pesa za mmiliki hazimo kwenye namba hii.') }}</p>
           </section>
         </div>
+
+        <section class="card bridge" data-test="daraja">
+          <header><h4>{{ i18n.t('Bridge to the GL', 'Daraja na GL') }}</h4><small>{{ i18n.t('Net profit of this report → known differences → net profit of the GL, same period', 'Faida halisi ya ripoti hii → tofauti zinazojulikana → faida halisi ya GL, kipindi kilekile') }}</small></header>
+          @if (bridgeError()) {
+            <p class="pad muted">{{ bridgeError() }}</p>
+          } @else if (!bridge()) {
+            <lsms-skeleton variant="list" [rows]="4" />
+          } @else {
+            @let b = bridge()!;
+            <table class="t">
+              <tbody>
+                <tr class="sub"><td>{{ i18n.t('Net profit (this report)', 'Faida halisi (ripoti ya uendeshaji)') }}</td><td class="n" [class.neg]="b.operatingNet < 0">{{ m(b.operatingNet) }}</td></tr>
+                @for (l of b.lines; track l.code) {
+                  <tr [attr.data-code]="l.code"><td>{{ lineName(l) }} <small class="muted">({{ l.count }})</small></td><td class="n" [class.neg]="l.amount < 0">{{ signed(l.amount) }}</td></tr>
+                }
+                <tr class="unexplained" [class.bad]="unexplainedBad()" data-code="ISIYOELEZEKA">
+                  <td>{{ i18n.t('Unexplained difference', 'Tofauti isiyoelezeka') }}</td><td class="n">{{ signed2(b.unexplained) }}</td>
+                </tr>
+                <tr class="sub"><td>= {{ i18n.t('Net profit (GL)', 'Faida halisi (GL)') }}</td><td class="n" [class.neg]="b.glNet < 0">{{ m(b.glNet) }}</td></tr>
+              </tbody>
+            </table>
+            @for (n of b.notes; track n.code) { <p class="pad muted">{{ n.message }}</p> }
+          }
+        </section>
 
         <section class="card flush">
           <header><h4>{{ i18n.t('Day by day', 'Kila siku') }}</h4><small>{{ i18n.t('"Still owed" = what is unpaid now from the debts of that day', '"Bado deni" = ya madeni ya siku hiyo, kilichobaki sasa') }}</small></header>
@@ -129,7 +160,7 @@ import { ReportsService } from './reports.service';
                     <td class="n">{{ m(r.revenue) }}</td>
                     <td class="n">{{ m(r.grossProfit) }}</td>
                     <td class="n">{{ m(expenses(r)) }}</td>
-                    <td class="n" [class.neg]="r.stockLoss > 0">{{ r.stockLoss ? m(r.stockLoss) : '—' }}</td>
+                    <td class="n" [class.neg]="loss(r) > 0">{{ loss(r) ? m(loss(r)) : '—' }}</td>
                     <td class="n strong" [class.neg]="r.netProfit < 0">{{ m(r.netProfit) }}</td>
                     <td class="n">{{ issued(r) ? m(issued(r)) : '—' }}</td>
                     <td class="n">{{ r.debtCollected ? m(r.debtCollected) : '—' }}</td>
@@ -146,7 +177,7 @@ import { ReportsService } from './reports.service';
                   <td class="n">{{ m(t.revenue) }}</td>
                   <td class="n">{{ m(t.grossProfit) }}</td>
                   <td class="n">{{ m(expenses(t)) }}</td>
-                  <td class="n">{{ m(t.stockLoss) }}</td>
+                  <td class="n">{{ m(loss(t)) }}</td>
                   <td class="n" [class.neg]="t.netProfit < 0">{{ m(t.netProfit) }}</td>
                   <td class="n">{{ m(issued(t)) }}</td>
                   <td class="n">{{ m(t.debtCollected) }}</td>
@@ -198,6 +229,9 @@ import { ReportsService } from './reports.service';
     .two table.t td.n { vertical-align: top; }
     td.owed { color: var(--c-warning); font-weight: 500; }
     table.days td:first-child { position: sticky; left: 0; background: var(--c-float); }
+    .bridge table.t td:first-child { white-space: normal; }
+    tr.unexplained td { font-weight: 600; }
+    tr.unexplained.bad td { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 8%, transparent); }
     table.days th:first-child { position: sticky; left: 0; z-index: 1; }
   `,
 })
@@ -209,6 +243,10 @@ export class ProfitReport {
   protected readonly range = signal<DateRange>(this.initialRange());
   protected readonly data = signal<DailyPnl | null>(null);
   protected readonly error = signal('');
+  protected readonly bridge = signal<PnlBridge | null>(null);
+  protected readonly bridgeError = signal('');
+  /** Red as soon as anything is left unexplained (owner bm: "nyekundu ≠ 0"). */
+  protected readonly unexplainedBad = computed(() => Math.abs(this.bridge()?.unexplained ?? 0) >= 0.005);
 
   protected readonly rowsDesc = computed(() => [...(this.data()?.days ?? [])].reverse());
   protected readonly asOfNote = computed(() => {
@@ -255,14 +293,39 @@ export class ProfitReport {
       .dailyPnl(toIsoDate(r.start), toIsoDate(r.end))
       .then((d) => this.data.set(d))
       .catch((e) => this.error.set(ApiError.from(e).message));
+    // The bridge on its own: if it fails, the report still shows.
+    this.bridge.set(null);
+    this.bridgeError.set('');
+    this.api
+      .pnlBridge(toIsoDate(r.start), toIsoDate(r.end))
+      .then((b) => this.bridge.set(b))
+      .catch((e) => this.bridgeError.set(ApiError.from(e).message));
+  }
+
+  protected lineName(l: PnlBridgeLine): string {
+    return this.i18n.isSwahili() ? l.nameSw : l.nameEn;
+  }
+
+  /**
+   * The unexplained row only: two decimals (Money.format shows whole shillings), so cents left unexplained are
+   * not shown as a red "0".
+   */
+  protected signed2(v: number): string {
+    return (v > 0 ? '+' : '') + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + Money.currencyCode;
   }
 
   protected itemsOf(month: string) {
     return (this.data()?.monthlyItems ?? []).filter((i) => i.month === month);
   }
 
-  protected expenses(r: Pick<PnlDay, 'dailyExpenses' | 'monthlyExpenses' | 'depreciation'>): number {
-    return r.dailyExpenses + r.monthlyExpenses + r.depreciation;
+  /** Day-table "Expenses": also the GL-only charges (6700, 6110/6120, 6600), so the columns add up to Net. */
+  protected expenses(r: Pick<PnlDay, 'dailyExpenses' | 'monthlyExpenses' | 'depreciation' | 'cashShortage' | 'debtsWrittenOff' | 'loanInterest'>): number {
+    return r.dailyExpenses + r.monthlyExpenses + r.depreciation + r.cashShortage + r.debtsWrittenOff + r.loanInterest;
+  }
+
+  /** Day-table "Stock loss": posted counts + loss outside counts (5100). */
+  protected loss(r: Pick<PnlDay, 'stockLoss' | 'stockDamage'>): number {
+    return r.stockLoss + r.stockDamage;
   }
 
   protected issued(r: Pick<PnlDay, 'debtIssuedPos' | 'debtIssuedWalkIn'>): number {
@@ -319,17 +382,19 @@ export class ProfitReport {
       headers: [
         t('Date', 'Tarehe'), t('Sales', 'Mauzo'), t('COGS', 'Gharama ya bidhaa'), t('Gross profit', 'Faida ghafi'),
         t('Daily expenses', 'Gharama za siku'), t('Monthly expenses', 'Gharama za mwezi'), t('Depreciation', 'Uchakavu'),
-        t('Stock loss', 'Upotevu wa stoki'), t('Net profit', 'Faida halisi'), t('New debts POS', 'Madeni mapya POS'),
+        t('Stock loss', 'Upotevu wa stoki'), t('Drawer short (6700)', 'Droo (6700)'), t('Debts written off', 'Madeni yaliyosamehewa'),
+        t('Loss outside counts', 'Upotevu nje ya hesabu'), t('Loan interest (6600)', 'Riba (6600)'), t('Net profit', 'Faida halisi'), t('New debts POS', 'Madeni mapya POS'),
         t('New debts walk-in', 'Madeni mapya walk-in'), t('Collected', 'Makusanyo'), t('Adjusted (non-cash)', 'Marekebisho'),
         t('Still owed', 'Bado deni'), t('Profit in still owed', 'Faida ndani ya bado deni'), t('of which estimated', 'kati yake makadirio'),
         t('Profit collected', 'Faida iliyokusanywa'),
       ],
       rows: (this.data()?.days ?? []).map((r) => [
-        r.date, r.revenue, r.cogs, r.grossProfit, r.dailyExpenses, r.monthlyExpenses, r.depreciation, r.stockLoss, r.netProfit,
+        r.date, r.revenue, r.cogs, r.grossProfit, r.dailyExpenses, r.monthlyExpenses, r.depreciation, r.stockLoss,
+        r.cashShortage, r.debtsWrittenOff, r.stockDamage, r.loanInterest, r.netProfit,
         r.debtIssuedPos, r.debtIssuedWalkIn, r.debtCollected, r.debtAdjusted, r.stillOwed, r.marginInStillOwed,
         r.marginInStillOwedEstimated, r.collectedProfit,
       ].map((c) => (typeof c === 'number' ? Math.round(c) : c))),
-      numeric: Array.from({ length: 16 }, (_, i) => i + 1),
+      numeric: Array.from({ length: 20 }, (_, i) => i + 1),
     };
   }
 

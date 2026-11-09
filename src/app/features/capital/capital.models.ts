@@ -65,6 +65,60 @@ export interface Loan {
   activeDays: number;
   profitDuringPeriod: number;
   transactions: CapitalMovement[];
+  /** 2.3.0 loan card (null for a loan converted to capital). Money comes from the GL, the schedule from the record. */
+  card: LoanCard | null;
+}
+
+/** One installment: IMELIPWA, INAKUJA, LEO or IMECHELEWA (with daysLate). */
+export interface LoanInstallment {
+  seq: number;
+  dueDate: string;
+  amount: number;
+  paidAmount: number;
+  status: 'UNPAID' | 'PARTIAL' | 'PAID' | string;
+  state: 'IMELIPWA' | 'INAKUJA' | 'LEO' | 'IMECHELEWA' | string;
+  daysLate: number;
+}
+
+export interface LoanCard {
+  loanStatus: 'ACTIVE' | 'CLOSED' | string;
+  stateLabel: string;
+  principal: number;
+  interestTotal: number;
+  total: number;
+  startDate: string | null;
+  endDate: string | null;
+  lastInterestDay: string | null;
+  daysLeft: number;
+  interestDaily: number;
+  /** "Akiba ya mkopo": principal ÷ loan days — a report memo, never a journal. */
+  reserveDaily: number;
+  dailyCharge: number;
+  interestBooked: number;
+  interestRemaining: number;
+  repaid: number;
+  owed: number;
+  repaymentType: 'MONTHLY' | 'ONCE' | string | null;
+  receiveAccount: string | null;
+  closedAt: string | null;
+  installments: LoanInstallment[];
+}
+
+export const INSTALLMENT_STATE: Record<string, Label & { color: string }> = {
+  IMELIPWA: { en: 'Paid', sw: 'Imelipwa', color: 'var(--c-success)' },
+  INAKUJA: { en: 'Upcoming', sw: 'Inakuja', color: 'var(--c-text-2)' },
+  LEO: { en: 'Due today', sw: 'Leo', color: 'var(--c-warning)' },
+  IMECHELEWA: { en: 'Late', sw: 'Imechelewa', color: 'var(--c-error)' },
+};
+
+/** POST /loans/{uid}/reclassify: the journal (Dr 2100 / Cr 1150 / Cr 3000) and the balances it comes from. */
+export interface ReclassResult {
+  dryRun: boolean;
+  date: string;
+  lines: Array<{ accountCode: string; debit: number; credit: number; description: string }>;
+  owed: number;
+  prepaidInterest: number;
+  equity: number;
 }
 
 type Label = { en: string; sw: string };
@@ -129,6 +183,7 @@ export const SOURCE_LABELS: Record<string, Label & { color: string }> = {
 
 export const LOAN_STATUS: Record<string, Label & { color: string }> = {
   ACTIVE: { en: 'Active', sw: 'Unadaiwa', color: 'var(--c-warning)' },
+  CLOSED: { en: 'Closed', sw: 'Umefungwa', color: 'var(--c-success)' },
   PARTIALLY_REPAID: { en: 'Partly repaid', sw: 'Sehemu imelipwa', color: 'var(--c-info)' },
   FULLY_REPAID: { en: 'Repaid', sw: 'Umelipwa wote', color: 'var(--c-success)' },
   RECLASSIFIED: { en: 'Converted to capital', sw: 'Umekuwa mtaji', color: 'var(--c-secondary)' },

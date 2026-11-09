@@ -103,6 +103,7 @@
             @let w = waitingFor(l);
             @let chg = change(l);
             @let mg = margin(l);
+            @let jx = jump(l);
             <li [class.err]="!!l.error || !!w">
               <div class="l1">
                 <span class="nm">
@@ -161,6 +162,9 @@
                 }
               </div>
 
+              @if (jx !== null) {
+                <small class="warn jump" role="alert"><lsms-icon name="warning" [size]="13" />{{ i18n.t('Cost per piece ×' + jx + ' of the last — crate or bottle? Check the type and price.', 'Bei kwa kipande ×' + jx + ' ya mwisho — kreti au chupa? Kagua aina na bei.') }}</small>
+              }
               @if (w) {
                 <small class="warn"><lsms-icon name="block" [size]="13" />{{ i18n.t('A purchase of this product is already ' + (w.status === 'PENDING' ? 'pending' : 'approved') + ' — remove it from the order.', 'Bidhaa hii tayari ina manunuzi ' + (w.status === 'PENDING' ? 'yanayosubiri' : 'yaliyoidhinishwa') + ' — iondoe kwenye agizo.') }}</small>
               } @else if (l.error) {
@@ -180,6 +184,8 @@
           <small>{{ i18n.t('Notes on the order (printed on the invoice)', 'Maelezo ya agizo (yanachapishwa kwenye ankara)') }}</small>
           <textarea rows="2" maxlength="500" [value]="cart.notes()" (input)="cart.notes.set($any($event.target).value)"></textarea>
         </label>
+        <app-payment-source-picker [(source)]="source" [(account)]="account" [showError]="triedSource()"
+          [label]="i18n.t('Paid from (whole order)', 'Chanzo cha malipo (agizo lote)')" />
         <div class="total">
           <span>{{ i18n.t('Total', 'Jumla') }} <small>· {{ cart.count() }} {{ i18n.t('products', 'bidhaa') }}</small></span>
           <b>{{ cart.total() | money }}</b>

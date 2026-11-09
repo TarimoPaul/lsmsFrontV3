@@ -10,6 +10,8 @@ import {
   ControlKey,
   FinancialPosition,
   GlAccount,
+  GlPnlPeriod,
+  GlPnlReport,
   GlStatus,
   IncomeStatement,
   JournalEntry,
@@ -66,6 +68,22 @@ export class GlService {
 
   incomeStatement(startDate: string, endDate: string): Promise<IncomeStatement> {
     return this.api.get<IncomeStatement>(`${BASE}/income-statement`, { params: { startDate, endDate } });
+  }
+
+  /** Profit from the GL by day, less the loans' reserve memo (GET /api/v1/reports/gl-pnl, PROFIT_REPORT). */
+  async glPnl(from: string, to: string): Promise<GlPnlReport> {
+    const r = await this.api.get<{ from: string; to: string; periods: GlPnlPeriod[]; totals: GlPnlPeriod }>('/api/v1/reports/gl-pnl', { params: { from, to, group: 'day' } });
+    const n = (v: unknown) => Number(v ?? 0) || 0;
+    const period = (p: GlPnlPeriod): GlPnlPeriod => ({
+      period: String(p.period ?? ''),
+      netProfit: n(p.netProfit),
+      interest: n(p.interest),
+      reserves: (p.reserves ?? []).map((x) => ({ loanUid: x.loanUid, lender: x.lender, amount: n(x.amount) })),
+      reserveTotal: n(p.reserveTotal),
+      remaining: n(p.remaining),
+      negative: !!p.negative,
+    });
+    return { from: r.from, to: r.to, periods: (r.periods ?? []).map(period), totals: period(r.totals) };
   }
 
   ledger(accountCode: string, startDate: string, endDate: string): Promise<AccountLedger> {

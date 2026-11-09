@@ -4,10 +4,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogShell, Icon, MoneyInput, ToastService } from '@shared/ui';
+import { Button, DialogService, DialogShell, Icon, MoneyInput, ToastService } from '@shared/ui';
 import { addDays, parseLocal, toIsoDate, toLocalDateTime } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
 import { SALE_TYPES, Sale, SaleLine, SaleType } from './sales.models';
+import { askSaleReason } from './sale-reason';
 import { SalesService } from './sales.service';
 
 export interface SaleEditData {
@@ -131,6 +132,7 @@ export class SaleEditDialog {
   protected readonly i18n = inject(LanguageService);
   private readonly auth = inject(AuthService);
   private readonly api = inject(SalesService);
+  private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
 
   private readonly original = this.data.sale;
@@ -193,9 +195,16 @@ export class SaleEditDialog {
 
   protected async save(): Promise<void> {
     if (!this.dirty() || !this.valid() || this.busy()) return;
+    const reason = await askSaleReason(this.dialogs, this.i18n, {
+      title: this.i18n.t(`Save changes to ${this.original.receiptNumber}?`, `Hifadhi mabadiliko ya ${this.original.receiptNumber}?`),
+      message: this.i18n.t('Stock and the ledger are re-posted for every changed line.', 'Stoo na leja zinarekebishwa kwa kila mstari uliobadilika.'),
+      confirm: this.i18n.t('Save', 'Hifadhi'),
+      danger: false,
+    });
+    if (!reason) return;
     this.busy.set(true);
     try {
-      for (const e of this.lines().filter((x) => x.removed)) await this.api.removeLine(e.line.uid);
+      for (const e of this.lines().filter((x) => x.removed)) await this.api.removeLine(e.line.uid, reason);
       for (const e of this.lines().filter((x) => !x.removed && (x.qty !== this.units(x.line) || x.price !== x.line.unitPrice))) {
         const l = e.line;
         await this.api.updateLine(l.uid, {
@@ -208,7 +217,7 @@ export class SaleEditDialog {
           unitPrice: e.price,
           subTotal: e.qty * e.price,
           overrideUnitPrice: e.price !== l.unitPrice || l.priceOverridden ? e.price : null,
-        });
+        }, reason);
       }
       const at = parseLocal(this.date()) ?? new Date();
       const old = parseLocal(this.original.saleDate) ?? new Date();
@@ -219,7 +228,7 @@ export class SaleEditDialog {
         discountAmount: this.discount(),
         saleNotes: this.notes().trim() || null,
         customerUid: this.original.customerUid,
-      });
+      }, reason);
       this.toast.success(this.i18n.t('Sale updated', 'Mauzo yamesasishwa'));
       this.ref.close(fresh);
     } catch (e) {

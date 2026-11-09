@@ -20,6 +20,8 @@ export interface CartLine {
   abbreviation: string | null;
   /** Set when the server refused this line on the last save. */
   error?: string | null;
+  /** "Make again": the unit price on the deleted sale, shown beside the line when today's price differs. */
+  previousPrice?: number | null;
 }
 
 export interface CartCustomer {

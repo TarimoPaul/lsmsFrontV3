@@ -40,6 +40,13 @@ export interface Product {
   wholeSalePrice: number | null;
   wholePackageQuantity: number | null;
   priceDescription: string | null;
+  /**
+   * Buying price per piece: cost per piece of the last APPROVED / RECEIVED
+   * purchase (backend `Products.lastPurchaseCost`, the purchases module's
+   * "cost per piece"); null when never bought. Read-only.
+   */
+  lastPurchaseCost: number | null;
+  lastPurchaseDate: string | null;
 }
 
 /** Body for POST /api/v1/products and PUT /api/v1/products/{uid}. */
@@ -194,6 +201,7 @@ export function productKey(name: string, measureUids: readonly string[]): string
 }
 
 type Raw = Partial<Product> & {
+  lastPurchaseDate?: string | null;
   formattedDisplayName?: string | null;
   itemsMeasureUids?: string[] | null;
   measures?: Array<Partial<MeasureRef>> | null;
@@ -227,5 +235,7 @@ export function normalizeProduct(r: Raw): Product {
     wholeSalePrice: num(r.wholeSalePrice),
     wholePackageQuantity: num(r.wholePackageQuantity),
     priceDescription: r.priceDescription?.trim() || null,
+    lastPurchaseCost: num(r.lastPurchaseCost),
+    lastPurchaseDate: r.lastPurchaseDate || null,
   };
 }

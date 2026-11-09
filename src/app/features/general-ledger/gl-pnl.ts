@@ -1,13 +1,13 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 
 import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, EmptyState, Icon, Skeleton } from '@shared/ui';
 import { printReport } from '@shared/utils/export';
-import { parseLocal } from '@shared/utils/date-utils';
+import { parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
-import { IncomeStatement, PnlLine } from './gl.models';
+import { GlPnlReport, IncomeStatement, PnlLine } from './gl.models';
 import { GlService } from './gl.service';
 
 /**
@@ -15,6 +15,8 @@ import { GlService } from './gl.service';
  * discounts/returns = net sales; less cost of sales (COGS + shrinkage) = gross
  * profit; less operating expenses = operating profit; plus other income = net
  * profit. Margins are on net sales.
+ * Then "after loans" (B4, MUUNDO-2.3.0 §3): the GL's net profit less each loan's reserve memo = what is left,
+ * red when below 0, with the days it was negative (GET /api/v1/reports/gl-pnl).
  */
 @Component({
   selector: 'app-gl-pnl',
@@ -66,6 +68,28 @@ import { GlService } from './gl.service';
           <span>{{ p.netProfit < 0 ? i18n.t('Net loss', 'Hasara halisi') : i18n.t('Net profit', 'Faida halisi') }}</span>
           <span class="amt">{{ p.netProfit | money: { decimals: 0 } }}</span>
         </div>
+        @if (loans(); as g) {
+          @if (g.totals.reserves.length) {
+            <section class="sec loans" style="--sc: var(--c-warning)">
+              <h3><lsms-icon name="request_quote" [size]="16" />{{ i18n.t('After loans', 'Baada ya mikopo') }}</h3>
+              <div class="row"><span class="nm">{{ i18n.t('Net profit (GL)', 'Faida halisi (GL)') }}</span><span class="amt">{{ g.totals.netProfit | money: { decimals: 0 } }}</span></div>
+              @for (r of g.totals.reserves; track r.loanUid) {
+                <div class="row indent" [attr.data-loan]="r.loanUid"><span class="nm">− {{ i18n.t('Loan reserve', 'Akiba ya mkopo') }}: {{ r.lender }}</span><span class="amt neg">{{ r.amount | money: { decimals: 0 } }}</span></div>
+              }
+              <p class="hint">{{ i18n.t('The reserve is a memo (principal ÷ loan days), not a journal.', 'Akiba ni memo (principal ÷ siku za mkopo), si journal.') }}</p>
+            </section>
+            <div class="grand remaining" [class.negative]="g.totals.negative" [style.--gc]="g.totals.negative ? 'var(--c-error)' : 'var(--c-success)'">
+              <span>{{ i18n.t('Left after loans', 'Inayobaki baada ya mikopo') }}</span>
+              <span class="amt">{{ g.totals.remaining | money: { decimals: 0 } }}</span>
+            </div>
+            @if (negativeDays().length) {
+              <p class="neg-days">
+                <lsms-icon name="warning" [size]="15" />{{ i18n.t(negativeDays().length + ' day(s) below zero after loans:', 'Siku ' + negativeDays().length + ' chini ya sifuri baada ya mikopo:') }}
+                @for (d of negativeDays(); track d.period) { <span class="chip">{{ day(d.period) | date: 'd MMM' }} {{ d.remaining | money: { decimals: 0 } }}</span> }
+              </p>
+            }
+          }
+        }
       </div>
     }
   `,
@@ -86,6 +110,10 @@ import { GlService } from './gl.service';
     .kpis .net b { color: var(--c-success); }
     .kpis .net.loss { border-color: color-mix(in srgb, var(--c-error) 40%, var(--c-border)); }
     .kpis .net.loss b { color: var(--c-error); }
+    .loans .hint { margin: 4px 0 0; font-size: 0.72rem; color: var(--c-text-2); }
+    .remaining.negative .amt { color: var(--c-error); }
+    .neg-days { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; font-size: 0.78rem; color: var(--c-error); }
+    .neg-days .chip { padding: 2px 8px; border-radius: 100px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, var(--c-error) 10%, transparent); }
   `,
 })
 export class GlPnl {
@@ -97,6 +125,9 @@ export class GlPnl {
   readonly openAccount = output<string>();
 
   protected readonly pnl = signal<IncomeStatement | null>(null);
+  /** gl-pnl by day for the same period; null when it is not available (e.g. no PROFIT_REPORT). */
+  protected readonly loans = signal<GlPnlReport | null>(null);
+  protected readonly negativeDays = computed(() => (this.loans()?.periods ?? []).filter((p) => p.negative));
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 
@@ -113,6 +144,11 @@ export class GlPnl {
     this.loading.set(true);
     this.error.set(null);
     try {
+      // Reserves are per day: a period ending in the future would subtract days that have not happened yet.
+      const today = toIsoDate(new Date());
+      const to = this.end() > today ? today : this.end();
+      if (this.start() <= to) void this.gl.glPnl(this.start(), to).then((g) => this.loans.set(g), () => this.loans.set(null));
+      else this.loans.set(null);
       const p = await this.gl.incomeStatement(this.start(), this.end());
       // Accounts that netted to zero in the period (e.g. an expense and its reversal) add only noise.
       const nz = (ls: PnlLine[]) => ls.filter((l) => Math.abs(l.amount) >= 0.5);

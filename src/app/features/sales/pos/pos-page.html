@@ -218,6 +218,13 @@
         <lsms-icon name="close" [size]="20" />
       </button>
     </header>
+    @if (remakeOf(); as r) {
+      <p class="remake" [title]="r.receipt">
+        <lsms-icon name="replay" [size]="15" />
+        <span>{{ i18n.t('Replaces deleted sale', 'Badala ya mauzo yaliyofutwa') }} <b>{{ shortReceipt(r.receipt) }}</b> · {{ i18n.t('its number goes in the notes', 'namba yake inaingia kwenye maelezo') }}</span>
+        <button type="button" (click)="remakeOf.set(null)" [attr.aria-label]="i18n.t('Unlink', 'Ondoa kiungo')"><lsms-icon name="close" [size]="14" /></button>
+      </p>
+    }
 
     <div class="cart-body">
       @if (drafts.count()) {
@@ -306,7 +313,10 @@
                     ><span class="tp" [style.--pc]="types[l.saleType].color">{{
                       typeLabel(l.saleType)
                     }}</span>
-                    {{ l.qty * l.unitPieces }} {{ i18n.t('pcs', 'vip') }}</small
+                    {{ l.qty * l.unitPieces }} {{ i18n.t('pcs', 'vip') }}
+                    @if (l.previousPrice != null && l.previousPrice !== l.unitPrice) {
+                      <span class="was" [title]="i18n.t('Price on the deleted sale', 'Bei kwenye mauzo yaliyofutwa')">{{ i18n.t('was', 'ilikuwa') }} {{ l.previousPrice | money }}</span>
+                    }</small
                   >
                 </span>
                 <button

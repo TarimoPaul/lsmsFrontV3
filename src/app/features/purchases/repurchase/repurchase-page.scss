@@ -246,6 +246,12 @@
   color: var(--c-error);
 }
 
+/* (bo/cf) cost per piece jumped vs the last purchase: a warning, not an error */
+.warn.jump {
+  color: var(--c-warning);
+  font-weight: 600;
+}
+
 // ── Checkout ────────────────────────────────────────────────────────────────
 .checkout {
   display: flex;

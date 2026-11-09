@@ -31,7 +31,7 @@ export const CATEGORY_TYPES: Record<NotificationCategory, string[] | null> = {
   ALL: null,
   DEBT: ['DEBT_COLLECTED'],
   PURCHASES: ['PURCHASE_CREATED', 'PURCHASE_APPROVED', 'PURCHASE_RECEIVED', 'ORDER_SUGGESTION'],
-  SALES: ['DAILY_SALES_SUMMARY', 'PAST_DATE_SALE'],
+  SALES: ['DAILY_SALES_SUMMARY', 'PAST_DATE_SALE', 'SALE_DELETED', 'SALE_CHANGED'],
   PRICES: ['PRICE_CHANGE'],
   SYSTEM: ['SYSTEM_ALERT'],
 };
@@ -44,6 +44,8 @@ export const NOTIFICATION_KIND: Record<string, { en: string; sw: string; icon: s
   ORDER_SUGGESTION: { en: "Today's order is ready", sw: 'Oda ya leo iko tayari', icon: 'fact_check', color: 'var(--c-primary)' },
   DAILY_SALES_SUMMARY: { en: 'Daily sales', sw: 'Mauzo ya siku', icon: 'bar_chart', color: 'var(--c-success)' },
   PAST_DATE_SALE: { en: 'Back-dated sale', sw: 'Mauzo ya tarehe ya nyuma', icon: 'history', color: 'var(--c-warning)' },
+  SALE_DELETED: { en: 'Sale deleted', sw: 'Mauzo yamefutwa', icon: 'delete_history', color: 'var(--c-error)' },
+  SALE_CHANGED: { en: 'Sale edited', sw: 'Mauzo yamebadilishwa', icon: 'edit_note', color: 'var(--c-warning)' },
   PRICE_CHANGE: { en: 'Price change', sw: 'Bei imebadilika', icon: 'sell', color: 'var(--c-warning)' },
   SYSTEM_ALERT: { en: 'System alert', sw: 'Tahadhari ya mfumo', icon: 'warning', color: 'var(--c-error)' },
 };

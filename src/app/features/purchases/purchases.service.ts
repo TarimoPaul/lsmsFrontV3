@@ -118,8 +118,14 @@ export class PurchasesService {
    * "productUid: reason" instead of failing the whole request. It skips the
    * pending / approved duplicate check, so callers must block those products.
    */
-  async bulkRepurchase(lines: RepurchaseLine[]): Promise<{ created: Purchase[]; failed: Map<string, string> }> {
+  async bulkRepurchase(
+    lines: RepurchaseLine[],
+    source: { paymentSource: string; sourceAccount: string | null },
+  ): Promise<{ created: Purchase[]; failed: Map<string, string> }> {
     const body = {
+      // C3: one source for the whole order - these purchases have no registered supplier, so all is paid now.
+      paymentSource: source.paymentSource,
+      sourceAccount: source.sourceAccount,
       items: lines.map((l) => ({
         productUid: l.productUid,
         useLastPurchaseData: false,

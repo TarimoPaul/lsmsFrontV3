@@ -15,6 +15,7 @@ import { ModuleUsageService } from '@core/navigation/module-usage.service';
 import { CountUp, DialogService, Icon, SegmentOption, SegmentedFilterBar, Skeleton, TrendChart, TrendPoint } from '@shared/ui';
 import { Money } from '@shared/utils/money';
 import { OrderBanner } from '../order-suggestion/order-banner';
+import { LoginAlertsCard } from '../security/login-alerts-card';
 import { DashboardAlertsService } from './dashboard-alerts.service';
 import { DashboardKpiService } from './dashboard-kpi.service';
 
@@ -67,7 +68,7 @@ interface QuickAction {
  */
 @Component({
   selector: 'app-main-dashboard',
-  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatMenu, MatMenuItem, MatMenuTrigger, MatRipple, MatTooltip, Icon, Skeleton, SegmentedFilterBar, TrendChart, CountUp, OrderBanner],
+  imports: [RouterLink, MatButton, MatChipListbox, MatChipOption, MatMenu, MatMenuItem, MatMenuTrigger, MatRipple, MatTooltip, Icon, Skeleton, SegmentedFilterBar, TrendChart, CountUp, OrderBanner, LoginAlertsCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-dashboard.html',
   styleUrl: './main-dashboard.scss',

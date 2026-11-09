@@ -1,3 +1,4 @@
+import { PaymentSource, PaymentSourcePicker, needsAccount, sourceProblem } from '../suppliers/payment-source';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -8,13 +9,15 @@ import { ApiError } from '@core/api/api.types';
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { LsmsValidators } from '@shared/forms/validators';
-import { Button, ComboOption, Combobox, DialogShell, Icon, TextField, ToastService } from '@shared/ui';
+import { Button, ComboOption, Combobox, DialogService, DialogShell, Icon, TextField, ToastService } from '@shared/ui';
 import { toLocalDateTime } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
 import { Product } from '../products/products.models';
 import { ProductsService } from '../products/products.service';
+import { StoreService } from '../store/store.service';
 import { SuppliersService } from '../suppliers/suppliers.service';
-import { Eligibility, PriceInputMode, Purchase, PurchaseRequest, PurchaseType } from './purchases.models';
+import { confirmCostJump } from './cost-jump-confirm';
+import { Eligibility, PriceInputMode, Purchase, PurchaseRequest, PurchaseType, costJumpRatio } from './purchases.models';
 import { PurchasesService } from './purchases.service';
 
 export interface PurchaseFormData {
@@ -42,7 +45,7 @@ type Num = number | null;
  */
 @Component({
   selector: 'app-purchase-form-dialog',
-  imports: [ReactiveFormsModule, DialogShell, TextField, Combobox, Button, Icon, MoneyPipe],
+  imports: [ReactiveFormsModule, DialogShell, TextField, Combobox, Button, Icon, MoneyPipe, PaymentSourcePicker],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-form-dialog.html',
   styleUrl: './purchase-form-dialog.scss',
@@ -56,8 +59,15 @@ export class PurchaseFormDialog {
   private readonly productsApi = inject(ProductsService);
   private readonly suppliersApi = inject(SuppliersService);
   private readonly toast = inject(ToastService);
+  private readonly dialogs = inject(DialogService);
+  private readonly store = inject(StoreService);
 
   protected readonly editing = !!this.data.purchase;
+  /**
+   * (cg) What the cost per piece is compared with for "kreti au chupa?": the last purchase (repurchase template,
+   * also when editing), else the Store average cost (first purchase of a product with opening stock), else none.
+   */
+  protected readonly reference = signal<{ cost: number; last: boolean } | null>(null);
   private readonly p = this.data.purchase;
   protected readonly busy = signal(false);
   protected readonly checking = signal(false);
@@ -131,6 +141,17 @@ export class PurchaseFormDialog {
   });
   /** The backend stores "paid now" only on a first-time create (update ignores it). */
   protected readonly canPayNow = computed(() => !this.editing);
+
+  /** C3: the supplier as the server will see it - a name not in the list is NO supplier (paid now in full). */
+  protected readonly registeredSupplier = computed(() => {
+    const n = (this.value().supplierName ?? '').trim().toLowerCase();
+    return n ? (this.suppliersApi.list.value() ?? []).find((s) => s.name.toLowerCase() === n) ?? null : null;
+  });
+  /** C3: something is paid now -> the source is required (no default). */
+  protected readonly needsSource = computed(() => this.calc().total > 0 && (!this.registeredSupplier() || this.calc().paid > 0));
+  protected readonly source = signal<PaymentSource | null>((this.p?.paymentSource as PaymentSource | null) ?? null);
+  protected readonly account = signal<string | null>(this.p?.sourceAccount ?? null);
+  protected readonly triedSource = signal(false);
   protected readonly canSave = computed(() => !this.busy() && !this.checking() && !this.blocked() && !!this.value().productUid && this.calc().total > 0);
   protected readonly dueDays = computed(() => {
     const name = (this.value().supplierName ?? '').toLowerCase();
@@ -140,13 +161,41 @@ export class PurchaseFormDialog {
   constructor() {
     this.productsApi.catalogue.load().catch(() => undefined);
     if (this.auth.hasPermission('SUPPLIER_READ')) this.suppliersApi.list.load().catch(() => undefined);
-    if (this.editing) this.form.controls.productUid.disable();
-    else if (this.data.productUid) void this.onProduct(this.data.productUid);
+    if (this.editing) {
+      this.form.controls.productUid.disable();
+      void this.loadReference(this.p!.productUid);
+    } else if (this.data.productUid) void this.onProduct(this.data.productUid);
+  }
+
+  /** (cg) ×ratio of the cost per piece vs the reference when past ×3 / below ⅓, else null. */
+  protected readonly jump = computed(() => costJumpRatio(this.calc().costPerPiece, this.reference()?.cost));
+
+  private async loadReference(uid: string | null): Promise<void> {
+    this.reference.set(null);
+    if (!uid) return;
+    let last: number | null = null;
+    try {
+      last = (await this.api.template(uid)).lastCostPerPiece;
+    } catch {
+      // no purchase history: fall back to the Store average cost
+    }
+    if (this.form.getRawValue().productUid !== uid) return;
+    if (last && last > 0) {
+      this.reference.set({ cost: last, last: true });
+      return;
+    }
+    try {
+      const avg = (await this.store.stock.load()).find((s) => s.uid === uid)?.averageCostPrice ?? null;
+      if (avg && avg > 0 && this.form.getRawValue().productUid === uid) this.reference.set({ cost: avg, last: false });
+    } catch {
+      // no reference: no warning
+    }
   }
 
   /** Check eligibility (Flutter `_checkProductEligibility`). */
   protected async onProduct(uid: string | null): Promise<void> {
     this.eligibility.set(null);
+    if (!this.editing) void this.loadReference(uid);
     if (!uid || this.editing) return;
     this.checking.set(true);
     try {
@@ -194,7 +243,15 @@ export class PurchaseFormDialog {
 
   protected async save(): Promise<void> {
     this.form.markAllAsTouched();
+    this.triedSource.set(true);
     if (this.form.invalid || !this.canSave()) return;
+    if (this.needsSource() && sourceProblem(this.source(), this.account(), this.i18n.isSwahili())) return;
+    const jx = this.jump();
+    if (jx !== null) {
+      const name = this.product()?.displayName ?? this.p?.productName ?? '';
+      const go = await confirmCostJump(this.dialogs, this.i18n, [{ name, costPerPiece: this.calc().costPerPiece, ratio: jx, reference: this.reference()!.cost }]);
+      if (!go) return;
+    }
     this.busy.set(true);
     try {
       const v = this.form.getRawValue();
@@ -208,6 +265,8 @@ export class PurchaseFormDialog {
         supplierName: v.supplierName?.trim() || null,
         supplierUid: supplier?.uid ?? null,
         amountPaid: this.canPayNow() ? (v.amountPaid ?? null) : null,
+        paymentSource: this.needsSource() ? this.source() : null,
+        sourceAccount: this.needsSource() && needsAccount(this.source()) ? this.account() : null,
         discountPercentage: v.discountPercentage ?? null,
         discountAmount: v.discountAmount ?? null,
         minimumStockLevel: v.minimumStockLevel ?? null,

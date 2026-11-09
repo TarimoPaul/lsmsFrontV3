@@ -6,6 +6,18 @@
 }
 @include cart-panel.base;
 
+.was {
+  margin-left: 6px; font-weight: 600; color: var(--c-warning); text-decoration: line-through;
+}
+
+.remake {
+  display: flex; align-items: center; gap: 6px; margin: 0 16px 8px; padding: 6px 6px 6px 10px; border-radius: 10px;
+  font-size: 0.76rem; color: var(--c-text); background: color-mix(in srgb, var(--c-warning) 12%, transparent);
+  lsms-icon { flex: none; color: var(--c-warning); }
+  span { flex: 1; min-width: 0; }
+  button { display: inline-flex; border: 0; background: none; padding: 2px; color: var(--c-text-2); cursor: pointer; }
+}
+
 // The till's cart holds more (customer, payment) than Repurchase's, so it
 // takes a little more width on wide screens: 460px at 1920, 400px at 1366.
 @media (min-width: 1001px) {

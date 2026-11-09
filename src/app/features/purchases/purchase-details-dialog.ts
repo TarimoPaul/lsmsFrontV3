@@ -8,6 +8,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogService, DialogShell, Icon, Skeleton, TextField, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
+import { sourceLabel } from '../suppliers/payment-source';
 import { PURCHASE_STATUS, Purchase, shortRef } from './purchases.models';
 import { PurchasesService } from './purchases.service';
 
@@ -49,6 +50,9 @@ type Step = 'approve' | 'receive' | 'cancel';
             <small>{{ i18n.t('Total cost', 'Gharama yote') }}</small><b>{{ p.totalCost | money }}</b>
             @if (p.amountPaid > 0) {
               <span class="od"><lsms-icon name="task_alt" [size]="13" />{{ i18n.t('Paid at purchase', 'Ililipwa wakati wa kununua') }} {{ p.amountPaid | money }}</span>
+            }
+            @if (source(p); as s) {
+              <span class="od" data-test="chanzo-ununuzi"><lsms-icon name="account_balance_wallet" [size]="13" />{{ i18n.t('Paid from', 'Chanzo') }}: {{ s }}</span>
             }
           </div>
           <div><small>{{ i18n.t('Quantity', 'Idadi') }}</small><b>{{ p.quantityDisplay || p.quantity }}</b></div>
@@ -283,6 +287,10 @@ export class PurchaseDetailsDialog {
   protected readonly data = inject<PurchaseDetailsData>(DIALOG_DATA);
   protected readonly ref = inject<DialogRef<PurchaseDetailsResult>>(DialogRef);
   protected readonly i18n = inject(LanguageService);
+  /** C3: "Benki · NMB", "Mmiliki", ... - null for purchases from before C3 or with nothing paid now. */
+  protected source(p: Purchase): string | null {
+    return sourceLabel(p.paymentSource, p.sourceAccount, this.i18n.isSwahili());
+  }
   private readonly auth = inject(AuthService);
   private readonly api = inject(PurchasesService);
   private readonly dialogs = inject(DialogService);

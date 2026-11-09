@@ -230,6 +230,14 @@ export interface PnlDay {
   depreciation: number;
   /** Posted stock loss at cost (negative = net surplus). */
   stockLoss: number;
+  /** From the GL by entry date (backend br): drawer short (6700, negative = over). */
+  cashShortage: number;
+  /** Debts waived / written off (6110/6120). */
+  debtsWrittenOff: number;
+  /** Stock lost outside counts, e.g. damaged goods (5100). */
+  stockDamage: number;
+  /** Loan interest (6600). */
+  loanInterest: number;
   netProfit: number;
   debtIssuedPos: number;
   debtIssuedWalkIn: number;
@@ -345,3 +353,25 @@ export interface SlowMovers {
 
 /** The backend refuses longer periods. */
 export const DAILY_PNL_MAX_DAYS = 93;
+
+// ── Daraja na GL (/api/v1/reports/pnl-bridge, owner 01/11 bm) ──
+/** One known difference between the operating net and the GL net; amount = its effect on the GL (+ = GL higher). */
+export interface PnlBridgeLine {
+  code: string;
+  nameSw: string;
+  nameEn: string;
+  amount: number;
+  count: number;
+}
+
+export interface PnlBridge {
+  from: string;
+  to: string;
+  operatingNet: number;
+  glNet: number;
+  lines: PnlBridgeLine[];
+  explained: number;
+  /** GL − operating − Σ lines: what no line explains (red when ≠ 0). */
+  unexplained: number;
+  notes: Array<{ code: string; message: string; count: number }>;
+}

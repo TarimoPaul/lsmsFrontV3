@@ -64,6 +64,8 @@ export class SuppliersService {
       amount: Number(p.amount ?? 0) || 0,
       paymentMethod: p.paymentMethod ?? null,
       paymentProvider: p.paymentProvider ?? null,
+      paymentSource: p.paymentSource ?? null,
+      sourceAccount: p.sourceAccount ?? null,
       paymentDate: p.paymentDate ?? null,
       paidByName: p.paidByName ?? null,
       reference: p.reference ?? null,

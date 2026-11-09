@@ -33,6 +33,9 @@ export interface Purchase {
   supplierName: string | null;
   supplierUid: string | null;
   amountPaid: number;
+  /** C3: where the part paid when bought came from; null before C3 / nothing paid now. */
+  paymentSource: string | null;
+  sourceAccount: string | null;
   paymentStatus: string;
   dueDate: string | null;
   purchaseDate: string | null;
@@ -65,6 +68,9 @@ export interface PurchaseRequest {
   supplierName: string | null;
   supplierUid: string | null;
   amountPaid: number | null;
+  /** C3: required by the server when anything is paid now (no registered supplier = all of it). */
+  paymentSource?: string | null;
+  sourceAccount?: string | null;
   discountPercentage: number | null;
   discountAmount: number | null;
   minimumStockLevel: number | null;
@@ -126,6 +132,8 @@ export function normalizePurchase(r: Record<string, unknown>): Purchase {
     supplierName: str(r['supplierName']),
     supplierUid: str(r['supplierUid']),
     amountPaid: num(r['amountPaid']),
+    paymentSource: str(r['paymentSource']),
+    sourceAccount: str(r['sourceAccount']),
     paymentStatus: String(r['paymentStatus'] ?? 'UNPAID'),
     dueDate: str(r['dueDate']),
     purchaseDate: str(r['purchaseDate']),
@@ -203,6 +211,25 @@ export function linePieces(l: RepurchaseLine): number {
 
 export function lineTotal(l: RepurchaseLine): number {
   return Math.max(0, Math.round(l.quantity * l.unitPrice * 100) / 100);
+}
+
+/** (owner bo/cf) cost per piece more than this many times the last one (or below 1/x) -> "crate or bottle?". */
+export const COST_JUMP = 3;
+
+/**
+ * Cost per piece of this line ÷ the last purchase's, when it jumped past ×3 or fell below ⅓ — the usual sign of a
+ * crate price typed as a bottle (Jagger 11/10) or the other way round. null when normal or unknown. Warns only.
+ */
+export function costJump(l: RepurchaseLine): number | null {
+  const pcs = linePieces(l);
+  return pcs > 0 ? costJumpRatio(lineTotal(l) / pcs, l.lastCostPerPiece) : null;
+}
+
+/** (cg) the same rule for any cost per piece against a reference (last purchase, else the Store average cost). */
+export function costJumpRatio(costPerPiece: number, reference: number | null | undefined): number | null {
+  if (!reference || reference <= 0 || !(costPerPiece > 0)) return null;
+  const r = costPerPiece / reference;
+  return r > COST_JUMP || r < 1 / COST_JUMP ? Math.round(r * 100) / 100 : null;
 }
 
 /** Saved at /api/v1/invoices after a repurchase (Flutter `RepurchaseInvoice`). */

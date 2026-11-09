@@ -26,6 +26,8 @@ const SECTION_MODULE: Record<string, string> = {
   roles: 'roles',
   'capital-management': 'capital',
   'general-ledger': 'finance',
+  // LOGIN_AUDIT_VIEW parses to module "login", action "read"
+  'login-audit': 'login',
   suppliers: 'suppliers',
   'items-measure': 'items',
   'branch-management': 'branch',
@@ -55,6 +57,7 @@ const KNOWN_MODULES = [
   'business_settings',
   'settings_approvals',
   'reports',
+  'login',
 ];
 
 /**

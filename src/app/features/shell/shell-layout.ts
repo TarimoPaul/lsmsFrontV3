@@ -20,6 +20,7 @@ import { BottomNav } from './bottom-nav/bottom-nav';
 import { Sidebar } from './sidebar/sidebar';
 import { DebtBanners } from './debt-banners';
 import { SafeBoxBanner } from './safe-box-banner';
+import { SaleChangesBanner } from './sale-changes-banner';
 import { UpdateBanner } from './update-banner';
 import { Topbar } from './topbar/topbar';
 
@@ -38,7 +39,7 @@ export interface PageMeta {
  */
 @Component({
   selector: 'app-shell-layout',
-  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, BottomNav, DebtBanners, UpdateBanner, SafeBoxBanner],
+  imports: [MatSidenavContainer, MatSidenav, MatSidenavContent, RouterOutlet, Sidebar, Topbar, BottomNav, DebtBanners, UpdateBanner, SafeBoxBanner, SaleChangesBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-sidenav-container class="shell" [hasBackdrop]="!desktop()" [autosize]="true">
@@ -75,6 +76,7 @@ export interface PageMeta {
             (logout)="logout()"
           />
           <app-safe-box-banner />
+          <app-sale-changes-banner />
           <app-debt-banners />
           <app-update-banner />
           @if (theme.ambientMotion() && isHome()) {
@@ -137,8 +139,9 @@ export interface PageMeta {
     .topbar { flex: none; z-index: 20; }
     .scroll {
       position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;
-      /* Room for the floating bottom bar (0 on desktop); no rubber-band into the browser chrome. */
-      padding-bottom: var(--nav-space); overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
+      /* Room for the floating bottom bar (0 on desktop) and for the debt banners while they show
+         (owner bj: the page's last buttons scroll clear of them); no rubber-band into the browser chrome. */
+      padding-bottom: calc(var(--nav-space) + var(--debt-banner-space, 0px)); overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
     }
     /* Notch / rounded-corner phones held sideways: keep the page clear of the cut-out. */
     .content:not(.inset) .scroll { padding-left: max(var(--safe-l), var(--nav-rail)); padding-right: var(--safe-r); }

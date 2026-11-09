@@ -8,6 +8,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { AgingBar, Button, DialogService, DialogShell, Icon, Skeleton, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
+import { PAYMENT_SOURCES, PaymentSource, sourceLabel } from './payment-source';
 import { AGING_BUCKETS, PAYMENT_METHODS, PaymentMethod, Supplier, SupplierPayment, SupplierStatement } from './suppliers.models';
 import { SuppliersService } from './suppliers.service';
 
@@ -107,12 +108,15 @@ export interface SupplierStatementData {
             <ul class="pays">
               @for (p of payments(); track p.uid) {
                 <li>
-                  <lsms-icon [name]="methodIcon(p.paymentMethod)" [size]="18" />
+                  <lsms-icon [name]="sourceIcon(p) ?? methodIcon(p.paymentMethod)" [size]="18" />
                   <span class="pinfo">
                     <b>{{ p.amount | money }}</b>
                     <small>
-                      {{ date(p.paymentDate) | date: 'dd MMM yyyy, HH:mm' }} · {{ methodLabel(p.paymentMethod) }}
-                      @if (p.paymentProvider) { · {{ p.paymentProvider }} }
+                      {{ date(p.paymentDate) | date: 'dd MMM yyyy, HH:mm' }} ·
+                      @if (source(p); as s) { <span class="src" data-test="chanzo-malipo">{{ s }}</span> } @else {
+                        {{ methodLabel(p.paymentMethod) }}
+                        @if (p.paymentProvider) { · {{ p.paymentProvider }} }
+                      }
                       @if (p.reference) { · {{ p.reference }} }
                       @if (p.paidByName) { · {{ p.paidByName }} }
                     </small>
@@ -207,6 +211,16 @@ export class SupplierStatementDialog {
   protected methodLabel(m: string | null): string {
     const meta = m ? PAYMENT_METHODS[m as PaymentMethod] : undefined;
     return meta ? meta[this.i18n.lang()] : (m ?? '—');
+  }
+
+  /** C3: the source, when the payment has one ("Benki · NMB", "Mmiliki"). */
+  protected source(p: SupplierPayment): string | null {
+    return sourceLabel(p.paymentSource, p.sourceAccount, this.i18n.isSwahili());
+  }
+
+  protected sourceIcon(p: SupplierPayment): string | null {
+    const s = p.paymentSource as PaymentSource | null;
+    return s && PAYMENT_SOURCES[s] ? PAYMENT_SOURCES[s].icon : null;
   }
 
   protected methodIcon(m: string | null): string {

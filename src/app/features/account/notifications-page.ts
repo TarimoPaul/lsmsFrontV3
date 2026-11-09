@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
@@ -151,7 +151,10 @@ export class NotificationsPage {
   private readonly router = inject(Router);
   private readonly statement = inject(CustomerStatementLauncher);
 
-  protected readonly category = signal<NotificationCategory>('ALL');
+  /** ?tab=DEBT opens one tab directly (the banners' "+N more" link). */
+  protected readonly category = signal<NotificationCategory>(
+    (['ALL', 'DEBT', 'PURCHASES', 'SALES', 'PRICES', 'SYSTEM'] as const).find((c) => c === inject(ActivatedRoute).snapshot.queryParamMap.get('tab')) ?? 'ALL',
+  );
   protected readonly unreadOnly = signal(false);
   protected readonly items = signal<AppNotification[]>([]);
   protected readonly page = signal(0);
@@ -295,6 +298,12 @@ export class NotificationsPage {
         case 'PAST_DATE_SALE':
           await this.router.navigate(['/sales'], { queryParams: n.summaryDate ? { date: n.summaryDate.slice(0, 10) } : {} });
           break;
+        case 'SALE_DELETED':
+        case 'SALE_CHANGED': {
+          const { SaleChangesDialog } = await import('../sales/sale-changes-dialog');
+          await this.dialogs.openAsync(SaleChangesDialog, { size: 'md' });
+          break;
+        }
         case 'PRICE_CHANGE':
           await this.router.navigateByUrl('/products');
           break;
