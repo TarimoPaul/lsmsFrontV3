@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+echo "rclone $*" >> "$FK/calls"
+case "$1" in copy) mkdir -p "$FK/b2"; cp "$2" "$FK/b2/";; lsl) f="$FK/b2/$(basename "$2")"; [ -f "$f" ] && echo "$(stat -c %s "$f") 2026-11-09 x $(basename "$f")";; esac

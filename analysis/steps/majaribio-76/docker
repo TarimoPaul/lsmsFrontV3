@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# fake docker for 76 tests. State in $FK (dir): be, v3 (running tags), fly (flyway max), log of calls.
+# Failure knobs: FK_FAIL_BE_START=<tag> (that backend tag crashes), FK_FAIL_PULL=1
+S="$FK"; echo "docker $*" >> "$S/calls"
+proj_dir() { pwd; }
+envv() { sed -n "s/^$1=//p" .env | head -n1; }
+if [ "$1" = compose ]; then
+  shift; [ "$1" = -p ] && shift 2
+  case "$1" in
+    ps) # ps -q svc
+      svc="${!#}"; echo "cid-$svc" ;;
+    config)
+      for f in $(ls -1 docker-compose.yml docker-compose.override.yml 2>/dev/null); do
+        while IFS= read -r l; do
+          while [[ "$l" =~ \$\{([A-Za-z0-9_]+)(:-)?\} ]]; do
+            n=${BASH_REMATCH[1]}; v=$(envv "$n"); l=${l/"${BASH_REMATCH[0]}"/$v}
+          done
+          echo "$l"
+        done < "$f"
+      done ;;
+    up)
+      echo "$(envv BACKEND_VERSION)" > "$S/be"; echo "$(envv FRONTEND_V3_VERSION)" > "$S/v3"
+      cp .env "$S/env-at-up"
+      if [ "$(cat "$S/be")" = 2.4.0 ]; then echo 138 > "$S/fly"; fi ;;
+    stop) echo stopped > "$S/be-stopped" ;;
+    exec)
+      shift; while [ "${1#-}" != "$1" ]; do [ "$1" = -e ] && { export "$2"; shift; }; shift; done
+      svc=$1; shift
+      all="$*"
+      if [[ "$all" == *pg_dump* ]]; then head -c 6000000 /dev/zero | tr '\0' 'x'; exit 0; fi
+      if [[ "$all" == *"pg_restore --list"* ]]; then cat > /dev/null; exit 0; fi
+      if [[ "$all" == *pg_restore* ]]; then cat > /dev/null; echo 135 > "$S/fly"; exit 0; fi
+      if [[ "$all" == *dropdb* ]]; then exit 0; fi
+      case "$SQL" in
+        *"max(version::int)"*) cat "$S/fly" ;;
+        *"string_agg"*) [ "$(cat "$S/fly")" = 138 ] && echo "136:true 137:true 138:true" ;;
+        *to_regclass*) [ "$(cat "$S/fly")" = 138 ] && echo t || echo f ;;
+        *gl_account*) [ "$(cat "$S/fly")" = 138 ] && echo 1 || echo 0 ;;
+        *"count(*) from sales"*) echo 12345 ;;
+        *"count(*) from users"*) echo 9 ;;
+        *) echo "?" ;;
+      esac ;;
+  esac
+  exit 0
+fi
+case "$1" in
+  inspect)
+    if [[ "$*" == *Config.Image* ]]; then c="${!#}"; [ "$c" = cid-backend ] && echo "chiefmaster/my-lsms-backend:$(cat "$S/be")"; [ "$c" = cid-frontend-v3 ] && echo "chiefmaster/lsms-frontend-v3:$(cat "$S/v3")"; exit 0; fi
+    if [[ "$*" == *State.Status* ]]; then [ -n "${FK_FAIL_BE_START:-}" ] && [ "$(cat "$S/be")" = "$FK_FAIL_BE_START" ] && echo "exited 1" || echo "running 0"; exit 0; fi
+    if [[ "$*" == *Config.Env* ]]; then
+      e="$S/env-at-up"; [ -f "$e" ] || exit 0
+      grep -E '^(JWT_SECRET|ADMIN_EMAIL|ADMIN_PASSWORD|DAILY_SALES_PROFIT_ROLES)=' "$e"; echo "PATH=/x"; exit 0; fi ;;
+  logs)
+    [ -n "${FK_FAIL_BE_START:-}" ] && [ "$(cat "$S/be")" = "$FK_FAIL_BE_START" ] && { echo "boom ERROR x"; exit 0; }
+    echo "INFO starting"; echo "Started LsmsApplication in 50 seconds"; echo "2026 ERROR live request" ;;
+  image)
+    t="${!#}"; grep -qx "$t" "$S/images"; exit $? ;;
+  pull)
+    [ -n "${FK_FAIL_PULL:-}" ] && exit 1; echo "${!#}" >> "$S/images" ;;
+esac
+exit 0

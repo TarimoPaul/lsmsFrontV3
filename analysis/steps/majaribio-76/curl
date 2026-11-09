@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+u="${!#}"; echo "curl $u" >> "$FK/calls"
+[ -n "${FK_HTTP_FAIL:-}" ] && [ "$(cat "$FK/be")" = "$FK_HTTP_FAIL" ] && { printf 502; exit 0; }
+case "$u" in *auth/login) printf 400 ;; */v3/) printf 200 ;; */api/v1/sales) printf 401 ;; *) printf 404 ;; esac

@@ -760,3 +760,11 @@ Kutoka 75:
 - Toleo la 2 (C7): Flutter 2.2.53 + docker-compose.aws.yml.
 Diski: 183G wazi — nafasi siyo kizuizi.
 Endelea: merge main → lango (hash halisi) → script → staging.
+
+## 2026-11-09 (df)
+Endelea. Majina: 2.4.0 na 3.2.0 (sawa na mpango wako).
+Rollback — kabla ya script: orodhesha kila safu iliyoongezwa na V136–V138 kwenye jedwali LILILOKUWEPO, na NOT NULL/default yake.
+  Safu yoyote NOT NULL bila default ambayo 2.3.0 haiijui = rollback itavunjika → iwe nullable au na default (bado haijaenda prod).
+Staging, baada ya rollback kwenda 2.3.0 + 3.1.11, thibitisha KAZI halisi (siyo boot tu): login, sale (cash), kufuta sale,
+  ununuzi + malipo ya msambazaji, reco entry, GL journal ya sale. Kisha deploy 2.4.0 tena na kurudia smoke.
+Push: baada ya kujenga image, Chief ataendesha push-yote (backend main + V3 main).
