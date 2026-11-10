@@ -1024,3 +1024,19 @@ KUPIMA uamuzi wa 1 — BADILISHA: chombo kisipotosha kipimo → mfumo uulize:
   (ii) "Chombo kimeisha kweli" → ml zilizobaki = upotevu (5100), kisha fungua kipya.
   Hakuna kufunga kiotomatiki. Jaribio la E2E kwa njia zote mbili.
 Uamuzi wa 2 — SAWA; ikiwa chombo kimeshafungwa, ml zirudishwe kama marekebisho ya upotevu wa chombo hicho (Dr 1200 / Cr 5100), siyo kupotea.
+
+## 2026-11-10 (el)
+Uhamisho wa KUPIMA = KUBADILISHA bidhaa zilizopo (siyo kufuta/kusajili upya), ili historia ya mauzo ibaki.
+Hatua ya uhamisho (toleo 2): aina → KUPIMA; mzazi; ujazo + vipimo; (B) futa vipande vya bandia; fungua chombo kwa ml zilizohesabiwa
+  (BILA kupunguza mzazi). Andaa sasa (kusoma tu): orodha ya kila bidhaa ya kupima na mzazi wake anayependekezwa kwenye store
+  (Konyagi/Moon Light/Golden King/Gilbeys/Camino 750ml; Wine dumu 5L) — yupi hayupo.
+
+## 2026-11-10 (em)
+83 IMEKAMILIKA prod: JE-2026-1992140042634199, 1000 = 13,772,864.87, 3900 = −1,214,841.53, TB 0.
+Thibitisha maelezo yake kwenye DB (– au mojibake); ikiwa mojibake → hatua zijazo zitumie ASCII "-" tu.
+Endelea: KUPIMA (ef + ek + el).
+
+## 2026-11-10 (eo)
+Vipimo vimekamilika: Golden King, Gilbeys, Camino = chupa 750ml, 50ml = 3,000.
+(Konyagi 30ml=1,000; Moon Light 50ml=2,000; Wine dumu 5,000ml 70ml=2,000 / 80ml=3,000.)
+Andaa hatua ya uhamisho ya KUPIMA (toleo 2): mipangilio hii + (B) + kufungua vyombo kwa ml zilizohesabiwa (Chief atahesabu siku hiyo).

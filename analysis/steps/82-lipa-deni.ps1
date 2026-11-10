@@ -5,6 +5,8 @@
 # ITUMIKE TU ikiwa pango (~600,000 ~01/01/27) au TRA (65,000) linalipwa KABLA toleo 2 halijaenda prod.
 param([string]$Mode = '')
 $ErrorActionPreference = 'Continue'
+# (em) output ya ssh ni UTF-8: bila hii PowerShell inaisoma kwa codepage ya console na log inaonyesha mojibake ("ΓÇô")
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $Steps = 'D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3\analysis\steps'
 $SshO = @('-o', 'BatchMode=yes', '-o', 'ConnectTimeout=20', '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=4')
 $R = '~/lsms-240'
