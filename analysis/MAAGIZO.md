@@ -1065,3 +1065,12 @@ KUPIMA — badiliko: bidhaa ya KUPIMA inaweza kuwa na WAZAZI WENGI wanaoruhusiwa
 Mauzo ya dumu zima (8, kutoka KUPIMA-WAZAZI-EP): orodha kwa Chief — tarehe, sale, mteja/deni, cash/mkopo, bei, mtumiaji, deni lililobaki leo.
   Chief ataweka alama "kupima" / "halisi". Kisha hatua 86 (KAGUA → ANDIKA, Novemba): kwa "kupima" — ondoa deni la mteja + mapato
   (Dr 4000 / Cr deni la mteja, na daftari la madeni), COGS ibaki. "Halisi" hazigusiwi. Usiandike kabla ya alama za Chief.
+
+[(et) haijafika kikao hiki - (eu) inaitaja.]
+
+## 2026-11-10 (eu)
+KUPIMA bei kwa mzazi: bidhaa ya KUPIMA ina BEI ZA MSINGI {ml, bei}; kila mzazi anayeruhusiwa anaweza kuwa na BEI ZAKE (override, hiari).
+  Chombo kinapofunguliwa: kinatumia bei za mzazi wake (au za msingi ikiwa hana). POS inaonyesha bei za chombo kilicho wazi.
+  Zote zinawekwa na KUPIMA_SETTINGS tu; historia ya mabadiliko kwa msingi na kwa kila mzazi; zinatumika kwa mauzo yajayo.
+  Jaribio: Grepa (msingi) vs MA-LOT (override) — POS na faida ya chombo zinatumia bei sahihi.
+Pamoja na (es) na (et).

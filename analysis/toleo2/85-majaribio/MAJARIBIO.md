@@ -35,3 +35,9 @@ Nakala ya 29/10 (PG15), backend `feature/t2-kupima` f69e42d (V143).
 - Mara ya pili: 5 "imeshahamishwa", 0 mpya.
 - **Uid zinatoka kwenye nakala ya 29/10.** Uid hazibadiliki, lakini KAGUA ya prod ndiyo uthibitisho. Chief akisajili Gilbeys na Camino, uid zao zinawekwa kwenye LIST kabla ya ANDIKA.
 - Jina "GREPA WINE 5L" linabadilishwa na Chief kwenye V3 (Bidhaa → hariri). 85 haibadilishi jina.
+
+## (es) 10/11: wazazi wengi
+- Safu ya wazazi ya 85 sasa ni orodha ya uid, zikitenganishwa kwa koma. WINE = GREPA WINE (59) + MA-LOT BOX WINE (102).
+- Mzazi wa KWANZA ndiye wa chombo kilicho wazi kwa ml zilizohesabiwa (migrate `parentProductUid`).
+- Bei za wazazi (eu) zinawekwa baadaye kwenye V3. 85 inaweka bei za msingi tu.
+- t85-eq.sh ni 21/0 (T1h MA-LOT SAWA, T3e wazazi 2, T3i chombo kutoka GREPA) kwenye backend t2-kupima 1bf9df4, nakala safi ya 29/10.

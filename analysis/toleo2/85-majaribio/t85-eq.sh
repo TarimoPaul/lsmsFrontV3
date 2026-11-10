@@ -21,6 +21,7 @@ ok "T1b L85_PARENT override imeondolewa" "! grep -q 'L85_PARENT' \"$STEP\""
 bash "$STEP" kagua > "$SP/t85-k1.log" 2>&1
 ok "T1c KONYAGI -> 33 KONYAGI 750ML SAWA" "grep -Eq '^KONYAGI \| KONYAGI YA KUPIMA \| d0d16e3c[^|]* \| 33 \| KONYAGI 750ML \|.*\| SAWA$' $SP/t85-k1.log"
 ok "T1d WINE -> 59 GREPA WINE SAWA" "grep -Eq '^WINE \| WINE ZA KUPIMA \| fd9877ee[^|]* \| 59 \| GREPA WINE \|.*\| SAWA$' $SP/t85-k1.log"
+ok "T1h (es) WINE -> 102 MA-LOT BOX WINE SAWA (mzazi wa pili)" "grep -Eq '^WINE \| WINE ZA KUPIMA \| a3081011[^|]* \| 102 \| MA-LOT BOX WINE \|.*\| SAWA$' $SP/t85-k1.log"
 ok "T1e GILBEYS/CAMINO HAIJAWEKWA" "[ \$(grep -c 'HAIJAWEKWA' $SP/t85-k1.log) = 2 ]"
 ok "T1f MOONLIGHT 105, GOLDENKING 64" "grep -q '| 105 | MOON LIGHT |' $SP/t85-k1.log && grep -q '| 64 | GOLDEN KING |' $SP/t85-k1.log"
 ok "T1g KAGUA imemalizika" "grep -q -- '---85_KAGUA_MWISHO---' $SP/t85-k1.log"
@@ -40,8 +41,10 @@ ok "T3a ANDIKA imemalizika" "grep -q -- '---85_MWISHO---' $SP/t85-a1.log"
 ok "T3b zimehamishwa 5, zimerukwa 1" "grep -q 'zimehamishwa 5, zimerukwa 1' $SP/t85-a1.log"
 ok "T3c CAMINO imerukwa kwa sababu ni kupima" "grep -q '^CAMINO: MZAZI HAYUPO (.*SI SAHIHI' $SP/t85-a1.log"
 ok "T3d WINE SAWA, chombo 2500" "grep -q '^WINE: SAWA .*chombo 2500ml' $SP/t85-a1.log"
-WP=$(psq "select p.product_name from pour_product pp join products k on k.uid=pp.product_uid join products p on p.uid=pp.parent_product_uid where k.id=91")
-ok "T3e mzazi wa WINE kwenye DB = GREPA WINE ($WP)" "[ \"$WP\" = 'GREPA WINE' ]"
+WP=$(psq "select string_agg(p.product_name, '+' order by pr.id) from pour_parent pr join products k on k.uid=pr.product_uid join products p on p.uid=pr.parent_product_uid where k.id=91 and pr.active")
+ok "T3e (es) wazazi wa WINE kwenye DB = GREPA WINE + MA-LOT BOX WINE ($WP)" "[ \"$WP\" = 'GREPA WINE+MA-LOT BOX WINE' ]"
+WC=$(psq "select p.product_name from pour_container c join products k on k.uid=c.product_uid join products p on p.uid=c.parent_product_uid where k.id=91 and c.status='OPEN'")
+ok "T3i chombo wazi cha WINE (2500ml) kinatoka kwa mzazi wa kwanza = GREPA WINE ($WC)" "[ \"$WC\" = 'GREPA WINE' ]"
 ok "T3f wazazi hawajaguswa ($P0)" "[ \"\$(psq \"$PARENTS\")\" = \"$P0\" ]"
 ok "T3g mistari ya mauzo haijabadilika" "[ \"\$(psq \"$SALES\")\" = \"$S0\" ]"
 ok "T3h TB haijabadilika ($TB0)" "[ \"\$(psq \"$TB\")\" = \"$TB0\" ]"

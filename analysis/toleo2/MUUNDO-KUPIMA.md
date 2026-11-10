@@ -67,3 +67,23 @@ Hatua ni KAGUA → ANDIKA:
   - chombo kimeisha (Dr 5100);
   - bei chini ya gharama → sababu;
   - asiye na KUPIMA_SETTINGS anapata 403 kwenye mipangilio.
+
+## Wazazi wengi na bei kwa mzazi ((es) + (eu), 10/11)
+- **Wazazi wengi:** bidhaa ya KUPIMA ina wazazi kadhaa wanaoruhusiwa (`pour_parent`, ndani ya V143; bado haijaenda staging wala prod). Mfano: WINE ZA KUPIMA ← GREPA WINE (dumu 5L) + MA-LOT BOX WINE.
+- **"Fungua chombo"** (kwa mkono, au kwenye POS chombo kisipotosha):
+  - mtumiaji anachagua mzazi; mzazi huyo −1;
+  - chombo kinakumbuka mzazi wake (`pour_container.parent_product_uid`);
+  - gharama kwa ml = avg ya mzazi huyo ÷ ujazo.
+- **Mzazi asipochaguliwa:** akiwa mmoja tu, anachukuliwa yeye. Wakiwa zaidi ya mmoja, jibu ni 422 `KUPIMA_PARENT` likiwa na orodha ya wazazi.
+- **Bei:** bei za MSINGI ni `pour_measure`. Kila mzazi anaweza kuwa na bei zake kwa kipimo cha msingi (`pour_parent_price`, hiari).
+  - Chombo kinauza kwa bei za mzazi wake; asipokuwa nazo, kwa za msingi.
+  - POS inaonyesha bei za chombo kilicho wazi.
+  - Sale inayogawanya kipimo kati ya vyombo viwili (SPLIT) inalipwa kwa bei ya chombo kilichokuwa wazi, kama POS ilivyoonyesha.
+  - Hakuna chombo wazi, na mzazi aliyechaguliwa ana bei zake: POS inabadilisha bei kwenye kikapu na kuomba kuhakiki jumla kabla ya kuhifadhi, ili malipo yasiwe pungufu.
+- **Mabadiliko ya mipangilio:** KUPIMA_SETTINGS tu. Historia inaandikwa kwa msingi ("KIPIMO 70ml") na kwa kila mzazi ("MZAZI", "BEI <mzazi> 70ml"). Yanatumika kwa mauzo yajayo tu.
+- **Dumu zima** linauzwa kama bidhaa ya kawaida (mzazi).
+- **Majaribio:**
+  - kupima_api_e2e 45/0 (W1–W12: chaguo la mzazi, MA-LOT 2,500 dhidi ya GREPA 2,000, mapato kwa chombo, historia);
+  - kupima_e2e 20/0 (W1–W6: dialog ya wazazi + bei, POS inauliza mzazi, kikapu 2,500);
+  - hatua 85: t85-eq 21/0;
+  - run-all 18/18 na suite 648/0/1 kwenye t2-tozo.

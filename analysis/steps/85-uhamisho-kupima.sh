@@ -20,27 +20,33 @@ T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 q() { docker compose -p "$PROJ" exec -T -e "SQL=$1" postgres sh -c 'psql -X -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -At -F " | " -c "$SQL"' < /dev/null; }
 die() { echo "SIYO: $*"; echo "---85_IMESHINDWA---"; exit 1; }
 
-# KEY | bidhaa ya kupima (jina kamili) | UID YA MZAZI ("-" = bado) | chombo | ml | vipimo (JSON)
+# KEY | bidhaa ya kupima (jina kamili) | UID ZA WAZAZI, kwa koma ("-" = bado; es: wazazi wengi) | chombo | ml | vipimo (JSON)
+#   Mzazi wa KWANZA ndiye wa chombo kilicho wazi kwa ml zilizohesabiwa (ANDIKA); bei za wazazi (eu) zinawekwa baadaye kwenye V3.
 #   KONYAGI    -> 33  KONYAGI 750ML
 #   MOONLIGHT  -> 105 MOON LIGHT
 #   GOLDENKING -> 64  GOLDEN KING (12/katoni) - Chief athibitishe (ep)
 #   GILBEYS / CAMINO -> Chief atasajili (ep); uid itawekwa hapa baada ya kusajili
-#   WINE       -> 59  GREPA WINE = dumu 5L (eq; jina litakuwa "GREPA WINE 5L")
+#   WINE       -> 59  GREPA WINE = dumu 5L (eq; jina litakuwa "GREPA WINE 5L"), 102 MA-LOT BOX WINE (es)
 LIST="KONYAGI|KONYAGI YA KUPIMA|d0d16e3c-8a94-45ee-82af-2d595f50e339|chupa|750|[{\"ml\":30,\"price\":1000}]
 MOONLIGHT|Moon Light Kupima|436b7e69-c8c9-41ef-bd8b-4067af203e8c|chupa|750|[{\"ml\":50,\"price\":2000}]
 GOLDENKING|GOLDEN KING KUPIMA|0ae6e777-24f3-4875-a738-2598d6656211|chupa|750|[{\"ml\":50,\"price\":3000}]
 GILBEYS|GILBEYS KUPIMA|-|chupa|750|[{\"ml\":50,\"price\":3000}]
 CAMINO|CAMINO KUPIMA|-|chupa|750|[{\"ml\":50,\"price\":3000}]
-WINE|WINE ZA KUPIMA|fd9877ee-e6bd-4cfd-bd9d-20ca46a762ed|dumu|5000|[{\"ml\":70,\"price\":2000},{\"ml\":80,\"price\":3000}]"
+WINE|WINE ZA KUPIMA|fd9877ee-e6bd-4cfd-bd9d-20ca46a762ed,a3081011-e370-4687-a7e7-bc5f02063b23|dumu|5000|[{\"ml\":70,\"price\":2000},{\"ml\":80,\"price\":3000}]"
 
 tb() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where e.status='POSTED' and not coalesce(e.is_deleted,false)"; }
 dc() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where l.account_code='$1' and e.status='POSTED' and not coalesce(e.is_deleted,false)"; }
 # mzazi (eq): uid kutoka ORODHA tu. Inarudisha "uid | jina" au tupu (haijawekwa / haipo / imefutwa / ni bidhaa ya kupima).
 uidok() { [[ "$1" =~ ^[0-9a-fA-F-]{36}$ ]]; }
-parent() { local pu=$2 pp=""; uidok "$pu" || return 0
+parent() { local pp="" u r out="" n=0 want=0
   v143 && pp="and not exists (select 1 from pour_product x where x.product_uid = p.uid)"
-  q "select uid||' | '||product_name from products p where uid='$pu' and not coalesce(is_deleted,false)
-     and p.product_name not ilike '%pima%' $pp"; }
+  for u in ${2//,/ }; do
+    want=$((want+1)); uidok "$u" || return 0
+    r=$(q "select uid||' | '||product_name from products p where uid='$u' and not coalesce(is_deleted,false) and p.product_name not ilike '%pima%' $pp")
+    [ -n "$r" ] || return 0
+    out="$out$r"$'\n'; n=$((n+1))
+  done
+  [ "$n" = "$want" ] && printf '%s' "$out"; }
 # hali ya mzazi kwa KAGUA: maelezo kamili ya kuthibitisha
 pinfo() { local pu=$1; if [ "$pu" = - ]; then echo "- | HAIJAWEKWA (Chief asajili mzazi, uid iwekwe kwenye 85)"; return; fi
   uidok "$pu" || { echo "$pu | UID SI HALALI"; return; }
@@ -59,13 +65,13 @@ if [ "$MODE" = kagua ]; then
   echo "=== 85 KAGUA $(date '+%F %T') - KUSOMA TU"
   v143 && echo "V143 (KUPIMA): IPO" || echo "V143 (KUPIMA): HAIPO - toleo 2 bado halijafika prod; hatua hii ni BAADA yake"
   echo "--- ORODHA YA WAZAZI (eq) - THIBITISHA kabla ya ANDIKA: KEY | bidhaa ya kupima | uid ya mzazi | id | jina | aina | stock | avg | hali"
-  while IFS='|' read -r key name sel cname cml ms; do echo "$key | $name | $(pinfo "$sel")"; done <<< "$LIST"
+  while IFS='|' read -r key name sel cname cml ms; do for u in ${sel//,/ }; do echo "$key | $name | $(pinfo "$u")"; done; done <<< "$LIST"
   echo "--- KEY | bidhaa ya kupima | vipande vya bandia | avg | GL ya kufuta (B) | mzazi | chombo | vipimo | hali"
   TOT=0
   while IFS='|' read -r key name sel cname cml ms; do
     k=$(kupima "$name"); [ -n "$k" ] || { echo "$key | $name | BIDHAA HAIPO"; continue; }
     pr=$(parent "$key" "$sel"); n=$(printf '%s\n' "$pr" | grep -c . || true)
-    if [ "$n" = 1 ]; then pn=$(printf '%s' "$pr" | cut -d'|' -f2- | sed 's/^ *//'); else pn="MZAZI HAYUPO - itarukwa"; fi
+    if [ "$n" -ge 1 ]; then pn=$(printf '%s\n' "$pr" | cut -d'|' -f2- | sed 's/^ *//' | paste -sd '+' -); else pn="MZAZI HAYUPO - itarukwa"; fi
     pcs=$(q "select current_stock||' | '||current_average_cost::numeric(19,0) from products where uid='$k'")
     gl=$(glvalue "$k")
     st="bado"
@@ -102,12 +108,13 @@ while IFS='|' read -r key name sel cname cml ms; do
   k=$(kupima "$name"); [ -n "$k" ] || { echo "$key: BIDHAA HAIPO - inarukwa"; SKIP=$((SKIP+1)); continue; }
   if [ "$(q "select count(*) from pour_container where product_uid='$k' and reference_number like 'UHM-%'")" != 0 ]; then echo "$key: imeshahamishwa - inarukwa"; continue; fi
   pr=$(parent "$key" "$sel"); n=$(printf '%s\n' "$pr" | grep -c . || true)
-  [ "$n" = 1 ] || { echo "$key: MZAZI HAYUPO ($(pinfo "$sel" | cut -d'|' -f2- | sed 's/^ *//')) - inarukwa (weka uid kwenye 85, kisha endesha tena)"; SKIP=$((SKIP+1)); continue; }
-  pu=$(printf '%s' "$pr" | cut -d'|' -f1 | tr -d ' ')
-  api PUT "/api/v1/kupima/products/$k" "{\"containerName\":\"$cname\",\"containerMl\":$cml,\"parentProductUid\":\"$pu\",\"measures\":$ms}"
+  [ "$n" -ge 1 ] || { echo "$key: MZAZI HAYUPO ($(pinfo "$sel" | cut -d'|' -f2- | sed 's/^ *//')) - inarukwa (weka uid kwenye 85, kisha endesha tena)"; SKIP=$((SKIP+1)); continue; }
+  pus=$(printf '%s\n' "$pr" | cut -d'|' -f1 | tr -d ' ' | grep . | sed 's/.*/"&"/' | paste -sd, -)
+  pu=$(printf '%s\n' "$pr" | head -n1 | cut -d'|' -f1 | tr -d ' ')
+  api PUT "/api/v1/kupima/products/$k" "{\"containerName\":\"$cname\",\"containerMl\":$cml,\"parentProductUids\":[$pus],\"measures\":$ms}"
   okb || { echo "$key: mipangilio IMESHINDWA HTTP $HC $(msg)"; SKIP=$((SKIP+1)); continue; }
   gl=$(glvalue "$k"); pcs=$(q "select current_stock from products where uid='$k'")
-  api POST "/api/v1/kupima/products/$k/migrate" "{\"countedMl\":${ML[$key]},\"writeOffGl\":$gl,\"note\":\"hatua 85\"}"
+  api POST "/api/v1/kupima/products/$k/migrate" "{\"countedMl\":${ML[$key]},\"writeOffGl\":$gl,\"note\":\"hatua 85\",\"parentProductUid\":\"$pu\"}"
   if okb; then
     echo "$key: SAWA - vipande $pcs -> 0, GL $gl (Dr 3900 / Cr 1200), chombo ${ML[$key]}ml (mzazi hakupunguzwa)"; DONE=$((DONE+1))
   else
@@ -115,7 +122,9 @@ while IFS='|' read -r key name sel cname cml ms; do
   fi
 done <<< "$LIST"
 echo "--- BAADA: 1200 $(dc 1200)   3900 $(dc 3900)   TB $(tb)"
-q "select p.product_name, p.current_stock, coalesce(c.ml_left::text,'-'), coalesce(c.reference_number,'-') from pour_product pp join products p on p.uid = pp.product_uid
+q "select p.product_name, p.current_stock, coalesce(c.ml_left::text,'-'), coalesce(c.reference_number,'-'),
+     (select string_agg(pa.product_name, '+' order by pr.id) from pour_parent pr join products pa on pa.uid = pr.parent_product_uid where pr.product_uid = pp.product_uid and pr.active)
+   from pour_product pp join products p on p.uid = pp.product_uid
    left join pour_container c on c.product_uid = pp.product_uid and c.status = 'OPEN' order by 1"
 [ "$(tb)" = "$T0" ] || die "TB imebadilika ($T0 -> $(tb))"
 echo "zimehamishwa $DONE, zimerukwa $SKIP"

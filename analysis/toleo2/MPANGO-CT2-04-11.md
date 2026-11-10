@@ -179,3 +179,8 @@ Code (chanzo kimeonekana 09/11):
     - E2E_OK 18/18 kwenye nakala safi ya 29/10 (Flyway 134->144): tozo_api 21/0, tozo 8/0.
   - Maswali kwa Chief: Q4-1 madeni ya zamani (4900 = 57,486.54 mwaka 2026) yabaki? (pendekezo: ndiyo); Q4-2 mpangilio wa msamaha (tofauti kwanza); Q4-3 tozo ya MALI (hesabu ya mali, Dr 1120 / Cr 4900 kamili) haijaguswa: nayo isubiri malipo?
 - Inayofuata: kazi 5 (kanuni za hesabu ya stock + bidhaa za kupima, BAADA §2).
+- **(es)(eu) KUPIMA: wazazi wengi + bei kwa mzazi IMEJENGWA 10/11** (MUUNDO-KUPIMA mwisho):
+  - feature/t2-kupima: backend 1bf9df4, V3 539ae39;
+  - imeunganishwa feature/t2-tozo: backend 5b4a07b, V3 3d66773;
+  - suite 648/0/1, ng 99/99 (t2-kupima), E2E_OK 18/18, t85 21/0.
+- **(es) mauzo 8 ya dumu zima:** MAUZO-DUMU-ES.md. Yote ni CASH na PAID, bila deni la mteja. Hatua 86 inasubiri alama za Chief na chaguo (a)/(b)/(c).
