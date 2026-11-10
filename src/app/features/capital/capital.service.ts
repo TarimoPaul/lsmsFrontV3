@@ -243,8 +243,9 @@ export class CapitalService {
     return r;
   }
 
-  async approveAnnualPrepaid(uid: string): Promise<AnnualPrepaid> {
-    const r = toPrepaid(await this.api.patch<Raw>(`${CE}/annual-prepaid/${uid}/approve`));
+  /** (dz) `reason` is required when a CEO approves their own entry (>= 10 letters); anyone else needs a second person. */
+  async approveAnnualPrepaid(uid: string, reason?: string): Promise<AnnualPrepaid> {
+    const r = toPrepaid(await this.api.patch<Raw>(`${CE}/annual-prepaid/${uid}/approve`, {}, { params: { reason: reason ?? '' } }));
     this.all.invalidate();
     return r;
   }
@@ -319,6 +320,10 @@ export interface AnnualPrepaid {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
   createdBy: string | null;
   approvedBy: string | null;
+  approvedAt: string | null;
+  /** (dz) the maker (a CEO) approved it themself, with approvalReason */
+  selfApproved: boolean;
+  approvalReason: string | null;
   closeReason: string | null;
   monthRows: { month: string; amount: number; inBooks: boolean }[];
   expensed: number;
@@ -341,6 +346,9 @@ function toPrepaid(r: Raw): AnnualPrepaid {
     status: (s('status') ?? 'PENDING') as AnnualPrepaid['status'],
     createdBy: s('createdBy'),
     approvedBy: s('approvedBy'),
+    approvedAt: s('approvedAt'),
+    selfApproved: r['selfApproved'] === true,
+    approvalReason: s('approvalReason'),
     closeReason: s('closeReason'),
     monthRows: ((r['monthRows'] as Raw[] | undefined) ?? []).map((m) => ({ month: String(m['month'] ?? ''), amount: n(m['amount']), inBooks: m['inBooks'] === true })),
     expensed: n(r['expensed']),

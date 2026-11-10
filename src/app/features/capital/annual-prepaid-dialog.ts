@@ -1,5 +1,7 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+
+import { AuthService } from '@core/auth/auth.service';
 
 import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
@@ -28,7 +30,13 @@ export interface AnnualPrepaidData {
       } @else if (!items().length) {
         <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('None yet. Record one from “New expense” → “Paid for the year up front”.', 'Hakuna bado. Iandike kwenye “Gharama mpya” → “Imelipwa kwa mwaka, mapema”.') }}</p>
       } @else {
-        @for (p of items(); track p.uid) {
+        @if (selfCount()) {
+          <div class="chips">
+            <button type="button" [class.on]="!onlySelf()" (click)="onlySelf.set(false)">{{ i18n.t('All', 'Zote') }} ({{ items().length }})</button>
+            <button type="button" [class.on]="onlySelf()" (click)="onlySelf.set(true)">{{ i18n.t('Self-approved', 'Zilizojiidhinisha') }} ({{ selfCount() }})</button>
+          </div>
+        }
+        @for (p of shown(); track p.uid) {
           <div class="row" [class.off]="p.status === 'CANCELLED' || p.status === 'REJECTED'">
             <div class="head">
               <div class="main">
@@ -38,10 +46,14 @@ export interface AnnualPrepaidData {
               <div class="amt">
                 <b>{{ p.totalAmount | money: { decimals: 0 } }}</b>
                 <span class="pill" [attr.data-s]="p.status">{{ statusLabel(p.status) }}</span>
+                @if (p.selfApproved) { <span class="pill self">{{ i18n.t('Self-approved', 'Imejiidhinisha') }}</span> }
               </div>
             </div>
             @if (p.status === 'APPROVED') {
               <small class="left">{{ i18n.t('In expenses so far', 'Imeingia gharama hadi sasa') }} <b>{{ p.expensed | money: { decimals: 0 } }}</b> · {{ i18n.t('still prepaid (1160)', 'bado imelipwa mapema (1160)') }} <b>{{ p.prepaidLeft | money: { decimals: 0 } }}</b></small>
+            }
+            @if (p.approvalReason) {
+              <small class="left" [class.selfnote]="p.selfApproved">{{ p.selfApproved ? i18n.t('Approved by the maker', 'Imeidhinishwa na aliyeiingiza') : i18n.t('Approval note', 'Maelezo ya idhini') }} ({{ p.approvedBy }}@if (p.approvedAt) { · {{ p.approvedAt.slice(0, 16).replace('T', ' ') }} }): {{ p.approvalReason }}</small>
             }
             @if (p.closeReason) { <small class="left">{{ i18n.t('Reason', 'Sababu') }}: {{ p.closeReason }}</small> }
             <div class="months">
@@ -50,7 +62,14 @@ export interface AnnualPrepaidData {
               }
             </div>
             @if (data.canApprove && (p.status === 'PENDING' || p.status === 'APPROVED')) {
-              @if (acting() === p.uid) {
+              @if (approving() === p.uid) {
+                <div class="inline">
+                  <small class="selfnote">{{ i18n.t('You entered this yourself. Only a CEO may approve their own entry, with a reason (at least 10 letters). It is recorded and shown to reviewers.', 'Uliiingiza mwenyewe. CEO pekee anaweza kuidhinisha aliyoiingiza, kwa sababu (angalau herufi 10). Inarekodiwa na kuonekana kwa wakaguzi.') }}</small>
+                  <input type="text" maxlength="300" [value]="reason()" (input)="reason.set($any($event.target).value)" [placeholder]="i18n.t('Why you approve it yourself', 'Kwa nini unaidhinisha mwenyewe')" />
+                  <button lsmsButton="secondary" size="sm" (click)="approving.set(null)">{{ i18n.t('Back', 'Rudi') }}</button>
+                  <button lsmsButton="success" size="sm" [disabled]="reason().trim().length < 10" [loading]="busy()" (click)="approve(p)">{{ i18n.t('Approve', 'Idhinisha') }}</button>
+                </div>
+              } @else if (acting() === p.uid) {
                 <div class="inline">
                   <input type="text" maxlength="300" [value]="reason()" (input)="reason.set($any($event.target).value)" [placeholder]="i18n.t('Reason (at least 5 letters)', 'Sababu (angalau herufi 5)')" />
                   <button lsmsButton="secondary" size="sm" (click)="acting.set(null)">{{ i18n.t('Back', 'Rudi') }}</button>
@@ -59,7 +78,7 @@ export interface AnnualPrepaidData {
               } @else {
                 <div class="acts">
                   @if (p.status === 'PENDING') {
-                    <button lsmsButton="success" size="sm" icon="check" [loading]="busy()" (click)="approve(p)">{{ i18n.t('Approve', 'Idhinisha') }}</button>
+                    <button lsmsButton="success" size="sm" icon="check" [loading]="busy()" (click)="mine(p) ? askApprove(p.uid) : approve(p)">{{ i18n.t('Approve', 'Idhinisha') }}</button>
                     <button lsmsButton="text" size="sm" (click)="ask(p.uid)">{{ i18n.t('Reject', 'Kataa') }}</button>
                   } @else {
                     <button lsmsButton="text" size="sm" icon="undo" (click)="ask(p.uid)">{{ i18n.t('Cancel', 'Batilisha') }}</button>
@@ -93,6 +112,11 @@ export interface AnnualPrepaidData {
     .m { display: flex; flex-direction: column; padding: 4px 6px; border-radius: 8px; font-size: 0.7rem; color: var(--c-text-2); border: 1px dashed var(--c-border); }
     .m i { font-style: normal; color: var(--c-text); }
     .m.on { border-style: solid; border-color: color-mix(in srgb, var(--c-success) 45%, var(--c-border)); background: color-mix(in srgb, var(--c-success) 6%, transparent); }
+    .pill.self { color: var(--c-warning); background: color-mix(in srgb, var(--c-warning) 14%, transparent); }
+    .selfnote { color: var(--c-warning); }
+    .chips { display: flex; gap: 6px; margin-bottom: 10px; }
+    .chips button { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.78rem; color: var(--c-text); cursor: pointer; }
+    .chips button.on { border-color: var(--c-primary); color: var(--c-primary); font-weight: 500; }
     .acts, .inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .inline input { flex: 1; min-width: 180px; padding: 8px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.85rem; color: var(--c-text); }
   `,
@@ -109,7 +133,12 @@ export class AnnualPrepaidDialog {
   protected readonly error = signal<string | null>(null);
   protected readonly acting = signal<string | null>(null);
   protected readonly reason = signal('');
+  protected readonly approving = signal<string | null>(null);
+  protected readonly onlySelf = signal(false);
   protected changed = false;
+  private readonly auth = inject(AuthService);
+  protected readonly selfCount = computed(() => this.items().filter((p) => p.selfApproved).length);
+  protected readonly shown = computed(() => (this.onlySelf() ? this.items().filter((p) => p.selfApproved) : this.items()));
 
   constructor() {
     void this.load();
@@ -130,8 +159,21 @@ export class AnnualPrepaidDialog {
     this.acting.set(uid);
   }
 
+  /** (dz) the maker's own entry: createdBy is "First Last" of the user who recorded it. */
+  protected mine(p: AnnualPrepaid): boolean {
+    const u = this.auth.user();
+    return !!u && !!p.createdBy && `${u.firstName} ${u.lastName}`.trim().toLowerCase() === p.createdBy.trim().toLowerCase();
+  }
+
+  protected askApprove(uid: string): void {
+    this.reason.set('');
+    this.acting.set(null);
+    this.approving.set(uid);
+  }
+
   protected async approve(p: AnnualPrepaid): Promise<void> {
-    await this.run(() => this.api.approveAnnualPrepaid(p.uid));
+    const why = this.approving() === p.uid ? this.reason().trim() : undefined;
+    await this.run(() => this.api.approveAnnualPrepaid(p.uid, why));
   }
 
   protected async close(p: AnnualPrepaid): Promise<void> {
@@ -147,6 +189,7 @@ export class AnnualPrepaidDialog {
       this.items.update((l) => l.map((x) => (x.uid === updated.uid ? updated : x)));
       this.changed = true;
       this.acting.set(null);
+      this.approving.set(null);
     } catch (e) {
       this.error.set(ApiError.from(e).message);
     } finally {
