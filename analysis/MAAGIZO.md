@@ -921,3 +921,6 @@ G5 idhini = (a): CEO anaweza kuidhinisha gharama ya mwaka aliyoiingiza yeye mwen
   Mtumiaji mwingine yeyote (si CEO) bado anahitaji mtu wa pili. Jaribio: CEO bila sababu → kataa; CEO na sababu → SAWA + audit;
   MANAGER kujiidhinisha → kataa.
 Pamoja na (dy): hamisha code ya V3 kutoka main → feature/t2-gharama; E2E ya G2–G5; kisha kazi 2.
+
+## 2026-11-10 (ujumbe bila herufi, baada ya dz)
+E2E NI AWS AHTUTUMI TENA ELEWA HIYO SASA HIVI TUNATUMIA CONTABO
