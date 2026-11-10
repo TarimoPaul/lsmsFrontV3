@@ -1050,3 +1050,9 @@ Wazazi: Chief atasajili Gilbeys 750ml, Camino 750ml, Wine dumu 5L; Moon Light �
 Swali la data (kusoma tu, prod-copy): Gilbeys/Camino/Wine zilinunuliwa vipi bila mzazi — reco "manunuzi", gharama nyingine, au hazikuandikwa?
   Kiasi na tarehe. Hii inaathiri faida ya vinywaji hivi; ripoti tu, usirekebishe.
 Kisha kazi 4.
+
+## 2026-11-10 (eq)
+Wine mzazi = GREPA WINE (59) → jina "GREPA WINE 5L" (Chief au hatua). Usisajili dumu jipya.
+Hatua 85: wazazi kwa ORODHA YA UID wazi (siyo kutafuta kwa jina), KAGUA ionyeshe orodha hiyo kwa Chief kuthibitisha. Badilisha SQL ya 85 hivyo.
+Grepa 02/10 (75,000) UNPAID lakini imelipwa droo → ongeza kwenye orodha ya hatua 74 (§9).
+Majibu ya Chief (dumu zima, Gilbeys/Camino chanzo, MA-LOT, Golden King 64) yanakuja — usisubiri; endelea na kazi 4.

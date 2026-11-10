@@ -1,5 +1,5 @@
 # HATUA 85 (mmiliki 10/11 el/eo) - PROD, BAADA ya toleo 2: uhamisho wa KUPIMA. Endesha kupitia 85-uhamisho-kupima.cmd:
-#   85-uhamisho-kupima.cmd kagua     PROD, kusoma tu -> 85-kagua.log (bidhaa, wazazi - yupi hayupo -, vipande, GL ya kufuta)
+#   85-uhamisho-kupima.cmd kagua     PROD, kusoma tu -> 85-kagua.log (ORODHA YA WAZAZI kwa uid (eq) - thibitisha -, vipande, GL ya kufuta)
 #   85-uhamisho-kupima.cmd andika    ml ulizohesabu kwa kila chombo kilicho wazi (0 = hakuna) -> ANDIKA-85 -> password ya CEO
 # Bidhaa isiyo na mzazi inarukwa; iliyokwisha hamishwa inarukwa. Unaweza kuendesha tena baada ya kusajili mzazi.
 param([string]$Mode = '')
@@ -30,7 +30,7 @@ foreach ($k in @('KONYAGI', 'MOONLIGHT', 'GOLDENKING', 'GILBEYS', 'CAMINO', 'WIN
     $lines += "$k=$v"
     L "ml $k = $v"
 }
-$ans = Read-Host 'Umesoma 85-kagua.log? Andika ANDIKA-85 kuendelea (kingine = simama)'
+$ans = Read-Host 'Umesoma 85-kagua.log na kuthibitisha ORODHA YA WAZAZI (uid, jina)? Andika ANDIKA-85 kuendelea (kingine = simama)'
 if ($ans -cne 'ANDIKA-85') { L 'Umesimamisha - hakuna kilichoandikwa.'; exit 2 }
 L 'mmiliki ameandika ANDIKA-85'
 $email = Read-Host 'Email ya CEO'

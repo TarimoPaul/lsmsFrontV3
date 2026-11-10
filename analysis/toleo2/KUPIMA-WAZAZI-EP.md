@@ -101,11 +101,12 @@ Reco "manunuzi" ilianza tarehe 24/06 tu, wakati mauzo ya Camino yaliisha 31/05. 
 3. **MA-LOT BOX WINE (2):** bado zipo dukani?
 4. **Grepa +3 za mkono (11/04, 07/06):** hazina GL wala manunuzi; zilitoka wapi?
 
-## Hatua 85 na Wine
-85 inamtafuta mzazi wa WINE kwa jina lenye "dumu", kwa hiyo GREPA WINE haitapatikana na WINE itarukwa. Chief akikubali 59 kuwa mzazi, kuna njia mbili, na faili la 85 halibadilishwi mpaka aamue:
-- aendeshe 85 na `L85_PARENT_WINE=fd9877ee-e6bd-4cfd-bd9d-20ca46a762ed` (uid ya GREPA WINE kwenye nakala ya 29/10; KAGUA ya 85 itaonyesha jina kabla ya kuandika); au
-- niibadilishe SQL ya WINE iwe `product_name ilike '%grepa%'`.
+## Hatua 85 na Wine (imerekebishwa kwa (eq))
+- 85 sasa inatumia **ORODHA YA UID** ya wazazi: WINE = GREPA WINE (59), fd9877ee-e6bd-4cfd-bd9d-20ca46a762ed. Haitafuti tena kwa jina.
+- KAGUA inaonyesha orodha hiyo ili Chief aithibitishe.
+- Majaribio: `85-majaribio/MAJARIBIO.md` (eq), matokeo 19/0, control 7/12.
+- Jina "GREPA WINE 5L" linabadilishwa na Chief kwenye V3.
 
 ## Nje ya swali (yameandikwa tu, hayaingii batch kwa (ct))
-- **Manunuzi ya Grepa 02/10 (75,000):** purchases inasema UNPAID na capex inasema PENDING. Lakini GL ilikuwa tayari Cr 1000, na reco ya 01/10 inaonyesha imelipwa kutoka droo. Hali ya malipo haiendani na GL na reco. Pesa haikuhesabiwa mara mbili, kwa sababu reco "manunuzi" haiandiki GL.
+- **Manunuzi ya Grepa 02/10 (75,000)** (eq: imeongezwa kwenye orodha ya hatua 74, BAADA-YA-BATCH §9): purchases inasema UNPAID na capex inasema PENDING. Lakini GL ilikuwa tayari Cr 1000, na reco ya 01/10 inaonyesha imelipwa kutoka droo. Hali ya malipo haiendani na GL na reco. Pesa haikuhesabiwa mara mbili, kwa sababu reco "manunuzi" haiandiki GL.
 - **stock_adjustment 5dc42c9f (26/09):** ina gl_posted = false, ingawa journal yake JE-2026-12692802521476 ipo. Hii ni bendera iliyochakaa tu; GL ni sahihi.

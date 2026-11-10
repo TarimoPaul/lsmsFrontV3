@@ -144,6 +144,13 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
 - 2.4.0 inarekebisha ununuzi MPYA tu. Rekodi za zamani hazibadilishwi (cs).
 - Hatua 74 (prod, baada ya batch): kwanza KAGUA ununuzi huo kwa kusoma tu (kiasi kilicholipwa hakijahifadhiwa, kwa hiyo kinahitaji
   ushahidi wa nje, kama risiti au daftari la Macheda). Kisha marekebisho kwa journal, kama mmiliki ataamua.
+- **Orodha ya 74 (ununuzi unaojulikana):**
+  - (eq) GREPA WINE 02/10/2026: 3 x 25,000 = 75,000 (purchase 3 dumu, msambazaji "grepa").
+    - purchases inasema UNPAID na capex inasema PENDING.
+    - GL tayari imeandika Dr 1200 / Cr 1000 75,000 (JE-2026-20267143327738).
+    - Reco ya 01/10 ina "manunuzi grepa wine" 75,000 kutoka droo, kwa hiyo imelipwa.
+    - Kwa hiyo 74 iweke hali ya malipo PAID / amount_paid 75,000 bila journal mpya, kwa sababu GL ni sahihi. AP isionyeshe deni hili.
+    - Ushahidi: KUPIMA-WAZAZI-EP.md §3.
 
 ## 10. Orodha ya benki/simu zilizowashwa (mmiliki 04/11 ct) - kabla ya cutover D
 - Leo picker ya C3 inaonyesha akaunti zote za benki na simu (CRDB 1020, NMB 1021, NBC 1022, Selcom 1023, PCB 1024, M-Pesa 1030, Tigo 1031,
