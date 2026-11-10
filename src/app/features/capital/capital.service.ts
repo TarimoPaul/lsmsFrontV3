@@ -221,6 +221,26 @@ export class CapitalService {
     return r;
   }
 
+  /**
+   * G3: monthly/annual rows of that month (and running schedules) that look like the expense about to be saved.
+   * A warning only; [] when nothing matches or the backend predates G3.
+   */
+  async possibleDuplicates(description: string, amount: number, year: number, month: number): Promise<PossibleDuplicate[]> {
+    try {
+      const r = await this.api.get<Raw[] | null>(`${CE}/possible-duplicates`, { params: { description, amount, year, month } });
+      return (r ?? []).map((d) => ({
+        uid: String(d['uid'] ?? ''),
+        description: String(d['description'] ?? ''),
+        amount: n(d['amount']),
+        kind: String(d['kind'] ?? ''),
+        period: String(d['period'] ?? ''),
+        reason: String(d['reason'] ?? ''),
+      }));
+    } catch {
+      return [];
+    }
+  }
+
   /** G2: this month's row of a schedule (amount, in the books) — null when the backend predates G2. */
   async stopPreview(uid: string): Promise<StopPreview | null> {
     try {
@@ -244,6 +264,16 @@ export class CapitalService {
     this.all.invalidate();
     return r;
   }
+}
+
+/** G3: an existing expense that looks like the new one. */
+export interface PossibleDuplicate {
+  uid: string;
+  description: string;
+  amount: number;
+  kind: string; // SCHEDULE | MONTH | ANNUAL
+  period: string;
+  reason: string; // NAME | AMOUNT | NAME_AND_AMOUNT
 }
 
 /** G2: what stopping a schedule would touch. */

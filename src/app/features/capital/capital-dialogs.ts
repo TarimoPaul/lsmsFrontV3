@@ -8,7 +8,7 @@ import { toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { MoneyAccountPicker } from '../general-ledger/money-account-picker';
 import { ASSET_TYPES, EXPENSE_CATEGORIES, Expenditure } from './capital.models';
-import { CapitalService, RecurringBudget, StopPreview } from './capital.service';
+import { CapitalService, PossibleDuplicate, RecurringBudget, StopPreview } from './capital.service';
 
 export const parse = (t: string) => Money.parse(t) ?? 0;
 export const today = () => toIsoDate(new Date());
@@ -49,7 +49,7 @@ export const FORM = `
 
 @Component({
   selector: 'app-expense-dialog',
-  imports: [DialogShell, Button, Icon, MoneyInput, MoneyAccountPicker],
+  imports: [DialogShell, Button, Icon, MoneyInput, MoneyAccountPicker, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="i18n.t('New expense', 'Gharama mpya')" icon="receipt_long">
@@ -79,14 +79,33 @@ export const FORM = `
       } @else {
         <p class="info"><lsms-icon name="verified_user" [size]="16" />{{ i18n.t('It reaches the books (GL) only when a supervisor approves it — never by the person who recorded it.', 'Inaingia vitabuni (GL) pale msimamizi anapoidhinisha — si aliyeiandika.') }}</p>
       }
+      @if (warned()) {
+        <div class="dup" role="alert">
+          <p><lsms-icon name="warning" [size]="16" />{{ i18n.t('This looks like an expense already there for this month:', 'Inaonekana kama gharama iliyopo tayari kwa mwezi huu:') }}</p>
+          <ul>
+            @for (d of dups(); track d.uid) {
+              <li><b>{{ d.description }}</b> · {{ d.amount | money: { decimals: 0 } }} · {{ d.kind === 'SCHEDULE' ? i18n.t('every month', 'kila mwezi') : d.period }}
+                <small>({{ d.reason === 'AMOUNT' ? i18n.t('same amount', 'kiasi kilekile') : d.reason === 'NAME' ? i18n.t('similar name', 'jina linalofanana') : i18n.t('same name and amount', 'jina na kiasi sawa') }})</small></li>
+            }
+          </ul>
+          <p>{{ i18n.t('Save only if it is a different expense.', 'Hifadhi ikiwa tu ni gharama tofauti.') }}</p>
+        </div>
+      }
       @if (error()) { <p class="err">{{ error() }}</p> }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ repeat() ? i18n.t('Start monthly budget', 'Anzisha bajeti ya kila mwezi') : i18n.t('Save for approval', 'Hifadhi isubiri idhini') }}</button>
+        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ warned() ? i18n.t('Save anyway', 'Hifadhi hata hivyo') : repeat() ? i18n.t('Start monthly budget', 'Anzisha bajeti ya kila mwezi') : i18n.t('Save for approval', 'Hifadhi isubiri idhini') }}</button>
       </ng-container>
     </lsms-dialog>
   `,
-  styles: FORM,
+  styles: `
+    ${FORM}
+    .dup { margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; font-size: 0.8rem; color: var(--c-text); background: color-mix(in srgb, var(--c-warning) 12%, transparent); }
+    .dup p { display: flex; align-items: center; gap: 6px; margin: 0; }
+    .dup lsms-icon { color: var(--c-warning); flex-shrink: 0; }
+    .dup ul { margin: 6px 0; padding-left: 20px; }
+    .dup small { color: var(--c-text-2); }
+  `,
 })
 export class ExpenseDialog {
   protected readonly ref = inject<DialogRef<Expenditure>>(DialogRef);
@@ -105,8 +124,14 @@ export class ExpenseDialog {
   protected readonly repeat = signal(false);
   protected readonly startMonth = signal(today().slice(0, 7));
   protected readonly endMonth = signal('');
+  /** G3: look-alikes already there for the month, and the inputs they were found for. */
+  protected readonly dups = signal<PossibleDuplicate[]>([]);
+  private readonly dupKey = signal<string | null>(null);
 
   protected readonly cat = computed(() => this.cats.find((c) => c.type === this.type()));
+  private readonly checkKey = computed(() => `${this.desc().trim().toLowerCase()}|${parse(this.amount())}|${this.repeat() ? this.startMonth() : this.date().slice(0, 7)}`);
+  /** The warning shows (and "Save anyway" applies) only while the inputs are the ones that were checked. */
+  protected readonly warned = computed(() => this.dups().length > 0 && this.dupKey() === this.checkKey());
   protected readonly valid = computed(
     () => parse(this.amount()) > 0 && this.desc().trim().length >= 5 && (!this.repeat() || (!!this.startMonth() && (!this.endMonth() || this.endMonth() >= this.startMonth()))),
   );
@@ -116,6 +141,17 @@ export class ExpenseDialog {
     this.saving.set(true);
     this.error.set(null);
     try {
+      // G3: first click on new inputs asks the backend for look-alikes; a hit shows the warning and stops here.
+      if (!this.warned()) {
+        const key = this.checkKey();
+        const [yy, mm] = (this.repeat() ? this.startMonth() : this.date().slice(0, 7)).split('-').map(Number);
+        const found = await this.api.possibleDuplicates(this.desc().trim(), parse(this.amount()), yy, mm);
+        if (found.length) {
+          this.dups.set(found);
+          this.dupKey.set(key);
+          return;
+        }
+      }
       const c = this.cat()!;
       if (this.repeat()) {
         // V121 path: the backend keeps a template and creates an approved row per month.
