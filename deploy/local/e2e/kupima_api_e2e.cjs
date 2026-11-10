@@ -129,6 +129,28 @@ const stock = (p) => Number(sql(`select current_stock from products where uid = 
   const old30 = await sell([line(m[30], 1)]);
   ok('H2 kipimo cha zamani (kimebadilishwa) -> 422 KUPIMA_INVALID', old30.status === 422 && old30.j?.errorCode === 'KUPIMA_INVALID', `${old30.status} ${old30.j?.message}`);
 
+  // ── UHAMISHO (el): Moon Light Kupima is CHANGED (sales history kept): fake pieces -> 0, GL Dr 3900 / Cr 1200,
+  //    container at the counted ml WITHOUT taking the parent ──
+  const ML = sql("select uid from products where product_name = 'Moon Light Kupima'");
+  const MLP = sql("select uid from products where product_name = 'MOON LIGHT'");
+  const mlLines0 = sql(`select count(*) from sales_details where product_uid='${ML}'`);
+  const mlPieces = Number(sql(`select current_stock from products where uid='${ML}'`));
+  const mlParent0 = stock(MLP);
+  await api('PUT', `/api/v1/kupima/products/${ML}`, ceo, { containerName: 'chupa', containerMl: 750, parentProductUid: MLP, measures: [{ ml: 50, price: 2000 }] });
+  const mig403 = await api('POST', `/api/v1/kupima/products/${ML}/migrate`, mgr, { countedMl: 375, writeOffGl: 18000 });
+  ok('M1 uhamisho bila KUPIMA_SETTINGS -> 403', mig403.status === 403, `${mig403.status}`);
+  const migBig = await api('POST', `/api/v1/kupima/products/${ML}/migrate`, ceo, { countedMl: 375, writeOffGl: mlPieces * 2000 + 1 });
+  ok('M2 GL zaidi ya vipande x avg -> kataa, hakuna kilichobadilika', migBig.status === 422 && Number(sql(`select current_stock from products where uid='${ML}'`)) === mlPieces, `${migBig.status} ${migBig.j?.message}`);
+  const t3900 = acct('3900'), t1200 = acct('1200');
+  const mig = await api('POST', `/api/v1/kupima/products/${ML}/migrate`, ceo, { countedMl: 375, writeOffGl: 18000, note: 'hesabu ya E2E' });
+  ok('M3 uhamisho: vipande -> 0, Dr 3900 / Cr 1200 18,000, chombo 375ml, mzazi HAJAPUNGUZWA', mig.j?.status === 'Success'
+    && Number(sql(`select current_stock from products where uid='${ML}'`)) === 0 && bar(ML) === '375.00' && stock(MLP) === mlParent0
+    && Math.abs(acct('3900') - t3900 - 18000) < 0.01 && Math.abs(acct('1200') - t1200 + 18000) < 0.01, `${mig.status} ${mig.j?.message} bar=${bar(ML)} parent=${stock(MLP)}/${mlParent0}`);
+  ok('M4 historia ya mauzo imebaki (bidhaa ileile, mistari ileile)', sql(`select count(*) from sales_details where product_uid='${ML}'`) === mlLines0);
+  await api('POST', `/api/v1/kupima/products/${ML}/finish?note=${encodeURIComponent('imeisha')}`, mgr);
+  const mig2 = await api('POST', `/api/v1/kupima/products/${ML}/migrate`, ceo, { countedMl: 100, writeOffGl: 0 });
+  ok('M5 uhamisho mara ya pili -> kataa (hata baada ya chombo kufungwa kwa maelezo)', mig2.status === 422 && /umeshafanyika/.test(mig2.j?.message || ''), `${mig2.status} ${mig2.j?.message}`);
+
   await new Promise((r) => setTimeout(r, 2000));
   ok('Z1 TB haijabadilika (Dr = Cr)', tb() === tb0, `${tb0} -> ${tb()}`);
   const rep = await api('GET', `/api/v1/kupima/containers?productUid=${K}`, mgr);
