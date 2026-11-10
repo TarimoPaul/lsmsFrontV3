@@ -6,7 +6,9 @@ import { ApiService } from '@core/api/api.service';
 export interface PourMeasure {
   uid: string;
   ml: number;
+  /** eu: the price of the OPEN container (its parent's own price, else the base). */
   price: number;
+  basePrice: number;
   /** Cost of this measure from the open container (or the next one): parent avg / container ml x ml. */
   cost: number | null;
 }
@@ -19,6 +21,18 @@ export interface PourContainer {
   costPerMl: number;
   openedBy: string | null;
   openedAt: string | null;
+  /** es: the parent this container was opened from. */
+  parentProductUid: string | null;
+  parentName: string | null;
+}
+
+/** es/eu: a parent the drink may be opened from, with its price list (own price or the base). */
+export interface PourParent {
+  uid: string;
+  name: string;
+  avgCost: number | null;
+  stock: number;
+  prices: { ml: number; price: number; own: boolean; cost: number | null }[];
 }
 
 export interface PourProduct {
@@ -30,6 +44,7 @@ export interface PourProduct {
   parentName: string | null;
   parentAvgCost: number | null;
   parentStock: number | null;
+  parents: PourParent[];
   measures: PourMeasure[];
   open: PourContainer | null;
 }
@@ -66,8 +81,17 @@ export interface PourHistory {
 export interface PourSettings {
   containerName: string;
   containerMl: number;
-  parentProductUid: string;
+  /** es: every parent it may be opened from. */
+  parentProductUids: string[];
   measures: { ml: number; price: number }[];
+  /** eu: a parent's own price for a base measure (optional). */
+  parentPrices: { parentProductUid: string; ml: number; price: number }[];
+}
+
+/** eu: a measure's price for a container of this parent (own price, else the base). */
+export function priceFor(p: PourProduct, parentUid: string | null, ml: number): number | null {
+  const own = p.parents.find((x) => x.uid === parentUid)?.prices.find((x) => x.ml === ml);
+  return own ? own.price : (p.measures.find((m) => m.ml === ml)?.basePrice ?? null);
 }
 
 type Raw = Record<string, unknown>;
@@ -86,7 +110,20 @@ export function normalizePour(r: Raw): PourProduct {
     parentName: s(r['parentName']),
     parentAvgCost: nn(r['parentAvgCost']),
     parentStock: nn(r['parentStock']),
-    measures: ((r['measures'] as Raw[] | undefined) ?? []).map((m) => ({ uid: String(m['uid'] ?? ''), ml: n(m['ml']), price: n(m['price']), cost: nn(m['cost']) })),
+    parents: ((r['parents'] as Raw[] | undefined) ?? []).map((x) => ({
+      uid: String(x['uid'] ?? ''),
+      name: String(x['name'] ?? ''),
+      avgCost: nn(x['avgCost']),
+      stock: n(x['stock']),
+      prices: ((x['prices'] as Raw[] | undefined) ?? []).map((q) => ({ ml: n(q['ml']), price: n(q['price']), own: !!q['own'], cost: nn(q['cost']) })),
+    })),
+    measures: ((r['measures'] as Raw[] | undefined) ?? []).map((m) => ({
+      uid: String(m['uid'] ?? ''),
+      ml: n(m['ml']),
+      price: n(m['price']),
+      basePrice: m['basePrice'] === undefined ? n(m['price']) : n(m['basePrice']),
+      cost: nn(m['cost']),
+    })),
     open: o
       ? {
           uid: String(o['uid'] ?? ''),
@@ -96,6 +133,8 @@ export function normalizePour(r: Raw): PourProduct {
           costPerMl: n(o['costPerMl']),
           openedBy: s(o['openedBy']),
           openedAt: s(o['openedAt']),
+          parentProductUid: s(o['parentProductUid']),
+          parentName: s(o['parentName']),
         }
       : null,
   };
@@ -129,8 +168,9 @@ export class KupimaService {
     await this.api.delete(`/api/v1/kupima/products/${productUid}`);
   }
 
-  async open(productUid: string): Promise<PourProduct> {
-    return normalizePour(await this.api.post<Raw>(`/api/v1/kupima/products/${productUid}/open`));
+  /** es: `parentUid` = the parent to open from (needed when the drink has more than one). */
+  async open(productUid: string, parentUid: string | null = null): Promise<PourProduct> {
+    return normalizePour(await this.api.post<Raw>(`/api/v1/kupima/products/${productUid}/open`, parentUid ? { parentProductUid: parentUid } : {}));
   }
 
   /** "Chombo kimeisha": what is left becomes a loss (5100). */
