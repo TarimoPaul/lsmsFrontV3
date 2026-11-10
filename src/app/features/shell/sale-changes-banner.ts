@@ -19,7 +19,7 @@ import { SaleChangesService } from '../sales/sale-changes.service';
         <lsms-icon name="delete_history" [size]="20" />
         <span class="txt">
           <strong>{{ i18n.t(p().count + ' sale change(s) to review', 'Mabadiliko ' + p().count + ' ya mauzo ya kukagua') }}@if (p().amount > 0) { · {{ p().amount | money }} }</strong>
-          <small>{{ i18n.t('Deleted or edited sales — who, when and why. Mark them “Seen” with a note.', 'Mauzo yaliyofutwa au kubadilishwa — nani, lini na kwa nini. Yaweke “Nimeona” na maelezo.') }}</small>
+          <small>{{ i18n.t('Deleted, edited or below-cost sales — who, when and why. Mark them “Seen” with a note.', 'Mauzo yaliyofutwa, kubadilishwa au kuuzwa chini ya gharama — nani, lini na kwa nini. Yaweke “Nimeona” na maelezo.') }}</small>
         </span>
         <button lsmsButton="secondary" size="sm" icon="manage_search" (click)="open()">{{ i18n.t('Review', 'Kagua') }}</button>
       </div>

@@ -19,6 +19,7 @@ import type { SaleDoneData } from './sale-done-dialog';
 import { categoryColor, categoryInitials } from '../../categories/categories.models';
 import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel, shortReceipt } from '../sales.models';
 import { SalesService } from '../sales.service';
+import { BELOW_COST_CODE, askBelowCostReason } from '../sale-reason';
 import { CartCustomer, CartLine, CartStore } from './cart.store';
 import { RemakeStore } from './remake.store';
 
@@ -640,8 +641,17 @@ export class PosPage {
         if (!ok) return;
       }
 
-      // 4 · Save.
-      const res = await this.api.createPartial(body);
+      // 4 · Save. Below cost (kazi 3): the server answers 422 BELOW_COST_REASON; ask for the reason and send again.
+      let res;
+      try {
+        res = await this.api.createPartial(body);
+      } catch (e) {
+        const err = ApiError.from(e);
+        if (err.errorCode !== BELOW_COST_CODE) throw e;
+        const why = await askBelowCostReason(this.dialogs, this.i18n, err.message);
+        if (!why) return;
+        res = await this.api.createPartial({ ...body, belowCostReason: why });
+      }
       const change = this.change();
       this.api.posStock.invalidate();
       this.store.stock.invalidate();

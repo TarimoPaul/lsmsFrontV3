@@ -142,6 +142,8 @@ export interface SaleRequest {
   saleNotes: string | null;
   /** Backend 2.4.0 A6: the deleted sale this one makes again ("Tengeneza upya"). */
   replacesSaleUid?: string | null;
+  /** Kazi 3 (owner ec): required when the sale is below cost; the CEO reviews it ("Nimeona"). */
+  belowCostReason?: string | null;
   saleDetails: Array<{
     productUid: string;
     productName: string;

@@ -190,6 +190,7 @@ export class SaleChangesDialog {
       case 'UPDATE': return t('Edited', 'Imebadilishwa');
       case 'DETAIL_UPDATE': return t('Line edited', 'Mstari umebadilishwa');
       case 'DETAIL_REMOVE': return t('Line removed', 'Mstari umeondolewa');
+      case 'BELOW_COST': return t('Sold below cost (cost → sold for)', 'Imeuzwa chini ya gharama (gharama → bei)');
       default: return t('Restore', 'Kurudisha');
     }
   }

@@ -7,7 +7,7 @@ import { AuthService } from '@core/auth/auth.service';
 export interface SaleChange {
   id: number;
   at: string;
-  action: 'DELETE' | 'UPDATE' | 'DETAIL_UPDATE' | 'DETAIL_REMOVE' | 'RESTORE';
+  action: 'DELETE' | 'UPDATE' | 'DETAIL_UPDATE' | 'DETAIL_REMOVE' | 'RESTORE' | 'BELOW_COST';
   result: 'ALLOWED' | 'REFUSED';
   refuseCode: string | null;
   saleUid: string;
