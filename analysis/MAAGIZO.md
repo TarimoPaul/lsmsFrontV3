@@ -931,3 +931,24 @@ hapana endelea kutumia e2e nilikosea kusoma na kuelewa
 ## 2026-11-10 (ea)
 Chief: Executive CEO (Jess) AKUSUDIWA kuwa na CAPITAL_WRITE + CAPITAL_APPROVE (mtu wa pili wa kuidhinisha). Usiziondoe.
 Kanuni inabaki: hakuna anayejiidhinisha isipokuwa CEO kwa sababu + audit. Kisha kazi 2.
+
+## 2026-11-10 (ef) — muundo wa KUPIMA (unachukua nafasi ya (ed) na (ee))
+Kanuni (zimeamuliwa na Chief):
+ 1. Ruhusa MPYA peke yake, k.m. KUPIMA_SETTINGS: ndiye pekee anayeweza kuunda/kubadilisha mipangilio ya kupima (ml, bei, chombo, mzazi).
+    Isiunganishwe na ruhusa ya jumla ya bidhaa. Mpewa wa kwanza: CEO + Executive CEO. Kuuza / kufungua / "chombo kimeisha" = ruhusa za mauzo za kawaida.
+ 2. Hakuna kipimo maalum wakati wa kuuza — vipimo vilivyosajiliwa tu.
+ 3. Bei ya kipimo < gharama yake (avg ya mzazi ÷ ujazo × ml): onyo wakati wa kusajili; wakati wa kuuza → kanuni ya kazi 3 (b): inaruhusiwa kwa sababu + banner.
+ 4. Mabadiliko ya bei/ml: yanatumika kwa mauzo yajayo tu; historia (nani, lini, zamani → mpya).
+Muundo:
+ - Bidhaa: "Aina ya kuuza" = KAWAIDA | KUPIMA. KUPIMA: jina la chombo (chupa/dumu/…), ujazo_ml (yoyote: 250, 750, 5000…),
+   bidhaa_mzazi (store), ORODHA ya vipimo {ml, bei} — mistari mingi (30/60, 50, 60/70, …).
+ - POS (V3): progress bar ya chombo kilicho wazi (ml zilizobaki / ujazo) + vitufe vya kila kipimo na bei yake.
+   Kuuza → −ml; gharama ya kipimo = avg ya mzazi ÷ ujazo × ml. Bar haitoshi kwa kipimo → "Fungua chombo kipya?" → mzazi −1, bar = ujazo.
+   Chombo KIMOJA tu wazi kwa bidhaa.
+ - "Chombo kimeisha": ml zilizobaki → upotevu (Dr 5100 / Cr 1200, kwa gharama), bila tozo; rekodi: aliyefungua, aliyefunga, tarehe, ml zilizopotea.
+ - Kuuza chombo kizima: kutoka mzazi moja kwa moja.
+ - Hesabu ya wiki: vyombo vilivyofungwa (idadi) + kilicho wazi kwa kiwango (1, ¾, ½, ¼) dhidi ya bar.
+ - Ripoti: upotevu kwa chombo/kinywaji; faida ya kupima dhidi ya kuuza chombo kizima.
+ - Uhamisho wa data ya leo (9–10 "wazi" kwa bidhaa): hatua ya mara moja (KAGUA → ANDIKA) BAADA ya Chief kuhesabu na kuweka mipangilio.
+Jenga kwenye feature/t2-kupima (backend + V3), na majaribio: unit + PG + E2E (POS: kuuza 30/60, kufungua, kuisha, ruhusa).
+Mpangilio: baada ya kazi 3. Kwanza eleza jinsi kupima inavyofanya kazi leo (ec).
