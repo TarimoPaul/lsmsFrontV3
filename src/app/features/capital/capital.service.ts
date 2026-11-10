@@ -221,6 +221,37 @@ export class CapitalService {
     return r;
   }
 
+  // ── Kazi 2 / G6: pay down 2400 / 2200 (Dr liability / Cr C3 source), never a new expense ──
+
+  async liabilities(): Promise<LiabilityOverview> {
+    const r = await this.api.get<Raw | null>('/api/v1/gl/liability-payments');
+    const accounts = ((r?.['accounts'] as Raw[] | undefined) ?? []).map((a) => ({ code: String(a['code'] ?? ''), name: String(a['name'] ?? ''), balance: n(a['balance']) }));
+    const payments = ((r?.['payments'] as Raw[] | undefined) ?? []).map((p) => ({
+      uid: String(p['uid'] ?? ''),
+      referenceNumber: String(p['referenceNumber'] ?? ''),
+      accountCode: String(p['accountCode'] ?? ''),
+      amount: n(p['amount']),
+      paymentDate: String(p['paymentDate'] ?? ''),
+      paymentSource: String(p['paymentSource'] ?? ''),
+      sourceAccount: p['sourceAccount'] == null ? null : String(p['sourceAccount']),
+      creditAccount: String(p['creditAccount'] ?? ''),
+      description: String(p['description'] ?? ''),
+      status: String(p['status'] ?? 'POSTED') as 'POSTED' | 'REVERSED',
+      createdBy: p['createdBy'] == null ? null : String(p['createdBy']),
+      reverseReason: p['reverseReason'] == null ? null : String(p['reverseReason']),
+    }));
+    return { accounts, payments };
+  }
+
+  /** FINANCE_WRITE. The server refuses more than the balance, a closed period and a weak description. */
+  async payLiability(body: { accountCode: string; amount: number; paymentDate: string; paymentSource: string; sourceAccount: string | null; description: string }): Promise<void> {
+    await this.api.post('/api/v1/gl/liability-payments', body);
+  }
+
+  async reverseLiabilityPayment(uid: string, reason: string): Promise<void> {
+    await this.api.patch(`/api/v1/gl/liability-payments/${uid}/reverse`, {}, { params: { reason } });
+  }
+
   // ── G5: annual expenses paid up front (Dr 1160 / Cr source, then 1/12 a month) ──
 
   async annualPrepaid(): Promise<AnnualPrepaid[]> {
@@ -303,6 +334,27 @@ export class CapitalService {
     this.all.invalidate();
     return r;
   }
+}
+
+/** Kazi 2 / G6: the expense liabilities and their payments. */
+export interface LiabilityPaymentRow {
+  uid: string;
+  referenceNumber: string;
+  accountCode: string;
+  amount: number;
+  paymentDate: string;
+  paymentSource: string;
+  sourceAccount: string | null;
+  creditAccount: string;
+  description: string;
+  status: 'POSTED' | 'REVERSED';
+  createdBy: string | null;
+  reverseReason: string | null;
+}
+
+export interface LiabilityOverview {
+  accounts: { code: string; name: string; balance: number }[];
+  payments: LiabilityPaymentRow[];
 }
 
 /** G5: an annual expense paid up front and its months. */

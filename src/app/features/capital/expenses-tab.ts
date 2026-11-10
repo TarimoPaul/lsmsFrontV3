@@ -37,6 +37,9 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
       <lsms-search-bar [placeholder]="i18n.t('Search expense…', 'Tafuta gharama…')" [(value)]="searchText" (search)="q.set($event)" (cleared)="q.set('')" />
       <button lsmsButton="secondary" icon="event_repeat" (click)="budgets()">{{ i18n.t('Monthly budgets', 'Bajeti za kila mwezi') }}</button>
       <button lsmsButton="secondary" icon="savings" (click)="annualPrepaid()">{{ i18n.t('Annual expenses', 'Gharama za mwaka') }}</button>
+      @if (canSeeDebts()) {
+        <button lsmsButton="secondary" icon="payments" (click)="liabilities()">{{ i18n.t('Expense debts', 'Madeni ya gharama') }}</button>
+      }
       @if (canWrite()) {
         <button lsmsButton="primary" icon="add" (click)="create()">{{ i18n.t('New expense', 'Gharama mpya') }}</button>
       }
@@ -149,6 +152,7 @@ export class ExpensesTab {
 
   protected readonly canWrite = computed(() => this.auth.hasPermission('CAPITAL_WRITE'));
   protected readonly canApprove = computed(() => this.auth.hasPermission('CAPITAL_APPROVE'));
+  protected readonly canSeeDebts = computed(() => this.auth.hasPermission('FINANCE_WRITE') || this.auth.hasPermission('FINANCE_READ'));
 
   /** Operating expenses only: stock purchases live in Purchases, assets have their own tab. */
   private readonly expenses = computed(() => (this.api.all.value() ?? []).filter((e) => !e.asset && !NOT_EXPENSES.has(e.capitalType)));
@@ -236,6 +240,12 @@ export class ExpensesTab {
       data: { canEdit: this.auth.hasPermission('CAPITAL_WRITE'), canStop: this.auth.hasPermission('CAPITAL_APPROVE') },
     });
     if (changed) await this.api.all.load(true);
+  }
+
+  /** Kazi 2 / G6: pay down 2400 / 2200 (the debt goes down; no new expense). */
+  protected async liabilities(): Promise<void> {
+    const { LiabilityPaymentDialog } = await import('./liability-payment-dialog');
+    await this.dialogs.openAsync<boolean>(LiabilityPaymentDialog, { size: 'md' });
   }
 
   /** G5: annual expenses paid up front - list, approve, reject, cancel. */
