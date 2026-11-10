@@ -109,6 +109,86 @@ export class LiabilityPaymentDialog {
   }
 }
 
+/**
+ * Kazi 4 (V144): written agreement that the staff member owes the price difference above cost (LIABILITY_MANAGE).
+ * Posts Dr 1120 / Cr 4900. The paper must exist: where it is kept + why. Closes with the updated liability.
+ */
+@Component({
+  selector: 'app-margin-agreement-dialog',
+  imports: [DialogShell, Button, Icon, MoneyInput, MoneyPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <lsms-dialog [title]="i18n.t('Written agreement', 'Makubaliano ya maandishi')" icon="draw">
+      <p class="who"><b>{{ data.owner }}</b><span>{{ i18n.t('Price difference owed', 'Tofauti ya bei inayodaiwa') }}: <em>{{ max | money: { decimals: 0 } }}</em></span></p>
+      <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('Only when the staff member has signed that they owe this amount. It becomes income (4900) now.', 'Tu ikiwa mfanyakazi amesaini kwamba anadaiwa kiasi hiki. Kinakuwa mapato (4900) sasa.') }}</p>
+      <label>
+        <span>{{ i18n.t('Amount', 'Kiasi') }} (TZS)</span>
+        <input lsmsMoneyInput type="text" [value]="amount()" (input)="amount.set($any($event.target).value)" autofocus />
+        @if (over()) { <span class="bad">{{ i18n.t('More than the price difference owed', 'Zaidi ya tofauti inayodaiwa') }}</span> }
+      </label>
+      <label>
+        <span>{{ i18n.t('Date signed', 'Tarehe ya kusaini') }}</span>
+        <input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" />
+      </label>
+      <label>
+        <span>{{ i18n.t('Where the paper is kept', 'Karatasi iko wapi') }} <small>({{ i18n.t('e.g. debt book p. 12', 'k.m. daftari la madeni uk. 12') }})</small></span>
+        <input type="text" maxlength="200" data-testid="agree-doc" [value]="doc()" (input)="doc.set($any($event.target).value)" />
+      </label>
+      <label>
+        <span>{{ i18n.t('What was agreed', 'Kilichokubaliwa') }}</span>
+        <textarea rows="2" maxlength="500" data-testid="agree-note" [value]="note()" (input)="note.set($any($event.target).value)"></textarea>
+      </label>
+      @if (error()) { <p class="err">{{ error() }}</p> }
+      <ng-container dialogActions>
+        <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
+        <button lsmsButton="primary" [disabled]="!valid()" [loading]="saving()" (click)="save()">{{ i18n.t('Record', 'Rekodi') }}</button>
+      </ng-container>
+    </lsms-dialog>
+  `,
+  styles: FORM_STYLES,
+})
+export class MarginAgreementDialog {
+  protected readonly data = inject<LiabilityDialogData>(DIALOG_DATA);
+  protected readonly ref = inject<DialogRef<Liability>>(DialogRef);
+  protected readonly i18n = inject(LanguageService);
+  private readonly api = inject(CountingService);
+
+  protected readonly today = toIsoDate(new Date());
+  protected readonly max = this.data.liability.marginOpen ?? 0;
+  protected readonly amount = signal(this.max ? String(this.max) : '');
+  protected readonly date = signal(this.today);
+  protected readonly doc = signal('');
+  protected readonly note = signal('');
+  protected readonly saving = signal(false);
+  protected readonly error = signal<string | null>(null);
+
+  protected readonly over = computed(() => parseMoney(this.amount()) > this.max + 0.001);
+  protected readonly valid = computed(
+    () => parseMoney(this.amount()) > 0 && !this.over() && this.doc().trim().length >= 3 && this.note().trim().length >= 10,
+  );
+
+  protected async save(): Promise<void> {
+    if (!this.valid()) return;
+    this.saving.set(true);
+    this.error.set(null);
+    try {
+      // The whole difference (the input drops cents, e.g. 1,400.01 -> 1,400): send null so the server takes it exactly.
+      const a = parseMoney(this.amount());
+      const updated = await this.api.recordMarginAgreement(this.data.liability.uid, {
+        amount: Math.abs(a - this.max) < 1 ? null : a,
+        agreedOn: this.date() || null,
+        documentRef: this.doc(),
+        note: this.note(),
+      });
+      this.ref.close(updated);
+    } catch (e) {
+      this.error.set(ApiError.from(e).message);
+    } finally {
+      this.saving.set(false);
+    }
+  }
+}
+
 /** Monthly payroll deduction plan (LIABILITY_MANAGE) — Flutter `_handleSetDeductionPlan`. Closes with the updated liability. */
 @Component({
   selector: 'app-deduction-plan-dialog',

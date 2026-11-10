@@ -199,6 +199,21 @@ export interface LiabilityPayment {
   paymentType: string | null;
   recordedBy: string | null;
   notes: string | null;
+  /** Kazi 4 (V144): what the payment settled - cost, agreed margin, margin (null on older debts). */
+  costPart: number | null;
+  agreedPart: number | null;
+  marginPart: number | null;
+}
+
+/** Kazi 4 (V144): a written agreement that the staff member owes the margin (Dr 1120 / Cr 4900). */
+export interface MarginAgreement {
+  uid: string;
+  amount: number;
+  agreedOn: string | null;
+  documentRef: string;
+  note: string;
+  recordedByName: string | null;
+  recordedAt: string | null;
 }
 
 export interface Liability {
@@ -217,6 +232,13 @@ export interface Liability {
   deductionFinalPartialAmount: number | null;
   items: LiabilityItem[];
   payments: LiabilityPayment[];
+  /** Kazi 4 (V144): charged at cost; the margin above cost is income only when paid or agreed in writing. */
+  chargedAtCost: boolean;
+  /** Open balance split (V144 debts only): cost in 1120, agreed margin, margin off the books. */
+  costOpen: number | null;
+  agreedOpen: number | null;
+  marginOpen: number | null;
+  agreements: MarginAgreement[];
 }
 
 export const isPendingItem = (i: LiabilityItem) => !i.acknowledgedAt && !i.disputed;
@@ -341,6 +363,22 @@ export function toLiability(r: Raw): Liability {
       paymentType: str(p['paymentType']),
       recordedBy: str(p['recordedBy']),
       notes: str(p['notes']),
+      costPart: num(p['costPart']),
+      agreedPart: num(p['agreedPart']),
+      marginPart: num(p['marginPart']),
+    })),
+    chargedAtCost: !!r['chargedAtCost'],
+    costOpen: num(r['costOpen']),
+    agreedOpen: num(r['agreedOpen']),
+    marginOpen: num(r['marginOpen']),
+    agreements: ((r['agreements'] as Raw[] | null) ?? []).map((a) => ({
+      uid: String(a['uid']),
+      amount: num(a['amount']) ?? 0,
+      agreedOn: str(a['agreedOn']),
+      documentRef: String(a['documentRef'] ?? ''),
+      note: String(a['note'] ?? ''),
+      recordedByName: str(a['recordedByName']),
+      recordedAt: str(a['recordedAt']),
     })),
   };
 }

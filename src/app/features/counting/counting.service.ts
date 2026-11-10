@@ -170,6 +170,23 @@ export class CountingService {
     return toLiability(await this.api.post<Raw>(`${LIAB}/${uid}/payments`, payload));
   }
 
+  /**
+   * Kazi 4 (V144): written agreement that the staff member owes the margin above cost (LIABILITY_MANAGE).
+   * Posts Dr 1120 / Cr 4900; `amount` null = all the margin still owed.
+   */
+  async recordMarginAgreement(
+    uid: string,
+    body: { amount: number | null; agreedOn: string | null; documentRef: string; note: string },
+  ): Promise<Liability> {
+    const payload = {
+      ...(body.amount ? { amount: body.amount } : {}),
+      ...(body.agreedOn ? { agreedOn: body.agreedOn } : {}),
+      documentRef: body.documentRef.trim(),
+      note: body.note.trim(),
+    };
+    return toLiability(await this.api.post<Raw>(`${LIAB}/${uid}/margin-agreement`, payload));
+  }
+
   /** Cancels a debt raised in error for a stock surplus (LIABILITY_MANAGE; no GL entry). */
   async voidSurplus(uid: string, reason: string): Promise<Liability> {
     return toLiability(await this.api.post<Raw>(`${LIAB}/${uid}/void-surplus`, { reason }));
