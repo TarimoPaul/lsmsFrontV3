@@ -8,7 +8,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { EmptyState, Icon, Skeleton } from '@shared/ui';
 import { toIsoDate } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
-import { ControlCheck, controlLevel, FinancialPosition, IncomeStatement } from '../general-ledger/gl.models';
+import { ControlCheck, FinancialPosition, IncomeStatement } from '../general-ledger/gl.models';
 import { GlService } from '../general-ledger/gl.service';
 
 /**
@@ -136,8 +136,7 @@ export class CapitalOverview {
   protected readonly error = signal<string | null>(null);
 
   protected readonly canGl = computed(() => this.auth.hasPermission('FINANCE_READ'));
-  // Toleo 2 H1 (09/11 dv): only a WARNING (ONYO) raises "the books need correcting"; a small difference (TAARIFA) does not.
-  protected readonly unreconciled = computed(() => this.checks().filter((c) => controlLevel(c) === 'ONYO'));
+  protected readonly unreconciled = computed(() => this.checks().filter((c) => !c.reconciled));
   protected readonly unreconciledNames = computed(() =>
     this.unreconciled().map((c) => (this.i18n.isSwahili() ? c.labelSw : c.label)).join(', '),
   );

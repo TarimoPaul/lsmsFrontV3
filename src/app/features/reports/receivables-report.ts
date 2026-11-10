@@ -7,7 +7,7 @@ import { AgingBar, AgingBucket, DataTable, EmptyState, Icon, MetricCard, Metrics
 import { parseLocal } from '@shared/utils/date-utils';
 import { Cell, downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
-import { ControlCheck, controlLevel } from '../general-ledger/gl.models';
+import { ControlCheck } from '../general-ledger/gl.models';
 import { GlService } from '../general-ledger/gl.service';
 import { AGING, AgingKey, ArCustomer, ArInvoice } from './reports.models';
 import { ReportFrame } from './report-frame';
@@ -52,7 +52,7 @@ type Bucket = 'ALL' | AgingKey;
         </section>
 
         @if (glCheck(); as g) {
-          <p class="xcheck" [class.bad]="lvl(g) === 'ONYO'">
+          <p class="xcheck" [class.bad]="!g.reconciled">
             <lsms-icon [name]="g.reconciled ? 'verified' : 'info'" [size]="17" />
             {{ i18n.t('General Ledger account', 'Akaunti ya Leja Kuu') }} {{ g.accountCode }}: <b>{{ m(g.glBalance) }}</b>
             {{ g.reconciled ? i18n.t('— matches this report', '— inalingana na ripoti hii') : i18n.t('— differs by ', '— tofauti ') + m(g.difference) }}
@@ -100,8 +100,6 @@ type Bucket = 'ALL' | AgingKey;
 })
 export class ReceivablesReport {
   protected readonly i18n = inject(LanguageService);
-  /** Toleo 2 H1: SAWA | TAARIFA (small, information) | ONYO; an older backend falls back to `reconciled`. */
-  protected readonly lvl = controlLevel;
   private readonly api = inject(ReportsService);
   private readonly gl = inject(GlService);
   private readonly auth = inject(AuthService);

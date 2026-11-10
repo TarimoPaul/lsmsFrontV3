@@ -9,10 +9,10 @@ import { parseLocal } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
 import { moneyAccountByMethod } from '../general-ledger/money-accounts';
-import { Expenditure, ExpStatus, SCHEDULED, STATUS, isPlanned, typeIcon, typeLabel } from './capital.models';
-import { AnnualPrepaid, CapitalService } from './capital.service';
+import { Expenditure, ExpStatus, STATUS, typeIcon, typeLabel } from './capital.models';
+import { CapitalService } from './capital.service';
 
-type Filter = 'ALL' | 'SCHEDULED' | ExpStatus;
+type Filter = 'ALL' | ExpStatus;
 const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
 
 /**
@@ -34,9 +34,8 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     </lsms-metrics-grid>
 
     <div class="bar">
-      <lsms-search-bar [placeholder]="i18n.t('Search expense…', 'Tafuta gharama…')" [(value)]="searchText" (search)="q.set($event)" (cleared)="q.set('')" />
+      <lsms-search-bar [placeholder]="i18n.t('Search expense…', 'Tafuta gharama…')" (search)="q.set($event)" (cleared)="q.set('')" />
       <button lsmsButton="secondary" icon="event_repeat" (click)="budgets()">{{ i18n.t('Monthly budgets', 'Bajeti za kila mwezi') }}</button>
-      <button lsmsButton="secondary" icon="savings" (click)="annualPrepaid()">{{ i18n.t('Annual expenses', 'Gharama za mwaka') }}</button>
       @if (canWrite()) {
         <button lsmsButton="primary" icon="add" (click)="create()">{{ i18n.t('New expense', 'Gharama mpya') }}</button>
       }
@@ -86,10 +85,10 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
           <span class="muted">{{ method(row.paymentMethod) }}</span>
         </ng-template>
         <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" [sortBy]="statusOf" let-row>
-          @let st = status(row);
+          @let st = status(row.status);
           <span class="cell-stack">
             <span class="pill" [style.--pc]="st.color"><lsms-icon [name]="st.icon" [size]="13" />{{ i18n.isSwahili() ? st.sw : st.en }}</span>
-            <small>@if (planned(row)) { {{ i18n.t('posts on', 'itaandikwa') }} {{ day(row.transactionDate) | date: 'dd MMM yyyy' }} } @else if (row.status === 'APPROVED') { {{ row.approvedBy }} } @else if (row.createdBy) { {{ i18n.t('by', 'na') }} {{ row.createdBy }} }@if (row.statusChangeReason && row.status !== 'APPROVED' && row.status !== 'PENDING') { · {{ row.statusChangeReason }} }</small>
+            <small>@if (row.status === 'APPROVED') { {{ row.approvedBy }} } @else if (row.createdBy) { {{ i18n.t('by', 'na') }} {{ row.createdBy }} }@if (row.statusChangeReason && row.status !== 'APPROVED' && row.status !== 'PENDING') { · {{ row.statusChangeReason }} }</small>
           </span>
         </ng-template>
         <ng-template lsmsColumn="actions" let-row>
@@ -135,7 +134,6 @@ export class ExpensesTab {
   private readonly toast = inject(ToastService);
 
   protected readonly q = signal('');
-  protected readonly searchText = signal('');
   protected readonly filter = signal<Filter>('ALL');
   protected readonly busy = signal<string | null>(null);
   protected readonly table = viewChild<DataTable<Expenditure>>(DataTable);
@@ -159,8 +157,7 @@ export class ExpensesTab {
       const d = parseLocal(e.transactionDate);
       return !!d && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     };
-    // G4: a planned (future-month) row is not an expense of this month yet
-    const approved = this.expenses().filter((e) => e.status === 'APPROVED' && !this.planned(e));
+    const approved = this.expenses().filter((e) => e.status === 'APPROVED');
     const pending = this.expenses().filter((e) => e.status === 'PENDING');
     return {
       month: approved.filter(inMonth).filter((e) => e.capitalType !== 'SHRINKAGE_LOSS').reduce((s, e) => s + e.amount, 0),
@@ -178,10 +175,7 @@ export class ExpensesTab {
     return [
       { value: 'ALL', label: this.i18n.t('All', 'Zote'), count: this.expenses().length || undefined },
       { value: 'PENDING', label: l('PENDING'), count: c('PENDING'), icon: 'hourglass_top' },
-      { value: 'APPROVED', label: l('APPROVED'), count: this.expenses().filter((e) => e.status === 'APPROVED' && !this.planned(e)).length || undefined, icon: 'verified' },
-      ...(this.expenses().some((e) => this.planned(e))
-        ? [{ value: 'SCHEDULED' as Filter, label: (this.i18n.isSwahili() ? SCHEDULED.sw : SCHEDULED.en).split(' · ')[0], count: this.expenses().filter((e) => this.planned(e)).length, icon: SCHEDULED.icon }]
-        : []),
+      { value: 'APPROVED', label: l('APPROVED'), count: c('APPROVED'), icon: 'verified' },
       { value: 'CANCELLED', label: l('CANCELLED'), count: c('CANCELLED') },
       { value: 'REJECTED', label: l('REJECTED'), count: c('REJECTED') },
     ];
@@ -191,9 +185,7 @@ export class ExpensesTab {
     const q = this.q().trim().toLowerCase();
     const f = this.filter();
     return this.expenses().filter(
-      (e) =>
-        (f === 'ALL' || (f === 'SCHEDULED' ? this.planned(e) : f === 'APPROVED' ? e.status === 'APPROVED' && !this.planned(e) : e.status === f)) &&
-        (!q || e.description.toLowerCase().includes(q) || (e.referenceNumber ?? '').toLowerCase().includes(q)),
+      (e) => (f === 'ALL' || e.status === f) && (!q || e.description.toLowerCase().includes(q) || (e.referenceNumber ?? '').toLowerCase().includes(q)),
     );
   });
 
@@ -208,22 +200,12 @@ export class ExpensesTab {
 
   protected async create(): Promise<void> {
     const { ExpenseDialog } = await import('./capital-dialogs');
-    const created = await this.dialogs.openAsync<Expenditure | AnnualPrepaid>(ExpenseDialog, { size: 'md', disableClose: true });
+    const created = await this.dialogs.openAsync<Expenditure>(ExpenseDialog, { size: 'md', disableClose: true });
     if (created) {
       await this.api.all.load(true);
-      // G4 (owner dm): show what was just saved. A monthly budget's rows are dated the 1st of their month, so
-      // with the newest-first sort they sank below today's entries and were typed a second time (04/11).
-      const name = 'totalAmount' in created ? '' : (created.description ?? '').trim(); // annual rows appear after approval
-      if (name) {
-        this.filter.set('ALL');
-        this.searchText.set(name);
-        this.q.set(name.toLowerCase());
-      }
       this.toast.success(
-        'totalAmount' in created
-          ? this.i18n.t('Annual expense saved — waiting for approval (see “Annual expenses”)', 'Gharama ya mwaka imehifadhiwa — inasubiri idhini (ona “Gharama za mwaka”)')
-          : created.recurring
-            ? this.i18n.t('Monthly budget started', 'Bajeti ya kila mwezi imeanzishwa')
+        created.recurring
+          ? this.i18n.t('Monthly budget started', 'Bajeti ya kila mwezi imeanzishwa')
           : this.i18n.t('Expense saved — waiting for approval', 'Gharama imehifadhiwa — inasubiri idhini'),
       );
     }
@@ -234,16 +216,6 @@ export class ExpensesTab {
     const changed = await this.dialogs.openAsync<boolean>(RecurringBudgetsDialog, {
       size: 'md',
       data: { canEdit: this.auth.hasPermission('CAPITAL_WRITE'), canStop: this.auth.hasPermission('CAPITAL_APPROVE') },
-    });
-    if (changed) await this.api.all.load(true);
-  }
-
-  /** G5: annual expenses paid up front - list, approve, reject, cancel. */
-  protected async annualPrepaid(): Promise<void> {
-    const { AnnualPrepaidDialog } = await import('./annual-prepaid-dialog');
-    const changed = await this.dialogs.openAsync<boolean>(AnnualPrepaidDialog, {
-      size: 'md',
-      data: { canApprove: this.auth.hasPermission('CAPITAL_APPROVE') },
     });
     if (changed) await this.api.all.load(true);
   }
@@ -343,19 +315,12 @@ export class ExpensesTab {
   }
 
   protected method(m: string | null): string {
-    // G5: a month of an annual prepayment is paid out of Prepaid (1160), not out of a cash account
-    if (m === 'PREPAID') return this.i18n.t('Prepaid (1160)', 'Imelipwa mapema (1160)');
     const a = moneyAccountByMethod(m);
     return this.i18n.isSwahili() ? a.sw : a.en;
   }
 
-  protected status(e: Expenditure) {
-    return this.planned(e) ? SCHEDULED : (STATUS[e.status] ?? STATUS.PENDING);
-  }
-
-  /** G4: approved, but dated after today — its journal is written on that date, not yet in the books. */
-  protected planned(e: Expenditure): boolean {
-    return isPlanned(e);
+  protected status(s: ExpStatus) {
+    return STATUS[s] ?? STATUS.PENDING;
   }
 
   protected day(v: string | null): Date | null {

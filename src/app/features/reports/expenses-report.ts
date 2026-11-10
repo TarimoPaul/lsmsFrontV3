@@ -7,7 +7,7 @@ import { DataTable, EmptyState, Icon, MetricCard, MetricsGrid, SegmentOption, Se
 import { DateRange, parseLocal, rangeForPreset, toIsoDate } from '@shared/utils/date-utils';
 import { Cell, downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
-import { Expenditure, LOAN_STATUS, Loan, SCHEDULED, SOURCE_LABELS, STATUS, isPlanned, typeLabel } from '../capital/capital.models';
+import { Expenditure, LOAN_STATUS, Loan, SOURCE_LABELS, STATUS, typeLabel } from '../capital/capital.models';
 import { CapitalService } from '../capital/capital.service';
 import { IncomeStatement } from '../general-ledger/gl.models';
 import { GlService } from '../general-ledger/gl.service';
@@ -268,7 +268,6 @@ export class ExpensesReport {
   }
 
   protected status(e: Expenditure) {
-    if (isPlanned(e)) return SCHEDULED; // G4: future-month row, no journal yet
     return STATUS[e.status] ?? { en: e.status, sw: e.status, color: 'var(--c-text-2)' };
   }
 

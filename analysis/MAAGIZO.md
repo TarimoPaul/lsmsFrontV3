@@ -903,3 +903,21 @@ Mpangilio wa kazi kuanzia sasa (moja baada ya nyingine; ripoti fupi + jedwali la
  9. ORODHA-FLUTTER-V3 → C7 (pamoja na M1; Flutter mwisho) → C6 (+ DROP view 4) → Flyway V039/outOfOrder → config.
 Kipengele kikihitaji uamuzi au data ya Chief: kiweke kando, endelea na kinachofuata, na uniorodheshee maswali kwenye ripoti.
 Kosa jipya: liingie tu ikiwa linaandika pesa/stock/data isiyo sahihi kwenye prod.
+
+## 2026-11-10 (dy)
+Kanuni: V3 main = prod (v3.2.0 + analysis/ tu). Code ya toleo 2 ya V3 iende feature/t2-* kama backend.
+  Hamisha commit za app (G2–G5 n.k.) kutoka V3 main → feature/t2-gharama (V3); main irudi kwenye code ya v3.2.0 (analysis/ ibaki).
+  Thibitisha: diff ya main dhidi ya tag v3.2.0 nje ya analysis/ = 0. Hotfix yoyote ya V3: tawi hotfix/* kutoka tag v3.2.0.
+G5 idhini: Chief ndiye pekee mwenye FINANCE_WRITE. Pendekeza: CEO anaweza kuidhinisha yake mwenyewe kwa sababu ya lazima + audit
+  (au ruhusa ya "idhini tu" kwa Executive CEO). Niletee chaguo — usijenge mpaka Chief aamue.
+E2E ya G2–G5 sasa (Playwright, local, build ya feature/t2-gharama + backend ya tawi hilo): Stop yenye swali, onyo la nakala,
+  "Imepangwa", gharama ya mwaka (1160 → 1/12). Kisha kazi 2.
+
+## 2026-11-10 (dz)
+G5 idhini = (a): CEO anaweza kuidhinisha gharama ya mwaka aliyoiingiza yeye mwenyewe, kwa sharti:
+  - sababu ya lazima (kanuni ya ubora wa sababu ya A6: ≥10, siyo herufi moja inayojirudia);
+  - audit: nani aliingiza, nani aliidhinisha, sababu, kiasi, chanzo (C3), muda;
+  - "kujiidhinisha" ionekane wazi kwa wenye ruhusa ya kukagua (Executive CEO anaona orodha ya gharama zilizojiidhinisha — kusoma tu).
+  Mtumiaji mwingine yeyote (si CEO) bado anahitaji mtu wa pili. Jaribio: CEO bila sababu → kataa; CEO na sababu → SAWA + audit;
+  MANAGER kujiidhinisha → kataa.
+Pamoja na (dy): hamisha code ya V3 kutoka main → feature/t2-gharama; E2E ya G2–G5; kisha kazi 2.
