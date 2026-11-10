@@ -6,7 +6,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { DataTable, DialogService, EmptyState, Icon, MetricCard, MetricsGrid, SearchBar, SegmentOption, SegmentedFilterBar, Skeleton, TableColumn } from '@shared/ui';
 import { Cell, downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
-import { ControlCheck } from '../general-ledger/gl.models';
+import { ControlCheck, controlLevel } from '../general-ledger/gl.models';
 import { GlService } from '../general-ledger/gl.service';
 import { Product } from '../products/products.models';
 import { ProductsService } from '../products/products.service';
@@ -67,7 +67,7 @@ export interface StockRow {
         </lsms-metrics-grid>
 
         @if (glCheck(); as g) {
-          <p class="xcheck" [class.bad]="!g.reconciled">
+          <p class="xcheck" [class.bad]="lvl(g) === 'ONYO'">
             <lsms-icon [name]="g.reconciled ? 'verified' : 'info'" [size]="17" />
             {{ i18n.t('General Ledger stock (account', 'Stoki kwenye Leja Kuu (akaunti') }} {{ g.accountCode }}): <b>{{ m(g.glBalance) }}</b>
             @if (!g.reconciled) {
@@ -109,6 +109,8 @@ export interface StockRow {
 })
 export class InventoryReport {
   protected readonly i18n = inject(LanguageService);
+  /** Toleo 2 H1: SAWA | TAARIFA (small, information) | ONYO; an older backend falls back to `reconciled`. */
+  protected readonly lvl = controlLevel;
   private readonly store = inject(StoreService);
   private readonly productsApi = inject(ProductsService);
   private readonly gl = inject(GlService);
