@@ -32,6 +32,23 @@ Bidhaa hizi ni CAMINO KUPIMA, GILBEYS KUPIMA, GOLDEN KING KUPIMA, KONYAGI YA KUP
   - hakuna stock_adjustment yoyote ya kupima (BAADA §2).
 - **Tozo:** hakuna (uamuzi wa Chief, 02/11).
 
+## 2b. Maswali ya (ec), jibu moja moja
+- **Kuna uhusiano na chupa (conversion)?** HAPANA. Bidhaa ya kupima haina kiungo chochote na chupa. Hakuna conversion ya chupa 1 = vipimo N.
+- **Kipimo kimoja kinapunguza stock kiasi gani?** Kila mstari wa mauzo unapunguza "kipande" 1 cha bidhaa ya kupima, bila kujali bei iliyoandikwa:
+  - mstari wa 5,000 bado ni −1;
+  - chupa mzazi inabaki 0 (haiguswi).
+- **Kwa nini 9–10?** Ni salio la "manunuzi" bandia ukitoa mauzo yaliyoandikwa:
+
+  | Bidhaa | Manunuzi | Mauzo | Marekebisho / marejesho | Salio la mfumo | Mauzo ya mwisho yaliyoandikwa |
+  |---|---|---|---|---|---|
+  | Golden King Kupima | 20 | −11 | 0 | **9** | 09/05 |
+  | Gilbeys Kupima | 20 | −11 | 0 | **9** | 18/07 |
+  | Moon Light Kupima | 20 | −13 | +1, +1 | **9** | 17/08 |
+  | Konyagi ya kupima | 34 | −101 | +70, +7 | **10** | 12/10 |
+  | Camino / Wine | 20 / 50 | −22 / −77 | +2 / +27 | 0 / 0 | 01/06 / 11/10 |
+
+  Vipimo hivi havipo kwenye kabati. Hesabu inapata 0 kwa sababu kipimo hakiwezi kuhesabiwa kwa macho. Hiyo ndiyo tofauti ya 46,000 inayorudi kila siku.
+
 ## 3. Matatizo yanayotokana na hali ya leo (yanajibiwa na muundo wa (ef))
 | Leo | (ef) |
 |---|---|

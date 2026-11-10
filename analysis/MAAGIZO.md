@@ -932,6 +932,37 @@ hapana endelea kutumia e2e nilikosea kusoma na kuelewa
 Chief: Executive CEO (Jess) AKUSUDIWA kuwa na CAPITAL_WRITE + CAPITAL_APPROVE (mtu wa pili wa kuidhinisha). Usiziondoe.
 Kanuni inabaki: hakuna anayejiidhinisha isipokuwa CEO kwa sababu + audit. Kisha kazi 2.
 
+## 2026-11-10 (ec)
+Kazi 3 = (b): sale chini ya gharama INARUHUSIWA kwa sababu ya lazima (kanuni ya A6), na inaingia kwenye banner/Kagua ya mabadiliko
+  ya mauzo mpaka CEO "Nimeona" (kama A6). L1: "SELLING BELOW" → WARN + audit. Hakuna kuzuia sale.
+Footer: "Babuu Liquor Store" (config; Chief atathibitisha tahajia kwa cheti).
+Kupima: Chief bado anakusanya data (vipimo kwa chupa, bei). Kwa sasa (kusoma tu, prod-copy): eleza jinsi kupima inavyofanya kazi leo —
+  bidhaa za kupima zina uhusiano gani na chupa (conversion?), mauzo ya kipimo yanapunguza stock kwa kiasi gani, na kwa nini
+  mfumo unaonyesha 9–10 kwa kila bidhaa. Pendekeza muundo wa "Fungua chupa" (chupa → vipimo N, gharama ÷ N, tofauti mwishoni → 5100,
+  hesabu ya wiki kwa chupa + kiwango cha zilizo wazi), bila kujenga mpaka Chief alete N.
+
+## 2026-11-10 (ed)
+Muundo wa KUPIMA (Chief + Claude) — andika MUUNDO-KUPIMA.md, USIJENGE mpaka Chief alete N na bei:
+ - Bidhaa: "Aina ya kuuza" = KAWAIDA | KUPIMA. KUPIMA ina: bidhaa_mzazi (chupa nzima kwenye store), vipimo_kwa_chupa (N), bei_ya_kipimo.
+ - Mauzo (V3 POS): bidhaa ya KUPIMA inaonyesha progress bar ya chupa iliyo wazi (vipimo vilivyobaki / N).
+   Kuuza kipimo → −1 kwenye chupa iliyo wazi; gharama ya kipimo = avg ya mzazi ÷ N.
+   Bar = 0 → "Fungua chupa mpya?" → mzazi −1 kwenye store, bar = N. Chupa MOJA tu wazi kwa bidhaa.
+ - "Chupa imeisha": vipimo vilivyobaki kwenye bar → upotevu wa kumwagika (Dr 5100 / Cr 1200, kwa gharama), bila tozo kwa mfanyakazi;
+   ripoti ya upotevu kwa chupa (bidhaa, tarehe, aliyefungua/kufunga, vipimo vilivyopotea).
+ - Kuuza chupa nzima: kutoka mzazi moja kwa moja.
+ - Hesabu ya wiki: chupa zilizofungwa (idadi) + chupa iliyo wazi kwa kiwango (1, ¾, ½, ¼) dhidi ya bar.
+ - Uhamisho wa data ya sasa: hali ya leo (9–10 "wazi" kwa bidhaa) → hatua ya mara moja baada ya hesabu halisi.
+Pamoja na (ec): eleza jinsi kupima inavyofanya kazi leo kabla ya muundo huu.
+
+## 2026-11-10 (ee)
+Sahihisho la (ed): KUPIMA inapimwa kwa ML, siyo idadi ya vipimo.
+ - Bidhaa ya KUPIMA: bidhaa_mzazi, ujazo_wa_chupa_ml, na ORODHA ya vipimo {ml, bei} (k.m. Konyagi 750ml: 30ml=1,000; 60ml=2,000).
+   Bei inatofautiana kwa kinywaji.
+ - Progress bar: ml zilizobaki / ujazo. Kuuza kipimo → −ml yake. Gharama ya kipimo = avg ya mzazi ÷ ujazo × ml.
+ - "Chupa imeisha": ml zilizobaki → upotevu (5100) kwa gharama. Ripoti kwa chupa: ml zilizopotea na sawa na vipimo vingapi vya 30ml.
+ - Ripoti ya faida kwa kinywaji: mapato ya kupima kwa chupa dhidi ya bei ya kuuza chupa nzima.
+Mengine ya (ed) yanabaki. Usijenge mpaka Chief ajaze jedwali (ujazo + vipimo + bei kwa kila kinywaji).
+
 ## 2026-11-10 (ef) — muundo wa KUPIMA (unachukua nafasi ya (ed) na (ee))
 Kanuni (zimeamuliwa na Chief):
  1. Ruhusa MPYA peke yake, k.m. KUPIMA_SETTINGS: ndiye pekee anayeweza kuunda/kubadilisha mipangilio ya kupima (ml, bei, chombo, mzazi).
