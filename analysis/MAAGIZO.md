@@ -924,3 +924,6 @@ Pamoja na (dy): hamisha code ya V3 kutoka main → feature/t2-gharama; E2E ya G2
 
 ## 2026-11-10 (ujumbe bila herufi, baada ya dz)
 E2E NI AWS AHTUTUMI TENA ELEWA HIYO SASA HIVI TUNATUMIA CONTABO
+
+## 2026-11-10 (ujumbe bila herufi, unafuta uliotangulia)
+hapana endelea kutumia e2e nilikosea kusoma na kuelewa
