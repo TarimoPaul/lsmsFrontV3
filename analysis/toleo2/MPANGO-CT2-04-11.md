@@ -144,4 +144,13 @@ Code (chanzo kimeonekana 09/11):
 - (dx) **Kazi 2 / G6 IMEKAMILIKA:** V141 liability_payment; /api/v1/gl/liability-payments: Dr 2400/2200 / Cr chanzo C3 (cutover), <= salio, FINANCE_WRITE,
   kipindi kilichofungwa/tarehe ya baadaye/maelezo dhaifu -> kataa; kubatilisha kwa sababu. V3 "Madeni ya gharama". Malipo ya 01/01/27 (2400 600k) na 2200 65k yatumie hii.
   Gate: suite 626/0/1, ng test 96/96, E2E_OK 13/13 (g25 31/0, g6 13/0) kwenye nakala safi ya dump 29/10 (Flyway 134->141).
-- Inayofuata: kazi 3 (punguzo chini ya gharama -> CEO + sababu, + L1).
+- Kazi 3 IMEKAMILIKA 10/11, kwa (ec) = (b). Backend feature/t2-gharama 9c496b8, V3 0f405df na a1d976c.
+  - Sale chini ya gharama inaruhusiwa kwa sababu ya lazima (A6), kisha inaandikwa BELOW_COST kwenye sale_change_audit
+    (V142) na kusubiri "Nimeona" kwenye banner/Kagua.
+  - POS inajibiwa 422 BELOW_COST_REASON, inaomba sababu, kisha inatuma tena.
+  - Edit inatumia sababu yake ya A6.
+  - L1 sasa ni WARN.
+  - Majaribio: unit 5/0, mutation 3/3, suite 632/0/1, ng test 96/96, E2E_OK 14/14 (k3 20/0).
+- (ec) Footer "Babuu Liquor Store" (config): inasubiri Chief athibitishe tahajia kwa cheti.
+- (ef) KUPIMA: inajengwa kwenye feature/t2-kupima BAADA ya kazi 3. Hali ya leo: KUPIMA-LEO-EC.md.
+- Inayofuata: kazi 4 (tozo ya mfanyakazi kwa gharama, bila 4900), au KUPIMA kwanza kama (ef) inavyotaka.
