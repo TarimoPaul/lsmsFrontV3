@@ -1,0 +1,70 @@
+﻿[15:50:54] ===== 80 kagua  2026-11-09 =====
+[15:51:13] === 80 KAGUA 2026-11-09 15:51:05 - KUSOMA TU
+[15:51:13] --- vipindi: 2026-01 CLOSED, 2026-02 CLOSED, 2026-03 CLOSED, 2026-04 CLOSED, 2026-05 CLOSED, 2026-06 CLOSED, 2026-07 CLOSED, 2026-08 CLOSED, 2026-09 CLOSED, 2026-10 CLOSED
+[15:51:13] === (a) watoto 11 BILA journal -> CANCELLED (hakuna GL). ref | mwezi | kiasi | status | imefutwa | journal zote | dirisha la postDue (siku 45)?
+[15:51:13] REN-MON-20261001-000000-F4B73208 | 2026-10 | 200000.00 | APPROVED | f | 0 | NDANI (00:10 kila usiku)
+[15:51:13] TAX-MON-20260101-000000-DA4470C9 | 2026-01 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260201-000000-804FBAA3 | 2026-02 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260301-000000-B71BFD03 | 2026-03 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260401-000000-8F367691 | 2026-04 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260501-000000-2F5B475B | 2026-05 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260601-000000-05367008 | 2026-06 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260701-000000-FC48A707 | 2026-07 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260801-000000-982287F9 | 2026-08 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20260901-000000-31963E86 | 2026-09 | 250000.00 | APPROVED | f | 0 | nje
+[15:51:13] TAX-MON-20261001-000000-866ADE03 | 2026-10 | 250000.00 | APPROVED | f | 0 | NDANI (00:10 kila usiku)
+[15:51:13] idadi: 11 rows, jumla 2700000.00, zenye journal: 0 (lazima 11 rows, journal 0)
+[15:51:13] gl_posting_failure za rows hizi: 
+[15:51:13] === (b) PANGO / FRAME - akaunti ya pango: 6000 (Rent). Jan 200,000 iko 6200 -> inahamishwa kwenda 6000 ndani ya journal hii
+[15:51:13] Frame 2026 - journal zilizopo (rows za capex zenye 'frame' isipokuwa usafi):
+[15:51:13] OPE-MON-20260101-000000-F7C9E331 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000) | 200000.00 | APPROVED | f | 2026-01-01 POSTED [1000:-200000.00,6200:200000.00]
+[15:51:13] REN-MON-20261001-000000-0EA74497 | Malipo Ya Kodi YA Frame | 0.00 | APPROVED | f | -
+[15:51:13] REN-MON-20261001-000000-F4B73208 | Malipo Ya Kodi YA Frame (2026-10) | 200000.00 | APPROVED | f | -
+[15:51:13] REN-MON-20261101-000000-5D9DD844 | Malipo Ya Kodi YA Frame (2026-11) | 200000.00 | APPROVED | f | 2026-11-01 POSTED [1000:-200000.00,6000:200000.00]
+[15:51:13] REN-MON-20261201-000000-9331734F | Malipo Ya Kodi YA Frame (2026-12) | 200000.00 | APPROVED | t | -
+[15:51:13] Journal za marekebisho zilizopo: 80b=0 80c=0 80e=0
+[15:51:13] akaunti 2400: HAIPO - itaongezwa: 2400 Accrued Expenses / Gharama Zinazodaiwa, LIABILITY, CURRENT_LIABILITY, CREDIT (hakuna akaunti ya gharama zinazodaiwa kwenye chart)
+[15:51:13] journal (b), tarehe = siku ya kuandika (Novemba):
+[15:51:13]    Dr 6000 2,000,000 (Jan-Sep 1,800,000 + uhamisho wa Jan 200,000 kutoka 6200) | Dr 1000 400,000 (Cr 1000 za 01/01 na 01/11 hazikutoka kwenye biashara)
+[15:51:13]    Cr 6200 200,000 (uhamisho) | Cr 2300 1,800,000 (Chief alilipa Jan-Sep) | Cr 2400 400,000 (Okt-Nov zinadaiwa)        Dr = Cr = 2,400,000
+[15:51:13]    -> pango 2026: 6000 = 2,200,000, 6200 ya Frame = 0; 2300 +1,800,000; 2400 400,000
+[15:51:13] journal (e), 01/12 au baadaye: Dr 6000 200,000 / Cr 2400 200,000 -> pango 2026 = 2,400,000; 2400 = 600,000 (italipwa ~01/01/27 kwa 'Lipa' ya kawaida)
+[15:51:13] === (c) TRA - akaunti ya gharama: 6800 (Tax Expense); inayodaiwa: 2200 (Tax Payable, ipo)
+[15:51:13] OPE-MON-20260101-000000-4B42C8F1 | 2026-00 | 20833.33 | APPROVED | f | 2026-01-01 POSTED [1000:-20833.33,6200:20833.33]
+[15:51:13] TAX-MON-20261101-000000-B4F8EA66 | 2026-11 | 250000.00 | APPROVED | f | 2026-11-01 POSTED [1000:-250000.00,6800:250000.00]
+[15:51:13] akaunti 2200: 2200 Tax Payable / Kodi active=true
+[15:51:13] journal (c): Dr 1000 85,833.33 | Cr 6200 20,833.33 (row ya Flutter ya Jan iko 6200 -> inaondolewa; hivyo 6800 = 250,000 kamili) | Cr 2200 65,000
+[15:51:13]    ANGALIA: (ds) iliandika 'Cr 6800 20,833.33'. Kiasi kile kile; tofauti ni akaunti tu: Cr 6800 ingeacha 6800 = 229,166.67 na 6200 = 20,833.33.
+[15:51:13]    -> TRA 2026 = 250,000 (6800); Cr 1000 ya TRA = 185,000 (ililipwa na biashara); 2200 = 65,000
+[15:51:13] === (d) Novemba: reverse (Azam x2, TTCL x1) | baki. ref | template | template hai? | kiasi | status | journal
+[15:51:13] REVERSE | OPE-MON-20261101-000000-36910E6D | OPE-MON-20261101-000000-7141D798 | f | 28000.00 | APPROVED | 2026-11-01 POSTED [1000:-28000.00,6200:28000.00]
+[15:51:16] REVERSE | OPE-MON-20261101-000000-9CB440F1 | OPE-MON-20261101-000000-E811CF7D | f | 28000.00 | APPROVED | 2026-11-01 POSTED [1000:-28000.00,6200:28000.00]
+[15:51:16] REVERSE | OPE-MON-20261101-000000-A4A2EBD8 | OPE-MON-20261101-000000-188B8289 | f | 55000.00 | APPROVED | 2026-11-01 POSTED [1000:-55000.00,6200:55000.00]
+[15:51:16] BAKI | OPE-MON-20261101-000000-C1B0BA4D | OPE-MON-20261101-000000-B76DE7BD | t | 55000.00 | APPROVED | 2026-11-01 POSTED [1000:-55000.00,6200:55000.00]
+[15:51:16] BAKI | OPE-MON-20261101-000000-F681592A | OPE-MON-20261101-000000-1F69FDCB | t | 28000.00 | APPROVED | 2026-11-01 POSTED [1000:-28000.00,6200:28000.00]
+[15:51:16]    reversal: Dr 1000 111,000 / Cr gharama (28,000 x2 + 55,000)
+[15:51:16] --- Desemba za budget zilizosimamishwa (lazima imefutwa=t):
+[15:51:16] OPE-MON-20261201-000000-445F7E17 | t | APPROVED
+[15:51:16] OPE-MON-20261201-000000-9A8E8A51 | t | APPROVED
+[15:51:16] OPE-MON-20261201-000000-BAB17D9D | t | APPROVED
+[15:51:16] REN-MON-20261201-000000-9331734F | t | APPROVED
+[15:51:16] TAX-MON-20261201-000000-F9B5339C | t | APPROVED
+[15:51:16] --- Desemba za budget HAI (zinabaki, zitaandikwa na postDue 01/12):
+[15:51:16] OPE-MON-20261201-000000-5519446E | Malipo Ya Azam (2026-12) | 28000.00
+[15:51:16] OPE-MON-20261201-000000-66FFC6C5 | Malipo Ya Mlinzi (2026-12) | 18000.00
+[15:51:16] OPE-MON-20261201-000000-7A21A088 | Kifurushi Cha Bando TTCL (2026-12) | 55000.00
+[15:51:16] OPE-MON-20261201-000000-EC07AC64 | malipo ya wafanyakazi (2026-12) | 300000.00
+[15:51:16] === SALIO SASA
+[15:51:17] 1000 | Pesa Mkononi | 13602631.54 | 13602631.54
+[15:51:17] 2200 | Kodi | 0.00 | 0.00
+[15:51:17] 2300 | Deni kwa mmiliki - Paul | 0.00 | 0.00
+[15:51:17] 6000 | Kodi ya Nyumba | 200000.00 | 200000.00
+[15:51:17] 6200 | Gharama za Uendeshaji | 6380133.33 | 6380133.33
+[15:51:17] 6800 | Gharama ya Kodi | 250000.00 | 250000.00
+[15:51:17] TB (Dr - Cr, zote POSTED): 0.00
+[15:51:17] PANGO 2026: 6000 = 200000.00 + 6200 ya Frame = 200000.00   (lengo: 2,200,000 baada ya b; 2,400,000 baada ya e)
+[15:51:17] TRA 2026:   6800 = 250000.00 + 6200 ya TRA = 20833.33   (lengo: 250,000 baada ya c)
+[15:51:17] --- makadirio baada ya a+b+c+d: 1000 +596,833.33 (b 400,000 + c 85,833.33 + d 111,000); 2300 -1,800,000; 2400 -400,000; 2200 -65,000;
+[15:51:17]     6000 +2,000,000; 6200 -220,833.33 - (d ikiwa Azam/TTCL ni 6200); TB 0
+[15:51:17] ---80_KAGUA_MWISHO---
+[15:51:17] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0

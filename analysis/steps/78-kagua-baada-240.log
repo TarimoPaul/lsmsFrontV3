@@ -1,0 +1,101 @@
+---MWENDESHO-78--- 
+Tue 11/10/2026  7:53:35.85 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KAGUA--- 
+=== 0 HALI
+backend chiefmaster/my-lsms-backend:2.4.0 Up 18 hours
+frontend chiefmaster/lsms-frontend:2.2.53 Up 3 weeks
+frontend-v3 chiefmaster/lsms-frontend-v3:3.2.0 Up 18 hours (healthy)
+nginx nginx:1.31.2 Up 3 weeks
+postgres postgres:15 Up 3 weeks (healthy)
+flyway_max 138
+=== 1 GL_POSTING_FAILURE tangu 2026-11-09 13:55 (zote / hazijatatuliwa)
+0 | 0
+=== 2 LOANINT 10/11 (riba ya mkopo ya siku)
+LOANINT:INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637:2026-11-10 | 2026-11-10 | POSTED | 1717.39 | 1150:-1717,6600:1717
+LOANINT 10/11 idadi: 1 | 09/11: 1 (09/11 na 10/11 zinapaswa kuwa sawa: mkopo mmoja = journal moja kwa siku)
+0 | 
+=== 3 MUHTASARI WA MAUZO (DAILY_SALES_SUMMARY) tangu 2026-11-09 13:55
+2026-11-10 00:00:00 | 2026-11-09 | macheda macheda | user,SALES,MANAGER | MAUZO TU | 10 | 832500.00 | f
+2026-11-10 00:00:00 | 2026-11-09 | Paul Tarimo | user,CEO | INA FAIDA | 10 | 832500.00 | f
+2026-11-10 00:00:00 | 2026-11-09 | Jess Saimon | user,Executive CEO | INA FAIDA | 10 | 832500.00 | f
+=== 4 LOGIN_AUDIT saa 24 za kwanza
+LOGIN_SUCCESS | SUCCESS | 10
+LOGOUT | SUCCESS | 1
+UNKNOWN | - | 6 | 2 | ,FIRST_LOGIN,NEW_DEVICE
+DIRECT | - | 5 | 0 | DIRECT,FIRST_LOGIN,DIRECT
+=== 5 ERROR kwenye log ya backend tangu deploy
+mistari 423 | ERROR 5 | WARN 23 | Exception 54
+      4 N:N:N ERROR c.L.S.c.MaterializedViewScheduler - Failed to refresh materialized views: Executing an update/delete query
+      1 N:N:N ERROR com.Lsms.Sales.Services.SaleService - 🔴 SELLING BELOW RECOMMENDED PRICE: Product: KONYAGI kt, Cost: N,N.N, Sale Price: N,N.N, Minimum Recommended: N,N.N
+=== 6 SCHEDULER za usiku (00:05 / 02:00)
+2026-11-09 23:00:00 ERROR c.L.S.c.MaterializedViewScheduler - Failed to refresh materialized views: Executing an update/delete query
+2026-11-10 00:00:00 INFO  c.L.S.c.DailySalesNotificationScheduler - ⏰ Inaandaa muhtasari wa mauzo kwa tarehe: 2026-11-09
+2026-11-10 00:05:00 INFO  c.L.C.Service.LoanInterestScheduler - LOAN_INTEREST_JOB start 2026-11-10
+2026-11-10 00:05:00 INFO  c.L.C.Service.LoanInterestScheduler - LOAN_INTEREST_JOB done: 1 journal(s) written
+2026-11-10 00:05:00 INFO  c.L.C.c.CapitalExpenditureScheduler - ⏰ [Scheduler] Starting daily recurring expense processing...
+2026-11-10 00:05:00 INFO  c.L.C.c.CapitalExpenditureScheduler - ✅ [Scheduler] Recurring expenses processed: 0 entries generated
+2026-11-10 01:00:00 ERROR c.L.S.c.MaterializedViewScheduler - Failed to refresh materialized views: Executing an update/delete query
+2026-11-10 02:00:00 INFO  c.L.u.config.PasswordResetScheduler - Starting scheduled cleanup of expired password reset tokens
+2026-11-10 03:00:00 ERROR c.L.S.c.MaterializedViewScheduler - Failed to refresh materialized views: Executing an update/delete query
+2026-11-10 03:30:00 INFO  c.Lsms.uaa.audit.AuditRetentionJob - [Scheduler] Audit retention: 0 rows of login_audit older than 2026-05-14T03:30:00.000488514+03:00 deleted in 10 ms
+2026-11-10 05:00:00 ERROR c.L.S.c.MaterializedViewScheduler - Failed to refresh materialized views: Executing an update/delete query
+-rw------- 1 chief chief 9714806 Nov  9 02:00 lsms_20261109_0200.dump
+-rw------- 1 chief chief 9783997 Nov 10 02:00 lsms_20261110_0200.dump
+=== 7 (du) INVENTORY: GL 1200 vs daftari (Health: tofauti 1,417 leo; 02/11 ilikuwa -8.77). KUSOMA TU - Chief asibofye Correct
+--- 7a jumla: GL 1200 | daftari (stock x avg, avg>0) | bidhaa zenye stock lakini avg<=0 (zinatumia gharama mbadala)
+5347675.80 | 5349092.82 | 0 bidhaa, stock x last_purchase_cost = 0.00
+--- 7b GL 1200 tangu 2026-11-02 kwa siku na aina (Dr-Cr)
+2026-11-02 | PURCHASE_INVENTORY |  | 14 | 1682500.00
+2026-11-02 | SALE_CASH |  | 19 | -1710959.39
+2026-11-02 | SALE_CASH | REV | 1 | 78800.00
+2026-11-02 | STAFF_LIABILITY_CHARGE |  | 3 | -8341.67
+2026-11-02 | STOCK_ADJUSTMENT |  | 3 | 26041.67
+2026-11-03 | PURCHASE_INVENTORY |  | 13 | 1647900.00
+2026-11-03 | SALE_CASH |  | 1 | -80285.92
+2026-11-03 | STAFF_LIABILITY_CHARGE |  | 1 | -533.33
+2026-11-04 | PURCHASE_INVENTORY |  | 4 | 488400.00
+2026-11-04 | SALE_CASH |  | 25 | -2165236.88
+2026-11-05 | PURCHASE_INVENTORY |  | 8 | 765300.00
+2026-11-05 | SALE_CASH |  | 18 | -1271366.34
+2026-11-05 | SALE_CASH | REV | 3 | 136674.84
+2026-11-05 | STAFF_LIABILITY_CHARGE |  | 2 | -3575.00
+2026-11-06 | PURCHASE_INVENTORY |  | 14 | 1783700.00
+2026-11-06 | SALE_CASH |  | 14 | -1253916.05
+2026-11-06 | STAFF_LIABILITY_CHARGE |  | 1 | -1576.00
+2026-11-06 | STOCK_ADJUSTMENT |  | 1 | 15333.32
+2026-11-07 | PURCHASE_INVENTORY |  | 7 | 1023700.00
+2026-11-07 | SALE_CASH |  | 27 | -1996377.43
+2026-11-07 | SALE_CASH | REV | 1 | 147999.68
+2026-11-08 | PURCHASE_INVENTORY |  | 19 | 2209500.16
+2026-11-08 | SALE_CASH |  | 20 | -1886794.58
+2026-11-08 | STAFF_LIABILITY_CHARGE |  | 9 | -39085.30
+2026-11-08 | STOCK_ADJUSTMENT |  | 1 | -10000.00
+2026-11-09 | PURCHASE_INVENTORY |  | 12 | 1869700.00
+2026-11-09 | SALE_CASH |  | 13 | -992392.94
+2026-11-09 | SALE_CASH | REV | 2 | 117299.92
+2026-11-09 | SALE_CREDIT |  | 1 | -47666.71
+2026-11-09 | STAFF_LIABILITY_CHARGE |  | 4 | -6908.31
+2026-11-10 | SALE_CASH | REV | 1 | 47666.71
+2026-11-10 | SALE_CREDIT |  | 1 | -47666.71
+2026-11-10 | SALE_CREDIT | REV | 1 | 47666.71
+--- 7c ununuzi ULIOFUTWA tangu 2026-11-02 (K1/K2): ref | bidhaa | kiasi | ilifutwa | journal 1200 (asili+reversal) | avg sasa | last_purchase_cost
+--- 7d kila SALE tangu 2026-11-02: Cr 1200 ya journal vs gharama ya mistari (sum total_cost; na piece x cost_per_piece) - zenye tofauti >= 1
+0 |  | 
+--- 7e sale zilizofutwa tangu 2026-11-02: Dr 1200 ya reversal vs Cr 1200 ya asili (zinapaswa kulingana)
+9 | 0.00
+--- 7f marekebisho ya stock (counting) tangu 2026-11-02: thamani vs GL
+25 | -28644.62 | 0
+--- 7g mwendo wa store tangu 2026-11-02 kwa aina (idadi, vipande)
+SALE | 505 | 7339
+PURCHASE | 91 | 7728
+ADJUSTMENT | 26 | -42
+SALE_REVERSAL | 18 | 416
+--- 7h bidhaa ambazo avg imebadilika tangu 2026-11-02: idadi
+36
+---78_SERVER_MWISHO---
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+faili za /tmp zimefutwa
+---OK--- 

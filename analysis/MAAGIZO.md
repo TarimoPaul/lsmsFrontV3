@@ -1040,3 +1040,13 @@ Endelea: KUPIMA (ef + ek + el).
 Vipimo vimekamilika: Golden King, Gilbeys, Camino = chupa 750ml, 50ml = 3,000.
 (Konyagi 30ml=1,000; Moon Light 50ml=2,000; Wine dumu 5,000ml 70ml=2,000 / 80ml=3,000.)
 Andaa hatua ya uhamisho ya KUPIMA (toleo 2): mipangilio hii + (B) + kufungua vyombo kwa ml zilizohesabiwa (Chief atahesabu siku hiyo).
+
+## 2026-11-10 (en) — ilipotea, hii hapa
+KUPIMA §6: njia YAKO (Dr 5100 / Cr 1200) ni sahihi — mfano wako umethibitisha. Ibaki.
+83 imeshaendeshwa prod — usiiorodheshe kama "tayari". 82 ni ya dharura tu.
+
+## 2026-11-10 (ep)
+Wazazi: Chief atasajili Gilbeys 750ml, Camino 750ml, Wine dumu 5L; Moon Light → aina ya spirits; Golden King mzazi = (Chief atathibitisha, 64?).
+Swali la data (kusoma tu, prod-copy): Gilbeys/Camino/Wine zilinunuliwa vipi bila mzazi — reco "manunuzi", gharama nyingine, au hazikuandikwa?
+  Kiasi na tarehe. Hii inaathiri faida ya vinywaji hivi; ripoti tu, usirekebishe.
+Kisha kazi 4.

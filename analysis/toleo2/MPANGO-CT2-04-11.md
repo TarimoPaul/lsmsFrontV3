@@ -157,6 +157,8 @@ Code (chanzo kimeonekana 09/11):
 - KUPIMA (ef–ek) imejengwa 10/11:
   - Matawi: backend feature/t2-kupima 542b9dc na 1dab1fe (V143); V3 feature/t2-kupima c3d29e8 na E2E.
   - Majaribio: unit 4/0, mutation 3/3, suite 635/0/1, ng test 98/98, E2E_OK 16/16 (kupima_api 28/0, kupima 14/0).
-  - Uhamisho (B) ni hatua tofauti, BAADA ya Chief kuhesabu na kujaza mipangilio. Vipimo vya Golden King, Gilbeys na Camino bado.
-  - Swali kwa Chief: kurudisha ml kwenye chombo kilichofungwa (MUUNDO §6).
+  - Uhamisho (B) ni hatua 85, BAADA ya toleo 2 kufika prod na Chief kuhesabu. Vipimo vyote vimetolewa (eo).
+  - MUUNDO §6 IMEAMULIWA (en): ml kwenye chombo kilichofungwa -> Dr 5100 / Cr 1200, kama ilivyojengwa.
+  - Hatua 83 IMEENDESHWA prod (em). 82 ni ya dharura tu (eb).
+  - (ep) wazazi: Chief anasajili Gilbeys 750ml + Camino 750ml; Wine: GREPA WINE (59) = "GREPA WINE 5LT" tayari ipo (KUPIMA-WAZAZI-EP.md); Moon Light -> spirits; Golden King 64?
 - Inayofuata: kazi 4.

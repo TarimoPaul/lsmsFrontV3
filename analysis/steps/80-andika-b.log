@@ -1,0 +1,42 @@
+﻿[15:53:38] ===== 80 andika b 2026-11-09 =====
+[15:54:15] mmiliki ameandika ANDIKA-B
+[15:54:42] === 80 ANDIKA (b) 2026-11-09 15:54:28
+[15:54:42] --- salio KABLA
+[15:54:42] 1000 | Pesa Mkononi | 13602631.54 | 13602631.54
+[15:54:42] 2200 | Kodi | 0.00 | 0.00
+[15:54:42] 2300 | Deni kwa mmiliki - Paul | 0.00 | 0.00
+[15:54:42] 6000 | Kodi ya Nyumba | 200000.00 | 200000.00
+[15:54:42] 6200 | Gharama za Uendeshaji | 6380133.33 | 6380133.33
+[15:54:42] 6800 | Gharama ya Kodi | 250000.00 | 250000.00
+[15:54:42] TB (Dr - Cr, zote POSTED): 0.00
+[15:54:42] PANGO 2026: 6000 = 200000.00 + 6200 ya Frame = 200000.00   (lengo: 2,200,000 baada ya b; 2,400,000 baada ya e)
+[15:54:42] TRA 2026:   6800 = 250000.00 + 6200 ya TRA = 20833.33   (lengo: 250,000 baada ya c)
+[15:54:42] akaunti 2400 imeongezwa
+[15:54:42] login SAWA
+[15:54:42] journal SAWA: MJ:75175c67-3761-4836-a069-e579c8d0cef9
+[15:54:42] JE-2026-1910663528720592 | 2026-11-09 | POSTED | 6000 | 2000000.00 | 0.00 | Pango la Frame 2026: Jan-Sep 1,800,000 (alilipa Chief) + Jan 200,000 k
+[15:54:42] JE-2026-1910663528720592 | 2026-11-09 | POSTED | 1000 | 400000.00 | 0.00 | Kurudisha Cr 1000 za Frame 01/01 na 01/11 - hazikutoka kwenye biashara
+[15:54:42] JE-2026-1910663528720592 | 2026-11-09 | POSTED | 6200 | 0.00 | 200000.00 | Pango la Frame Jan 2026 lilikuwa 6200 (Flutter) - linahamia 6000 - MAR
+[15:54:42] JE-2026-1910663528720592 | 2026-11-09 | POSTED | 2300 | 0.00 | 1800000.00 | Deni kwa mmiliki: Chief alilipa pango la Frame Jan-Sep 2026 - MAREKEBI
+[15:54:42] JE-2026-1910663528720592 | 2026-11-09 | POSTED | 2400 | 0.00 | 400000.00 | Pango la Frame Okt-Nov 2026 linalodaiwa - MAREKEBISHO-80B
+[15:54:42] Frame 2026 - journal zilizopo (rows za capex zenye 'frame' isipokuwa usafi):
+[15:54:42] OPE-MON-20260101-000000-F7C9E331 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000) | 200000.00 | APPROVED | f | 2026-01-01 POSTED [1000:-200000.00,6200:200000.00]
+[15:54:42] REN-MON-20261001-000000-0EA74497 | Malipo Ya Kodi YA Frame | 0.00 | APPROVED | f | -
+[15:54:42] REN-MON-20261001-000000-F4B73208 | Malipo Ya Kodi YA Frame (2026-10) | 200000.00 | CANCELLED | f | -
+[15:54:42] REN-MON-20261101-000000-5D9DD844 | Malipo Ya Kodi YA Frame (2026-11) | 200000.00 | APPROVED | f | 2026-11-01 POSTED [1000:-200000.00,6000:200000.00]
+[15:54:42] REN-MON-20261201-000000-9331734F | Malipo Ya Kodi YA Frame (2026-12) | 200000.00 | APPROVED | t | -
+[15:54:42] Journal za marekebisho zilizopo: 80b=1 80c=0 80e=0
+[15:54:42] --- salio BAADA
+[15:54:42] 1000 | Pesa Mkononi | 14002631.54 | 14002631.54
+[15:54:42] 2200 | Kodi | 0.00 | 0.00
+[15:54:42] 2300 | Deni kwa mmiliki - Paul | -1800000.00 | -1800000.00
+[15:54:42] 2400 | Gharama Zinazodaiwa | -400000.00 | -400000.00
+[15:54:42] 6000 | Kodi ya Nyumba | 2200000.00 | 2200000.00
+[15:54:42] 6200 | Gharama za Uendeshaji | 6180133.33 | 6180133.33
+[15:54:42] 6800 | Gharama ya Kodi | 250000.00 | 250000.00
+[15:54:42] TB (Dr - Cr, zote POSTED): 0.00
+[15:54:42] PANGO 2026: 6000 = 2200000.00 + 6200 ya Frame = 0.00   (lengo: 2,200,000 baada ya b; 2,400,000 baada ya e)
+[15:54:42] TRA 2026:   6800 = 250000.00 + 6200 ya TRA = 20833.33   (lengo: 250,000 baada ya c)
+[15:54:42] ---80_MWISHO---
+[15:54:42] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[15:54:42] ---80_OK--- b

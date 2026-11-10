@@ -11,7 +11,7 @@
 | GOLDEN KING KUPIMA (65) | 9 | 4 | **GOLDEN KING (64)**: 12/katoni, kipande 12,000, avg 8,166, stock 8 | ⚠️ kuna bidhaa mbili zenye jina "GOLDEN KING". 64 ndiyo ya 750ml (12/katoni); 58 ni 24/katoni, avg 1,736, yaani chupa ndogo. Bei ya katoni ya 64 ni 12,000, sawa na kipande kimoja; hii inaonekana kosa la data |
 | GILBEYS KUPIMA (66) | 9 | 3 | — | ❌ **hayupo**: hakuna "Gilbeys" ya chupa nzima kwenye store |
 | CAMINO KUPIMA (36) | 0 | 12 | — | ❌ **hayupo**: hakuna "Camino" ya chupa nzima |
-| WINE ZA KUPIMA (91) | 0 | 36 | — | ❌ **hayupo**: hakuna "dumu" la 5L. MA-LOT BOX WINE (102; 40,000; avg 35,000) ni box, si dumu, na ujazo wake haujulikani |
+| WINE ZA KUPIMA (91) | 0 | 36 | **GREPA WINE (59)** (sahihisho la (ep): ni "GREPA WINE 5LT", tazama KUPIMA-WAZAZI-EP.md) | ✅ yupo; awali niliandika ❌ **hayupo**: hakuna "dumu" la 5L. MA-LOT BOX WINE (102; 40,000; avg 35,000) ni box, si dumu, na ujazo wake haujulikani |
 
 **Kabla ya hatua ya uhamisho, Chief:**
 1. **Asajili wazazi wanaokosekana** kama bidhaa za kawaida kwenye store: Gilbeys 750ml, Camino 750ml, na Wine dumu 5L (kwa gharama halisi ya ununuzi). Au aseme mzazi ni yupi kama yupo kwa jina jingine.
