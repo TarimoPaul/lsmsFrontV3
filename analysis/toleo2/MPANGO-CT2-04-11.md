@@ -137,3 +137,11 @@ Code (chanzo kimeonekana 09/11):
     (C7, code iliyokufa); DROP ya view 4 ni hatua tofauti (kama C6). Hatua 81 (prod, kusoma tu) inaonyesha data ya view iko hadi lini.
 - (dw) **L1 "SELLING BELOW RECOMMENDED PRICE"** (SaleService) ni ERROR kwenye log -> iwe WARN + audit (tukio la biashara, si kosa la mfumo);
   pamoja na 0.1 (kanuni ya punguzo: CEO + sababu).
+- (dx) **Kazi 1 G1–G5 IMEKAMILIKA** (backend feature/t2-gharama; V3 feature/t2-gharama tangu dy): G2 Stop + mwezi huu (reversal kwa sababu), G3 onyo la nakala,
+  G4 "Imepangwa" + orodha baada ya kuhifadhi, G5 gharama za mwaka (V140: 1160, annual_prepayment; Dr 1160/Cr chanzo, kisha 1/12 Dr gharama/Cr 1160).
+- (dz/ea) **G5 idhini:** CEO pekee (root au role CEO) anaweza kujiidhinisha, kwa sababu (A6) + audit (self_approved, approval_reason; /self-approved kwa Executive CEO).
+  Executive CEO anabaki na CAPITAL_WRITE + CAPITAL_APPROVE kama mtu wa pili (ea).
+- (dx) **Kazi 2 / G6 IMEKAMILIKA:** V141 liability_payment; /api/v1/gl/liability-payments: Dr 2400/2200 / Cr chanzo C3 (cutover), <= salio, FINANCE_WRITE,
+  kipindi kilichofungwa/tarehe ya baadaye/maelezo dhaifu -> kataa; kubatilisha kwa sababu. V3 "Madeni ya gharama". Malipo ya 01/01/27 (2400 600k) na 2200 65k yatumie hii.
+  Gate: suite 626/0/1, ng test 96/96, E2E_OK 13/13 (g25 31/0, g6 13/0) kwenye nakala safi ya dump 29/10 (Flyway 134->141).
+- Inayofuata: kazi 3 (punguzo chini ya gharama -> CEO + sababu, + L1).

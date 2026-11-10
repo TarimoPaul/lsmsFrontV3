@@ -927,3 +927,7 @@ E2E NI AWS AHTUTUMI TENA ELEWA HIYO SASA HIVI TUNATUMIA CONTABO
 
 ## 2026-11-10 (ujumbe bila herufi, unafuta uliotangulia)
 hapana endelea kutumia e2e nilikosea kusoma na kuelewa
+
+## 2026-11-10 (ea)
+Chief: Executive CEO (Jess) AKUSUDIWA kuwa na CAPITAL_WRITE + CAPITAL_APPROVE (mtu wa pili wa kuidhinisha). Usiziondoe.
+Kanuni inabaki: hakuna anayejiidhinisha isipokuwa CEO kwa sababu + audit. Kisha kazi 2.
