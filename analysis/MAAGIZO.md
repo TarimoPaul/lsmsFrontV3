@@ -1017,3 +1017,10 @@ Vipimo/bei vya Golden King, Gilbeys, Camino: Chief atataja kabla ya uhamisho.
 ## 2026-11-10 (ej)
 Wine = dumu 5,000ml; vipimo: 70ml = 2,000 na 80ml = 3,000 (Chief amechagua 80ml; hakuna 90ml).
 "Wine 500" ya data ya zamani ni gharama ya kubuni ya kipande, siyo bei.
+
+## 2026-11-10 (ek)
+KUPIMA uamuzi wa 1 — BADILISHA: chombo kisipotosha kipimo → mfumo uulize:
+  (i) "Tumia ml zilizobaki + fungua kipya" → kipimo kinagawanywa (ml za zamani hadi 0, zilizobaki kutoka kipya); HAKUNA upotevu.
+  (ii) "Chombo kimeisha kweli" → ml zilizobaki = upotevu (5100), kisha fungua kipya.
+  Hakuna kufunga kiotomatiki. Jaribio la E2E kwa njia zote mbili.
+Uamuzi wa 2 — SAWA; ikiwa chombo kimeshafungwa, ml zirudishwe kama marekebisho ya upotevu wa chombo hicho (Dr 1200 / Cr 5100), siyo kupotea.

@@ -20,16 +20,19 @@
    - onyo kama bei < gharama (avg ya mzazi ÷ ujazo × ml);
    - kila badiliko linaandikwa kwenye historia na linatumika kwa mauzo yajayo tu.
 2. **Fungua chombo:** mzazi −1 kwenye store (movement inayotaja chombo), na bar = ujazo. Hakuna GL, kwa sababu chupa bado ni mali (1200).
-   - Ikiwa bado kuna chombo wazi kilichobaki na ml chache, kinafungwa kwa "chombo kimeisha" kwanza (kanuni: chombo kimoja).
+   - Kufungua kwa mkono kunaruhusiwa tu kama hakuna chombo wazi (kanuni: chombo kimoja).
 3. **Kuuza kipimo** (POS):
    - vipimo vilivyosajiliwa tu, kwa bei iliyosajiliwa; hakuna kipimo maalum;
    - ml zikitosha: bar −ml;
    - gharama ya mstari = cost_per_ml × ml, na GL ya mauzo inaandika Dr 5000 / Cr 1200 kama kawaida;
-   - ml zisipotosha: "Fungua chombo kipya?";
+   - ml zisipotosha (ek), mfumo unauliza na haufungi chochote wenyewe:
+     - (i) "Tumia ml zilizobaki + fungua kipya": kipimo kinagawanywa. Cha zamani kinafika 0 bila upotevu, na kinachobaki kinatoka kwenye chombo kipya (mzazi −1).
+     - (ii) "Chombo kimeisha kweli": ml zilizobaki ni upotevu (Dr 5100 / Cr 1200), kisha chombo kipya kinafunguliwa na kipimo chote kinatoka humo.
+     - Uamuzi unatumwa pamoja na sale na unafanyika ndani ya transaction ileile.
    - bei < gharama: kazi 3 (sababu + Kagua).
 4. **Chombo kimeisha:** ml zilizobaki ni upotevu: **Dr 5100 / Cr 1200** kwa gharama, bila tozo. Rekodi ina aliyefungua, aliyefunga, tarehe, ml zilizopotea, na sawa na vipimo vingapi vya kipimo kidogo.
 5. **Chupa nzima:** inauzwa kutoka kwa mzazi moja kwa moja, kama leo.
-6. **Kufuta au kubadilisha sale ya kipimo:** ml zinarudi kwenye chombo kama bado kiko wazi. Kama kimeshafungwa, upotevu wake unapungua kwa kiasi hicho.
+6. **Kufuta au kubadilisha sale ya kipimo:** ml zinarudi kwenye chombo kama bado kiko wazi. Kama kimeshafungwa (ek), zinarudishwa kama marekebisho ya upotevu wa chombo hicho: **Dr 1200 / Cr 5100**.
 7. **Hesabu ya wiki:** vyombo vilivyofungwa (idadi ya mzazi), pamoja na kilicho wazi kwa kiwango (1, ¾, ½, ¼) dhidi ya bar.
 8. **Ripoti:**
    - upotevu kwa chombo/kinywaji;
