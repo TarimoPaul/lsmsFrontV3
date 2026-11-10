@@ -10,7 +10,7 @@ import { Money, MoneyPipe } from '@shared/utils/money';
 import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
 import { moneyAccountByMethod } from '../general-ledger/money-accounts';
 import { Expenditure, ExpStatus, SCHEDULED, STATUS, isPlanned, typeIcon, typeLabel } from './capital.models';
-import { CapitalService } from './capital.service';
+import { AnnualPrepaid, CapitalService } from './capital.service';
 
 type Filter = 'ALL' | 'SCHEDULED' | ExpStatus;
 const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
@@ -36,6 +36,7 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     <div class="bar">
       <lsms-search-bar [placeholder]="i18n.t('Search expense…', 'Tafuta gharama…')" [(value)]="searchText" (search)="q.set($event)" (cleared)="q.set('')" />
       <button lsmsButton="secondary" icon="event_repeat" (click)="budgets()">{{ i18n.t('Monthly budgets', 'Bajeti za kila mwezi') }}</button>
+      <button lsmsButton="secondary" icon="savings" (click)="annualPrepaid()">{{ i18n.t('Annual expenses', 'Gharama za mwaka') }}</button>
       @if (canWrite()) {
         <button lsmsButton="primary" icon="add" (click)="create()">{{ i18n.t('New expense', 'Gharama mpya') }}</button>
       }
@@ -207,20 +208,22 @@ export class ExpensesTab {
 
   protected async create(): Promise<void> {
     const { ExpenseDialog } = await import('./capital-dialogs');
-    const created = await this.dialogs.openAsync<Expenditure>(ExpenseDialog, { size: 'md', disableClose: true });
+    const created = await this.dialogs.openAsync<Expenditure | AnnualPrepaid>(ExpenseDialog, { size: 'md', disableClose: true });
     if (created) {
       await this.api.all.load(true);
       // G4 (owner dm): show what was just saved. A monthly budget's rows are dated the 1st of their month, so
       // with the newest-first sort they sank below today's entries and were typed a second time (04/11).
-      const name = (created.description ?? '').trim();
+      const name = 'totalAmount' in created ? '' : (created.description ?? '').trim(); // annual rows appear after approval
       if (name) {
         this.filter.set('ALL');
         this.searchText.set(name);
         this.q.set(name.toLowerCase());
       }
       this.toast.success(
-        created.recurring
-          ? this.i18n.t('Monthly budget started', 'Bajeti ya kila mwezi imeanzishwa')
+        'totalAmount' in created
+          ? this.i18n.t('Annual expense saved — waiting for approval (see “Annual expenses”)', 'Gharama ya mwaka imehifadhiwa — inasubiri idhini (ona “Gharama za mwaka”)')
+          : created.recurring
+            ? this.i18n.t('Monthly budget started', 'Bajeti ya kila mwezi imeanzishwa')
           : this.i18n.t('Expense saved — waiting for approval', 'Gharama imehifadhiwa — inasubiri idhini'),
       );
     }
@@ -231,6 +234,16 @@ export class ExpensesTab {
     const changed = await this.dialogs.openAsync<boolean>(RecurringBudgetsDialog, {
       size: 'md',
       data: { canEdit: this.auth.hasPermission('CAPITAL_WRITE'), canStop: this.auth.hasPermission('CAPITAL_APPROVE') },
+    });
+    if (changed) await this.api.all.load(true);
+  }
+
+  /** G5: annual expenses paid up front - list, approve, reject, cancel. */
+  protected async annualPrepaid(): Promise<void> {
+    const { AnnualPrepaidDialog } = await import('./annual-prepaid-dialog');
+    const changed = await this.dialogs.openAsync<boolean>(AnnualPrepaidDialog, {
+      size: 'md',
+      data: { canApprove: this.auth.hasPermission('CAPITAL_APPROVE') },
     });
     if (changed) await this.api.all.load(true);
   }
@@ -330,6 +343,8 @@ export class ExpensesTab {
   }
 
   protected method(m: string | null): string {
+    // G5: a month of an annual prepayment is paid out of Prepaid (1160), not out of a cash account
+    if (m === 'PREPAID') return this.i18n.t('Prepaid (1160)', 'Imelipwa mapema (1160)');
     const a = moneyAccountByMethod(m);
     return this.i18n.isSwahili() ? a.sw : a.en;
   }
