@@ -171,6 +171,24 @@ export const STATUS: Record<ExpStatus, Label & { color: string; icon: string }> 
   DISPOSED: { en: 'Disposed', sw: 'Imeondolewa', color: 'var(--c-text-2)', icon: 'delete_sweep' },
 };
 
+/**
+ * G4 (owner dm): an APPROVED row whose month has not come yet (a monthly budget row dated the 1st of a later
+ * month) has no journal yet — the posting job writes it on that day. It is "Planned", never "in the books".
+ */
+export const SCHEDULED: Label & { color: string; icon: string } = {
+  en: 'Planned · not in the books yet',
+  sw: 'Imepangwa · bado haijaingia GL',
+  color: 'var(--c-info)',
+  icon: 'event_upcoming',
+};
+
+/** G4: approved but dated after now (date string as the API sends it, local time). */
+export function isPlanned(e: { status: string; transactionDate: string | null }, now = Date.now()): boolean {
+  if (e.status !== 'APPROVED' || !e.transactionDate) return false;
+  const t = new Date(e.transactionDate.length === 10 ? `${e.transactionDate}T00:00:00` : e.transactionDate).getTime();
+  return !Number.isNaN(t) && t > now;
+}
+
 export const SOURCE_LABELS: Record<string, Label & { color: string }> = {
   OWNER_EQUITY: { en: 'Owner capital', sw: 'Mtaji wa mmiliki', color: 'var(--c-success)' },
   PARTNER_CONTRIBUTION: { en: 'Partner capital', sw: 'Mchango wa mshirika', color: 'var(--c-success)' },
