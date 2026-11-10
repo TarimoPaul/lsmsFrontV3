@@ -932,6 +932,12 @@ hapana endelea kutumia e2e nilikosea kusoma na kuelewa
 Chief: Executive CEO (Jess) AKUSUDIWA kuwa na CAPITAL_WRITE + CAPITAL_APPROVE (mtu wa pili wa kuidhinisha). Usiziondoe.
 Kanuni inabaki: hakuna anayejiidhinisha isipokuwa CEO kwa sababu + audit. Kisha kazi 2.
 
+## 2026-11-10 (eb)
+Andaa hatua 82 ya dharura (data path, KAGUA → ANDIKA): kulipa 2400/2200 (Dr deni / Cr chanzo, kanuni ya cutover), bila gharama mpya.
+Itumike TU ikiwa malipo ya pango (600k ~01/01/27) au TRA (65k) yatatokea kabla toleo 2 halijaenda prod.
+KUPIMA uhamisho: 46,000 ya 29/10 HAIANDIKWI sasa — hesabu halisi ya siku ya uhamisho ndiyo itaandikwa.
+Manunuzi ya vipimo 159,000: hatua ya uhamisho iwe na chaguo zote mbili (yalilipwa kweli / hayakulipwa) — Chief atajibu.
+
 ## 2026-11-10 (ec)
 Kazi 3 = (b): sale chini ya gharama INARUHUSIWA kwa sababu ya lazima (kanuni ya A6), na inaingia kwenye banner/Kagua ya mabadiliko
   ya mauzo mpaka CEO "Nimeona" (kama A6). L1: "SELLING BELOW" → WARN + audit. Hakuna kuzuia sale.
@@ -983,3 +989,16 @@ Muundo:
  - Uhamisho wa data ya leo (9–10 "wazi" kwa bidhaa): hatua ya mara moja (KAGUA → ANDIKA) BAADA ya Chief kuhesabu na kuweka mipangilio.
 Jenga kwenye feature/t2-kupima (backend + V3), na majaribio: unit + PG + E2E (POS: kuuza 30/60, kufungua, kuisha, ruhusa).
 Mpangilio: baada ya kazi 3. Kwanza eleza jinsi kupima inavyofanya kazi leo (ec).
+
+## 2026-11-10 (eg)
+Footer: "Babuu Liquor Store" — imethibitishwa, weka.
+KUPIMA — majibu ya Chief:
+ - Manunuzi ya vipimo (159,000, 20/02–17/08) HAYAKULIPWA — yaliingizwa ili kupata stock tu.
+ - Kila chupa iliyopelekwa kupima ILIPUNGUZWA MANUAL kwenye store ya mzazi.
+ - Vipimo vya leo: Konyagi 30ml = 1,000 (chupa 750ml); Moon Light 50ml = 2,000; Wine 70ml = 500 kutoka dumu 5L (5,000ml).
+   Golden King / Gilbeys / Camino / ujazo wa Moon Light: Chief atataja kabla ya uhamisho.
+Hatua ya uhamisho (sehemu ya KUPIMA): chambua GL kwanza (kusoma tu) — kwa kila manunuzi ya vipimo na kila upunguzaji wa manual
+  wa mzazi: journal zake (tarehe, akaunti), na kama true-up ya 30/09 ilifunika upande wa 1200. Kisha pendekeza marekebisho
+  (Dr 1000 159,000 / Cr <akaunti sahihi kwa ushahidi>) bila kuandika. Lengo: cash isiwe na malipo ya uongo, na gharama ya kinywaji
+  ihesabiwe mara MOJA.
+Endelea kujenga KUPIMA (ef) kwenye feature/t2-kupima.
