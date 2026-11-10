@@ -154,6 +154,9 @@ export interface SaleRequest {
     unitPrice: number;
     subTotal: number;
     overrideUnitPrice: number | null;
+    /** KUPIMA: registered measure + the answer when the container is short (ek). */
+    pourMeasureUid?: string | null;
+    pourAction?: 'SPLIT' | 'FINISHED' | null;
     costPerPiece: number | null;
     piecesPerPackage: number | null;
     packageAbbreviation: string | null;

@@ -95,6 +95,8 @@ export class ProductsPage {
   protected readonly canCreate = computed(() => this.auth.hasPermission('PRODUCT_WRITE'));
   protected readonly canUpdate = computed(() => this.auth.hasPermission('PRODUCT_UPDATE'));
   protected readonly canDelete = computed(() => this.auth.hasPermission('PRODUCT_DELETE'));
+  /** KUPIMA (owner ef): settings are KUPIMA_SETTINGS; the bar / finish / level are for sellers too. */
+  protected readonly canKupima = computed(() => this.auth.hasAnyPermission(['KUPIMA_SETTINGS', 'SALES_WRITE']));
   /** Buying price is cost data: shown to purchase / profit / finance readers only, not to every PRODUCT_READ holder. */
   protected readonly canSeeCost = computed(() => this.auth.hasAnyPermission(['PURCHASE_READ', 'PROFIT_REPORT', 'FINANCE_READ']));
 
@@ -233,6 +235,11 @@ export class ProductsPage {
   }
 
   // ── Dialogs (loaded on demand to keep the page chunk small) ────────────────
+  protected async openKupima(): Promise<void> {
+    const { KupimaDialog } = await import('../kupima/kupima-dialog');
+    await this.dialogs.openAsync(KupimaDialog, { size: 'md' });
+  }
+
   protected async openForm(product?: Product, duplicate = false): Promise<void> {
     const { ProductFormDialog } = await import('./product-form-dialog');
     await this.dialogs.openAsync(ProductFormDialog, {

@@ -20,6 +20,8 @@ import { categoryColor, categoryInitials } from '../../categories/categories.mod
 import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel, shortReceipt } from '../sales.models';
 import { SalesService } from '../sales.service';
 import { BELOW_COST_CODE, askBelowCostReason } from '../sale-reason';
+import { KupimaService, PourProduct, barFraction } from '../../kupima/kupima.service';
+import type { KupimaShortData } from '../../kupima/kupima-short-dialog';
 import { CartCustomer, CartLine, CartStore } from './cart.store';
 import { RemakeStore } from './remake.store';
 
@@ -65,7 +67,11 @@ export class PosPage {
 
   protected readonly types = SALE_TYPES;
   protected readonly typeOrder = SALE_TYPE_ORDER;
-  protected readonly products = computed(() => this.api.posStock.value() ?? []);
+  private readonly kupima = inject(KupimaService);
+  /** KUPIMA: drinks sold by measure (shown with their bar, not in the product grid). */
+  protected readonly pours = this.kupima.products;
+  private readonly pourUids = computed(() => new Set(this.pours().map((p) => p.productUid)));
+  protected readonly products = computed(() => (this.api.posStock.value() ?? []).filter((p) => !this.pourUids().has(p.uid)));
   protected readonly loading = computed(() => this.api.posStock.initialLoading());
   protected readonly error = signal<string | null>(null);
   protected readonly search = signal('');
@@ -171,6 +177,7 @@ export class PosPage {
       subtitle: this.i18n.t(this.products().length + ' products available', 'Bidhaa ' + this.products().length + ' zinapatikana'),
     }));
     void this.reload(false);
+    this.loadPours();
     const remake = this.remakeStore.take();
     if (remake) void this.loadRemake(remake);
     void this.api.paymentMethods.load().catch(() => undefined);
@@ -261,6 +268,27 @@ export class PosPage {
 
   protected inCart(p: PosProduct, t: SaleType): number {
     return this.cart.unitsByKey().get(`${p.uid}|${t}`) ?? 0;
+  }
+
+  /** KUPIMA: ml of this drink already in the cart. */
+  protected pourReserved(p: PourProduct): number {
+    return this.cart.lines().reduce((n, l) => n + (l.productUid === p.productUid && l.pourMl ? l.pourMl * l.qty : 0), 0);
+  }
+
+  protected pourLeft(p: PourProduct): number {
+    return (p.open?.mlLeft ?? 0) - this.pourReserved(p);
+  }
+
+  protected pourBar(p: PourProduct): number {
+    return barFraction(p, this.pourReserved(p));
+  }
+
+  protected addPour(p: PourProduct, m: PourProduct['measures'][number]): void {
+    this.cart.addPour(p.productUid, p.productName, m);
+  }
+
+  private loadPours(): void {
+    void this.kupima.load().catch(() => undefined);
   }
 
   protected add(p: PosProduct, t: SaleType, pieces: number): void {
@@ -576,7 +604,9 @@ export class PosPage {
         packageQuantity: l.qty,
         unitPrice: l.unitPrice,
         subTotal: l.qty * l.unitPrice,
-        overrideUnitPrice: l.unitPrice !== l.defaultPrice ? l.unitPrice : null,
+        overrideUnitPrice: l.pourMeasureUid ? null : l.unitPrice !== l.defaultPrice ? l.unitPrice : null,
+        pourMeasureUid: l.pourMeasureUid ?? null,
+        pourAction: l.pourAction ?? null,
         costPerPiece: l.costPerPiece,
         piecesPerPackage: l.piecesPerPackage,
         packageAbbreviation: l.abbreviation,
@@ -641,19 +671,39 @@ export class PosPage {
         if (!ok) return;
       }
 
-      // 4 · Save. Below cost (kazi 3): the server answers 422 BELOW_COST_REASON; ask for the reason and send again.
+      // 4 · Save. The server may answer 422 and ask a question; answer it and send again:
+      //   BELOW_COST_REASON (kazi 3) -> the reason; KUPIMA_SHORT (ek) -> split / finished / open a new container.
       let res;
-      try {
-        res = await this.api.createPartial(body);
-      } catch (e) {
-        const err = ApiError.from(e);
-        if (err.errorCode !== BELOW_COST_CODE) throw e;
-        const why = await askBelowCostReason(this.dialogs, this.i18n, err.message);
-        if (!why) return;
-        res = await this.api.createPartial({ ...body, belowCostReason: why });
+      let req = body;
+      for (let attempt = 0; ; attempt++) {
+        try {
+          res = await this.api.createPartial(req);
+          break;
+        } catch (e) {
+          const err = ApiError.from(e);
+          if (attempt > 5) throw e;
+          if (err.errorCode === BELOW_COST_CODE) {
+            const why = await askBelowCostReason(this.dialogs, this.i18n, err.message);
+            if (!why) return;
+            req = { ...req, belowCostReason: why };
+          } else if (err.errorCode === 'KUPIMA_SHORT') {
+            const d = (err.data ?? {}) as { productUid?: string; mlLeft?: number; hasOpen?: boolean };
+            const { KupimaShortDialog } = await import('../../kupima/kupima-short-dialog');
+            const choice = await this.dialogs.openAsync<'SPLIT' | 'FINISHED', KupimaShortData>(KupimaShortDialog, {
+              size: 'sm',
+              data: { message: err.message, hasOpen: !!d.hasOpen, mlLeft: Number(d.mlLeft ?? 0) },
+            });
+            if (!choice || !d.productUid) return;
+            this.cart.setPourAction(d.productUid, choice);
+            req = { ...req, saleDetails: req.saleDetails.map((x) => (x.productUid === d.productUid && x.pourMeasureUid ? { ...x, pourAction: choice } : x)) };
+          } else {
+            throw e;
+          }
+        }
       }
       const change = this.change();
       this.api.posStock.invalidate();
+      this.loadPours();
       this.store.stock.invalidate();
       this.store.insights.invalidate();
       if (this.saleDate() !== this.today) void this.loadMissing();

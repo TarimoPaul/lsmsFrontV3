@@ -740,3 +740,16 @@
   min-height: 46px;
   font-size: 0.95rem;
 }
+
+/* KUPIMA: drinks sold by measure - their open container's bar and the registered measures */
+.pours { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin: 0 0 12px; }
+.pour { border: 1px solid var(--c-border); border-radius: 12px; padding: 8px 10px; background: var(--c-surface); display: flex; flex-direction: column; gap: 6px; }
+.pour-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.pour-head strong { font-size: 0.84rem; }
+.pour-head small { font-size: 0.72rem; color: var(--c-text-2); white-space: nowrap; }
+.pour-bar { height: 8px; border-radius: 999px; background: var(--c-bg); border: 1px solid var(--c-border); overflow: hidden; }
+.pour-bar i { display: block; height: 100%; background: var(--c-primary); }
+.pour-bar.empty { opacity: 0.5; }
+.pour-ms { display: flex; gap: 6px; flex-wrap: wrap; }
+.pour-ms .price { display: inline-flex; flex-direction: column; align-items: flex-start; padding: 4px 10px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-bg); font: inherit; cursor: pointer; color: var(--c-text); }
+.pour-ms .price .lbl { font-size: 0.68rem; color: var(--c-text-2); }

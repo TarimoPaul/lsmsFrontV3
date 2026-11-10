@@ -63,6 +63,27 @@
       }
     </div>
 
+    @if (pours().length) {
+      <section class="pours" aria-label="Kupima">
+        @for (p of pours(); track p.productUid) {
+          <article class="pour" [attr.data-pour]="p.productName">
+            <div class="pour-head">
+              <strong>{{ p.productName }}</strong>
+              <small>@if (p.open) { {{ pourLeft(p) }} / {{ p.open.containerMl }} ml } @else { {{ i18n.t('No open ' + p.containerName, 'Hakuna ' + p.containerName + ' wazi') }} }</small>
+            </div>
+            <div class="pour-bar" [class.empty]="!p.open" [title]="p.containerName + ' ' + p.containerMl + 'ml'"><i [style.width.%]="pourBar(p) * 100"></i></div>
+            <div class="pour-ms">
+              @for (m of p.measures; track m.uid) {
+                <button type="button" class="price" [attr.data-ml]="m.ml" (click)="addPour(p, m)">
+                  <small class="lbl">{{ m.ml }}ml</small><b>{{ m.price | money: { symbol: false } }}</b>
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    }
+
     @if (error()) {
       <lsms-empty-state
         icon="error"
@@ -370,6 +391,7 @@
                     type="button"
                     class="price-btn"
                     [class.custom]="l.unitPrice !== l.defaultPrice"
+                    [disabled]="!!l.pourMeasureUid"
                     (click)="editingPrice.set(l.key)"
                     [title]="i18n.t('Change price', 'Badilisha bei')"
                   >

@@ -43,6 +43,8 @@ export class ApiError extends Error {
     readonly status: number,
     readonly errorCode: string | null = null,
     readonly warnings: string[] = [],
+    /** The envelope's `data` on an error (e.g. KUPIMA_SHORT: productUid, mlLeft, hasOpen). */
+    readonly data: unknown = null,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -91,6 +93,7 @@ export class ApiError extends Error {
       status,
       (body['errorCode'] as string) ?? null,
       Array.isArray(body['warnings']) ? (body['warnings'] as string[]) : [],
+      body['data'] ?? null,
     );
   }
 }
