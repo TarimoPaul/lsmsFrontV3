@@ -8,7 +8,7 @@ import { toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { MoneyAccountPicker } from '../general-ledger/money-account-picker';
 import { ASSET_TYPES, EXPENSE_CATEGORIES, Expenditure } from './capital.models';
-import { CapitalService, RecurringBudget } from './capital.service';
+import { CapitalService, RecurringBudget, StopPreview } from './capital.service';
 
 export const parse = (t: string) => Money.parse(t) ?? 0;
 export const today = () => toIsoDate(new Date());
@@ -445,7 +445,7 @@ export interface RecurringBudgetsData {
             @if (b.active && editing() !== b.uid && stopping() !== b.uid) {
               <div class="acts">
                 @if (data.canEdit) { <button lsmsButton="text" size="sm" icon="edit" (click)="edit(b.uid, b.monthly)">{{ i18n.t('Change amount', 'Badilisha kiasi') }}</button> }
-                @if (data.canStop) { <button lsmsButton="text" size="sm" icon="stop_circle" (click)="stopping.set(b.uid)">{{ i18n.t('Stop', 'Simamisha') }}</button> }
+                @if (data.canStop) { <button lsmsButton="text" size="sm" icon="stop_circle" (click)="askStop(b.uid)">{{ i18n.t('Stop', 'Simamisha') }}</button> }
               </div>
             }
             @if (editing() === b.uid) {
@@ -458,9 +458,21 @@ export interface RecurringBudgetsData {
             }
             @if (stopping() === b.uid) {
               <div class="inline warn">
-                <small>{{ i18n.t('No new month will be created. Months already created stay.', 'Hakuna mwezi mpya utakaoundwa. Miezi iliyokwisha undwa inabaki.') }}</small>
+                <small>{{ i18n.t('No new month will be created. Earlier months stay.', 'Hakuna mwezi mpya utakaoundwa. Miezi iliyopita inabaki.') }}</small>
+                @if (preview()?.currentMonth; as cm) {
+                  <div class="cur">
+                    <span>{{ i18n.t('This month', 'Mwezi huu') }} ({{ cm.month }}): <b>{{ cm.amount | money: { decimals: 0 } }}</b>
+                      · {{ cm.inBooks ? i18n.t('in the books', 'iko vitabuni') : i18n.t('not in the books yet', 'bado haijaingia vitabuni') }}</span>
+                    <label class="chk"><input type="checkbox" [checked]="cancelCurrent()" (change)="cancelCurrent.set($any($event.target).checked)" />
+                      {{ i18n.t('Not paid — remove this month too (its journal is reversed)', 'Haijalipwa — iondoe pia (journal yake inarudishwa)') }}</label>
+                    @if (cancelCurrent()) {
+                      <input type="text" class="why" maxlength="200" [value]="reason()" (input)="reason.set($any($event.target).value)"
+                        [placeholder]="i18n.t('Reason (required)', 'Sababu (lazima)')" [attr.aria-label]="i18n.t('Reason', 'Sababu')" />
+                    }
+                  </div>
+                }
                 <button lsmsButton="secondary" size="sm" (click)="stopping.set(null)">{{ i18n.t('Cancel', 'Ghairi') }}</button>
-                <button lsmsButton="danger" size="sm" [loading]="busy()" (click)="stop(b.uid)">{{ i18n.t('Stop it', 'Isimamishe') }}</button>
+                <button lsmsButton="danger" size="sm" [loading]="busy()" [disabled]="cancelCurrent() && !reason().trim()" (click)="stop(b.uid)">{{ i18n.t('Stop it', 'Isimamishe') }}</button>
               </div>
             }
           </div>
@@ -486,6 +498,9 @@ export interface RecurringBudgetsData {
     .inline input { width: 160px; }
     .inline small { flex: 1; min-width: 160px; font-size: 0.74rem; color: var(--c-text-2); }
     .inline.warn small { color: var(--c-error); }
+    .cur { flex-basis: 100%; display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; }
+    .chk { display: flex; align-items: center; gap: 6px; }
+    .why { width: 100%; max-width: 360px; }
   `,
 })
 export class RecurringBudgetsDialog {
@@ -501,6 +516,9 @@ export class RecurringBudgetsDialog {
   protected readonly editing = signal<string | null>(null);
   protected readonly stopping = signal<string | null>(null);
   protected readonly newAmount = signal('');
+  protected readonly preview = signal<StopPreview | null>(null);
+  protected readonly cancelCurrent = signal(false);
+  protected readonly reason = signal('');
   protected changed = false;
 
   protected readonly amountOf = computed(() => parse(this.newAmount()));
@@ -530,8 +548,20 @@ export class RecurringBudgetsDialog {
     await this.run(() => this.api.updateRecurringAmount(uid, this.amountOf()));
   }
 
+  /** G2: open the stop row and ask the backend about this month's row (null on an older backend). */
+  protected async askStop(uid: string): Promise<void> {
+    this.editing.set(null);
+    this.preview.set(null);
+    this.cancelCurrent.set(false);
+    this.reason.set('');
+    this.stopping.set(uid);
+    const p = await this.api.stopPreview(uid);
+    if (this.stopping() === uid) this.preview.set(p);
+  }
+
   protected async stop(uid: string): Promise<void> {
-    await this.run(() => this.api.stopRecurring(uid));
+    const cancel = this.cancelCurrent() && !!this.preview()?.currentMonth;
+    await this.run(() => this.api.stopRecurring(uid, cancel, cancel ? this.reason().trim() : undefined));
   }
 
   private async run(action: () => Promise<RecurringBudget>): Promise<void> {

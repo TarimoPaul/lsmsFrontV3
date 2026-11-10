@@ -209,11 +209,33 @@ export class CapitalService {
     return ((await this.api.get<Raw[] | null>(`${CE}/recurring-monthly`)) ?? []).map(toBudget);
   }
 
-  /** Stops future months; rows already created stay. CAPITAL_APPROVE. */
-  async stopRecurring(uid: string): Promise<RecurringBudget> {
-    const r = toBudget(await this.api.patch<Raw>(`${CE}/recurring-monthly/${uid}/stop`));
+  /**
+   * Stops future months; rows already created stay. CAPITAL_APPROVE.
+   * G2: `cancelCurrentMonth` (with a reason) also removes THIS month's row and reverses its journal —
+   * only offered when {@link stopPreview} answered (an older backend ignores the flag).
+   */
+  async stopRecurring(uid: string, cancelCurrentMonth = false, reason?: string): Promise<RecurringBudget> {
+    const params: Record<string, string> = cancelCurrentMonth ? { cancelCurrentMonth: 'true', reason: reason ?? '' } : {};
+    const r = toBudget(await this.api.patch<Raw>(`${CE}/recurring-monthly/${uid}/stop`, {}, { params }));
     this.all.invalidate();
     return r;
+  }
+
+  /** G2: this month's row of a schedule (amount, in the books) — null when the backend predates G2. */
+  async stopPreview(uid: string): Promise<StopPreview | null> {
+    try {
+      const r = await this.api.get<{ futureRows?: number; currentMonth?: Raw | null } | null>(
+        `${CE}/recurring-monthly/${uid}/stop-preview`,
+      );
+      if (!r) return null;
+      const c = r.currentMonth;
+      return {
+        futureRows: n(r.futureRows),
+        currentMonth: c ? { uid: String(c['uid'] ?? ''), month: String(c['month'] ?? ''), amount: n(c['amount']), inBooks: c['inBooks'] === true } : null,
+      };
+    } catch {
+      return null;
+    }
   }
 
   /** New amount for the months not yet paid. CAPITAL_WRITE. */
@@ -222,6 +244,12 @@ export class CapitalService {
     this.all.invalidate();
     return r;
   }
+}
+
+/** G2: what stopping a schedule would touch. */
+export interface StopPreview {
+  futureRows: number;
+  currentMonth: { uid: string; month: string; amount: number; inBooks: boolean } | null;
 }
 
 export interface RecurringBudget {

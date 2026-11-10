@@ -887,3 +887,19 @@ TATIZO: MaterializedViewScheduler "Failed to refresh materialized views: Executi
   3. Ikiwa ni regression ya 2.4.0 → hotfix 2.4.1 (tawi hotfix/2.4.1 kutoka v2.4.0), jaribio la PG linalothibitisha refresh inafanya kazi,
      kisha 76 staging → prod. Ikiwa ilikuwepo kabla → toleo la 2.
 "SELLING BELOW RECOMMENDED PRICE" ni ERROR kwenye log — ni tukio la biashara, siyo kosa la mfumo: liwe WARN + audit (toleo 2, pamoja na kanuni ya punguzo).
+
+## 2026-11-10 (dx)
+M1 = (b): ondoa MaterializedViewScheduler + refresh (sehemu ya C7); DROP ya view 4 ni hatua tofauti (kama C6). Hatua 81 HAIENDESHWI (hakuna msomaji).
+L1: SELLING BELOW → WARN + audit, pamoja na 0.1.
+Mpangilio wa kazi kuanzia sasa (moja baada ya nyingine; ripoti fupi + jedwali la origin kila moja ikiisha):
+ 1. G1–G5 (gharama za mwezi/mwaka; G5 prepaid 1160, V140).
+ 2. Njia ya kulipa madeni ya gharama 2400 / 2200 (Dr deni / Cr chanzo C3), bila gharama mpya.
+ 3. Punguzo chini ya gharama → CEO + sababu (+ L1).
+ 4. Tozo ya mfanyakazi kwa gharama (bila 4900).
+ 5. Kanuni za hesabu ya stock + bidhaa za kupima (BAADA §2).
+ 6. 1010 akiba; droo kwenye reco (§8); hatua 74 (§9); wasambazaji wa mkopo; deni kwa mmiliki – Jess.
+ 7. SKU za Jagger; ripoti ya uendeshaji kwa avg.
+ 8. C4 marejesho ya mauzo.
+ 9. ORODHA-FLUTTER-V3 → C7 (pamoja na M1; Flutter mwisho) → C6 (+ DROP view 4) → Flyway V039/outOfOrder → config.
+Kipengele kikihitaji uamuzi au data ya Chief: kiweke kando, endelea na kinachofuata, na uniorodheshee maswali kwenye ripoti.
+Kosa jipya: liingie tu ikiwa linaandika pesa/stock/data isiyo sahihi kwenye prod.
