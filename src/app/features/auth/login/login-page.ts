@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 import { ApiError } from '@core/api/api.types';
 import { nameFromEmail } from '@core/auth/auth.models';
@@ -56,6 +57,7 @@ export class LoginPage {
 
   private readonly updates = inject(AppUpdateService);
   protected readonly version = this.updates.version;
+  protected readonly ownerName = environment.ownerName;
   protected readonly wide = computed(() => this.bp.width() >= 1040);
   protected readonly activeView = signal<AuthView>('login');
   protected readonly busy = signal(false);
