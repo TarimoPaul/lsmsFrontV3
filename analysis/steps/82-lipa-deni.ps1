@@ -28,6 +28,8 @@ $sacc = ''
 if ($src.ToUpper() -eq 'BENKI') { $sacc = Read-Host 'Akaunti ya benki: 1020 CRDB, 1021 NMB, 1022 NBC, 1023 Selcom, 1024 PCB' }
 if ($src.ToUpper() -eq 'SIMU') { $sacc = Read-Host 'Akaunti ya simu: 1030 M-Pesa, 1031 Tigo, 1032 Halopesa, 1033 Airtel' }
 $desc = Read-Host 'Nini kinalipwa (angalau herufi 10, mf. Pango la Frame Okt-Des 2026)'
+# PowerShell 5.1 inatuma kwa ssh kama ASCII: herufi kama "–" au "é" zingekuwa "?" - tumia herufi za kawaida tu
+if ($desc -match '[^\x20-\x7E]') { L 'SIYO: maelezo yana herufi zisizo za kawaida (mf. - ndefu); andika kwa herufi za kawaida tu.'; exit 2 }
 $req = "$acc`n$amt`n$src`n$sacc`n$desc"
 $plan = $req | & ssh @SshO contabo "bash $R/82-lipa-deni.sh angalia 2>&1 | $F" 2>&1 | ForEach-Object { "$_" }
 $plan | ForEach-Object { L $_ }

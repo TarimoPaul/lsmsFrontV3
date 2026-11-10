@@ -1002,3 +1002,18 @@ Hatua ya uhamisho (sehemu ya KUPIMA): chambua GL kwanza (kusoma tu) — kwa kila
   (Dr 1000 159,000 / Cr <akaunti sahihi kwa ushahidi>) bila kuandika. Lengo: cash isiwe na malipo ya uongo, na gharama ya kinywaji
   ihesabiwe mara MOJA.
 Endelea kujenga KUPIMA (ef) kwenye feature/t2-kupima.
+
+## 2026-11-10 (eh)
+(A) MAPEMA, hatua tofauti (83), kabla ya cutover D: Dr 1000 159,000 / Cr 3900, tarehe ya kuandika (Novemba, wazi),
+  maelezo "Marekebisho: manunuzi ya vipimo 20/02–17/08 hayakulipwa (Chief 10/11)". KAGUA → 🛑 → ANDIKA; salio 1000/3900 kabla/baada; TB 0;
+  inakataa ikiwa journal ya 83 ipo tayari.
+(B) inabaki kwenye hatua ya uhamisho ya KUPIMA (toleo 2).
+Endelea kujenga KUPIMA (ef).
+
+## 2026-11-10 (ei)
+Ujazo: Konyagi, Moon Light, Golden King, Gilbeys, Camino = chupa 750ml. Wine = dumu 5,000ml.
+Vipimo/bei vya Golden King, Gilbeys, Camino: Chief atataja kabla ya uhamisho.
+
+## 2026-11-10 (ej)
+Wine = dumu 5,000ml; vipimo: 70ml = 2,000 na 80ml = 3,000 (Chief amechagua 80ml; hakuna 90ml).
+"Wine 500" ya data ya zamani ni gharama ya kubuni ya kipande, siyo bei.
