@@ -125,3 +125,15 @@ Code (chanzo kimeonekana 09/11):
   - V3: banner ya Capital "Vitabu vinahitaji kurekebishwa" inatoka kwa ONYO tu; ripoti (fedha, stock, madeni) zinaonyesha TAARIFA kama "info", si nyekundu.
     Backend ya zamani (bila "level") -> V3 inarudi kwenye kanuni ya zamani (reconciled), kwa hiyo V3 inaweza kutangulia backend.
   - Migration: V139 = H1. G5 (1160/2400) itachukua V140+.
+- (dw) **M1 MaterializedViewScheduler haifanyi kazi - SIYO regression ya 2.4.0 (imethibitishwa 10/11):**
+  - Chanzo: commit c4a3659 (09/06/2026) iliondoa `@Transactional` kwenye `refreshSalesViews()` kwa dhana kwamba `REFRESH ... CONCURRENTLY` haiwezi
+    ndani ya transaction (dhana si sahihi). Njia 4 za `@Modifying` kwenye MaterializedViewRepository hazina transaction -> Hibernate:
+    `TransactionRequiredException: Executing an update/delete query` kila 23/01/03/05. Ipo kwenye v2.2.72, v2.3.0, v2.4.0 (faili hazijaguswa 2.3.0->2.4.0; C2 haikuzigusa).
+  - Jaribio la PG (MvRefreshPgCheck, Spring halisi + PG15 ya kutupa, sale mpya -> refresh -> view): code ya v2.3.0 = kosa lilelile, daily=0 monthly=0;
+    ukiweka `@Transactional` kwenye njia 4 za refresh = INFO "refreshed successfully", daily=1 monthly=1 (CONCURRENTLY inafanya kazi ndani ya transaction).
+  - Athari: HAKUNA ripoti/dashboard inayosoma mv_* - `SalesRepository.getOptimized*` na `MaterializedViewRepository.find*` hazina mtumiaji (ni C2 PG test tu).
+    Kwa hiyo hakuna data ya zamani inayoonyeshwa kwa mtu; gharama ni ERROR 4 kwa usiku na refresh isiyo na maana.
+  - Toleo 2, uamuzi wa Chief: (a) kurekebisha (`@Transactional` x4 + MvRefreshPgCheck) au (b) kuondoa scheduler + refresh ya SaleService + repository
+    (C7, code iliyokufa); DROP ya view 4 ni hatua tofauti (kama C6). Hatua 81 (prod, kusoma tu) inaonyesha data ya view iko hadi lini.
+- (dw) **L1 "SELLING BELOW RECOMMENDED PRICE"** (SaleService) ni ERROR kwenye log -> iwe WARN + audit (tukio la biashara, si kosa la mfumo);
+  pamoja na 0.1 (kanuni ya punguzo: CEO + sababu).

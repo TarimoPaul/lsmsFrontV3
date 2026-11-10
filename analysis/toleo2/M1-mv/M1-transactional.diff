@@ -1,0 +1,27 @@
+diff --git a/src/main/java/com/Lsms/MaterializedView/MaterializedViewRepository.java b/src/main/java/com/Lsms/MaterializedView/MaterializedViewRepository.java
+index 70b6870..1e7c48a 100644
+--- a/src/main/java/com/Lsms/MaterializedView/MaterializedViewRepository.java
++++ b/src/main/java/com/Lsms/MaterializedView/MaterializedViewRepository.java
+@@ -119,18 +119,22 @@ public interface MaterializedViewRepository extends JpaRepository<DailySalesSumm
+     );
+ 
+     // Refresh materialized views
++    @Transactional
+     @Modifying
+     @Query(value = "REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_sales_summary", nativeQuery = true)
+     void refreshDailySalesSummary();
+ 
++    @Transactional
+     @Modifying
+     @Query(value = "REFRESH MATERIALIZED VIEW CONCURRENTLY mv_hourly_sales_summary", nativeQuery = true)
+     void refreshHourlySalesSummary();
+ 
++    @Transactional
+     @Modifying
+     @Query(value = "REFRESH MATERIALIZED VIEW CONCURRENTLY mv_monthly_sales_summary", nativeQuery = true)
+     void refreshMonthlySalesSummary();
+ 
++    @Transactional
+     @Modifying
+     @Query(value = "REFRESH MATERIALIZED VIEW CONCURRENTLY mv_top_products_summary", nativeQuery = true)
+     void refreshTopProductsSummary();

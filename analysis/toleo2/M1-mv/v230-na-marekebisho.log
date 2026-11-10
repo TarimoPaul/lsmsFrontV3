@@ -1,0 +1,250 @@
+Picked up JAVA_TOOL_OPTIONS: -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8
+Picked up JAVA_TOOL_OPTIONS: -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8
+08:10:48.168 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.Lsms.MvRefreshPgCheck]: MvRefreshPgCheck does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+08:10:48.288 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.Lsms.LsmsApplication for test class com.Lsms.MvRefreshPgCheck
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2026-11-10 08:10:48 INFO  com.Lsms.MvRefreshPgCheck - Starting MvRefreshPgCheck using Java 21.0.2 with PID 33476 (started by chief in D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms-mv230)
+2026-11-10 08:10:48 INFO  com.Lsms.MvRefreshPgCheck - No active profile set, falling back to 1 default profile: "default"
+2026-11-10 08:10:54 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'customPermissionEvaluator' of type [com.Lsms.uaa.config.CustomPermissionEvaluator] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [projectingArgumentResolverBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-11-10 08:10:54 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'methodSecurityConfig' of type [com.Lsms.uaa.config.MethodSecurityConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [projectingArgumentResolverBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-11-10 08:10:54 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'methodSecurityExpressionHandler' of type [org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [projectingArgumentResolverBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-11-10 08:10:55 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-11-10 08:10:55 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3c9ef37b
+2026-11-10 08:10:55 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-11-10 08:10:55 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_acl_session_item" of relation "asset_count_line" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_h16ark2s44u6p634j0q2gjdu9" of relation "asset_count_line" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ecpy74ck331eh36hsdxhrcyjq" of relation "asset_count_schedule" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_cds6ysc38lq08w3inql118k3x" of relation "asset_count_session" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_cin65crd4o05nd9s9bo8x82fu" of relation "asset_item" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_t52mvjvbqyflv901syly8qeoh" of relation "branches" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_aqmyw20ht3aku27r3oorfaw43" of relation "branches" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_7n7oylt7ymfkgp22cih3eaxww" of relation "business_configuration" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ljlocgidrq33kak58w22l9pfk" of relation "business_settings" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_l5f2ui9wkq9xw8rkmcqwcrtb6" of relation "capital_expenditure" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_r5a7pvop2xtsqyspiofc5xesd" of relation "capital_expenditure" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_riukt3c3qc2kirv3xjtl0hui5" of relation "capital_injections" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_m3ap8uvm8kiqvo4oqw183onqa" of relation "categories" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_41g4n0emuvcm3qyf1f6cn43c0" of relation "categories" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_cl_session_product" of relation "counting_line" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_crh64xu319e6oheh8u95yk2bq" of relation "counting_line" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ed33v6vvolrw9vjmlu8kjc4lc" of relation "counting_schedule" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_anbhcuwvquw95p9sv7iajye0m" of relation "counting_session" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_75pkhlo8qmlsksrr6j8od15b6" of relation "credit_payments" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_6frvuj7m8rvhhm288ww2juml4" of relation "customer_audit_log" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_sasttq3r7fy233xbtlblacw2a" of relation "customer_credits" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_jkl1gtug5fs2aveipaoesjskr" of relation "customer_credits" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_63utrvdl1oatarb7hrpafku4b" of relation "customers" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_6v6x92wb400iwh6unf5rwiim4" of relation "customers" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_t6v2p1qeym18q0ik95fuo0pgv" of relation "daily_financial_snapshot" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ce7sxcevwalx9v4fkynbm5fx" of relation "daily_reconciliation" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_fok409sf907o60quj7tjis281" of relation "debt_adjustment" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_cs77c66bb942daa4brg4q8av5" of relation "gl_account" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_s9o8y2easq72g7pjh2lepqsow" of relation "gl_account" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_kmxwojwubqmyb4c42s8v4xqp" of relation "gl_period" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_67i95t18fsw8t7ibxhb19vuot" of relation "gl_period_audit" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_tmpm9nalc0wmw4asq4x88o6c9" of relation "gl_posting_failure" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_amj5ehnu394eig4a1ekletkye" of relation "item_measure" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_gqvqrhybft1qlg7ol5btr6jei" of relation "item_measure_audit_log" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_6tq1ixk2ix2vh3utew9lqrv0w" of relation "journal_entry" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ehnfjjn5qc81n4ilb2691g6hv" of relation "journal_entry" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_krhoah9humxq9r14waspxp8hv" of relation "journal_entry_line" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_loan_installment_seq" of relation "loan_installment" does not exist, skipping
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:10:59 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_5bon2ei84v98dfmt5h2b0wr41" of relation "loan_installment" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_f7kymxkg55u95xsc5pcnh21kh" of relation "notifications" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_hnn68u5e67shyvbb6r93suhhl" of relation "order_setting" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_order_suggestion_date" of relation "order_suggestion" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_s5iayh836i8geua4ysjcu3gfx" of relation "order_suggestion" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_order_line_product" of relation "order_suggestion_line" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_eig3fx5fi6rr7j9gkvfj8qcld" of relation "order_suggestion_line" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "idx_token" of relation "password_reset_tokens" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_cfhs4jqksr99flgyhiu3ci14k" of relation "password_reset_tokens" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_gw38skdf7x7h420lppmftdrwo" of relation "password_reset_tokens" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_1jlbypramjpuvbieypxv30dda" of relation "payments" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_gtiq4or957dhh4avriym2gscj" of relation "permission_config" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_3rcltct1oaiybtic0885aakvu" of relation "permissions" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_pnvtwliis6p05pn6i3ndjrqt2" of relation "permissions" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_87jdjxqx0tdufruw9m5d17o5j" of relation "price_history" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_becqs5k55wp44ux9xiyiam9re" of relation "print_jobs" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_product_order_setting" of relation "product_order_setting" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_i9kwhwnkcmhgrgwwkf5akjvpb" of relation "product_order_setting" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "idx_pss_product" of relation "product_stock_settings" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ie2u8h4aswq8qkd26exltqcyj" of relation "product_stock_settings" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_dp3v53kxel3v2o7hmtejhdx3l" of relation "products" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_4420qxnw6pu8thinww66p8l1m" of relation "products_sales_prices" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_7mycna8d8x214iiij0d1h3xpr" of relation "products_sales_prices" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_9uj3m8xfid8dgf57napecsnt6" of relation "promotion_products" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_p69gf0oeflmafy3limpj5dt0d" of relation "promotions" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ce56lll5mxl0fcxdrmhp0eug6" of relation "purchases" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_jphuqna3cng63d8gde92bk041" of relation "reconciliation_audit_log" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_2mblw5csnem1irjvtqlh7u6l7" of relation "reconciliation_cash_entries" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_3623nsvb8ghrwcmk46ivbuvuw" of relation "reconciliation_debt_collections" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_efg9jrirmpnr4rn1afwavbc6w" of relation "reconciliation_debt_payments" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_hg9gsnqdwpm51pqldj98qap85" of relation "reconciliation_expenses" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_a00nu5wnras7fkr9a7mgtvi4b" of relation "reconciliation_mobile_entries" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_nvhxk46b2cyk1mc6ay64855v2" of relation "reconciliation_purchases" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_i6thlvm3vf8fjvhit0r3xqski" of relation "reconciliation_retail_debts" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_4dikoxnovas9qq97gjodwj4dn" of relation "repurchase_invoices" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_t0f85p724cysmtc47fwomqhlx" of relation "repurchase_invoices" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_lpcyqcu6sgg7sjnsaplixlfc3" of relation "roles" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_ofx66keruapi6vyqpv6f2or37" of relation "roles" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_5srey1kjtflnp2lpyi177f1l7" of relation "safe_box_deposits" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_hsg6xksslsei33mwhh4h4iwi8" of relation "sale_promotions" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_n9fv7cbdgc778px8g4o31do70" of relation "sales" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_id16ltqx3v69oiuyjsgl46x2w" of relation "sales" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_g6hbxaa9clyl84dfd3opm94yh" of relation "sales_details" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_tded0nwuu1773qpiahjl0x4mc" of relation "sales_return_items" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_p5gvubcvtlm5angeaujakj226" of relation "sales_returns" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_8lhn3hk9egkh9yp7v4i8cr44f" of relation "sales_returns" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_6h51a6uqj179c9qmtqbhgt42d" of relation "settings_approvals" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_8d4v44s54s8f647pik0v34g29" of relation "staff_liability" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_os51iewtuiyiviipwoy3li30d" of relation "staff_liability_deduction_log" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_sli_counting_line" of relation "staff_liability_item" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_rx3tcgxqasgkoeq6rgemseja7" of relation "staff_liability_item" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_k3wy1u9dx6lgpyqas4p7im1eq" of relation "staff_liability_payment" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uq_sa_counting_line" of relation "stock_adjustment" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_7yfd1hae1183nu3q5s705hrlb" of relation "stock_adjustment" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_dwfoko6cnnffie5jvlhipis06" of relation "store" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_84hgjgg0s2vh7ye9cthifesq7" of relation "supplier_payments" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_4ep8im200twig9korm2d982lt" of relation "suppliers" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_efqukogbk7i0poucwoy2qie74" of relation "users" does not exist, skipping
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Warning Code: 0, SQLState: 00000
+2026-11-10 08:11:00 WARN  o.h.e.jdbc.spi.SqlExceptionHelper - constraint "uk_6dotkott2kjsp8vw4d0m25fb7" of relation "users" does not exist, skipping
+2026-11-10 08:11:05 INFO  c.L.C.gl.AccountMapper - AccountMapper cached 0 GL accounts
+2026-11-10 08:11:05 INFO  c.L.C.gl.GlConfigService - GL config loaded: postingEnabled=true shadowMode=true
+2026-11-10 08:11:08 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-11-10 08:11:09 INFO  com.Lsms.MvRefreshPgCheck - Started MvRefreshPgCheck in 21.02 seconds (process running for 21.907)
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ 205 new permissions added (total: 205)
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.config.AuthTokenFilter - ROOT authorities cache cleared
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ Role-permission seeding: no empty roles to seed (0 configured role(s) preserved)
+2026-11-10 08:11:13 ERROR com.Lsms.uaa.entity.DataInitializer - ❌ No root user exists and ROOT_PASSWORD is not set - ROOT user root@system.com NOT created
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer - 📊 System State:
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Permissions: 205
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Roles: 0 (created by ROOT user)
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer -    Users: 0
+2026-11-10 08:11:13 ERROR com.Lsms.uaa.entity.DataInitializer - ❌ ROOT user not found!
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ System initialization complete
+2026-11-10 08:11:13 INFO  com.Lsms.uaa.entity.DataInitializer - ✅ ROOT user can now create roles via UI/API
+2026-11-10 08:11:13 INFO  c.L.C.gl.GlChartInitializer - GL chart: 56 missing account(s) created
+2026-11-10 08:11:13 INFO  c.L.C.gl.AccountMapper - AccountMapper cached 56 GL accounts
+2026-11-10 08:11:13 INFO  c.L.Branch.BranchBackfillInitializer - Created Main Branch 6710148b-ae6c-4335-af38-bc471bc8bd80
+2026-11-10 08:11:13 INFO  c.L.Branch.BranchBackfillInitializer - Branch backfill complete (main=6710148b-ae6c-4335-af38-bc471bc8bd80): sales+0, reconciliations+0, memberships+0
+2026-11-10 08:11:13 INFO  c.L.R.S.PermissionIntegrityChecker - Permission integrity check passed. All 206 expected permissions present.
+2026-11-10 08:11:13 INFO  c.L.M.MaterializedViewInitializer - Created materialized view: mv_daily_sales_summary
+2026-11-10 08:11:13 INFO  c.L.M.MaterializedViewInitializer - Created materialized view: mv_hourly_sales_summary
+2026-11-10 08:11:13 INFO  c.L.M.MaterializedViewInitializer - Created materialized view: mv_monthly_sales_summary
+2026-11-10 08:11:13 INFO  c.L.M.MaterializedViewInitializer - Created materialized view: mv_top_products_summary
+2026-11-10 08:11:13 INFO  c.L.M.MaterializedViewInitializer - All materialized views created/verified successfully
+WARNING: A Java agent has been loaded dynamically (C:\Users\chief\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.12\byte-buddy-agent-1.14.12.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-11-10 08:11:14 INFO  c.L.S.c.MaterializedViewScheduler - Materialized views refreshed successfully (scheduled)
+MV_LOG [INFO Materialized views refreshed successfully (scheduled)]
+MV_DATA daily=1 monthly=1
+MV_REFRESH_SAWA

@@ -878,3 +878,12 @@ Chief asibofye "Correct" mpaka ripoti hii.
 H1: kizingiti = max(5,000, 0.1% ya thamani ya stock). Chini yake → "taarifa" (siyo onyo jekundu) + mwelekeo wa siku 7 (tofauti kila siku).
   Ikiongezeka siku 3 mfululizo → onyo hata kama iko chini ya kizingiti. "Correct" ibaki kwa CEO (inapendekezwa mwisho wa mwezi).
 push-yote: ongeza kila tawi la feature/* la toleo 2 linalotumika (kwa sasa feature/t2-gharama), au utaratibu wa kuongeza matawi mapya kiotomatiki.
+
+## 2026-11-10 (dw)
+78: GL failure 0, LOANINT SAWA, muhtasari SAWA (macheda mauzo tu), backup SAWA, stock −1,417.02 (sawa na jana → rounding; Correct 30/11).
+TATIZO: MaterializedViewScheduler "Failed to refresh materialized views: Executing an update/delete query" kila saa 2 tangu deploy.
+  1. Je, lilikuwepo 2.3.0? (logs za kabla ya 09/11 13:55, au code ya v2.3.0 dhidi ya v2.4.0 — C2 iligusa query hiyo?)
+  2. View zipi, nani anazisoma (ripoti/dashboard zipi zinaonyesha data ya zamani sasa), zilisasishwa mara ya mwisho lini.
+  3. Ikiwa ni regression ya 2.4.0 → hotfix 2.4.1 (tawi hotfix/2.4.1 kutoka v2.4.0), jaribio la PG linalothibitisha refresh inafanya kazi,
+     kisha 76 staging → prod. Ikiwa ilikuwepo kabla → toleo la 2.
+"SELLING BELOW RECOMMENDED PRICE" ni ERROR kwenye log — ni tukio la biashara, siyo kosa la mfumo: liwe WARN + audit (toleo 2, pamoja na kanuni ya punguzo).
