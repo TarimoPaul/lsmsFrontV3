@@ -32,7 +32,10 @@
    - bei < gharama: kazi 3 (sababu + Kagua).
 4. **Chombo kimeisha:** ml zilizobaki ni upotevu: **Dr 5100 / Cr 1200** kwa gharama, bila tozo. Rekodi ina aliyefungua, aliyefunga, tarehe, ml zilizopotea, na sawa na vipimo vingapi vya kipimo kidogo.
 5. **Chupa nzima:** inauzwa kutoka kwa mzazi moja kwa moja, kama leo.
-6. **Kufuta au kubadilisha sale ya kipimo:** ml zinarudi kwenye chombo kama bado kiko wazi. Kama kimeshafungwa (ek), zinarudishwa kama marekebisho ya upotevu wa chombo hicho: **Dr 1200 / Cr 5100**.
+6. **Kufuta au kubadilisha sale ya kipimo:** ml zinarudi kwenye chombo kama bado kiko wazi. Kama kimeshafungwa, zinaingia kwenye **upotevu wa chombo hicho**. Kilichojengwa ni Dr 5100 / Cr 1200, si Dr 1200 / Cr 5100 ya (ek); sababu iko hapa chini, na Chief ataamua.
+   - Mfano, chupa ya 750 (gharama 1 kwa ml): imeuzwa 30ml (COGS 30), kisha chombo kimeisha na 720 ni upotevu. Sale ya 30ml ikifutwa, reversal ya sale inarudisha Dr 1200 30 / Cr 5000 30.
+   - Na Dr 1200 / Cr 5100 juu yake: 1200 ingebaki +60 bila chupa yoyote, na upotevu ungekuwa 690. Hii si kweli, kwa sababu chupa yote (750) ilitoka.
+   - Na Dr 5100 / Cr 1200 (kilichojengwa): 1200 ni 0, upotevu ni 750, COGS ni 0. Gharama inahamia kwenye upotevu, kwa sababu ml hizo hazikuuzwa bali zilikuwa kwenye chupa iliyoisha.
 7. **Hesabu ya wiki:** vyombo vilivyofungwa (idadi ya mzazi), pamoja na kilicho wazi kwa kiwango (1, ¾, ½, ¼) dhidi ya bar.
 8. **Ripoti:**
    - upotevu kwa chombo/kinywaji;
