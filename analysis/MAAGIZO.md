@@ -1056,3 +1056,12 @@ Wine mzazi = GREPA WINE (59) → jina "GREPA WINE 5L" (Chief au hatua). Usisajil
 Hatua 85: wazazi kwa ORODHA YA UID wazi (siyo kutafuta kwa jina), KAGUA ionyeshe orodha hiyo kwa Chief kuthibitisha. Badilisha SQL ya 85 hivyo.
 Grepa 02/10 (75,000) UNPAID lakini imelipwa droo → ongeza kwenye orodha ya hatua 74 (§9).
 Majibu ya Chief (dumu zima, Gilbeys/Camino chanzo, MA-LOT, Golden King 64) yanakuja — usisubiri; endelea na kazi 4.
+
+## 2026-11-10 (es)
+KUPIMA — badiliko: bidhaa ya KUPIMA inaweza kuwa na WAZAZI WENGI wanaoruhusiwa (k.m. Wine za kupima ← GREPA WINE 5L, MA-LOT, …).
+  "Fungua chombo" → mtumiaji ANACHAGUA mzazi kutoka orodha → mzazi huyo −1; chombo kinakumbuka mzazi wake; gharama ya kipimo = avg ya mzazi
+  wa chombo ÷ ujazo × ml. Bei za vipimo ni za bidhaa ya kupima (zilezile kwa wazazi wote). Dumu zima linauzwa kama bidhaa ya kawaida.
+  Rekebisha V143/huduma/POS/E2E; hatua 85 iweke orodha ya wazazi.
+Mauzo ya dumu zima (8, kutoka KUPIMA-WAZAZI-EP): orodha kwa Chief — tarehe, sale, mteja/deni, cash/mkopo, bei, mtumiaji, deni lililobaki leo.
+  Chief ataweka alama "kupima" / "halisi". Kisha hatua 86 (KAGUA → ANDIKA, Novemba): kwa "kupima" — ondoa deni la mteja + mapato
+  (Dr 4000 / Cr deni la mteja, na daftari la madeni), COGS ibaki. "Halisi" hazigusiwi. Usiandike kabla ya alama za Chief.
