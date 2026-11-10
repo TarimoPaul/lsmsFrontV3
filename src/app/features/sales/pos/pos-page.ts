@@ -20,8 +20,8 @@ import { categoryColor, categoryInitials } from '../../categories/categories.mod
 import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel, shortReceipt } from '../sales.models';
 import { SalesService } from '../sales.service';
 import { BELOW_COST_CODE, askBelowCostReason } from '../sale-reason';
-import { KupimaService, PourProduct, barFraction } from '../../kupima/kupima.service';
-import type { KupimaShortData } from '../../kupima/kupima-short-dialog';
+import { KupimaService, PourProduct, barFraction, priceFor } from '../../kupima/kupima.service';
+import type { KupimaShortAnswer, KupimaShortData } from '../../kupima/kupima-short-dialog';
 import { CartCustomer, CartLine, CartStore } from './cart.store';
 import { RemakeStore } from './remake.store';
 
@@ -607,6 +607,7 @@ export class PosPage {
         overrideUnitPrice: l.pourMeasureUid ? null : l.unitPrice !== l.defaultPrice ? l.unitPrice : null,
         pourMeasureUid: l.pourMeasureUid ?? null,
         pourAction: l.pourAction ?? null,
+        pourParentUid: l.pourParentUid ?? null,
         costPerPiece: l.costPerPiece,
         piecesPerPackage: l.piecesPerPackage,
         packageAbbreviation: l.abbreviation,
@@ -686,16 +687,36 @@ export class PosPage {
             const why = await askBelowCostReason(this.dialogs, this.i18n, err.message);
             if (!why) return;
             req = { ...req, belowCostReason: why };
-          } else if (err.errorCode === 'KUPIMA_SHORT') {
-            const d = (err.data ?? {}) as { productUid?: string; mlLeft?: number; hasOpen?: boolean };
+          } else if (err.errorCode === 'KUPIMA_SHORT' || err.errorCode === 'KUPIMA_PARENT') {
+            // ek: split / finished / open a new container; es: with more than one parent, which one to open from
+            const d = (err.data ?? {}) as { productUid?: string; mlLeft?: number; hasOpen?: boolean; parents?: { uid: string; name: string; stock: number }[] };
             const { KupimaShortDialog } = await import('../../kupima/kupima-short-dialog');
-            const choice = await this.dialogs.openAsync<'SPLIT' | 'FINISHED', KupimaShortData>(KupimaShortDialog, {
+            const pending = req.saleDetails.find((x) => x.productUid === d.productUid && x.pourMeasureUid)?.pourAction ?? null;
+            const answer = await this.dialogs.openAsync<KupimaShortAnswer, KupimaShortData>(KupimaShortDialog, {
               size: 'sm',
-              data: { message: err.message, hasOpen: !!d.hasOpen, mlLeft: Number(d.mlLeft ?? 0) },
+              data: {
+                message: err.message,
+                hasOpen: err.errorCode === 'KUPIMA_SHORT' && !!d.hasOpen,
+                mlLeft: Number(d.mlLeft ?? 0),
+                parents: (d.parents ?? []).map((p) => ({ uid: String(p.uid), name: String(p.name), stock: Number(p.stock ?? 0) })),
+                openOnly: err.errorCode === 'KUPIMA_PARENT' && pending !== null,
+              },
             });
-            if (!choice || !d.productUid) return;
-            this.cart.setPourAction(d.productUid, choice);
-            req = { ...req, saleDetails: req.saleDetails.map((x) => (x.productUid === d.productUid && x.pourMeasureUid ? { ...x, pourAction: choice } : x)) };
+            if (!answer || !d.productUid) return;
+            const action = err.errorCode === 'KUPIMA_PARENT' && pending ? pending : answer.action;
+            this.cart.setPourAction(d.productUid, action, answer.parentUid);
+            // eu: no container is open -> the new one sells at ITS parent's prices: show them and let the person check the money
+            const pp = this.kupima.products().find((x) => x.productUid === d.productUid);
+            if (pp && !pp.open && answer.parentUid) {
+              const before = this.cart.subtotal();
+              this.cart.setPourPrices(d.productUid, (ml) => priceFor(pp, answer.parentUid, ml));
+              if (this.cart.subtotal() !== before) {
+                this.toast.info(this.i18n.t('The new container has its own prices - check the total and save again.',
+                  'Chombo kipya kina bei zake - hakiki jumla kisha hifadhi tena.'));
+                return;
+              }
+            }
+            req = { ...req, saleDetails: req.saleDetails.map((x) => (x.productUid === d.productUid && x.pourMeasureUid ? { ...x, pourAction: action, pourParentUid: answer.parentUid } : x)) };
           } else {
             throw e;
           }

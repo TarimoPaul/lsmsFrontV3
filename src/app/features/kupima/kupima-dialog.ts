@@ -9,10 +9,17 @@ import { Button, DialogService, DialogShell, Icon, ToastService } from '@shared/
 import { MoneyPipe } from '@shared/utils/money';
 import { SalesService } from '../sales/sales.service';
 import { PourContainerRow, PourHistory, PourProduct, KupimaService, barFraction } from './kupima.service';
+import type { KupimaShortAnswer, KupimaShortData } from './kupima-short-dialog';
 
 interface MeasureRow {
   ml: string;
   price: string;
+}
+
+/** es/eu: one allowed parent and its own prices (ml -> price; empty = the base price). */
+interface ParentRow {
+  uid: string;
+  own: Record<string, string>;
 }
 
 /**
@@ -40,10 +47,10 @@ interface MeasureRow {
           <div class="drink" [attr.data-product]="p.productName">
             <div class="top">
               <strong>{{ p.productName }}</strong>
-              <small>{{ p.containerName }} {{ p.containerMl }}ml · {{ i18n.t('parent', 'mzazi') }}: {{ p.parentName }} ({{ p.parentStock ?? 0 }})</small>
+              <small>{{ p.containerName }} {{ p.containerMl }}ml · {{ i18n.t('parents', 'wazazi') }}: @for (x of p.parents; track x.uid; let last = $last) { {{ x.name }} ({{ x.stock }})@if (!last) {, } }</small>
             </div>
             <div class="bar" [title]="(p.open?.mlLeft ?? 0) + ' / ' + p.containerMl + ' ml'"><i [style.width.%]="frac(p) * 100"></i></div>
-            <small class="left">@if (p.open) { {{ p.open.mlLeft }} / {{ p.open.containerMl }} ml · {{ p.open.referenceNumber }} } @else { {{ i18n.t('No open container', 'Hakuna chombo wazi') }} }</small>
+            <small class="left">@if (p.open) { {{ p.open.mlLeft }} / {{ p.open.containerMl }} ml · {{ p.open.referenceNumber }}@if (p.open.parentName) { · <b data-test="open-parent">{{ p.open.parentName }}</b> } } @else { {{ i18n.t('No open container', 'Hakuna chombo wazi') }} }</small>
             <div class="ms">
               @for (m of p.measures; track m.uid) {
                 <span class="m" [class.below]="m.cost !== null && m.price < m.cost">{{ m.ml }}ml · {{ m.price | money: { decimals: 0 } }}@if (m.cost !== null) { <small>({{ i18n.t('cost', 'gharama') }} {{ m.cost | money: { decimals: 0 } }})</small> }</span>
@@ -99,11 +106,30 @@ interface MeasureRow {
           <label><span>{{ i18n.t('Container', 'Chombo') }}</span><input data-test="cname" type="text" maxlength="30" [value]="fName()" (input)="fName.set($any($event.target).value)" placeholder="chupa / dumu" /></label>
           <label><span>{{ i18n.t('Volume (ml)', 'Ujazo (ml)') }}</span><input data-test="cml" type="number" min="10" [value]="fMl()" (input)="fMl.set($any($event.target).value)" /></label>
         </div>
-        <label><span>{{ i18n.t('Parent (whole bottle in store)', 'Mzazi (chupa nzima kwenye store)') }}</span>
-          <select data-test="parent" [value]="fParent()" (change)="fParent.set($any($event.target).value)">
-            <option value="">—</option>
-            @for (o of productOptions(); track o.uid) { @if (o.uid !== fProduct()) { <option [value]="o.uid">{{ o.name }}</option> } }
-          </select></label>
+        <span class="lbl">{{ i18n.t('Parents (whole container in store) and their own prices', 'Wazazi (chombo kizima kwenye store) na bei zao') }}</span>
+        @for (pr of fParents(); track $index; let i = $index) {
+          <div class="prow">
+            <select [attr.data-test]="i === 0 ? 'parent' : 'parent-' + i" [value]="pr.uid" (change)="setParent(i, $any($event.target).value)">
+              <option value="">—</option>
+              @for (o of productOptions(); track o.uid) { @if (o.uid !== fProduct()) { <option [value]="o.uid">{{ o.name }}</option> } }
+            </select>
+            @if (fParents().length > 1) {
+              <button lsmsButton="text" size="sm" icon="close" (click)="removeParent(i)" [attr.aria-label]="i18n.t('Remove', 'Ondoa')"></button>
+            }
+          </div>
+          @if (pr.uid) {
+            <div class="own">
+              <small>{{ i18n.t('Own prices (optional; empty = base price)', 'Bei zake (hiari; tupu = bei ya msingi)') }}</small>
+              @for (m of fMeasures(); track $index) {
+                @if (m.ml) {
+                  <label class="oml"><span>{{ m.ml }}ml</span>
+                    <input type="number" min="1" [attr.data-test]="'own-' + i + '-' + m.ml" [value]="pr.own[m.ml] ?? ''" [placeholder]="m.price" (input)="setOwn(i, m.ml, $any($event.target).value)" /></label>
+                }
+              }
+            </div>
+          }
+        }
+        <button lsmsButton="text" size="sm" icon="add" data-test="add-parent" (click)="fParents.update((p) => [...p, { uid: '', own: {} }])">{{ i18n.t('Add a parent', 'Ongeza mzazi') }}</button>
         <span class="lbl">{{ i18n.t('Measures', 'Vipimo') }}</span>
         @for (r of fMeasures(); track $index; let i = $index) {
           <div class="mrow">
@@ -136,6 +162,12 @@ interface MeasureRow {
     .cont > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .top { display: flex; flex-direction: column; gap: 2px; }
     small { font-size: 0.74rem; color: var(--c-text-2); }
+    .prow { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .prow select { flex: 1; }
+    .own { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin: 0 0 10px; padding: 6px 10px; border-radius: 10px; background: var(--c-bg); }
+    .own small { width: 100%; }
+    .oml { display: inline-flex; align-items: center; gap: 4px; margin: 0; }
+    .oml input { width: 90px; }
     .bar { height: 10px; border-radius: 999px; background: var(--c-bg); border: 1px solid var(--c-border); overflow: hidden; }
     .bar i { display: block; height: 100%; background: var(--c-primary); border-radius: 999px; }
     .ms { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -184,13 +216,15 @@ export class KupimaDialog {
   protected readonly fProduct = signal('');
   protected readonly fName = signal('chupa');
   protected readonly fMl = signal('750');
-  protected readonly fParent = signal('');
+  protected readonly fParents = signal<ParentRow[]>([{ uid: '', own: {} }]);
   protected readonly fMeasures = signal<MeasureRow[]>([{ ml: '30', price: '' }]);
   protected readonly valid = computed(
     () =>
       !!this.fProduct() &&
-      !!this.fParent() &&
-      this.fParent() !== this.fProduct() &&
+      this.fParents().length > 0 &&
+      this.fParents().every((p) => !!p.uid && p.uid !== this.fProduct()) &&
+      new Set(this.fParents().map((p) => p.uid)).size === this.fParents().length &&
+      this.fParents().every((p) => Object.values(p.own).every((v) => v === '' || Number(v) > 0)) &&
       this.fName().trim().length > 0 &&
       Number(this.fMl()) >= 10 &&
       this.fMeasures().length > 0 &&
@@ -219,7 +253,18 @@ export class KupimaDialog {
   }
 
   protected async open(p: PourProduct): Promise<void> {
-    await this.run(p.productUid, () => this.api.open(p.productUid));
+    // es: more than one parent -> the person chooses which one the container comes from
+    let parentUid: string | null = null;
+    if (p.parents.length > 1) {
+      const { KupimaShortDialog } = await import('./kupima-short-dialog');
+      const a = await this.dialogs.openAsync<KupimaShortAnswer, KupimaShortData>(KupimaShortDialog, {
+        size: 'sm',
+        data: { message: p.productName, hasOpen: false, mlLeft: 0, openOnly: true, parents: p.parents.map((x) => ({ uid: x.uid, name: x.name, stock: x.stock })) },
+      });
+      if (!a?.parentUid) return;
+      parentUid = a.parentUid;
+    }
+    await this.run(p.productUid, () => this.api.open(p.productUid, parentUid));
   }
 
   protected async finish(p: PourProduct): Promise<void> {
@@ -282,13 +327,29 @@ export class KupimaDialog {
     this.fProduct.set(p?.productUid ?? '');
     this.fName.set(p?.containerName ?? 'chupa');
     this.fMl.set(String(p?.containerMl ?? 750));
-    this.fParent.set(p?.parentProductUid ?? '');
+    this.fParents.set(
+      p && p.parents.length
+        ? p.parents.map((x) => ({ uid: x.uid, own: Object.fromEntries(x.prices.filter((q) => q.own).map((q) => [String(q.ml), String(q.price)])) }))
+        : [{ uid: '', own: {} }],
+    );
     this.fMeasures.set(p ? p.measures.map((m) => ({ ml: String(m.ml), price: String(m.price) })) : [{ ml: '30', price: '' }]);
     this.tab.set('edit');
   }
 
   protected setRow(i: number, k: keyof MeasureRow, v: string): void {
     this.fMeasures.update((rows) => rows.map((r, j) => (j === i ? { ...r, [k]: v } : r)));
+  }
+
+  protected setParent(i: number, uid: string): void {
+    this.fParents.update((rows) => rows.map((r, j) => (j === i ? { uid, own: {} } : r)));
+  }
+
+  protected removeParent(i: number): void {
+    this.fParents.update((rows) => rows.filter((_, j) => j !== i));
+  }
+
+  protected setOwn(i: number, ml: string, v: string): void {
+    this.fParents.update((rows) => rows.map((r, j) => (j === i ? { ...r, own: { ...r.own, [ml]: v } } : r)));
   }
 
   protected removeRow(i: number): void {
@@ -303,8 +364,13 @@ export class KupimaDialog {
       const r = await this.api.configure(this.fProduct(), {
         containerName: this.fName().trim(),
         containerMl: Number(this.fMl()),
-        parentProductUid: this.fParent(),
+        parentProductUids: this.fParents().map((p) => p.uid),
         measures: this.fMeasures().map((m) => ({ ml: Number(m.ml), price: Number(m.price) })),
+        parentPrices: this.fParents().flatMap((p) =>
+          Object.entries(p.own)
+            .filter(([ml, v]) => v !== '' && Number(v) > 0 && this.fMeasures().some((m) => m.ml === ml))
+            .map(([ml, v]) => ({ parentProductUid: p.uid, ml: Number(ml), price: Number(v) })),
+        ),
       });
       this.warnings.set(r.warnings);
       this.editing.set(r.product.productUid);

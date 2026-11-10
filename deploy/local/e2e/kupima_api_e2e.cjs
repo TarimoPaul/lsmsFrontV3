@@ -151,6 +151,63 @@ const stock = (p) => Number(sql(`select current_stock from products where uid = 
   const mig2 = await api('POST', `/api/v1/kupima/products/${ML}/migrate`, ceo, { countedMl: 100, writeOffGl: 0 });
   ok('M5 uhamisho mara ya pili -> kataa (hata baada ya chombo kufungwa kwa maelezo)', mig2.status === 422 && /umeshafanyika/.test(mig2.j?.message || ''), `${mig2.status} ${mig2.j?.message}`);
 
+  // ── (es)(eu) WINE: many parents (GREPA WINE 5L base prices, MA-LOT own 70ml price); the till chooses the parent ──
+  const W = sql("select uid from products where product_name = 'WINE ZA KUPIMA'");
+  const G = sql("select uid from products where product_name = 'GREPA WINE'");
+  const L = sql("select uid from products where product_name = 'MA-LOT BOX WINE'");
+  sql(`update products set current_stock = greatest(current_stock, 3) where uid in ('${G}','${L}')`); // stock to open from (local copy only)
+  const gAvg = Number(sql(`select current_average_cost from products where uid='${G}'`));
+  const lAvg = Number(sql(`select current_average_cost from products where uid='${L}'`));
+  const cfgW = { containerName: 'dumu', containerMl: 5000, parentProductUids: [G, L], measures: [{ ml: 70, price: 2000 }, { ml: 80, price: 3000 }],
+    parentPrices: [{ parentProductUid: L, ml: 70, price: 2500 }] };
+  const bad = await api('PUT', `/api/v1/kupima/products/${W}`, ceo, { ...cfgW, parentPrices: [{ parentProductUid: PARENT, ml: 70, price: 2500 }] });
+  ok('W1 bei ya mzazi asiye kwenye orodha -> 422', bad.status === 422, `${bad.status} ${bad.j?.message}`);
+  const sw = await api('PUT', `/api/v1/kupima/products/${W}`, ceo, cfgW);
+  const pv = Object.fromEntries((sw.j?.data?.parents || []).map((x) => [x.uid, x]));
+  const p70 = (u) => (pv[u]?.prices || []).find((x) => x.ml === 70) || {};
+  ok('W2 wazazi 2: GREPA 70ml = msingi 2,000; MA-LOT 70ml = yake 2,500; 80ml = msingi kwa wote', sw.j?.status === 'Success' && Object.keys(pv).length === 2
+    && Number(p70(G).price) === 2000 && p70(G).own === false && Number(p70(L).price) === 2500 && p70(L).own === true
+    && (pv[L].prices.find((x) => x.ml === 80) || {}).own === false, JSON.stringify(sw.j?.data?.parents || sw.j).slice(0, 400));
+  const hW = sql(`select string_agg(field||':'||coalesce(old_value,'-')||'>'||coalesce(new_value,'-'), ';' order by id) from pour_settings_history where product_uid='${W}'`);
+  ok('W3 historia: wazazi wote 2 + bei ya MA-LOT (msingi -> 2,500)', /MZAZI:->GREPA WINE/.test(hW) && /MZAZI:->MA-LOT BOX WINE/.test(hW) && /BEI MA-LOT BOX WINE 70ml:msingi>2,500/.test(hW), hW);
+  const mw = Object.fromEntries(sw.j.data.measures.map((x) => [x.ml, x.uid]));
+  const lineW = (qty, action, parent) => ({ productUid: W, productName: 'WINE ZA KUPIMA', saleType: 'PIECES', pieceQuantity: qty, packageQuantity: qty,
+    unitPrice: 0, subTotal: 0, overrideUnitPrice: null, pourMeasureUid: mw[70], pourAction: action ?? null, pourParentUid: parent ?? null });
+  const g0 = stock(G), l0 = stock(L);
+  const w1 = await sell([lineW(1)]);
+  ok('W4 hakuna chombo wazi -> KUPIMA_SHORT yenye wazazi 2', w1.status === 422 && w1.j?.errorCode === 'KUPIMA_SHORT' && (w1.j?.data?.parents || []).length === 2, `${w1.status} ${w1.j?.errorCode}`);
+  const w2 = await sell([lineW(1, 'SPLIT')]);
+  ok('W5 kufungua bila kuchagua mzazi (wazazi 2) -> 422 KUPIMA_PARENT, hakuna stock iliyoguswa', w2.status === 422 && w2.j?.errorCode === 'KUPIMA_PARENT'
+    && (w2.j?.data?.parents || []).length === 2 && stock(G) === g0 && stock(L) === l0 && bar(W) === '-1', `${w2.status} ${w2.j?.errorCode} ${w2.j?.message}`);
+  const w3 = await sell([lineW(1, 'SPLIT', PARENT)]);
+  ok('W6 mzazi asiyeruhusiwa -> 422', w3.status === 422 && stock(PARENT) >= 0 && bar(W) === '-1', `${w3.status} ${w3.j?.message}`);
+  const w4 = await sell([lineW(1, 'SPLIT', L)]);
+  const dW4 = sql(`select round(sub_total)||'|'||round(total_cost,2) from sales_details where sale_uid='${w4.j?.data?.sale?.uid}'`).split('|');
+  const cW4 = sql(`select parent_product_uid from pour_container where product_uid='${W}' and status='OPEN'`);
+  ok('W7 MA-LOT imechaguliwa: MA-LOT -1 (GREPA haijaguswa), chombo kinakumbuka MA-LOT, bei 2,500 (yake), gharama = avg MA-LOT / 5000 x 70',
+    w4.status === 200 && stock(L) === l0 - 1 && stock(G) === g0 && cW4 === L && Number(dW4[0]) === 2500 && Math.abs(Number(dW4[1]) - lAvg / 5000 * 70) < 0.02,
+    `${w4.status} ${w4.j?.message} ${dW4} parent=${cW4}`);
+  const vw = await api('GET', `/api/v1/kupima/products/${W}`, mgr);
+  const v70 = (vw.j?.data?.measures || []).find((x) => x.ml === 70) || {};
+  ok('W8 POS inaonyesha bei za chombo kilicho wazi: 70ml = 2,500 (msingi 2,000), chombo = MA-LOT', Number(v70.price) === 2500 && Number(v70.basePrice) === 2000
+    && vw.j?.data?.open?.parentName === 'MA-LOT BOX WINE', JSON.stringify({ v70, open: vw.j?.data?.open }).slice(0, 300));
+  await api('POST', `/api/v1/kupima/products/${W}/finish?note=${encodeURIComponent('E2E es')}`, mgr);
+  const opNo = await api('POST', `/api/v1/kupima/products/${W}/open`, mgr, {});
+  ok('W9 "Fungua chombo" kwa mkono bila mzazi (wazazi 2) -> 422 KUPIMA_PARENT', opNo.status === 422 && opNo.j?.errorCode === 'KUPIMA_PARENT', `${opNo.status} ${opNo.j?.errorCode}`);
+  const opG = await api('POST', `/api/v1/kupima/products/${W}/open`, mgr, { parentProductUid: G });
+  const w5 = await sell([lineW(1)]);
+  const dW5 = sql(`select round(sub_total)||'|'||round(total_cost,2) from sales_details where sale_uid='${w5.j?.data?.sale?.uid}'`).split('|');
+  ok('W10 GREPA imefunguliwa kwa mkono: GREPA -1, bei 2,000 (msingi), gharama = avg GREPA / 5000 x 70', opG.j?.status === 'Success' && stock(G) === g0 - 1
+    && Number(dW5[0]) === 2000 && Math.abs(Number(dW5[1]) - gAvg / 5000 * 70) < 0.02, `${opG.j?.message} ${dW5}`);
+  const repW = await api('GET', `/api/v1/kupima/containers?productUid=${W}`, mgr);
+  const byParent = Object.fromEntries((repW.j?.data || []).map((c) => [c.parent_name, Number(c.revenue)]));
+  ok('W11 faida ya chombo: kila chombo kina mzazi wake na mapato yake (MA-LOT 2,500, GREPA 2,000)', byParent['MA-LOT BOX WINE'] === 2500 && byParent['GREPA WINE'] === 2000, JSON.stringify(byParent));
+  const sw2 = await api('PUT', `/api/v1/kupima/products/${W}`, ceo, { ...cfgW, parentPrices: [{ parentProductUid: L, ml: 70, price: 2800 }] });
+  const w6 = await sell([lineW(1)]);
+  ok('W12 bei ya MA-LOT 2,500 -> 2,800: historia ipo; chombo cha GREPA kilicho wazi bado 2,000 (bei ni ya mzazi wa chombo)', sw2.j?.status === 'Success'
+    && /BEI MA-LOT BOX WINE 70ml:2,500>2,800/.test(sql(`select string_agg(field||':'||coalesce(old_value,'-')||'>'||coalesce(new_value,'-'), ';' order by id) from pour_settings_history where product_uid='${W}'`))
+    && Number(sql(`select round(sub_total) from sales_details where sale_uid='${w6.j?.data?.sale?.uid}'`)) === 2000, `${sw2.j?.message}`);
+
   await new Promise((r) => setTimeout(r, 2000));
   ok('Z1 TB haijabadilika (Dr = Cr)', tb() === tb0, `${tb0} -> ${tb()}`);
   const rep = await api('GET', `/api/v1/kupima/containers?productUid=${K}`, mgr);

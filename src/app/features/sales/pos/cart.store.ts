@@ -27,6 +27,8 @@ export interface CartLine {
   pourMl?: number | null;
   /** KUPIMA (ek): the answer when the container is short - SPLIT or FINISHED. */
   pourAction?: 'SPLIT' | 'FINISHED' | null;
+  /** KUPIMA (es): the parent a new container is opened from. */
+  pourParentUid?: string | null;
 }
 
 export interface CartCustomer {
@@ -180,8 +182,19 @@ export class CartStore {
   }
 
   /** KUPIMA (ek): remember the answer for every poured line of this product (sent with the sale). */
-  setPourAction(productUid: string, action: 'SPLIT' | 'FINISHED'): void {
-    this.lines.update((ls) => ls.map((l) => (l.productUid === productUid && l.pourMeasureUid ? { ...l, pourAction: action } : l)));
+  setPourAction(productUid: string, action: 'SPLIT' | 'FINISHED', parentUid: string | null = null): void {
+    this.lines.update((ls) => ls.map((l) => (l.productUid === productUid && l.pourMeasureUid ? { ...l, pourAction: action, pourParentUid: parentUid } : l)));
+  }
+
+  /** KUPIMA (eu): the new container's parent has its own prices - the lines of this drink take them (ml -> price). */
+  setPourPrices(productUid: string, priceOf: (ml: number) => number | null): void {
+    this.lines.update((ls) =>
+      ls.map((l) => {
+        if (l.productUid !== productUid || !l.pourMeasureUid || !l.pourMl) return l;
+        const p = priceOf(l.pourMl);
+        return p === null || p === l.unitPrice ? l : { ...l, unitPrice: p, defaultPrice: p };
+      }),
+    );
   }
 
   /** Add `qty` units at once (used by "Sell again"). */

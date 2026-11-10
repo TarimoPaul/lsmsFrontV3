@@ -1,4 +1,4 @@
-import { barFraction, normalizePour } from './kupima.service';
+import { barFraction, normalizePour, priceFor } from './kupima.service';
 
 describe('KUPIMA (ef/ek)', () => {
   const raw = {
@@ -30,5 +30,21 @@ describe('KUPIMA (ef/ek)', () => {
     expect(barFraction(p, 75)).toBe(0.4);
     expect(barFraction(p, 1000)).toBe(0);
     expect(barFraction({ ...p, open: null })).toBe(0);
+  });
+
+  it('es/eu: parents with their own prices; priceFor = own price, else the base', () => {
+    const p = normalizePour({
+      ...raw,
+      measures: [{ uid: 'm70', ml: 70, price: '2500.00', basePrice: '2000.00', cost: null }],
+      parents: [
+        { uid: 'G', name: 'GREPA WINE', avgCost: '25000', stock: 1, prices: [{ ml: 70, price: '2000', own: false, cost: '350' }] },
+        { uid: 'L', name: 'MA-LOT BOX WINE', avgCost: '35000', stock: 2, prices: [{ ml: 70, price: '2500', own: true, cost: '490' }] },
+      ],
+    });
+    expect(p.parents.map((x) => x.name)).toEqual(['GREPA WINE', 'MA-LOT BOX WINE']);
+    expect(p.measures[0].basePrice).toBe(2000);
+    expect(priceFor(p, 'L', 70)).toBe(2500);
+    expect(priceFor(p, 'G', 70)).toBe(2000);
+    expect(priceFor(p, null, 70)).toBe(2000);
   });
 });

@@ -157,6 +157,7 @@ export interface SaleRequest {
     /** KUPIMA: registered measure + the answer when the container is short (ek). */
     pourMeasureUid?: string | null;
     pourAction?: 'SPLIT' | 'FINISHED' | null;
+    pourParentUid?: string | null;
     costPerPiece: number | null;
     piecesPerPackage: number | null;
     packageAbbreviation: string | null;
