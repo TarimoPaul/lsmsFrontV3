@@ -26,6 +26,13 @@ Maneno yaliyotafutwa: gilb, camino, grepa, wine, dumu, kupima, vipimo, kipimo, g
 
 Isipokuwa wine ya kupima ni dumu la aina nyingine. Kwenye (el) niliandika "hayupo" kwa sababu jina la bidhaa halina "5L" wala "dumu"; hilo lilikuwa kosa langu.
 
+**Prod ya leo (hatua 84, 10/11 19:28, kusoma tu):** inathibitisha matokeo haya.
+- gilbey 0, camino 0, dumu 0 nje ya bidhaa za kupima.
+- GREPA WINE (59) ina stock 1, na ununuzi wake wa mwisho ni 02/10. Kwa hiyo hakuna ununuzi mpya wa vinywaji hivi tangu 29/10.
+- Maelezo ya journal ya 83 ni sahihi: U+2013 (e28093), bila mojibake.
+- Tofauti moja na nakala ya 29/10: KONYAGI YA KUPIMA sasa ina stock **0**. Tarehe 29/10 ilikuwa 10; mistari ya mauzo imeongezeka kutoka 56 hadi 59, na mauzo ya mwisho ni 02/11.
+  - Hivyo GL ya (B) ya Konyagi kwenye 85 itakuwa ndogo kuliko jumla ya 29/10. KAGUA ya 85 inaisoma siku hiyo.
+
 ## 1. Gilbeys
 - Bidhaa ya kupima: GILBEYS KUPIMA (66), stock ya mfumo 9.
 - "Manunuzi" ya vipande: 22/02, 20,000. Supplier ni tupu.

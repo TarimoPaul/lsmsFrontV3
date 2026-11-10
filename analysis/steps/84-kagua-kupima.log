@@ -1,0 +1,40 @@
+---MWENDESHO-84--- 
+Tue 11/10/2026 19:28:35.02 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KAGUA--- 
+=== A JOURNAL YA 83: mstari | herufi | bytes | hex ya herufi 3 baada ya '20/02' | ina U+2013? | ina mojibake (U+0393)?
+1000 | 69 | 71 | e2809331372f | t | f
+3900 | 69 | 71 | e2809331372f | t | f
+   (sahihi: hex inaanza e28093 = U+2013 na 'ina U+2013' = t; mojibake ingeonyesha ce93c387c3b4 na 'mojibake' = t)
+   server_encoding UTF8 | client_encoding UTF8
+=== B1 BIDHAA ZA KUPIMA: id | jina | aina | stock ya mfumo | gharama | mistari ya mauzo | mauzo ya mwisho
+36 | CAMINO KUPIMA | WISKY | 0 | 1000 | 12 | 2026-05-31
+66 | GILBEYS KUPIMA | GIN | 9 | 1000 | 3 | 2026-07-18
+65 | GOLDEN KING KUPIMA | SPIRIT | 9 | 1000 | 4 | 2026-05-08
+52 | KONYAGI YA KUPIMA | SPIRIT | 0 | 1000 | 59 | 2026-11-02
+79 | Moon Light Kupima | WISKY | 9 | 2000 | 10 | 2026-08-16
+91 | WINE ZA KUPIMA | Wines | 0 | 500 | 36 | 2026-10-11
+=== B2 WAZAZI WANAOWEZEKANA: id | jina | aina | vipande/katoni | bei ya kipande | bei ya katoni | gharama | stock | ununuzi wa mwisho
+93 | ALTAR WINE | Wines | - | 15000 | - | 12000 | 4 | 2026-10-26
+87 | DODOMA WINE | Wines | 12 | 14000 | 144000 | 10000 | 1 | 2026-03-23
+141 | DONE WINE | Wines | 12 | 14000 | 120000 | 9000 | 2 | 2026-10-22
+58 | GOLDEN KING | SPIRIT | 24 | 5000 | 96000 | 1736 | 5 | 2026-07-09
+64 | GOLDEN KING | SPIRIT | 12 | 12000 | 12000 | 8166 | 8 | 2026-02-24
+59 | GREPA WINE | Wines | 10 | 32000 | 280000 | 25000 | 1 | 2026-10-02
+61 | HEAVEN SUN WINE | Wines | 12 | 12000 | 108000 | 10000 | 1 | 2026-05-08
+13 | KONYAGI | SPIRIT | 24 | 5000 | 98000 | 3833 | 28 | 2026-11-08
+33 | KONYAGI 750ML | SPIRIT | 12 | 13000 | 132000 | 10250 | 13 | 2026-11-09
+32 | KONYAGI kt | SPIRIT | 16 | 9000 | 136000 | 8000 | 16 | 2026-11-09
+102 | MA-LOT BOX WINE | Wines | - | 40000 | - | 35000 | 2 | 2026-03-30
+105 | MOON LIGHT | Beer | - | 10000 | - | 8166 | 2 | 2026-03-30
+106 | OLDEN WINE | Wines | 12 | 12000 | 120000 | 8500 | 10 | 2026-03-30
+=== B3 HAKUNA KABISA (jina halipo nje ya bidhaa za kupima):
+   gilbey: 0
+   camino: 0
+   dumu: 0
+=== MWISHO
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+faili za /tmp zimefutwa
+---OK--- 
