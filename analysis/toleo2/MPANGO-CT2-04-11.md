@@ -162,3 +162,20 @@ Code (chanzo kimeonekana 09/11):
   - Hatua 83 IMEENDESHWA prod (em). 82 ni ya dharura tu (eb).
   - (ep) wazazi: Chief anasajili Gilbeys 750ml + Camino 750ml; Wine: GREPA WINE (59) = "GREPA WINE 5LT" tayari ipo (KUPIMA-WAZAZI-EP.md); Moon Light -> spirits; Golden King 64?
 - Inayofuata: kazi 4.
+- **Kazi 4 IMEKAMILIKA 10/11 (bt/dx): tozo ya mfanyakazi kwa GHARAMA.** Matawi feature/t2-tozo (yanatoka t2-kupima): backend d65dfc2 + 1fb2bc3 (V144), V3 88de3f6.
+  - Tozo ya hesabu: Dr 1120 / Cr 1200 kwa gharama tu. 4900 haiguswi wakati wa tozo. Deni la mfanyakazi linabaki bei ya kuuza.
+  - Deni lina ndoo 3: gharama (iko 1120), tofauti iliyokubaliwa kwa maandishi (iko 1120 na 4900), na tofauti nje ya vitabu.
+  - Malipo yanalipa gharama kwanza, kisha iliyokubaliwa, kisha tofauti. Tofauti inaingia Cr 4900 inapolipwa tu.
+  - Msamaha unasamehe tofauti kwanza (bila GL), kisha iliyokubaliwa (Dr 4900), kisha gharama (Dr 5100). Hivyo 5100 haizidi gharama.
+  - Makubaliano ya maandishi: POST /liabilities/{uid}/margin-agreement (LIABILITY_MANAGE; hati + maelezo A6) -> Dr 1120 / Cr 4900. Yanarekodi nani, lini, kiasi na hati.
+    - V3: kitufe "Makubaliano ya maandishi" kwenye "Madeni ya wafanyakazi".
+    - Kadi inaonyesha mgawanyo na mgawanyo wa kila malipo.
+  - Madeni ya kabla ya V144 hayabadilishwi (kanuni ya V130, tofauti yake iko 4900 tayari). Backfill inarudia mgawanyo uliohifadhiwa.
+  - Majaribio:
+    - unit 13/0 (StaffChargeBuckets 7, LiabilityChargeAtCost 6);
+    - suite 648/0/1;
+    - mutation 2/2 (tozo kwa bei ya kuuza; tofauti iliyolipwa -> 1120);
+    - ng test 100/100;
+    - E2E_OK 18/18 kwenye nakala safi ya 29/10 (Flyway 134->144): tozo_api 21/0, tozo 8/0.
+  - Maswali kwa Chief: Q4-1 madeni ya zamani (4900 = 57,486.54 mwaka 2026) yabaki? (pendekezo: ndiyo); Q4-2 mpangilio wa msamaha (tofauti kwanza); Q4-3 tozo ya MALI (hesabu ya mali, Dr 1120 / Cr 4900 kamili) haijaguswa: nayo isubiri malipo?
+- Inayofuata: kazi 5 (kanuni za hesabu ya stock + bidhaa za kupima, BAADA §2).

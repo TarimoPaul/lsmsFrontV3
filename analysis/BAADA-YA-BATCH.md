@@ -26,6 +26,7 @@ na majibu ya mmiliki kabla ya code.
 - Inagusa CountingCharge / postStaffCharge, ripoti ya madai (deni kwa gharama + "tofauti inayodaiwa" kando) na malipo
   (mgawanyo gharama → 1120 kwanza, kisha 4900).
 - Majaribio: tozo → 1120 = gharama; malipo kamili → 4900 = tofauti; msamaha → 5100 kwa gharama tu; mutation.
+- **IMEJENGWA 10/11 (kazi 4, toleo 2): feature/t2-tozo, V144. Tazama MPANGO-CT2.**
 
 ## 1. Akiba ya mkopo kama akaunti halisi 1010 (mmiliki 01/11 bj)
 
