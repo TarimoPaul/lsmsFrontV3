@@ -189,3 +189,11 @@ Chanzo: analysis/toleo2/UCHUNGUZI-BM-STOCK-01-11.md (NO_ACTION haihifadhiwi, sto
 ## 16. Audit ya kuidhinisha capex (C8; freeze ct)
 - Leo approver anachukuliwa kwenye session (si kutoka kwa client), kuna maker-checker, na approved_by / approved_at / status_change_reason
   ziko kwenye safu ya capex. Hakuna safu ya audit_trails ya kila badiliko. Kuongeza historia hiyo si (1)/(2).
+
+## 17. Capital "Ondoa mali" haijawahi kufanya kazi (imeonekana 11/11 wakati wa Q4-3; si (1)/(2))
+- Kwenye DB (nakala 29/10) kuna constraint `capital_expenditure_status_check` = PENDING / APPROVED / REJECTED / CANCELLED tu.
+  Enum ya Java ina DISPOSED, kwa hiyo `disposeAsset` (status -> DISPOSED) inakataliwa na DB kila mara, na transaction yote inarudishwa.
+- Data: mali 0 zilizoondolewa (disposal_date) kwenye nakala ya 29/10. Hakuna pesa iliyoandikwa vibaya: kosa linaonekana kwa mtumiaji.
+- Q4-3 (t2-tozo 55b1d26) inaepuka hili: mali iliyopotea yote inawekwa disposal_date / LOST / disposal_value / gain_loss, status inabaki
+  APPROVED (depreciation inasimama kwa disposal_date).
+- Pendekezo (toleo 2 au baadaye): migration inayoongeza DISPOSED kwenye constraint + jaribio la PG la "Ondoa mali" (Dr 1590 / Cr mali / 4900 au 6900).

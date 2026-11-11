@@ -184,3 +184,8 @@ Code (chanzo kimeonekana 09/11):
   - imeunganishwa feature/t2-tozo: backend 5b4a07b, V3 3d66773;
   - suite 648/0/1, ng 99/99 (t2-kupima), E2E_OK 18/18, t85 21/0.
 - **(es) mauzo 8 ya dumu zima:** MAUZO-DUMU-ES.md. Yote ni CASH na PAID, bila deni la mteja. Hatua 86 inasubiri alama za Chief na chaguo (a)/(b)/(c).
+- **11/11 (er)(et)(ev)(ew):** ripoti analysis/toleo2/RIPOTI-ER-ET-EW-11-11.md.
+  - (et): faida kwa chombo, t2-kupima d5b35f5 / f0f8667.
+  - (er): Q4-3 NBV + H1, t2-tozo 55b1d26 / af82b73. suite 652/0/1, E2E_OK 18/18.
+  - (ev): hatua 86 HAIHITAJIKI.
+  - (ew): hatua 87 (kusoma tu) iko tayari; exclude_from_ops_report ni ijayo, kisha kazi 5.

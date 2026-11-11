@@ -1074,3 +1074,28 @@ KUPIMA bei kwa mzazi: bidhaa ya KUPIMA ina BEI ZA MSINGI {ml, bei}; kila mzazi a
   Zote zinawekwa na KUPIMA_SETTINGS tu; historia ya mabadiliko kwa msingi na kwa kila mzazi; zinatumika kwa mauzo yajayo.
   Jaribio: Grepa (msingi) vs MA-LOT (override) — POS na faida ya chombo zinatumia bei sahihi.
 Pamoja na (es) na (et).
+
+## 2026-11-11 (er) — ilipotea
+Kazi 4: Q4-1 = ndiyo (madeni ya zamani yabaki). Q4-2 = ndiyo (msamaha: tofauti kwanza, kisha gharama).
+Q4-3 = ndiyo: tozo ya mali → Dr 1120 / Cr akaunti ya mali kwa NBV (+ kuondoa mali/depreciation), ziada juu ya NBV → 4900 inapolipwa
+  au kwa makubaliano tu. Jaribio.
+H1: control ya 1120 ilinganishe GL na (sehemu ya gharama + tofauti iliyokubaliwa) ya daftari — siyo bei ya kuuza kamili.
+  Jaribio: tozo mpya → H1 SAWA; malipo / makubaliano / msamaha → SAWA.
+
+## 2026-11-11 (et) — ilipotea
+KUPIMA faida kwa chombo: chombo kinahifadhi GHARAMA YAKE siku kinapofunguliwa (avg ya mzazi wakati huo); gharama ya kipimo = hiyo ÷ ujazo × ml,
+  haibadiliki avg ikibadilika baadaye. Ripoti ya chombo: gharama, mapato, FAIDA, mapato ya juu kabisa, upotevu (ml + TZS), aliyefungua/kufunga.
+  Jumla kwa kinywaji na kwa mwezi; kadi ya faida ya wiki. Jaribio: avg ikibadilika baada ya kufungua → gharama ya kipimo haibadiliki.
+
+## 2026-11-11 (ev)
+Mauzo 8 ya dumu = (a): hakuna journal, hakuna alama zinazohitajika. Hatua 86 haihitajiki.
+Bei za MA-LOT: Chief ataweka kwenye V3 baada ya toleo 2. Kisha kazi 5.
+
+## 2026-11-11 (ew)
+Ripoti ya uendeshaji Nov inaonyesha mara mbili: Frame (share ya mwaka 200k + REN-MON Nov 200k) na TRA (share 20,833 + TAX-MON Nov 250k) = +450,000.
+GL ni sahihi (hatua 80). Usifute/kubatilisha rows hizo (ingevuruga GL ya 80).
+Toleo 2: alama kwenye capex row "exclude_from_ops_report" (sababu + audit, CEO/KUPIMA? → CAPITAL_APPROVE), ripoti ya uendeshaji iiheshimu.
+  Hatua ya data (baada ya toleo 2): weka alama kwa REN-MON-20261101-...-5D9DD844 na TAX-MON-20261101-...-B4F8EA66, sababu "zimeshughulikiwa na hatua 80".
+  Daraja: mstari "Marekebisho ya 2026 (hatua 80)" ili GL vs ripoti ielezeke.
+  Jaribio: ripoti ya Nov = share za mwaka tu kwa Frame/TRA; GL haibadiliki.
+Kagua pia: kuna rows nyingine 2026 zenye mwingiliano huo (share ya mwaka + mtoto wa mwezi wa kitu kilekile)? Orodhesha tu.
