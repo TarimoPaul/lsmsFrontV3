@@ -209,7 +209,7 @@ async function cleanup() {
   // ── cleanup ──
   const all = [...made.payments], allPu = [...made.purchases];
   await cleanup();
-  ok('Z1 usafi: malipo ya majaribio yamefutwa (GL imerudishwa)', all.length === 4 && all.every((u) => sql(`select is_deleted from supplier_payments where uid = '${u}'`) === 't') && all.every((u) => /^(\d+:0,?)+$/.test(journal(u))), all.map(journal).join(';'));
+  ok('Z1 usafi: malipo ya majaribio yamefutwa (GL imerudishwa)', all.length === 5 && all.every((u) => sql(`select is_deleted from supplier_payments where uid = '${u}'`) === 't') && all.every((u) => /^(\d+:0,?)+$/.test(journal(u))), all.map(journal).join(';'));
   ok('Z2 usafi: ununuzi wa majaribio umesitishwa (CANCELLED)', allPu.length === 1 && allPu.every((u) => sql(`select status from purchases where uid = '${u}'`) === 'CANCELLED'), allPu.map((u) => sql(`select status from purchases where uid = '${u}'`)).join(','));
   await browser.close();
   console.log(`MUHTASARI c3_e2e: PASS ${P}, FAIL ${F}`);
