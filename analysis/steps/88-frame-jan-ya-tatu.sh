@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # HATUA 88 (mmiliki 11/11 ex/ey) - PROD: row ya capex OPE-MON-20260101-000000-2939F6DE (maelezo "2400000", 200,000, Jan 2026)
 # ina journal POSTED Dr 6200 200,000 / Cr 1000 200,000 tarehe 01/01. Hatua 80 ilitafuta Frame kwa jina ('frame'),
-# kwa hiyo row hii HAIKUONEKANA. IKIWA Chief atasema ni Frame mara ya 3 (haikutoka kwenye biashara):
+# kwa hiyo row hii HAIKUONEKANA. Chief 11/11 (ez): ni Frame mara ya 2 (iliandikwa 30/04), haikutoka kwenye biashara:
 #   Dr 1000 200,000 / Cr 6200 200,000, tarehe = siku ya kuandika (Novemba), sawa na 80b (Cr 1000 ya Frame iliyorudishwa).
 #   Row ya capex HAIFUTWI (GL ya 80 ingevurugika); itawekewa alama exclude_from_ops_report kwenye toleo 2 (ew).
 #   bash 88-frame-jan-ya-tatu.sh kagua    KUSOMA TU: row + journal yake, Frame zote za 2026, watoto wa Sep "wafanyakazi", salio
@@ -20,7 +20,7 @@ die() { echo "SIYO: $*"; echo "---88_IMESHINDWA---"; exit 1; }
 TODAY="${L88_TODAY:-$(date +%F)}"
 MARK="MAREKEBISHO-88-FRAME-JAN"
 REFNO="OPE-MON-20260101-000000-2939F6DE"
-DESC="Marekebisho: Frame Jan 2026 mara ya 3 (row 2400000, ${REFNO}) haikutoka kwenye biashara (hatua 88)"
+DESC="Marekebisho: Frame Jan 2026 mara ya 2 (row 2400000 ya 30/04, ${REFNO}) haikutoka kwenye biashara (hatua 88, Chief 11/11)"
 AMT=200000
 dc() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
    where l.account_code='$1' and e.status='POSTED' and not coalesce(e.is_deleted,false)"; }
@@ -28,6 +28,12 @@ tb() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amoun
 bal26() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
    where l.account_code='$1' and e.status='POSTED' and not coalesce(e.is_deleted,false) and e.entry_date >= '2026-01-01' and e.entry_date < '2027-01-01'"; }
 salio() { echo "1000 (Dr-Cr): $(dc 1000) | 6200 2026: $(bal26 6200) | 6000 2026: $(bal26 6000) | TB: $(tb)"; }
+# (ez) pango 2026: 6000 (2026) + 6200 ya Frame (journal za rows F7C9E331 / 2939F6DE na marekebisho 80B / 88). Lengo baada ya 88:
+#   6000 = 2,200,000 (2,400,000 baada ya 80e 01/12) na 6200 ya Frame = 0 (6200 haina pango).
+FRAME6200="e.reference_uid in (select uid from capital_expenditure where reference_number in ('OPE-MON-20260101-000000-F7C9E331','$REFNO'))
+   or e.reference_number in ('MAREKEBISHO-80B','$MARK')"
+pango() { echo "PANGO 2026: 6000 = $(bal26 6000) | 6200 ya Frame = $(q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2)
+   from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where l.account_code='6200' and e.status='POSTED' and not coalesce(e.is_deleted,false) and ($FRAME6200)")"; }
 # the row's own journal(s): count | Cr 1000 | Dr 6200 (POSTED, not deleted, not reversed)
 rowj() { q "select count(distinct e.uid)||' | '||coalesce(sum(coalesce(l.credit_amount,0)-coalesce(l.debit_amount,0)) filter (where l.account_code='1000'),0)::numeric(19,0)||' | '||coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)) filter (where l.account_code='6200'),0)::numeric(19,0)
    from capital_expenditure c join journal_entry e on e.reference_uid=c.uid join journal_entry_line l on l.journal_entry_uid=e.uid
@@ -61,9 +67,10 @@ if [ "$MODE" = kagua ]; then
   echo "row: $(rowc)   (lazima 200000 | 2400000 | APPROVED)"
   echo "journal ya row: $(rowj)   (lazima 1 | 200000 | 200000)"
   c=$(cutover); echo "cutover D: ${c:-HAIJAWEKWA}   kipindi $TODAY: $(period)   journal ya 88 tayari: $(done88)"
-  echo "--- salio SASA"; salio
-  echo "journal itakuwa (tarehe $TODAY), IKIWA Chief atasema ni Frame mara ya 3: Dr 1000 200,000 / Cr 6200 200,000 - '$DESC'"
+  echo "--- salio SASA"; salio; pango
+  echo "journal itakuwa (tarehe $TODAY), Chief 11/11 (ez) = Frame mara ya 2: Dr 1000 200,000 / Cr 6200 200,000 - '$DESC'"
   echo "makadirio BAADA: 1000 = $(q "select ($(dc 1000))::numeric + $AMT"), 6200 2026 = $(q "select ($(bal26 6200))::numeric - $AMT"), TB haibadiliki"
+  echo "lengo (ez) BAADA: 6000 2026 = 2,200,000 (2,400,000 baada ya 80e) na 6200 ya Frame = 0"
   echo "---88_KAGUA_MWISHO---"; exit 0
 fi
 [ "$MODE" = andika ] || { echo "MATUMIZI: $0 kagua | andika"; exit 2; }
@@ -87,7 +94,12 @@ api /api/v1/gl/journal-entries/manual "{\"entryDate\":\"$TODAY\",\"memo\":\"$MAR
 okb || die "journal ya mkono HTTP $HC $(msg)"
 REF=$(sed -n 's/.*"data" *: *"\([^"]*\)".*/\1/p' "$T/b" | head -n1); echo "journal SAWA: $REF"
 q "select e.entry_number, e.entry_date, e.status, e.reference_number, l.account_code, l.debit_amount, l.credit_amount, l.description from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.reference_uid='$REF' order by l.line_order"
-echo "--- salio BAADA"; salio
+echo "--- salio BAADA"; salio; pango
 [ "$(tb)" = "$T0" ] || die "TB imebadilika ($T0 -> $(tb))"
 [ "$(q "select ($(dc 1000))::numeric = ($C0)::numeric + $AMT and ($(dc 6200))::numeric = ($E0)::numeric - $AMT")" = t ] || die "salio 1000/6200 halikubadilika kwa 200,000 kama ilivyotarajiwa"
+F62=$(q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
+   where l.account_code='6200' and e.status='POSTED' and not coalesce(e.is_deleted,false) and ($FRAME6200)")
+P60=$(bal26 6000)
+[ "$F62" = "0.00" ] && echo "SAWA (ez): 6200 haina pango" || echo "ANGALIA (ez): 6200 ya Frame = $F62 (lengo 0) - nitumie log"
+[ "$P60" = "2200000.00" ] || [ "$P60" = "2400000.00" ] && echo "SAWA (ez): 6000 2026 = $P60" || echo "ANGALIA (ez): 6000 2026 = $P60 (lengo 2,200,000; 2,400,000 baada ya 80e) - nitumie log"
 echo "---88_MWISHO---"

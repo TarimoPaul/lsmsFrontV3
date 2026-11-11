@@ -11,6 +11,8 @@ HASH=$(python -c "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), b
 q "update users set password='$HASH', status='ACTIVE', is_locked=false where email='$CEO'" >/dev/null
 q "update gl_config set bank_cutover_date=null, posting_enabled=true" >/dev/null
 nj(){ q "select count(*) from journal_entry"; }
+# (ez) 80b haipo kwenye 29/10: inaigwa kwa journal ya mkono yenye memo MAREKEBISHO-80B (6200 ya Frame Jan -> 6000, pango Jan-Sep)
+[ -n "${T88_80B:-}" ] && bash "$(dirname "$0")/sim80b.sh" "$CEO" "$PW"
 o=$(bash "$S" kagua 2>&1); echo "$o" > /tmp/t88-kagua.out
 ok "K1 kagua: row 200000|2400000|APPROVED, journal 1|200000|200000, Sep rows 2, MWISHO" '[[ "$o" == *"row: 200000 | 2400000 | APPROVED"* && "$o" == *"journal ya row: 1 | 200000 | 200000"* && "$o" == *06AC14BB* && "$o" == *4B6D0F55* && "$o" == *"---88_KAGUA_MWISHO---"* ]]'
 n0=$(nj); o=$(printf '%s\n' "$CEO" "nenosiri-baya" | bash "$S" andika 2>&1); ok "A1 password mbaya -> SIMAMA, hakuna journal" '[[ "$o" == *"login HTTP"* ]] && [ "$(nj)" = "$n0" ]'
@@ -23,7 +25,8 @@ q "update capital_expenditure set amount = 200000 where reference_number='OPE-MO
 C0=$(dc 1000); E0=$(dc 6200); T0=$(tb)
 o=$(printf '%s\n' "$CEO" "$PW" | bash "$S" andika 2>&1); echo "$o" | tail -5
 ok "W1 andika: 1000 +200,000, 6200 -200,000, TB haijabadilika" '[[ "$o" == *"---88_MWISHO---"* ]] && [ "$(q "select ($(dc 1000))::numeric - ($C0)::numeric")" = 200000.00 ] && [ "$(q "select ($(dc 6200))::numeric - ($E0)::numeric")" = -200000.00 ] && [ "$(tb)" = "$T0" ]'
-ok "W2 journal: tarehe ya leo, maelezo ASCII" '[ "$(q "select count(*) from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.reference_number='"'"'MAREKEBISHO-88-FRAME-JAN'"'"' and e.entry_date=current_date and l.description like '"'"'Marekebisho: Frame Jan 2026 mara ya 3%hatua 88)'"'"' and octet_length(l.description)=length(l.description)")" = 2 ]'
+ok "W2 journal: tarehe ya leo, maelezo ASCII" '[ "$(q "select count(*) from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.reference_number='"'"'MAREKEBISHO-88-FRAME-JAN'"'"' and e.entry_date=current_date and l.description like '"'"'Marekebisho: Frame Jan 2026 mara ya 2%hatua 88, Chief 11/11)'"'"' and octet_length(l.description)=length(l.description)")" = 2 ]'
 n1=$(nj); o=$(printf '%s\n' "$CEO" "$PW" | bash "$S" andika 2>&1); ok "W3 mara ya pili -> IPO TAYARI, hakuna journal mpya" '[[ "$o" == *"IPO TAYARI"* ]] && [ "$(nj)" = "$n1" ]'
 o=$(bash "$S" kagua 2>&1); ok "K2 kagua baada: journal ya 88 = 1" '[[ "$o" == *"journal ya 88 tayari: 1"* ]]'
+[ -n "${T88_80B:-}" ] && ok "E1 (ez) baada ya 80b + 88: 6200 haina pango (Frame 0)" '[ "$(bash "$S" kagua 2>&1 | grep -c "6200 ya Frame = 0.00")" = 1 ]'
 echo "MWISHO PASS $P FAIL $F"

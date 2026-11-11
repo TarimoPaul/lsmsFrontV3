@@ -134,3 +134,15 @@ Tawi jipya: **feature/t2-ripoti**, linatoka t2-tozo. Backend d92da83, V3 80407f7
   - Row zaidi zinaongezwa kwa `L89_ZAIDI`, mf. 2939F6DE baada ya jibu la 88.
   - Jaribio: t89 6/0.
 - **Inayofuata:** kazi 5.
+
+## (ez) — 11/11
+- Chief: 2939F6DE ni Frame mara ya 2 (iliandikwa 30/04), kwa hiyo **hatua 88 ANDIKA iendeshwe**. Septemba 06AC14BB na 4B6D0F55 ni watu wawili; hazijaguswa.
+- **88.sh imesasishwa** (.cmd na .ps1 hazijaguswa):
+  - maelezo ya journal sasa ni "Frame Jan 2026 mara ya 2 (row 2400000 ya 30/04, …) haikutoka kwenye biashara (hatua 88, Chief 11/11)";
+  - KAGUA na ANDIKA zinaonyesha `PANGO 2026: 6000 = … | 6200 ya Frame = …`;
+  - mwisho wa ANDIKA kuna SAWA/ANGALIA kwa lengo la (ez): 6200 ya Frame = 0, na 6000 2026 = 2,200,000 (2,400,000 baada ya 80e).
+- **Jaribio t88 9/0:** 80b iliigwa kwenye nakala ya 29/10 (`sim80b.sh`). Baada ya 88, 6200 ya Frame = 0.00.
+  - 6000 ilionyesha 2,000,000 kwa sababu nakala haina REN-MON ya Nov (200,000 kwenye 6000).
+  - Kwenye prod lengo ni 2,200,000. Ikiwa log ya prod itaonyesha ANGALIA, nitumie log.
+- **Mpangilio:** Chief: `88-frame-jan-ya-tatu.cmd kagua` → soma 88-kagua.log → `88-frame-jan-ya-tatu.cmd andika` (ANDIKA-88, email/password ya CEO) → nitumie 88-andika.log. Kisha kazi 5.
+- Baada ya toleo 2, row 2939F6DE iongezwe kwenye hatua 89: `L89_ZAIDI=OPE-MON-20260101-000000-2939F6DE`, ili ripoti ya uendeshaji isiihesabu tena.

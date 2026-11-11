@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# (ez) igizo la 80b kwenye nakala ya 29/10 (haina 80): journal ya mkono yenye memo MAREKEBISHO-80B - Frame Jan 6200 -> 6000, pango Jan-Sep (Dr 6000 2,000,000 / Cr 6200 200,000 / Cr 2300 1,800,000).
+B=${L88_BASE:-http://127.0.0.1:18090}
+TK=$(curl -s -X POST -H 'Content-Type: application/json' -H 'Origin: https://elikom.co.tz' --data "{\"email\":\"$1\",\"password\":\"$2\"}" "$B/api/auth/login" | sed -n 's/.*"token" *: *"\([^"]*\)".*/\1/p' | head -n1)
+curl -s -X POST -H 'Content-Type: application/json' -H 'Origin: https://elikom.co.tz' -H "Authorization: Bearer $TK" --data "{\"entryDate\":\"$(date +%F)\",\"memo\":\"MAREKEBISHO-80B\",\"lines\":[{\"accountCode\":\"6000\",\"debit\":2000000,\"credit\":0,\"description\":\"igizo 80b\"},{\"accountCode\":\"6200\",\"debit\":0,\"credit\":200000,\"description\":\"igizo 80b\"},{\"accountCode\":\"2300\",\"debit\":0,\"credit\":1800000,\"description\":\"igizo 80b\"}]}" "$B/api/v1/gl/journal-entries/manual" | grep -o '"status" : "[A-Za-z]*"'
