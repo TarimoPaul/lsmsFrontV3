@@ -99,3 +99,38 @@ Hatua 86 imefutwa kwenye mpango; hakuna journal na hakuna alama za kuweka. Bei z
   - Zilisajiliwa dakika 22 tofauti, na kila moja ina jina tofauti kidogo: "wafanyakazi" na "Wafanyakazi".
   - Agosti ilikuwa na "Mfanyakazi" 150k + "Manager" 180k, kwa hiyo huenda Septemba ni watu wawili tofauti. Chief athibitishe.
   - KAGUA ya hatua 88 inaonyesha pia hizi kwenye prod ya sasa.
+
+## (ew) exclude_from_ops_report — IMEJENGWA (toleo 2)
+Tawi jipya: **feature/t2-ripoti**, linatoka t2-tozo. Backend d92da83, V3 80407f7. Worktrees: Lsms-t2-ripoti na lsmsFrontV3-t2-ripoti.
+
+- **V145:**
+  - `capital_expenditure.exclude_from_ops_report`;
+  - `capex_ops_report_exclusion_log`: EXCLUDE/INCLUDE, sababu, nani, lini. Insert tu, haibadilishwi.
+- **API:** `POST /api/v1/capital-expenditure/{uid}/ops-report-exclusion`.
+  - Ruhusa: CAPITAL_APPROVE tu (ex).
+  - Inakubali gharama za mwezi tu.
+  - Sababu lazima iwe na herufi ≥10 na isiwe takataka (A6).
+  - Kuweka alama mara ya pili kunakataliwa.
+  - `GET …/ops-report-exclusions` inaonyesha orodha + historia kwa wakaguzi (CAPITAL_READ).
+- **Ripoti ya uendeshaji (daily P&L):** inaacha rows hizo nje.
+- **Daraja:** mstari mpya **"Marekebisho ya 2026 (hatua 80): gharama zilizoondolewa kwenye ripoti ya uendeshaji, GL inazo"**. GHARAMA_ZA_MWEZI haizibebi tena, kwa hiyo GL dhidi ya ripoti bado inaelezeka.
+- **V3, kichupo cha Gharama:**
+  - "Ondoa kwenye ripoti" / "Rudisha kwenye ripoti" (inahitaji sababu);
+  - alama "nje ya ripoti ya uendeshaji" kwenye row;
+  - "Nje ya ripoti (n)" inafungua orodha na historia.
+- **Kasoro ya zamani iliyorekebishwa njiani (V3):** kubonyeza Enter kwenye kisanduku cha kutafuta kulivunja orodha zote zenye `(search)="q.set($event)"`.
+  - Chanzo: Chrome inatuma tukio la asili `search` lenye Event, si maandishi, na linapanda hadi kwenye kipengele.
+  - Matokeo kabla ya kurekebisha: `q().trim is not a function`, na jedwali liliacha kujichora upya.
+  - Sasa SearchBar inalizuia.
+- **Majaribio:**
+  - OpsReportExclusionTest 4/0;
+  - suite **656/0/1**;
+  - ng test 102/102;
+  - ops_e2e 19/0. Linajumuisha jaribio la (ew): mtoto wa Frame wa Nov akiondolewa, ripoti ya Nov = share ya mwaka tu, na GL na TB hazibadiliki.
+  - run-all **E2E_OK 19/19** (backend d92da83, nakala safi ya 29/10, Flyway 145).
+- **Hatua 89 (baada ya toleo 2 kufika prod):** `89-nje-ya-ripoti.cmd` (KAGUA → 🛑 → ANDIKA kupitia API).
+  - Inaweka alama kwa REN-MON-20261101-000000-5D9DD844 na TAX-MON-20261101-000000-B4F8EA66, sababu "zimeshughulikiwa na hatua 80".
+  - Inakataa ikiwa V145 haipo prod.
+  - Row zaidi zinaongezwa kwa `L89_ZAIDI`, mf. 2939F6DE baada ya jibu la 88.
+  - Jaribio: t89 6/0.
+- **Inayofuata:** kazi 5.
