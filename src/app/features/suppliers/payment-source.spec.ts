@@ -12,15 +12,21 @@ describe('payment source', () => {
   });
   it('accepts every complete choice', () => {
     expect(sourceProblem('DROO', null, true)).toBeNull();
-    expect(sourceProblem('MMILIKI', null, true)).toBeNull();
+    expect(sourceProblem('MMILIKI', '2300', true)).toBeNull();
+    expect(sourceProblem('MMILIKI', '2310', true)).toBeNull();
     expect(sourceProblem('BENKI', '1021', true)).toBeNull();
     expect(sourceProblem('SIMU', '1033', true)).toBeNull();
-    expect(needsAccount('BENKI') && needsAccount('SIMU') && !needsAccount('DROO') && !needsAccount('MMILIKI')).toBe(true);
+    expect(needsAccount('BENKI') && needsAccount('SIMU') && needsAccount('MMILIKI') && !needsAccount('DROO')).toBe(true);
+  });
+  it('6c: MMILIKI needs the owner (Paul 2300 / Jess 2310)', () => {
+    expect(sourceProblem('MMILIKI', null, true)).toBe('Chagua mmiliki aliyelipa.');
+    expect(sourceProblem('MMILIKI', '1020', false)).toBe('Choose which owner paid.');
   });
   it('labels a stored source, and nothing for records made before C3', () => {
     expect(sourceLabel('BENKI', '1021', true)).toBe('Benki · NMB');
     expect(sourceLabel('SIMU', '1031', false)).toBe('Mobile · Tigo Pesa');
-    expect(sourceLabel('MMILIKI', null, true)).toBe('Mmiliki');
+    expect(sourceLabel('MMILIKI', null, true)).toBe('Mmiliki · Paul');
+    expect(sourceLabel('MMILIKI', '2310', true)).toBe('Mmiliki · Jess');
     expect(sourceLabel(null, null, true)).toBeNull();
     expect(sourceLabel('CASH', null, true)).toBeNull();
   });
