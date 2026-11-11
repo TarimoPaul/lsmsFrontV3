@@ -8,7 +8,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogService, DialogShell, Icon, ToastService } from '@shared/ui';
 import { MoneyPipe } from '@shared/utils/money';
 import { SalesService } from '../sales/sales.service';
-import { PourContainerRow, PourHistory, PourProduct, KupimaService, barFraction } from './kupima.service';
+import { PourContainerRow, PourHistory, PourProduct, PourProfit, KupimaService, barFraction } from './kupima.service';
 import type { KupimaShortAnswer, KupimaShortData } from './kupima-short-dialog';
 
 interface MeasureRow {
@@ -26,6 +26,7 @@ interface ParentRow {
  * KUPIMA (owner ef): the drinks sold by measure - their open container (bar), "chombo kimeisha", the weekly level,
  * the settings (KUPIMA_SETTINGS only: container, ml, parent, measures {ml, price}; a price under its cost is warned),
  * the containers with what was sold and lost, and the history of every settings change.
+ * et: each container's profit (its cost is fixed the day it is opened), totals per drink and per month, the week card.
  */
 @Component({
   selector: 'app-kupima-dialog',
@@ -36,6 +37,7 @@ interface ParentRow {
       <div class="tabs" role="tablist">
         <button type="button" [class.on]="tab() === 'list'" (click)="tab.set('list')">{{ i18n.t('Drinks', 'Vinywaji') }}</button>
         <button type="button" [class.on]="tab() === 'containers'" (click)="showContainers()">{{ i18n.t('Containers & loss', 'Vyombo na upotevu') }}</button>
+        <button type="button" data-test="profit-tab" [class.on]="tab() === 'profit'" (click)="showProfit()">{{ i18n.t('Profit', 'Faida') }}</button>
         @if (canSet()) {
           <button type="button" [class.on]="tab() === 'edit'" data-test="new" (click)="edit(null)">{{ i18n.t('+ Measure settings', '+ Mipangilio') }}</button>
         }
@@ -87,13 +89,60 @@ interface ParentRow {
             <div>
               <strong>{{ c.productName }} · {{ c.referenceNumber }}</strong>
               <small>{{ c.openedAt | date: 'dd/MM/yy' }} {{ c.openedBy }}@if (c.closedAt) { → {{ c.closedAt | date: 'dd/MM/yy' }} {{ c.closedBy }} ({{ c.closeKind === 'FINISHED' ? i18n.t('finished', 'kimeisha') : i18n.t('emptied', 'kimetumika chote') }}) } @else { · {{ i18n.t('open', 'wazi') }} {{ c.mlLeft }}ml }</small>
-              <small>{{ i18n.t('Sold', 'Imeuzwa') }} {{ c.mlSold }}ml = {{ c.revenue | money: { decimals: 0 } }}@if (c.parentPrice) { · {{ i18n.t('whole bottle', 'chupa nzima') }} {{ c.parentPrice | money: { decimals: 0 } }} }</small>
+              <small>@if (c.parentName) { {{ c.parentName }} · }{{ i18n.t('cost', 'gharama') }} {{ c.containerCost | money: { decimals: 0 } }}@if (c.startMl !== c.containerMl) { ({{ c.startMl }}ml) }</small>
+              <small>{{ i18n.t('Sold', 'Imeuzwa') }} {{ c.mlSold }}ml = {{ c.revenue | money: { decimals: 0 } }}@if (c.maxRevenue) { · {{ i18n.t('highest', 'juu kabisa') }} {{ c.maxRevenue | money: { decimals: 0 } }} }@if (c.parentPrice) { · {{ i18n.t('whole bottle', 'chupa nzima') }} {{ c.parentPrice | money: { decimals: 0 } }} }</small>
             </div>
-            @if (c.mlLost > 0) {
-              <b class="lost">{{ i18n.t('Lost', 'Upotevu') }} {{ c.mlLost }}ml · {{ c.lossCost | money: { decimals: 0 } }}@if (c.smallestMl) { <small>≈ {{ lostMeasures(c) }} × {{ c.smallestMl }}ml</small> }</b>
-            }
+            <div class="right">
+              <b class="pf" data-test="container-profit" [class.neg]="c.profit < 0">{{ i18n.t('Profit', 'Faida') }} {{ c.profit | money: { decimals: 0 } }}</b>
+              @if (c.mlLost > 0) {
+                <b class="lost">{{ i18n.t('Lost', 'Upotevu') }} {{ c.mlLost }}ml · {{ c.lossCost | money: { decimals: 0 } }}@if (c.smallestMl) { <small>≈ {{ lostMeasures(c) }} × {{ c.smallestMl }}ml</small> }</b>
+              }
+            </div>
           </div>
         } @empty { <p class="muted">{{ i18n.t('No containers yet', 'Hakuna vyombo bado') }}</p> }
+      }
+
+      @if (tab() === 'profit') {
+        @if (profit(); as pr) {
+          <div class="card" data-test="week-card">
+            <span class="lbl">{{ i18n.t('This week', 'Wiki hii') }} · {{ pr.week.from | date: 'dd/MM' }}–{{ pr.week.to | date: 'dd/MM' }}</span>
+            <div class="kpis">
+              <div><small>{{ i18n.t('Revenue', 'Mapato') }}</small><b>{{ pr.week.total.revenue | money: { decimals: 0 } }}</b></div>
+              <div><small>{{ i18n.t('Cost', 'Gharama') }}</small><b>{{ pr.week.total.costSold | money: { decimals: 0 } }}</b></div>
+              <div><small>{{ i18n.t('Loss', 'Upotevu') }}</small><b>{{ pr.week.total.lossCost | money: { decimals: 0 } }}</b></div>
+              <div><small>{{ i18n.t('Profit', 'Faida') }}</small><b data-test="week-profit" [class.neg]="pr.week.total.profit < 0">{{ pr.week.total.profit | money: { decimals: 0 } }}</b></div>
+            </div>
+          </div>
+          <span class="lbl">{{ i18n.t('Per drink', 'Kwa kinywaji') }} · {{ pr.from | date: 'dd/MM/yy' }}–{{ pr.to | date: 'dd/MM/yy' }}</span>
+          <div class="tbl">
+            <table>
+              <thead><tr><th>{{ i18n.t('Drink', 'Kinywaji') }}</th><th>ml</th><th>{{ i18n.t('Revenue', 'Mapato') }}</th><th>{{ i18n.t('Cost', 'Gharama') }}</th><th>{{ i18n.t('Loss', 'Upotevu') }}</th><th>{{ i18n.t('Profit', 'Faida') }}</th></tr></thead>
+              <tbody>
+                @for (r of pr.byDrink; track r.drink) {
+                  <tr [attr.data-drink]="r.drink"><td>{{ r.drink }}</td><td>{{ r.mlSold }}</td><td>{{ r.revenue | money: { decimals: 0 } }}</td><td>{{ r.costSold | money: { decimals: 0 } }}</td><td>{{ r.lossCost | money: { decimals: 0 } }}@if (r.mlLost) { <small>({{ r.mlLost }}ml)</small> }</td><td [class.neg]="r.profit < 0">{{ r.profit | money: { decimals: 0 } }}</td></tr>
+                } @empty { <tr><td colspan="6" class="muted">{{ i18n.t('Nothing sold yet', 'Hakuna kilichouzwa bado') }}</td></tr> }
+              </tbody>
+              @if (pr.byDrink.length > 1) {
+                <tfoot><tr><td>{{ i18n.t('Total', 'Jumla') }}</td><td>{{ pr.total.mlSold }}</td><td>{{ pr.total.revenue | money: { decimals: 0 } }}</td><td>{{ pr.total.costSold | money: { decimals: 0 } }}</td><td>{{ pr.total.lossCost | money: { decimals: 0 } }}</td><td>{{ pr.total.profit | money: { decimals: 0 } }}</td></tr></tfoot>
+              }
+            </table>
+          </div>
+          <span class="lbl">{{ i18n.t('Per month', 'Kwa mwezi') }}</span>
+          <div class="tbl">
+            <table>
+              <thead><tr><th>{{ i18n.t('Month', 'Mwezi') }}</th><th>{{ i18n.t('Drink', 'Kinywaji') }}</th><th>{{ i18n.t('Revenue', 'Mapato') }}</th><th>{{ i18n.t('Cost', 'Gharama') }}</th><th>{{ i18n.t('Loss', 'Upotevu') }}</th><th>{{ i18n.t('Profit', 'Faida') }}</th></tr></thead>
+              <tbody>
+                @for (m of pr.byMonth; track m.month) {
+                  <tr class="mon" [attr.data-month]="m.month"><td>{{ m.month }}</td><td>{{ i18n.t('all', 'vyote') }}</td><td>{{ m.revenue | money: { decimals: 0 } }}</td><td>{{ m.costSold | money: { decimals: 0 } }}</td><td>{{ m.lossCost | money: { decimals: 0 } }}</td><td [class.neg]="m.profit < 0">{{ m.profit | money: { decimals: 0 } }}</td></tr>
+                  @for (r of monthRows(pr, m.month); track r.drink) {
+                    <tr><td></td><td>{{ r.drink }}</td><td>{{ r.revenue | money: { decimals: 0 } }}</td><td>{{ r.costSold | money: { decimals: 0 } }}</td><td>{{ r.lossCost | money: { decimals: 0 } }}</td><td [class.neg]="r.profit < 0">{{ r.profit | money: { decimals: 0 } }}</td></tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('Each container keeps the cost of the day it was opened. Profit = revenue - cost of what was sold - loss.', 'Kila chombo kinatumia gharama ya siku kilipofunguliwa. Faida = mapato - gharama ya vilivyouzwa - upotevu.') }}</p>
+        } @else { <p class="muted">…</p> }
       }
 
       @if (tab() === 'edit') {
@@ -178,6 +227,20 @@ interface ParentRow {
     .lvl button { padding: 3px 8px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); font: inherit; font-size: 0.74rem; cursor: pointer; color: var(--c-text); }
     .hist { display: flex; flex-direction: column; gap: 2px; padding-top: 4px; border-top: 1px dashed var(--c-border); }
     .lost { color: var(--c-error); font-size: 0.8rem; text-align: right; display: flex; flex-direction: column; }
+    .cont > .right { align-items: flex-end; text-align: right; flex-shrink: 0; }
+    .pf { font-size: 0.84rem; color: var(--c-success, #2e7d32); }
+    .neg { color: var(--c-error) !important; }
+    .card { border: 1px solid var(--c-border); border-radius: 12px; padding: 10px 12px; }
+    .card .lbl { margin-top: 0; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .kpis div { display: flex; flex-direction: column; gap: 2px; }
+    .kpis b { font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+    .tbl { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { padding: 5px 6px; text-align: right; border-bottom: 1px solid var(--c-border); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+    th { color: var(--c-text-2); font-weight: 500; }
+    tr.mon td, tfoot td { font-weight: 600; }
     label { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 0; font-size: 0.78rem; font-weight: 500; color: var(--c-text-2); }
     input, select { padding: 8px 10px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-input-fill); font: inherit; font-size: 0.86rem; color: var(--c-text); }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -186,7 +249,7 @@ interface ParentRow {
     .info { display: flex; gap: 8px; margin: 12px 0 0; padding: 8px 10px; border-radius: 10px; font-size: 0.78rem; background: color-mix(in srgb, var(--c-info) 8%, transparent); }
     .warn { margin: 8px 0 0; font-size: 0.8rem; color: var(--c-warning, #b26a00); }
     .err { margin: 8px 0 0; font-size: 0.82rem; color: var(--c-error); }
-    @media (max-width: 599px) { .two { grid-template-columns: 1fr; } }
+    @media (max-width: 599px) { .two { grid-template-columns: 1fr; } .kpis { grid-template-columns: 1fr 1fr; } }
   `,
 })
 export class KupimaDialog {
@@ -199,7 +262,8 @@ export class KupimaDialog {
   private readonly toast = inject(ToastService);
 
   protected readonly levels = ['1', '3/4', '1/2', '1/4', '0'];
-  protected readonly tab = signal<'list' | 'containers' | 'edit'>('list');
+  protected readonly tab = signal<'list' | 'containers' | 'profit' | 'edit'>('list');
+  protected readonly profit = signal<PourProfit | null>(null);
   protected readonly list = this.api.products;
   protected readonly containers = signal<PourContainerRow[]>([]);
   protected readonly history = signal<PourHistory[]>([]);
@@ -308,6 +372,19 @@ export class KupimaDialog {
     } catch (e) {
       this.error.set(ApiError.from(e).message);
     }
+  }
+
+  protected async showProfit(): Promise<void> {
+    this.tab.set('profit');
+    try {
+      this.profit.set(await this.api.profit());
+    } catch (e) {
+      this.error.set(ApiError.from(e).message);
+    }
+  }
+
+  protected monthRows(pr: PourProfit, month: string | null) {
+    return pr.byDrinkMonth.filter((r) => r.month === month);
   }
 
   protected async showHistory(p: PourProduct): Promise<void> {

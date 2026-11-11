@@ -4,6 +4,7 @@
 //   short (ek): (i) SPLIT -> old container to 0, NO loss, rest from a new one; (ii) FINISHED -> loss Dr 5100 / Cr 1200
 //   delete a poured sale: container open -> ml back on the bar; closed -> that container's loss (Dr 5100 / Cr 1200)
 //   custom price refused; one open container; manual finish; level check; below-cost measure -> kazi 3 reason; TB 0
+//   (et) profit per container: its cost fixed at opening (avg change later -> same cost), revenue split by ml, totals per drink/month/week
 // Throw-away local copy only. Run: node kupima_api_e2e.cjs
 const { execFileSync } = require('child_process');
 
@@ -207,6 +208,52 @@ const stock = (p) => Number(sql(`select current_stock from products where uid = 
   ok('W12 bei ya MA-LOT 2,500 -> 2,800: historia ipo; chombo cha GREPA kilicho wazi bado 2,000 (bei ni ya mzazi wa chombo)', sw2.j?.status === 'Success'
     && /BEI MA-LOT BOX WINE 70ml:2,500>2,800/.test(sql(`select string_agg(field||':'||coalesce(old_value,'-')||'>'||coalesce(new_value,'-'), ';' order by id) from pour_settings_history where product_uid='${W}'`))
     && Number(sql(`select round(sub_total) from sales_details where sale_uid='${w6.j?.data?.sale?.uid}'`)) === 2000, `${sw2.j?.message}`);
+
+  // ── (et) faida kwa chombo: the container keeps ITS cost from the day it was opened ──
+  const m2 = Object.fromEntries(s3.j.data.measures.map((x) => [x.ml, x.uid]));
+  const cOpen = sql(`select uid||'|'||cost_per_ml||'|'||parent_avg_cost||'|'||start_ml from pour_container where product_uid='${K}' and status='OPEN'`).split('|');
+  ok('T1 chombo kinahifadhi gharama yake: parent_avg_cost = avg ya mzazi siku ya kufungua, start_ml 750', Math.abs(Number(cOpen[2]) - avg) < 0.01 && cOpen[3] === '750.00', cOpen.join('|'));
+  sql(`update products set current_average_cost = current_average_cost * 3 where uid='${PARENT}'`); // avg changes AFTER opening (local copy)
+  const t2s = await sell([line(m2[30], 1)]);
+  const t2c = Number(sql(`select round(total_cost,2) from sales_details where sale_uid='${t2s.j?.data?.sale?.uid}'`));
+  const vT = await api('GET', `/api/v1/kupima/products/${K}`, mgr);
+  const vT30 = (vT.j?.data?.measures || []).find((x) => x.ml === 30) || {};
+  ok('T2 avg imebadilika (x3) baada ya kufungua: gharama ya kipimo 30ml BADO = avg ya zamani / 750 x 30 (mstari na POS)', t2s.status === 200
+    && Math.abs(t2c - cpm * 30) < 0.02 && Math.abs(Number(vT30.cost) - cpm * 30) < 0.02
+    && sql(`select cost_per_ml||'|'||parent_avg_cost from pour_container where uid='${cOpen[0]}'`) === `${cOpen[1]}|${cOpen[2]}`, `line=${t2c} pos=${vT30.cost} want=${(cpm * 30).toFixed(2)}`);
+  sql(`update products set current_average_cost = current_average_cost / 3 where uid='${PARENT}'`);
+  const repT = await api('GET', `/api/v1/kupima/containers?productUid=${K}`, mgr);
+  const rows = repT.j?.data || [];
+  const rOpen = rows.find((c) => c.uid === cOpen[0]) || {};
+  // open container: B2 10ml at 100 + T2 30ml at 1,200
+  ok('T3 ripoti ya chombo wazi: gharama ya chombo = avg, mapato 1,300, gharama ya vilivyouzwa = 40ml, FAIDA = mapato - gharama, mapato ya juu = 750 x 40',
+    Math.abs(Number(rOpen.container_cost) - cpm * 750) < 0.05 && Number(rOpen.revenue) === 1300 && Math.abs(Number(rOpen.cost_sold) - cpm * 40) < 0.05
+    && Math.abs(Number(rOpen.profit) - (1300 - Number(rOpen.cost_sold))) < 0.01 && Number(rOpen.max_revenue) === 30000 && rOpen.opened_by,
+    JSON.stringify(rOpen).slice(0, 400));
+  const liveRev = Number(sql(`select coalesce(sum(d.sub_total),0) from sales_details d join sales s on s.uid=d.sale_uid where d.product_uid='${K}' and d.pour_measure_uid is not null and not coalesce(s.is_deleted,false) and not coalesce(d.is_deleted,false)`));
+  const sumRev = rows.reduce((a, c) => a + Number(c.revenue), 0);
+  ok('T4 mapato hayahesabiwi mara mbili: jumla ya vyombo = jumla ya mistari hai (mstari wa SPLIT umegawanywa kwa ml)', Math.abs(sumRev - liveRev) < 0.05, `vyombo=${sumRev} mistari=${liveRev}`);
+  const closed = rows.filter((c) => c.status === 'CLOSED');
+  ok('T5 kila chombo kilichofungwa: gharama ya vilivyouzwa + upotevu = gharama ya chombo', closed.length === 3
+    && closed.every((c) => Math.abs(Number(c.cost_sold) + Number(c.loss_cost) - Number(c.container_cost)) < 0.1),
+    JSON.stringify(closed.map((c) => [c.close_kind, c.cost_sold, c.loss_cost, c.container_cost])));
+  const mlRow = ((await api('GET', `/api/v1/kupima/containers?productUid=${ML}`, mgr)).j?.data || []);
+  ok('T6 chombo cha uhamisho: start_ml 375 (zilizohesabiwa), gharama = 375ml, upotevu wote', mlRow.length === 1 && mlRow[0].start_ml === 375
+    && Math.abs(Number(mlRow[0].container_cost) - Number(mlRow[0].loss_cost)) < 0.05 && Number(mlRow[0].ml_lost) === 375, JSON.stringify(mlRow).slice(0, 300));
+  const pr = await api('GET', '/api/v1/kupima/profit', mgr);
+  const kD = (pr.j?.data?.byDrink || []).find((x) => x.drink === 'KONYAGI YA KUPIMA') || {};
+  const kW = (pr.j?.data?.week?.byDrink || []).find((x) => x.drink === 'KONYAGI YA KUPIMA') || {};
+  const month = new Date().toISOString().slice(0, 7);
+  const kM = (pr.j?.data?.byDrinkMonth || []).find((x) => x.drink === 'KONYAGI YA KUPIMA' && x.month === month) || {};
+  const sumCost = rows.reduce((a, c) => a + Number(c.cost_sold), 0), sumLoss = rows.reduce((a, c) => a + Number(c.loss_cost), 0);
+  ok('T7 jumla kwa kinywaji = jumla ya vyombo (mapato, gharama, upotevu, faida); mwezi huu na kadi ya wiki sawa', pr.j?.status === 'Success'
+    && Math.abs(Number(kD.revenue) - sumRev) < 0.05 && Math.abs(Number(kD.costSold) - sumCost) < 0.1 && Math.abs(Number(kD.lossCost) - sumLoss) < 0.1
+    && Math.abs(Number(kD.profit) - (sumRev - sumCost - sumLoss)) < 0.2 && Number(kW.profit) === Number(kD.profit) && Number(kM.profit) === Number(kD.profit)
+    && (pr.j?.data?.byMonth || []).some((x) => x.month === month), JSON.stringify({ kD, kW, kM }).slice(0, 400));
+  const wT = pr.j?.data?.week?.total || {};
+  ok('T8 kadi ya wiki: jumla = jumla ya vinywaji vyote vya wiki', Math.abs(Number(wT.profit) - (pr.j?.data?.week?.byDrink || []).reduce((a, x) => a + Number(x.profit), 0)) < 0.01, JSON.stringify(wT));
+  const prBad = await api('GET', '/api/v1/kupima/profit?from=2026-12-01&to=2026-11-01', mgr);
+  ok('T9 tarehe zimegeuzwa -> 422', prBad.status === 422, `${prBad.status}`);
 
   await new Promise((r) => setTimeout(r, 2000));
   ok('Z1 TB haijabadilika (Dr = Cr)', tb() === tb0, `${tb0} -> ${tb()}`);

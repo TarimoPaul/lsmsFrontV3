@@ -1,4 +1,4 @@
-import { barFraction, normalizePour, priceFor } from './kupima.service';
+import { barFraction, normalizePour, normalizeProfitRow, priceFor } from './kupima.service';
 
 describe('KUPIMA (ef/ek)', () => {
   const raw = {
@@ -46,5 +46,11 @@ describe('KUPIMA (ef/ek)', () => {
     expect(priceFor(p, 'L', 70)).toBe(2500);
     expect(priceFor(p, 'G', 70)).toBe(2000);
     expect(priceFor(p, null, 70)).toBe(2000);
+  });
+
+  it('et: a profit row from the server (numbers from strings, missing = 0)', () => {
+    const r = normalizeProfitRow({ drink: 'KONYAGI YA KUPIMA', mlSold: '720.00', revenue: '24000.00', costSold: '9840.00', lossCost: '410.00', profit: '13750.00' });
+    expect([r.drink, r.month, r.mlSold, r.revenue, r.costSold, r.mlLost, r.lossCost, r.profit]).toEqual(['KONYAGI YA KUPIMA', null, 720, 24000, 9840, 0, 410, 13750]);
+    expect(normalizeProfitRow(null).profit).toBe(0);
   });
 });

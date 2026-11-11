@@ -143,6 +143,16 @@ const closeBanners = async (page) => { const c = page.getByRole('button', { name
   await sleep(1500);
   const rep = await mdlg.innerText();
   ok('U10 ripoti ya vyombo inaonyesha upotevu (720ml ≈ 24 × 30ml)', /Upotevu 720ml|Lost 720ml/.test(rep) && /24 × 30ml/.test(rep), rep.replace(/\s+/g, ' ').slice(0, 300));
+  // (et) profit per container + the profit tab (week card, per drink, per month)
+  const cps = await mdlg.locator('[data-test="container-profit"]').allInnerTexts();
+  ok('E1 kila chombo kinaonyesha FAIDA na gharama yake', cps.length >= 2 && cps.every((t) => /(Faida|Profit)/.test(t) && !/NaN/.test(t)) && /(gharama|cost) [\d,]/.test(rep), cps.join(' | '));
+  await mdlg.locator('[data-test="profit-tab"]').click();
+  await sleep(1500);
+  const wk = await mdlg.locator('[data-test="week-card"]').innerText().catch(() => '');
+  const kRow = await mdlg.locator('tr[data-drink="KONYAGI YA KUPIMA"]').innerText().catch(() => '');
+  const month = new Date().toISOString().slice(0, 7);
+  ok('E2 kichupo cha Faida: kadi ya wiki, KONYAGI kwenye jedwali la kinywaji, mwezi huu kwenye jedwali la mwezi', /(Faida|Profit)/.test(wk) && !/NaN/.test(wk + kRow)
+    && kRow.length > 0 && (await mdlg.locator(`tr[data-month="${month}"]`).count()) === 1, `${wk.replace(/\s+/g, ' ')} || ${kRow.replace(/\s+/g, ' ')}`);
   // ── (es)(eu) WINE: two parents set in the dialog (MA-LOT has its own 70ml price); the till chooses the parent ──
   await ceo.page.goto(V3 + '/products'); await sleep(2500); await closeBanners(ceo.page);
   await ceo.page.locator('[data-test="kupima"]').click();

@@ -68,6 +68,53 @@ export interface PourContainerRow {
   costPerMl: number;
   smallestMl: number | null;
   parentPrice: number | null;
+  /** et: the parent it was opened from; its avg that day (the container's own cost, never changed afterwards). */
+  parentName: string | null;
+  parentAvgCost: number;
+  /** ml that went in (container ml; the counted ml for an uhamisho container). */
+  startMl: number;
+  containerCost: number;
+  costSold: number;
+  /** revenue - cost of what was sold - loss */
+  profit: number;
+  /** all its ml at the best price per ml of its measures */
+  maxRevenue: number | null;
+}
+
+/** et: one line of the profit totals (per drink, per month, per drink + month). */
+export interface PourProfitRow {
+  drink: string | null;
+  month: string | null;
+  mlSold: number;
+  revenue: number;
+  costSold: number;
+  mlLost: number;
+  lossCost: number;
+  profit: number;
+}
+
+export interface PourProfit {
+  from: string;
+  to: string;
+  byDrink: PourProfitRow[];
+  byMonth: PourProfitRow[];
+  byDrinkMonth: PourProfitRow[];
+  total: PourProfitRow;
+  week: { from: string; to: string; byDrink: PourProfitRow[]; total: PourProfitRow };
+}
+
+export function normalizeProfitRow(r: Record<string, unknown> | null | undefined): PourProfitRow {
+  const x = r ?? {};
+  return {
+    drink: x['drink'] == null ? null : String(x['drink']),
+    month: x['month'] == null ? null : String(x['month']),
+    mlSold: Number(x['mlSold'] ?? 0),
+    revenue: Number(x['revenue'] ?? 0),
+    costSold: Number(x['costSold'] ?? 0),
+    mlLost: Number(x['mlLost'] ?? 0),
+    lossCost: Number(x['lossCost'] ?? 0),
+    profit: Number(x['profit'] ?? 0),
+  };
 }
 
 export interface PourHistory {
@@ -209,6 +256,29 @@ export class KupimaService {
       costPerMl: n(c['cost_per_ml']),
       smallestMl: nn(c['smallest_ml']),
       parentPrice: nn(c['parent_price']),
+      parentName: s(c['parent_name']),
+      parentAvgCost: n(c['parent_avg_cost']),
+      startMl: c['start_ml'] === undefined ? n(c['container_ml']) : n(c['start_ml']),
+      containerCost: n(c['container_cost']),
+      costSold: n(c['cost_sold']),
+      profit: n(c['profit']),
+      maxRevenue: nn(c['max_revenue']),
     }));
+  }
+
+  /** et: profit per drink / month / drink+month and the week card (last 7 days). */
+  async profit(from?: string, to?: string): Promise<PourProfit> {
+    const r = (await this.api.get<Raw | null>('/api/v1/kupima/profit', { params: { from: from ?? '', to: to ?? '' } })) ?? {};
+    const rows = (k: string, o: Raw = r): PourProfitRow[] => ((o[k] as Raw[] | undefined) ?? []).map(normalizeProfitRow);
+    const w = (r['week'] as Raw | undefined) ?? {};
+    return {
+      from: String(r['from'] ?? ''),
+      to: String(r['to'] ?? ''),
+      byDrink: rows('byDrink'),
+      byMonth: rows('byMonth'),
+      byDrinkMonth: rows('byDrinkMonth'),
+      total: normalizeProfitRow(r['total'] as Raw),
+      week: { from: String(w['from'] ?? ''), to: String(w['to'] ?? ''), byDrink: rows('byDrink', w), total: normalizeProfitRow(w['total'] as Raw) },
+    };
   }
 }
