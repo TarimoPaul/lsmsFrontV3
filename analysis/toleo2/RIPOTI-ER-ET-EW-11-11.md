@@ -72,3 +72,30 @@ Hatua 86 imefutwa kwenye mpango; hakuna journal na hakuna alama za kuweka. Bei z
 ## Maswali
 - Q-ew1: alama ya `exclude_from_ops_report` iwe ruhusa ya CAPITAL_APPROVE tu (pendekezo), au CEO tu?
 - Q-er1: tozo ya mali isiyounganishwa na Capital (thamani 0 kwenye vitabu) haiandiki chochote mpaka ilipwe. Sawa?
+
+## (ex) (ey) — 11/11
+- **Majibu:** Q-ew1 = CAPITAL_APPROVE (sababu ya lazima + audit + orodha ya zilizoondolewa inayoonekana kwa wakaguzi). Q-er1 = ndiyo; hivyo ndivyo ilivyojengwa.
+- **58b-prod-schedulers-soma.cmd (worktree t2-kupima):** sijaigusa.
+  - Maudhui hayajabadilika: `git diff --ignore-cr-at-eol` ni TUPU. Tofauti iko kwenye mwisho wa mistari tu (85 mistari, CRLF).
+  - Tarehe ya faili ni 2026-11-10 13:53:31, sawa kabisa na reflog `reset: moving to HEAD` wakati worktree ya t2-kupima ilipoundwa.
+  - Hivyo ilitokea wakati wa checkout: `.gitattributes` (`*.cmd text eol=crlf`) dhidi ya blob ya ef1ae20 (01/11).
+  - Haihusiani na kazi yangu yoyote.
+- **OPE-MON-20260101-000000-2939F6DE** (nakala ya 29/10):
+  - Maelezo "2400000", 200,000, transaction 01/01/2026, APPROVED.
+  - Ilisajiliwa 2026-04-30 14:01. Aliyeisajili hajulikani: `created_by`, `approved_by` na `updated_by` ni tupu, audit_trails haina rekodi kwa wakati huo, na login_audit inaanza 11/11 tu.
+  - Journal: **JE-2026-12651943663716, 01/01/2026, POSTED, Dr 6200 200,000 / Cr 1000 200,000**. Iliandikwa 2026-09-30 10:31 (rebuild ya GL).
+  - Frame "Mwaka mzima" F7C9E331 (Jan) ina journal sawa kabisa. **Hatua 80 ilitafuta Frame kwa jina 'frame', kwa hiyo row hii haikuonekana.**
+- **Hatua 88** imeandaliwa (KAGUA → 🛑 → ANDIKA, Novemba): Dr 1000 200,000 / Cr 6200 200,000, sawa na 80b. **Usiendeshe ANDIKA kabla ya jibu la Chief.**
+  - Kinga zake:
+    - row na journal lazima viwe vilevile;
+    - kipindi kiwe wazi;
+    - kabla ya cutover D;
+    - mara moja tu.
+  - Maandishi ni ASCII tu.
+  - Jaribio la local: t88 8/0 (`analysis/toleo2/88-majaribio/t88.sh`).
+  - Row ya capex haifutwi; itawekewa alama exclude_from_ops_report.
+- **Septemba "wafanyakazi":** OPE-MON-20260901-…-06AC14BB (iliundwa 08/09 08:49) na …-4B6D0F55 (08/09 09:11).
+  - Kila moja ni 150,000, POSTED, Dr 6200 / Cr 1000, journal za 01/09.
+  - Zilisajiliwa dakika 22 tofauti, na kila moja ina jina tofauti kidogo: "wafanyakazi" na "Wafanyakazi".
+  - Agosti ilikuwa na "Mfanyakazi" 150k + "Manager" 180k, kwa hiyo huenda Septemba ni watu wawili tofauti. Chief athibitishe.
+  - KAGUA ya hatua 88 inaonyesha pia hizi kwenye prod ya sasa.

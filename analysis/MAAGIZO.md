@@ -1099,3 +1099,17 @@ Toleo 2: alama kwenye capex row "exclude_from_ops_report" (sababu + audit, CEO/K
   Daraja: mstari "Marekebisho ya 2026 (hatua 80)" ili GL vs ripoti ielezeke.
   Jaribio: ripoti ya Nov = share za mwaka tu kwa Frame/TRA; GL haibadiliki.
 Kagua pia: kuna rows nyingine 2026 zenye mwingiliano huo (share ya mwaka + mtoto wa mwezi wa kitu kilekile)? Orodhesha tu.
+
+## 2026-11-11 (ex)
+Q-ew1 = CAPITAL_APPROVE, kwa sababu ya lazima + audit + orodha ya "zilizoondolewa kwenye ripoti" inayoonekana kwa wakaguzi.
+Q-er1 = ndiyo (mali isiyo kwenye vitabu → GL wakati wa malipo tu).
+58b-prod-schedulers-soma.cmd (worktree t2-kupima): onyesha diff, tarehe ya mabadiliko, na kama inahusiana na kazi yoyote yako. Usiigusa.
+OPE-MON-20260101-…-2939F6DE: Chief anaendesha 87; ikiwa ni share nyingine ya Frame yenye journal (Cr 1000) — pendekeza marekebisho
+  (KAGUA → ANDIKA, Novemba) yanayolingana na 80b. Kisha exclude_from_ops_report, kisha kazi 5.
+
+## 2026-11-11 (ey)
+87: OPE-MON-20260101-…-2939F6DE ("2400000", 200,000, Jan) — onyesha journal yake (tarehe, akaunti, POSTED?) na nani/lini aliiunda.
+  Chief atasema ni nini. Ikiwa ni Frame mara ya 3 yenye Cr 1000 → andaa marekebisho (KAGUA → ANDIKA, Novemba): Dr 1000 200,000 / Cr <akaunti yake>,
+  ili pango 2026 = 2.4M. Usiandike kabla ya jibu.
+Septemba: OPE-MON-…-06AC14BB na …-4B6D0F55 (150k kila moja, "wafanyakazi") — journal zao; Chief atathibitisha kama ni nakala.
+Kisha exclude_from_ops_report, kisha kazi 5.
