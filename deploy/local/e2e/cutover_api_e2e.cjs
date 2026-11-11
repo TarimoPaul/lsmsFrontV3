@@ -91,6 +91,22 @@ async function reapprove(ceo, uid) {
   const cf = await api('POST', `/api/v1/safe-box/${sbu}/confirm`, ceo, {});
   ok('T6 amana ya sefu NMB imethibitishwa baada ya D -> Dr 1021 / Cr 1000', live('SAFE-TRF:' + sbu) === '1000:-75000.00,1021:75000.00', `${msg(cf)} | ${live('SAFE-TRF:' + sbu)}`);
 
+  // ── T7 (fe) Selcom deposit 500k (sefu -> Selcom), then Selcom -> NMB 500k, fee 2k ──
+  const bal = (c) => Number(sql(`select coalesce(round(sum(l.debit_amount - l.credit_amount), 2), 0) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and l.account_code = '${c}'`));
+  const sel = `e2e-sel-${Date.now()}`;
+  sql(`insert into safe_box_deposits (uid, created_at, is_active, is_deleted, source_recon_uid, cashier_uid, owner_uid, submitted_amount, deposit_type, bank_name, status, submitted_at, version)
+       values ('${sel}', now(), true, false, '${A}', '${user}', '${user}', 500000, 'BANK_DEPOSIT', 'SELCOM', 'PENDING', '${dayA} 16:00', 0)`);
+  await api('POST', `/api/v1/safe-box/${sel}/confirm`, ceo, {});
+  const b1023 = bal('1023'), b1021 = bal('1021'), b6130 = bal('6130');
+  const tr = await api('POST', '/api/v1/gl/transfers', ceo, { fromAccount: '1023', toAccount: '1021', amount: 500000, fee: 2000, date: dayA, reason: 'Selcom kwenda NMB kulipa wasambazaji' });
+  ok('T7 uhamisho Selcom -> NMB 500k ada 2k: 1023 -500k (=0 kwa amana hii), 1021 +498k, 6130 +2k', tr.j?.status === 'Success'
+    && bal('1023') - b1023 === -500000 && bal('1021') - b1021 === 498000 && bal('6130') - b6130 === 2000 && b1023 === 500000,
+    `${msg(tr)} 1023 ${b1023}->${bal('1023')} 1021 ${b1021}->${bal('1021')} 6130 ${b6130}->${bal('6130')}`);
+  const early = await api('POST', '/api/v1/gl/transfers', ceo, { fromAccount: '1023', toAccount: '1021', amount: 1000, fee: 0, date: sql(`select (date '${dayA}' - 1)::text`), reason: 'jaribio la kabla ya D' });
+  ok('T8 uhamisho wa benki KABLA ya D -> umekataliwa', early.j?.status !== 'Success' && /Kabla ya tarehe ya kukata/.test(msg(early)), msg(early));
+  const noWhy = await api('POST', '/api/v1/gl/transfers', ceo, { fromAccount: '1023', toAccount: '1021', amount: 1000, fee: 0, date: dayA, reason: 'aaaa' });
+  ok('T9 bila sababu halali -> imekataliwa', noWhy.j?.status !== 'Success', msg(noWhy));
+
   ok('TB = 0', Math.abs(tb()) < 0.005 && Math.abs(tb() - tb0) < 0.005, `${tb0} -> ${tb()}`);
   console.log(`MWISHO PASS ${P} FAIL ${F}`);
   process.exit(F ? 1 : 0);

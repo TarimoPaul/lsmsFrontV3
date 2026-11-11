@@ -257,16 +257,20 @@ export class ManualJournalDialog {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lsms-dialog [title]="i18n.t('Move money between accounts', 'Hamisha pesa kati ya akaunti')" icon="swap_horiz">
-      <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('E.g. cash deposited to CRDB, or M-Pesa withdrawn to cash. Profit is not affected.', 'Mf. pesa taslimu zimewekwa CRDB, au M-Pesa imetolewa kuwa taslimu. Faida haiguswi.') }}</p>
+      <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('E.g. Selcom or M-Pesa moved to NMB. The fee charged by the bank / network is recorded as an expense (Bank and mobile charges).', 'Mf. Selcom au M-Pesa zimehamishiwa NMB. Ada ya benki / mtandao inaandikwa kama gharama (Ada za benki na simu).') }}</p>
       <span class="lbl">{{ i18n.t('From', 'Kutoka') }}</span>
       <div class="chips">@for (a of accounts; track a.code) { <button type="button" [class.on]="from() === a.code" (click)="from.set(a.code)">{{ i18n.isSwahili() ? a.sw : a.en }}</button> }</div>
       <span class="lbl">{{ i18n.t('To', 'Kwenda') }}</span>
       <div class="chips">@for (a of accounts; track a.code) { <button type="button" [class.on]="to() === a.code" [disabled]="from() === a.code" (click)="to.set(a.code)">{{ i18n.isSwahili() ? a.sw : a.en }}</button> }</div>
       <div class="two">
         <label><span>{{ i18n.t('Amount', 'Kiasi') }} (TZS)</span><input lsmsMoneyInput type="text" [value]="amount()" (input)="amount.set($any($event.target).value)" /></label>
-        <label><span>{{ i18n.t('Date', 'Tarehe') }}</span><input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" /></label>
+        <label><span>{{ i18n.t('Fee', 'Ada') }} (TZS)</span><input lsmsMoneyInput type="text" data-test="ada" [value]="fee()" (input)="fee.set($any($event.target).value)" /></label>
       </div>
-      <label><span>{{ i18n.t('Note (optional)', 'Maelezo (hiari)') }}</span><input type="text" maxlength="200" [value]="note()" (input)="note.set($any($event.target).value)" /></label>
+      <div class="two">
+        <label><span>{{ i18n.t('Date', 'Tarehe') }}</span><input type="date" [max]="today" [value]="date()" (change)="date.set($any($event.target).value)" /></label>
+        <label><span>{{ i18n.t('Arrives', 'Kinachofika') }}</span><input type="text" readonly [value]="arrives()" /></label>
+      </div>
+      <label><span>{{ i18n.t('Reason', 'Sababu') }} *</span><input type="text" maxlength="200" data-test="sababu" [value]="note()" (input)="note.set($any($event.target).value)" /></label>
       @if (error()) { <p class="err">{{ error() }}</p> }
       <ng-container dialogActions>
         <button lsmsButton="secondary" (click)="ref.close()">{{ i18n.t('Cancel', 'Ghairi') }}</button>
@@ -291,16 +295,19 @@ export class TransferDialog {
   protected readonly amount = signal('');
   protected readonly date = signal(today());
   protected readonly note = signal('');
+  protected readonly fee = signal('');
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly valid = computed(() => parse(this.amount()) > 0 && this.from() !== this.to());
+  protected readonly arrives = computed(() => Math.max(0, parse(this.amount()) - parse(this.fee())).toLocaleString('en-US'));
+  protected readonly valid = computed(() => parse(this.amount()) > 0 && parse(this.fee()) >= 0 && parse(this.fee()) < parse(this.amount())
+    && this.from() !== this.to() && this.note().trim().length >= 5);
 
   protected async save(): Promise<void> {
     if (!this.valid()) return;
     this.saving.set(true);
     this.error.set(null);
     try {
-      await this.gl.transfer({ fromAccount: this.from(), toAccount: this.to(), amount: parse(this.amount()), date: this.date(), note: this.note() });
+      await this.gl.transfer({ fromAccount: this.from(), toAccount: this.to(), amount: parse(this.amount()), fee: parse(this.fee()) || 0, date: this.date(), reason: this.note().trim() });
       this.ref.close(true);
     } catch (e) {
       this.error.set(ApiError.from(e).message);

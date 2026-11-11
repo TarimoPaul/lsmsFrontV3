@@ -102,7 +102,8 @@ export class GlService {
     return ref;
   }
 
-  async transfer(body: { fromAccount: string; toAccount: string; amount: number; date: string; note: string }): Promise<string> {
+  /** (fe) amount leaves `fromAccount`; `toAccount` receives amount - fee; the fee is an expense (6130). Reason required. */
+  async transfer(body: { fromAccount: string; toAccount: string; amount: number; fee: number; date: string; reason: string }): Promise<string> {
     const ref = await this.api.post<string>(`${BASE}/transfers`, body);
     this.touch();
     return ref;
