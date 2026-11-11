@@ -38,6 +38,14 @@ export interface CountLine {
   firstCountQty: number | null;
   recountQty: number | null;
   recountReason: string | null;
+  /** Kazi 5: a large surplus still waiting for a second person's count (approval is refused until then). */
+  needsSecondCount: boolean;
+  secondCountQty: number | null;
+  secondCountByUid: string | null;
+  secondCountAt: string | null;
+  secondCountNote: string | null;
+  /** Kazi 5: the decision kept on an approved line. */
+  decision: string | null;
 }
 
 /** Blind recount entry — structurally cannot leak variance / padding membership. */
@@ -78,6 +86,12 @@ export interface CountSession {
   noActionShortage: number | null;
   noActionSurplus: number | null;
   noActionCount: number | null;
+  /** Kazi 5: the delivery question at start (null = before V146) and the products left out of the count. */
+  unrecordedDelivery: boolean | null;
+  unrecordedDeliveryProductNames: string[];
+  unrecordedDeliveryNote: string | null;
+  /** Surplus (cost) above this needs a second person's count. */
+  secondCountThreshold: number | null;
   lines: CountLine[];
 }
 
@@ -276,6 +290,12 @@ export function toLine(r: Raw): CountLine {
     firstCountQty: num(r['firstCountQty']),
     recountQty: num(r['recountQty']),
     recountReason: str(r['recountReason']),
+    needsSecondCount: !!r['needsSecondCount'],
+    secondCountQty: num(r['secondCountQty']),
+    secondCountByUid: str(r['secondCountByUid']),
+    secondCountAt: str(r['secondCountAt']),
+    secondCountNote: str(r['secondCountNote']),
+    decision: str(r['decision']),
   };
 }
 
@@ -316,6 +336,10 @@ export function toSession(r: Raw): CountSession {
     noActionShortage: num(r['noActionShortage']),
     noActionSurplus: num(r['noActionSurplus']),
     noActionCount: num(r['noActionCount']),
+    unrecordedDelivery: r['unrecordedDelivery'] == null ? null : !!r['unrecordedDelivery'],
+    unrecordedDeliveryProductNames: ((r['unrecordedDeliveryProductNames'] as unknown[] | null) ?? []).map(String),
+    unrecordedDeliveryNote: str(r['unrecordedDeliveryNote']),
+    secondCountThreshold: num(r['secondCountThreshold']),
     lines: ((r['lines'] as Raw[] | null) ?? []).map(toLine),
   };
 }

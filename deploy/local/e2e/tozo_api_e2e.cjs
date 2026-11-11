@@ -36,7 +36,7 @@ const h1 = async (tok) => Number(((await api('GET', '/api/v1/gl/control-checks',
 async function chargedCount(mgr, ceo, product, short) {
   // one session per day: earlier test sessions are moved back (local copy only)
   sql("update counting_session c set session_date = m.d, started_at = m.d + time '06:00' from (select min(session_date) - 1 as d from counting_session) m where c.session_date = current_date");
-  const s = await api('POST', '/api/v1/counting/sessions', mgr, {});
+  const s = await api('POST', '/api/v1/counting/sessions', mgr, { unrecordedDelivery: false });
   if (s.j?.status !== 'Success') throw new Error('start ' + JSON.stringify(s.j).slice(0, 300));
   const sid = s.j.data.uid;
   const lines = sql(`select product_uid || '|' || system_qty_snapshot from counting_line where session_uid = '${sid}' and not is_deleted`).split('\n').filter(Boolean);

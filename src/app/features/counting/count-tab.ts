@@ -5,6 +5,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogService, EmptyState, Icon, SearchBar, SegmentOption, SegmentedFilterBar, Skeleton, ToastService } from '@shared/ui';
 import { CountLineRow } from './count-line';
+import { DeliveryAnswer, DeliveryQuestionDialog } from './count-rules-dialogs';
 import { CountSort, CountStore } from './count.store';
 import { ExplainLineRow } from './explain-line';
 import { RecountLineRow } from './recount-line';
@@ -191,8 +192,11 @@ export class CountTab {
       cancelText: this.i18n.t('Cancel', 'Ghairi'),
     });
     if (!ok) return;
+    // Kazi 5: required question - a delivery not entered yet must not show up as a surplus.
+    const answer = await this.dialogs.openAsync<DeliveryAnswer>(DeliveryQuestionDialog, {});
+    if (!answer) return;
     try {
-      await this.store.start();
+      await this.store.start(answer);
     } catch (e) {
       await this.dialogs.error(ApiError.from(e).message, this.i18n.t('Could not start counting', 'Imeshindwa kuanza kuhesabu'));
     }

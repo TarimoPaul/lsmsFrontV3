@@ -28,7 +28,7 @@ const jl = (ref) => Object.fromEntries(sql(`select l.account_code, round(sum(l.d
 
 async function chargedCount(mgr, ceo, product, short) {
   sql("update counting_session c set session_date = m.d, started_at = m.d + time '06:00' from (select min(session_date) - 1 as d from counting_session) m where c.session_date = current_date");
-  const s = await api('POST', '/api/v1/counting/sessions', mgr, {});
+  const s = await api('POST', '/api/v1/counting/sessions', mgr, { unrecordedDelivery: false });
   if (s.j?.status !== 'Success') throw new Error('start ' + JSON.stringify(s.j).slice(0, 300));
   const sid = s.j.data.uid;
   for (const l of sql(`select product_uid || '|' || system_qty_snapshot from counting_line where session_uid = '${sid}' and not is_deleted`).split('\n').filter(Boolean)) {

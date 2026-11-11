@@ -10,6 +10,7 @@ import { parseLocal } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { ProductsService } from '../products/products.service';
 import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
+import { SecondCountData, SecondCountDialog, SecondCountResult } from './count-rules-dialogs';
 import { StoreService } from '../store/store.service';
 import {
   ADJUSTMENT_REASONS,
@@ -92,6 +93,9 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
           @if (s.status === 'APPROVED' && s.noActionCount) {
             <p class="warn"><lsms-icon name="info" [size]="16" />{{ i18n.t(s.noActionCount + ' differences were left with no action — stock was not corrected, so they come back at the next count.', 'Tofauti ' + s.noActionCount + ' ziliachwa bila hatua — stoku haikurekebishwa, kwa hiyo zitarudi kwenye zoezi lijalo.') }}</p>
           }
+          @if (s.unrecordedDelivery) {
+            <p class="warn"><lsms-icon name="local_shipping" [size]="16" />{{ i18n.t('Delivery not entered - left out of this count', 'Mzigo usioandikwa - haukuhesabiwa') }}: {{ s.unrecordedDeliveryProductNames.join(', ') }}@if (s.unrecordedDeliveryNote) { — {{ s.unrecordedDeliveryNote }} }</p>
+          }
           @if (s.status === 'FORCE_CLOSED' && s.forceClosedReason) {
             <p class="bad"><lsms-icon name="block" [size]="16" />{{ i18n.t('Force-closed', 'Imefungwa kwa nguvu') }}: {{ s.forceClosedReason }}</p>
           }
@@ -138,6 +142,16 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
                 } @else {
                   <p class="note warn-t"><lsms-icon name="help" [size]="14" />{{ i18n.t('Not explained by the counter', 'Haijaelezwa na mhesabu') }}</p>
                 }
+              }
+              @if (l.needsSecondCount && s.status === 'PENDING_APPROVAL') {
+                <div class="note second">
+                  <lsms-icon name="group" [size]="14" />
+                  <span>{{ i18n.t('Large surplus: a second person must count it before approval.', 'Ziada kubwa: lazima ihesabiwe na mtu wa pili kabla ya kuthibitisha.') }}</span>
+                  <button type="button" class="sc" (click)="secondCount(l)">{{ i18n.t('Second count', 'Hesabu ya mtu wa pili') }}</button>
+                </div>
+              }
+              @if (l.secondCountByUid) {
+                <p class="note re"><lsms-icon name="group" [size]="14" /><span>{{ i18n.t('Second person', 'Mtu wa pili') }}: <b>{{ name(l.secondCountByUid) }}</b>@if (l.secondCountQty !== null) { · <b>{{ fmt(l, l.secondCountQty) }}</b> }@if (l.secondCountNote) { — {{ l.secondCountNote }} }</span></p>
               }
               @if (l.recountQty !== null) {
                 <p class="note re"><lsms-icon name="replay" [size]="14" /><span>{{ i18n.t('Count 1', 'Kuhesabu 1') }}: <b>{{ fmt(l, l.firstCountQty) }}</b> · {{ i18n.t('Count 2', 'Kuhesabu 2') }}: <b>{{ fmt(l, l.recountQty) }}</b>@if (l.recountReason) { — {{ l.recountReason }} }</span></p>
@@ -204,6 +218,8 @@ const needsReason = (d: LineDecision) => d === 'ADJUST' || d === 'CHARGE_TO_CASH
     </lsms-dialog>
   `,
   styles: `
+    .note.second { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: var(--c-warning, #b26a00); }
+    .note.second .sc { margin-left: auto; padding: 4px 10px; border: 1px solid currentColor; border-radius: 999px; background: transparent; font: inherit; font-size: 0.78rem; color: inherit; cursor: pointer; }
     .err { display: flex; align-items: center; gap: 8px; color: var(--c-error); }
     .done { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 12px; text-align: center; color: var(--c-success); }
     .done h3 { margin: 0; font-size: 1.15rem; color: var(--c-text); }
@@ -368,6 +384,22 @@ export class SessionDialog {
   constructor() {
     void this.load();
     void this.api.staff.load().catch(() => undefined);
+  }
+
+  /** Kazi 5: a second person's count of a large surplus; the line comes back with the new difference. */
+  protected async secondCount(l: CountLine): Promise<void> {
+    const s = this.session();
+    if (!s) return;
+    const r = await this.dialogs.openAsync<SecondCountResult, SecondCountData>(SecondCountDialog, { data: { productName: l.productName } });
+    if (!r) return;
+    try {
+      await this.api.secondCount(s.uid, l.uid, r.qty, r.note);
+      this.changed.set(true);
+      await this.load();
+      this.toast.success(this.i18n.t('Second count saved', 'Hesabu ya mtu wa pili imehifadhiwa'));
+    } catch (e) {
+      await this.dialogs.error(ApiError.from(e).message, this.i18n.t('Second count', 'Hesabu ya mtu wa pili'));
+    }
   }
 
   private async load(): Promise<void> {

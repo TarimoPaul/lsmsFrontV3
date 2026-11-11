@@ -55,9 +55,23 @@ export class CountingService {
 
   // ── Sessions ──
 
-  /** Blind vs sighted is decided server-side from the caller's COUNTING_SIGHTED. Response has no lines. */
-  async start(): Promise<CountSession> {
-    return toSession(await this.api.post<Raw>(`${BASE}/sessions`, {}));
+  /**
+   * Blind vs sighted is decided server-side from the caller's COUNTING_SIGHTED. Response has no lines.
+   * Kazi 5: the delivery question is required; products of an unrecorded delivery are left out of the count.
+   */
+  async start(answer: { unrecordedDelivery: boolean; productUids: string[]; note: string | null }): Promise<CountSession> {
+    const body = {
+      unrecordedDelivery: answer.unrecordedDelivery,
+      ...(answer.unrecordedDelivery ? { unrecordedProductUids: answer.productUids } : {}),
+      ...(answer.note ? { unrecordedNote: answer.note } : {}),
+    };
+    return toSession(await this.api.post<Raw>(`${BASE}/sessions`, body));
+  }
+
+  /** Kazi 5: a second person's count of one line (large surplus) - not the starter, not the first counter. */
+  async secondCount(sessionUid: string, lineUid: string, qty: number, note: string | null): Promise<CountLine> {
+    const body = { qty, ...(note?.trim() ? { note: note.trim() } : {}) };
+    return toLine(await this.api.put<Raw>(`${BASE}/sessions/${sessionUid}/lines/${lineUid}/second-count`, body));
   }
 
   /** Today's open session, or null ("nothing to resume" is a normal Success/null answer). */
