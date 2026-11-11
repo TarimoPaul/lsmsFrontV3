@@ -5,11 +5,11 @@ import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
 import { DataTable, DialogService, EmptyState, FilterPanel, Icon, MetricCard, MetricsGrid, SegmentOption, SegmentedFilterBar, TableColumn } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
-import { MoneyPipe } from '@shared/utils/money';
+import { Money, MoneyPipe } from '@shared/utils/money';
 import { RETURN_STATUS, RETURN_TYPES, ReturnType, SalesReturn } from './sales.models';
 import { SalesService } from './sales.service';
 
-type Filter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
+type Filter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXCHANGE';
 
 /**
  * All return requests (newest first) with the approval queue — Flutter showed
@@ -23,7 +23,7 @@ type Filter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
     <lsms-metrics-grid [gap]="12">
       <lsms-metric-card [title]="i18n.t('Returns', 'Marejesho')" [value]="loading() ? '—' : list().length + ''" icon="assignment_return" color="var(--c-primary)" [clickable]="true" (tap)="filter.set('ALL')" />
       <lsms-metric-card [title]="i18n.t('Waiting for approval', 'Yanasubiri idhini')" [value]="stats().pending + ''" icon="hourglass_top" color="var(--c-warning)" [urgent]="stats().pending > 0" [clickable]="stats().pending > 0" (tap)="filter.set('PENDING')" />
-      <lsms-metric-card [title]="i18n.t('Refunded', 'Zimerejeshwa')" [value]="stats().refunded | money: { decimals: 0 }" [subtitle]="i18n.t(stats().approved + ' approved', stats().approved + ' zimeidhinishwa')" icon="currency_exchange" color="var(--c-success)" />
+      <lsms-metric-card [title]="i18n.t('Money handed back', 'Pesa iliyorudishwa')" [value]="stats().cash | money: { decimals: 0 }" [subtitle]="i18n.t('of ' + money(stats().value) + ' returned value', 'kati ya ' + money(stats().value) + ' ya thamani')" icon="currency_exchange" color="var(--c-success)" />
       <lsms-metric-card [title]="i18n.t('Pieces back', 'Vipande vilivyorudi')" [value]="stats().pieces + ''" [subtitle]="stats().rejected ? i18n.t(stats().rejected + ' rejected', stats().rejected + ' zimekataliwa') : undefined" icon="inventory" color="var(--c-info)" />
     </lsms-metrics-grid>
 
@@ -60,10 +60,15 @@ type Filter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
             <span class="items">{{ itemsText(row) }}</span>
           </ng-template>
           <ng-template lsmsColumn="type" [label]="i18n.t('Kind', 'Aina')" let-row>
-            <span class="muted">{{ type(row.type) }}</span>
+            <span class="muted">@if (row.type === 'EXCHANGE') { <lsms-icon name="swap_horiz" [size]="13" /> }{{ type(row.type) }}@if (row.exchangeReceipt) { <small> · {{ row.exchangeReceipt }}</small> }</span>
           </ng-template>
-          <ng-template lsmsColumn="refund" [label]="i18n.t('Refund', 'Marejesho')" align="end" let-row>
-            <b class="num">{{ row.refund | money }}</b>
+          <ng-template lsmsColumn="refund" [label]="i18n.t('Value', 'Thamani')" align="end" let-row>
+            <span class="val">
+              <b class="num">{{ row.refund | money }}</b>
+              @if (done(row.status)) {
+                <small>{{ row.cash > 0 ? i18n.t('paid back ', 'imerudishwa ') + money(row.cash) : i18n.t('debt cleared', 'deni limepunguzwa') }}</small>
+              }
+            </span>
           </ng-template>
           <ng-template lsmsColumn="status" [label]="i18n.t('Status', 'Hali')" let-row>
             @let st = status(row.status);
@@ -80,6 +85,8 @@ type Filter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
     .when, .ref { display: flex; flex-direction: column; min-width: 0; }
     .ref b { font-family: ui-monospace, monospace; font-size: 0.76rem; }
     .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .val { display: inline-flex; flex-direction: column; align-items: flex-end; }
+    .val small { font-size: 0.7rem; color: var(--c-text-2); white-space: nowrap; }
   `,
 })
 export class ReturnsPanel {
@@ -106,7 +113,9 @@ export class ReturnsPanel {
       pending: l.filter((r) => r.status === 'PENDING').length,
       approved: approved.length,
       rejected: l.filter((r) => r.status === 'REJECTED').length,
-      refunded: approved.reduce((n, r) => n + r.refund, 0),
+      value: approved.reduce((n, r) => n + r.refund, 0),
+      cash: approved.reduce((n, r) => n + r.cash, 0),
+      exchanges: l.filter((r) => r.type === 'EXCHANGE').length,
       pieces: approved.reduce((n, r) => n + r.pieces, 0),
     };
   });
@@ -119,6 +128,7 @@ export class ReturnsPanel {
       { value: 'PENDING', label: t('Waiting', 'Yanasubiri'), icon: 'hourglass_top', count: s.pending },
       { value: 'APPROVED', label: t('Approved', 'Yameidhinishwa'), icon: 'verified', count: s.approved },
       { value: 'REJECTED', label: t('Rejected', 'Yamekataliwa'), icon: 'cancel', count: s.rejected },
+      ...(s.exchanges ? [{ value: 'EXCHANGE' as Filter, label: t('Exchanges', 'Kubadilisha'), icon: 'swap_horiz', count: s.exchanges }] : []),
     ];
   });
 
@@ -129,8 +139,9 @@ export class ReturnsPanel {
       if (f === 'PENDING' && r.status !== 'PENDING') return false;
       if (f === 'APPROVED' && !['APPROVED', 'PROCESSED', 'COMPLETED'].includes(r.status)) return false;
       if (f === 'REJECTED' && r.status !== 'REJECTED') return false;
+      if (f === 'EXCHANGE' && r.type !== 'EXCHANGE') return false;
       if (!q) return true;
-      return [r.reference, r.receiptNumber ?? '', r.customerName ?? '', ...r.items.map((i) => i.productName)].some((x) => x.toLowerCase().includes(q));
+      return [r.reference, r.receiptNumber ?? '', r.exchangeReceipt ?? '', r.customerName ?? '', ...r.items.map((i) => i.productName)].some((x) => x.toLowerCase().includes(q));
     });
   });
 
@@ -157,6 +168,14 @@ export class ReturnsPanel {
   protected type(t: string): string {
     const x = RETURN_TYPES[t as ReturnType];
     return x ? (this.i18n.isSwahili() ? x.sw : x.en) : t;
+  }
+
+  protected done(s: string): boolean {
+    return ['APPROVED', 'PROCESSED', 'COMPLETED'].includes(s);
+  }
+
+  protected money(n: number): string {
+    return Money.format(n, { decimals: 0 });
   }
 
   protected date(v: string | null): Date | null {

@@ -128,6 +128,18 @@
       <lsms-segmented-filter-bar filterSegments [options]="statusOptions()" [(selected)]="status" />
     </lsms-filter-panel>
 
+    @if ((status() === 'RETURNED' || status() === 'RETURN_PENDING' || status() === 'EXCHANGED') && returnStats().count) {
+      @let r = returnStats();
+      <div class="ret-strip">
+        <span><lsms-icon name="assignment_return" [size]="15" />{{ i18n.t(r.count + ' sales with returns', 'Mauzo ' + r.count + ' yenye marejesho') }}</span>
+        <span>{{ i18n.t('Taken off sales', 'Zimetolewa kwenye mauzo') }} <b>{{ r.value | money }}</b></span>
+        <span>{{ i18n.t('Money handed back', 'Pesa iliyorudishwa') }} <b>{{ r.refunded | money }}</b></span>
+        @if (r.pending) {
+          <span class="warn"><lsms-icon name="hourglass_top" [size]="15" />{{ i18n.t(r.pending + ' waiting approval', r.pending + ' zinasubiri idhini') }}</span>
+        }
+      </div>
+    }
+
     @if (error()) {
       <lsms-empty-state
         icon="error"
@@ -192,11 +204,20 @@
         </ng-template>
         <ng-template lsmsColumn="total" [label]="i18n.t('Total', 'Jumla')" [sortBy]="totalOf" align="end" let-row>
           <span class="num strong">{{ row.total | money }}</span>
+          @if (row.returnedAmount > 0) {
+            <small class="ret-off">−{{ row.returnedAmount | money: { symbol: false } }} {{ i18n.t('returned', 'imerudishwa') }}</small>
+          }
         </ng-template>
         <ng-template lsmsColumn="payment" [label]="i18n.t('Payment', 'Malipo')" [sortBy]="balanceOf" let-row>
           <span class="pay">
-            <lsms-payment-status-badge [paid]="row.paid" [total]="row.total" [compact]="true" />
-            @if (row.balance > 0) {
+            @if (row.isFullReturn) {
+              <span class="status" style="--st: var(--c-info)"><lsms-icon name="assignment_return" [size]="13" />{{ i18n.t('Returned in full', 'Imerudishwa yote') }}</span>
+            } @else {
+              <lsms-payment-status-badge [paid]="row.paid" [total]="row.total" [compact]="true" />
+            }
+            @if (row.isFullReturn) {
+              <small>{{ row.refunded > 0 ? i18n.t('Paid back ', 'Amerudishiwa ') + (row.refunded | money: { symbol: false }) : i18n.t('Debt cleared', 'Deni limefutwa') }}</small>
+            } @else if (row.balance > 0) {
               <small class="owe">{{ i18n.t('Owes', 'Deni') }} {{ row.balance | money: { symbol: false } }}</small>
             } @else {
               <small>{{ methodText(row) }}</small>
@@ -207,8 +228,11 @@
           <span class="muted">{{ row.seller || '—' }}</span>
         </ng-template>
         <ng-template lsmsColumn="flags" label="" let-row>
+          @if (row.exchangeOf) {
+            <span class="status" style="--st: var(--c-primary)" [title]="i18n.t('Made by an exchange for sale ' + row.exchangeOf, 'Mauzo ya kubadilisha bidhaa za ' + row.exchangeOf)"><lsms-icon name="move_down" [size]="13" /></span>
+          }
           @if (row.hasReturn) {
-            <span class="status" style="--st: var(--c-warning)" [title]="i18n.t('Has a return', 'Ina marejesho')"><lsms-icon name="assignment_return" [size]="13" /></span>
+            <span class="status" [style.--st]="row.returnStatus === 'PENDING' ? 'var(--c-warning)' : 'var(--c-info)'" [title]="flagTitle(row)"><lsms-icon [name]="row.returnType === 'EXCHANGE' ? 'swap_horiz' : 'assignment_return'" [size]="13" /></span>
           }
         </ng-template>
         <ng-template lsmsColumn="actions" let-row>
@@ -227,14 +251,18 @@
             </div>
             <div class="m-meta">
               <span class="m-when">{{ date(row.saleDate) | date: 'HH:mm' }} · {{ date(row.saleDate) | date: 'dd MMM' }} · {{ short(row.receiptNumber) }}</span>
-              @if (row.hasReturn) { <lsms-icon class="m-ret" name="assignment_return" [size]="14" /> }
+              @if (row.hasReturn) { <lsms-icon class="m-ret" [class.pending]="row.returnStatus === 'PENDING'" [name]="row.returnType === 'EXCHANGE' ? 'swap_horiz' : 'assignment_return'" [size]="14" [title]="flagTitle(row)" /> }
               <span class="m-pay">
                 @if (row.balance > 0) {
                   <small class="owe">{{ i18n.t('Owes', 'Deni') }} {{ row.balance | money: { symbol: false } }}</small>
                 } @else {
                   <small>{{ methodText(row) }}</small>
                 }
-                <lsms-payment-status-badge [paid]="row.paid" [total]="row.total" [compact]="true" />
+                @if (row.isFullReturn) {
+                  <span class="status" style="--st: var(--c-info)">{{ i18n.t('Returned', 'Imerudishwa') }}</span>
+                } @else {
+                  <lsms-payment-status-badge [paid]="row.paid" [total]="row.total" [compact]="true" />
+                }
               </span>
             </div>
             <p class="m-items"><span class="n-items">{{ row.lines.length }}</span>{{ itemsText(row) }}</p>
