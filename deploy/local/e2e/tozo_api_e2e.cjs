@@ -4,6 +4,9 @@
 //   written agreement: Dr 1120 / Cr 4900, who/when/amount/document; junk note refused; MANAGER 403
 //   waiver: margin forgiven with no GL, agreed margin Dr 4900, cost Dr 5100 - never a loss bigger than the cost
 //   a debt raised before V144 keeps the V130 rule (no split stored); TB 0 throughout
+//   (er) H1: the 1120 control compares GL with cost + agreed of the ledger (not the full selling price)
+//   (er) Q4-3: a missing asset -> Dr 1120 NBV / Dr 1590 / Cr asset at cost (part: Capital shrinks; all: DISPOSED LOST),
+//        above NBV = margin (4900 when paid / agreed); below NBV -> Dr 6900; an asset debt's waived cost -> 6900
 // Throw-away local copy only. Run: node tozo_api_e2e.cjs
 const { execFileSync } = require('child_process');
 
@@ -26,6 +29,8 @@ const acct = (code) => Number(sql(`select coalesce(round(sum(l.debit_amount - l.
 /** account -> net (Dr - Cr) of the journal(s) with this reference_uid */
 const jl = (ref) => Object.fromEntries(sql(`select l.account_code, round(sum(l.debit_amount - l.credit_amount), 2) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and j.reference_uid = '${ref}' group by 1`).split('\n').filter(Boolean).map((r) => { const [a, v] = r.split('|'); return [a, Number(v)]; }));
 const eq = (a, b) => Math.abs(Number(a) - Number(b)) < 0.005;
+/** H1: the 1120 control (GL vs what the staff ledger says 1120 should hold) - its difference */
+const h1 = async (tok) => Number(((await api('GET', '/api/v1/gl/control-checks', tok)).j?.data || []).find((r) => r.key === 'STAFF_RECEIVABLES')?.difference);
 
 /** One count session by MGR where `product` is short by `short`; CEO approves CHARGE_TO_CASHIER. Returns the new debt. */
 async function chargedCount(mgr, ceo, product, short) {
@@ -68,6 +73,7 @@ const lastPay = (uid) => sql(`select uid || '|' || coalesce(cost_part::text,'nul
   // a product with stock for several shortages and a selling price above its cost (local copy only)
   const X = sql("select uid from products where not coalesce(is_deleted,false) and current_stock >= 12 and current_average_cost > 0 and piece_sale_price > current_average_cost * 1.05 and product_name not ilike '%pima%' order by current_stock desc, id limit 1");
   const tb0 = tb();
+  const h0 = await h1(ceo);
 
   // ── A: charge at cost, then pay cost first and the margin last ──
   const a0 = { r: acct('1120'), i: acct('1200'), o: acct('4900') };
@@ -128,6 +134,62 @@ const lastPay = (uid) => sql(`select uid || '|' || coalesce(cost_part::text,'nul
   } else {
     ok('C1 deni la zamani lipo kwenye nakala', false, 'hakuna deni la zamani lililo wazi');
   }
+  // ── H1 (owner er): 1120 control = GL vs (cost + agreed) of the ledger - unchanged by every step above ──
+  ok('H1 control ya 1120: tofauti haijabadilika baada ya tozo, malipo, makubaliano na msamaha (A, B)', eq(await h1(ceo), h0), `${h0} -> ${await h1(ceo)}`);
+
+  // ── D/E (Q4-3, owner er): a missing ASSET charged to staff leaves the books at its NBV ──
+  const assetCount = async (name, counted, charge) => {
+    sql("update asset_count_session set status = 'CANCELLED', cancelled_reason = 'E2E' where status in ('IN_PROGRESS','PENDING_APPROVAL')");
+    const s = await api('POST', '/api/v1/counting/assets/counts', mgr);
+    if (s.j?.status !== 'Success') throw new Error('asset start ' + JSON.stringify(s.j).slice(0, 300));
+    const sid = s.j.data.uid;
+    // the count is blind (expected not sent to the counter): read it from the copy
+    const rows = sql(`select uid || '|' || asset_name || '|' || expected_qty from asset_count_line where session_uid = '${sid}' and not is_deleted`).split(String.fromCharCode(10)).filter(Boolean).map((r) => r.split('|'));
+    for (const [luid, lname, exp] of rows) {
+      const q = lname === name ? counted : Number(exp);
+      const r = await api('PUT', `/api/v1/counting/assets/counts/${sid}/lines/${luid}`, mgr, { countedQty: q });
+      if (r.j?.status !== 'Success') throw new Error('asset line ' + JSON.stringify(r.j).slice(0, 300));
+    }
+    const c = await api('POST', `/api/v1/counting/assets/counts/${sid}/complete`, mgr);
+    if (c.j?.status !== 'Success') throw new Error('asset complete ' + JSON.stringify(c.j).slice(0, 300));
+    const line = { uid: rows.find((r) => r[1] === name)[0] };
+    await api('PUT', `/api/v1/counting/assets/counts/${sid}/lines/${line.uid}/explanation`, mgr, { reason: 'IMEPOTEA', note: 'E2E Q4-3' });
+    const a = await api('POST', `/api/v1/counting/assets/counts/${sid}/approve`, ceo, { decisions: [{ lineUid: line.uid, decision: 'CHARGE_STAFF', chargeAmount: charge, note: 'E2E Q4-3' }] });
+    if (a.j?.status !== 'Success') throw new Error('asset approve ' + JSON.stringify(a.j).slice(0, 300));
+    return { sid, line: line.uid, liab: sql(`select uid from staff_liability where asset_session_uid = '${sid}' and not is_deleted`) };
+  };
+  // D: 2 of 30 coca crates (capex 300,000; 12,000 depreciated - local copy), staff charged 30,000 > NBV
+  const CC = sql("select c.uid || '|' || c.amount || '|' || a.approved_qty from asset_item a join capital_expenditure c on c.uid = a.capital_expenditure_uid where a.name = 'Kreti za soda coca' and not coalesce(a.is_deleted,false)").split('|');
+  sql(`update capital_expenditure set accumulated_depreciation = 12000, current_asset_value = amount - 12000 where uid = '${CC[0]}'`);
+  const qty = Number(CC[2]); const grossD = Math.round(Number(CC[1]) * 2 / qty * 100) / 100; const accD = Math.round(12000 * 2 / qty * 100) / 100; const nbvD = Math.round((grossD - accD) * 100) / 100;
+  const d0 = { r: acct('1120'), o: acct('4900'), a: acct('1510'), dep: acct('1590') };
+  const D = await assetCount('Kreti za soda coca', qty - 2, 30000);
+  const gD = jl('ASSETCHG:' + D.line); const hD = header(D.liab);
+  ok('D1 tozo ya mali: Dr 1120 = NBV, Dr 1590 = uchakavu wa sehemu, Cr 1510 = gharama ya sehemu; HAKUNA 4900', eq(gD['1120'], nbvD) && eq(gD['1590'], accD) && eq(gD['1510'], -grossD) && gD['4900'] === undefined && eq(acct('4900'), d0.o), JSON.stringify({ gD, grossD, accD, nbvD }));
+  ok('D2 deni 30,000: ndoo cost = NBV, margin = 30,000 - NBV', eq(hD.amount, 30000) && eq(hD.cost, nbvD) && eq(hD.agreed, 0) && eq(hD.margin, 30000 - nbvD), JSON.stringify(hD));
+  const capD = sql(`select amount || '|' || accumulated_depreciation || '|' || removed_accumulated || '|' || status from capital_expenditure where uid = '${CC[0]}'`).split('|');
+  ok('D3 mali ya Capital imepungua: gharama - sehemu, uchakavu - sehemu (removed_accumulated), bado APPROVED', eq(capD[0], Number(CC[1]) - grossD) && eq(capD[1], 12000 - accD) && eq(capD[2], accD) && capD[3] === 'APPROVED', capD.join('|'));
+  ok('H2 control ya 1120 SAWA baada ya tozo ya mali', eq(await h1(ceo), h0), `${h0} -> ${await h1(ceo)}`);
+  const AGD = 2000;
+  const agD = await api('POST', `/api/liabilities/${D.liab}/margin-agreement`, ceo, { amount: AGD, documentRef: 'Daftari la mali uk. 3', note: 'Amekubali kwa maandishi kulipa sehemu ya ziada ya kreti' });
+  ok('D4 makubaliano kwa deni la mali: Dr 1120 / Cr 4900 = 2,000; H1 SAWA', agD.j?.status === 'Success' && eq(acct('4900') - d0.o, -AGD) && eq(await h1(ceo), h0), `${agD.j?.message} ${await h1(ceo)}`);
+  const payD = await api('POST', `/api/liabilities/${D.liab}/payments`, ceo, { amount: 30000, paymentType: 'CASH', paymentMethod: 'CASH', notes: 'E2E Q4-3 malipo yote' });
+  const lpD = lastPay(D.liab); const gPD = jl('LIABPAY:' + lpD[0]);
+  ok('D5 malipo yote: Cr 1120 = NBV + 2,000; Cr 4900 = ziada iliyobaki (inapolipwa); SETTLED; H1 SAWA', payD.j?.status === 'Success' && eq(gPD['1120'], -(nbvD + AGD)) && eq(gPD['4900'], -(30000 - nbvD - AGD))
+    && header(D.liab).status === 'SETTLED' && eq(acct('1120'), d0.r) && eq(acct('4900') - d0.o, -(30000 - nbvD)) && eq(await h1(ceo), h0), JSON.stringify({ gPD, st: header(D.liab).status }));
+  // E: the fridge (1 of 1, capex 1,200,000), staff charged 500,000 < NBV -> the rest is a loss (6900); waiver of the cost -> 6900
+  const FR = sql("select c.uid || '|' || c.amount from asset_item a join capital_expenditure c on c.uid = a.capital_expenditure_uid where a.name = 'Fridge' and not coalesce(a.is_deleted,false)").split('|');
+  const e0 = { r: acct('1120'), x: acct('6900'), s: acct('5100'), o: acct('4900') };
+  const E = await assetCount('Fridge', 0, 500000);
+  const gE = jl('ASSETCHG:' + E.line); const hE = header(E.liab);
+  ok('E1 mali yote (1/1), tozo < NBV: Dr 1120 500,000 + Dr 6900 NBV - 500,000 / Cr 1510 gharama; margin 0', eq(gE['1120'], 500000) && eq(gE['6900'], Number(FR[1]) - 500000) && eq(gE['1510'], -Number(FR[1]))
+    && eq(hE.cost, 500000) && eq(hE.margin, 0), JSON.stringify({ gE, hE }));
+  ok('E2 Fridge ya Capital: imeondolewa (LOST, disposal_date) - haitapata uchakavu tena', sql(`select disposal_method || '|' || (disposal_date is not null) || '|' || current_asset_value from capital_expenditure where uid = '${FR[0]}'`) === 'LOST|true|0.00');
+  const wE = await api('POST', `/api/liabilities/${E.liab}/payments`, ceo, { amount: 100000, paymentType: 'WAIVER_PARTIAL', paymentMethod: 'CASH', notes: 'E2E Q4-3 msamaha' });
+  const lwE = lastPay(E.liab); const gWE = jl('LIABPAY:' + lwE[0]);
+  ok('E3 msamaha wa deni la mali: Dr 6900 (hasara ya mali), si 5100; Cr 1120; H1 SAWA', wE.j?.status === 'Success' && eq(gWE['6900'], 100000) && gWE['5100'] === undefined && eq(gWE['1120'], -100000)
+    && eq(acct('5100'), e0.s) && eq(await h1(ceo), h0), JSON.stringify(gWE));
+  ok('E4 4900 haijaguswa na tozo ya Fridge; TB 0', eq(acct('4900'), e0.o) && eq(tb(), tb0), `${acct('4900') - e0.o} ${tb()}`);
   ok('C3 TB 0 mwisho', eq(tb(), tb0), `${tb()}`);
   console.log(`MATOKEO ${P}/${F}`);
   process.exit(F ? 1 : 0);
