@@ -6,6 +6,12 @@ import { GlService } from '../general-ledger/gl.service';
 import { CapitalMovement, Expenditure, ExpStatus, Loan, LoanCard, ReclassResult, n } from './capital.models';
 
 const CE = '/api/v1/capital-expenditure';
+
+/** (ew/ex) monthly cost rows left out of the operating report (GL keeps them; the bridge shows them). */
+export interface OpsExclusions {
+  excluded: { uid: string; referenceNumber: string; description: string; amount: number; reason: string | null; byName: string | null; at: string | null }[];
+  log: { referenceNumber: string; action: 'EXCLUDE' | 'INCLUDE'; reason: string; byName: string | null; at: string | null }[];
+}
 const CM = '/api/v1/capital-monitoring';
 
 type Raw = Record<string, unknown>;
@@ -111,6 +117,35 @@ export class CapitalService {
   }
 
   /** CANCELLED (approved → GL reversed) or REJECTED (pending). */
+  /** (ew/ex) leave a monthly cost row out of the operating report, or put it back - CAPITAL_APPROVE + a reason. GL untouched. */
+  async setOpsReportExclusion(uid: string, exclude: boolean, reason: string): Promise<void> {
+    await this.api.post(`${CE}/${uid}/ops-report-exclusion`, { exclude, reason });
+  }
+
+  /** (ew/ex) rows left out of the operating report now + every change (auditors: CAPITAL_READ). */
+  async opsReportExclusions(): Promise<OpsExclusions> {
+    const r = (await this.api.get<Raw | null>(`${CE}/ops-report-exclusions`)) ?? {};
+    const rows = (k: string) => (r[k] as Raw[] | undefined) ?? [];
+    return {
+      excluded: rows('excluded').map((x) => ({
+        uid: String(x['uid'] ?? ''),
+        referenceNumber: String(x['referenceNumber'] ?? ''),
+        description: String(x['description'] ?? ''),
+        amount: Number(x['amount'] ?? 0),
+        reason: x['reason'] == null ? null : String(x['reason']),
+        byName: x['byName'] == null ? null : String(x['byName']),
+        at: x['at'] == null ? null : String(x['at']),
+      })),
+      log: rows('log').map((x) => ({
+        referenceNumber: String(x['referenceNumber'] ?? ''),
+        action: String(x['action'] ?? '') as 'EXCLUDE' | 'INCLUDE',
+        reason: String(x['reason'] ?? ''),
+        byName: x['byName'] == null ? null : String(x['byName']),
+        at: x['at'] == null ? null : String(x['at']),
+      })),
+    };
+  }
+
   async setStatus(uid: string, newStatus: ExpStatus, reason: string): Promise<Expenditure> {
     const r = toExp(await this.api.patch<Raw>(`${CE}/${uid}/status`, {}, { params: { newStatus, reason } }));
     this.changed();

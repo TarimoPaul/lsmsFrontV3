@@ -10,7 +10,7 @@ import { Money, MoneyPipe } from '@shared/utils/money';
 import { ReasonDialog, ReasonDialogData } from '../reconciliation/reason-dialog';
 import { moneyAccountByMethod } from '../general-ledger/money-accounts';
 import { Expenditure, ExpStatus, SCHEDULED, STATUS, isPlanned, typeIcon, typeLabel } from './capital.models';
-import { AnnualPrepaid, CapitalService } from './capital.service';
+import { AnnualPrepaid, CapitalService, OpsExclusions } from './capital.service';
 
 type Filter = 'ALL' | 'SCHEDULED' | ExpStatus;
 const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
@@ -37,6 +37,9 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
       <lsms-search-bar [placeholder]="i18n.t('Search expense…', 'Tafuta gharama…')" [(value)]="searchText" (search)="q.set($event)" (cleared)="q.set('')" />
       <button lsmsButton="secondary" icon="event_repeat" (click)="budgets()">{{ i18n.t('Monthly budgets', 'Bajeti za kila mwezi') }}</button>
       <button lsmsButton="secondary" icon="savings" (click)="annualPrepaid()">{{ i18n.t('Annual expenses', 'Gharama za mwaka') }}</button>
+      @if (canSeeExcluded()) {
+        <button lsmsButton="secondary" icon="filter_alt_off" data-test="ops-excluded" (click)="showExcluded.set(!showExcluded())">{{ i18n.t('Left out of report', 'Nje ya ripoti') }} ({{ excludedCount() }})</button>
+      }
       @if (canSeeDebts()) {
         <button lsmsButton="secondary" icon="payments" (click)="liabilities()">{{ i18n.t('Expense debts', 'Madeni ya gharama') }}</button>
       }
@@ -45,6 +48,20 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
       }
     </div>
     <lsms-segmented-filter-bar [options]="filters()" [selected]="filter()" (selectedChange)="filter.set($event)" />
+
+    @if (showExcluded() && exclusions(); as x) {
+      <section class="excl" data-test="ops-excluded-list">
+        <h4>{{ i18n.t('Left out of the operating report (the GL keeps them)', 'Zilizoondolewa kwenye ripoti ya uendeshaji (GL inazo)') }}</h4>
+        @for (r of x.excluded; track r.uid) {
+          <div class="xr"><span class="cell-stack"><strong>{{ r.description }}</strong><small>{{ r.referenceNumber }} · {{ r.reason }} · {{ r.byName }} · {{ day(r.at) | date: 'dd MMM yyyy HH:mm' }}</small></span><b>{{ r.amount | money: { decimals: 0 } }}</b></div>
+        } @empty { <p class="muted">{{ i18n.t('None', 'Hakuna') }}</p> }
+        @if (x.log.length) {
+          <details><summary>{{ i18n.t('History', 'Historia') }} ({{ x.log.length }})</summary>
+            @for (l of x.log; track $index) { <small class="lg">{{ day(l.at) | date: 'dd/MM/yy HH:mm' }} · {{ l.byName }} · {{ l.action === 'EXCLUDE' ? i18n.t('left out', 'imeondolewa') : i18n.t('put back', 'imerudishwa') }} · {{ l.referenceNumber }} · {{ l.reason }}</small> }
+          </details>
+        }
+      </section>
+    }
 
     @if (pendingPicked().length) {
       <div class="bulkbar">
@@ -92,6 +109,7 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
           @let st = status(row);
           <span class="cell-stack">
             <span class="pill" [style.--pc]="st.color"><lsms-icon [name]="st.icon" [size]="13" />{{ i18n.isSwahili() ? st.sw : st.en }}</span>
+            @if (isExcluded(row)) { <span class="pill" data-test="ops-excluded-pill" style="--pc: var(--c-text-2)"><lsms-icon name="filter_alt_off" [size]="13" />{{ i18n.t('not in operating report', 'nje ya ripoti ya uendeshaji') }}</span> }
             <small>@if (planned(row)) { {{ i18n.t('posts on', 'itaandikwa') }} {{ day(row.transactionDate) | date: 'dd MMM yyyy' }} } @else if (row.status === 'APPROVED') { {{ row.approvedBy }} } @else if (row.createdBy) { {{ i18n.t('by', 'na') }} {{ row.createdBy }} }@if (row.statusChangeReason && row.status !== 'APPROVED' && row.status !== 'PENDING') { · {{ row.statusChangeReason }} }</small>
           </span>
         </ng-template>
@@ -103,6 +121,9 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
             }
             @if (row.status === 'APPROVED' && canApprove() && row.capitalType !== 'SHRINKAGE_LOSS') {
               <button lsmsButton="text" size="sm" icon="undo" [disabled]="!!busy()" (click)="cancel(row)">{{ i18n.t('Cancel', 'Batilisha') }}</button>
+            }
+            @if (canApprove() && row.expenditureType === 'MONTHLY_EXPENSE' && row.status !== 'CANCELLED' && row.status !== 'REJECTED') {
+              <button lsmsButton="text" size="sm" [icon]="isExcluded(row) ? 'filter_alt' : 'filter_alt_off'" data-test="ops-exclude" [disabled]="!!busy()" (click)="toggleExcluded(row)">{{ isExcluded(row) ? i18n.t('Back in report', 'Rudisha kwenye ripoti') : i18n.t('Leave out of report', 'Ondoa kwenye ripoti') }}</button>
             }
           </span>
         </ng-template>
@@ -125,7 +146,12 @@ const NOT_EXPENSES = new Set(['PRODUCT_CAPITAL', 'INVENTORY_CAPITAL']);
     .what { display: inline-flex; align-items: center; gap: 10px; }
     .ic { display: inline-flex; padding: 7px; border-radius: 10px; color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
     .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, transparent); }
-    .acts { display: inline-flex; gap: 4px; justify-content: flex-end; }
+    .acts { display: inline-flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+    .excl { border: 1px solid var(--c-border); border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+    .excl h4 { margin: 0; font-size: 0.86rem; }
+    .xr { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .lg { display: block; color: var(--c-text-2); }
+    .muted { color: var(--c-text-2); margin: 0; }
     .bulkbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c-success) 35%, var(--c-border)); background: color-mix(in srgb, var(--c-success) 6%, var(--c-surface)); font-size: 0.86rem; }
     .bulkbar > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
   `,
@@ -153,6 +179,12 @@ export class ExpensesTab {
   protected readonly canWrite = computed(() => this.auth.hasPermission('CAPITAL_WRITE'));
   protected readonly canApprove = computed(() => this.auth.hasPermission('CAPITAL_APPROVE'));
   protected readonly canSeeDebts = computed(() => this.auth.hasPermission('FINANCE_WRITE') || this.auth.hasPermission('FINANCE_READ'));
+  /** (ew/ex) the list of rows left out of the operating report is open to auditors (CAPITAL_READ). */
+  protected readonly canSeeExcluded = computed(() => this.auth.hasPermission('CAPITAL_READ') || this.auth.hasPermission('CAPITAL_APPROVE'));
+  protected readonly exclusions = signal<OpsExclusions | null>(null);
+  protected readonly showExcluded = signal(false);
+  protected readonly excludedCount = computed(() => this.exclusions()?.excluded.length ?? 0);
+  private readonly excludedUids = computed(() => new Set((this.exclusions()?.excluded ?? []).map((x) => x.uid)));
 
   /** Operating expenses only: stock purchases live in Purchases, assets have their own tab. */
   private readonly expenses = computed(() => (this.api.all.value() ?? []).filter((e) => !e.asset && !NOT_EXPENSES.has(e.capitalType)));
@@ -194,6 +226,7 @@ export class ExpensesTab {
   protected readonly rows = computed(() => {
     const q = this.q().trim().toLowerCase();
     const f = this.filter();
+    this.excludedUids(); // (ew) a new list when the left-out rows change, so the (OnPush) table redraws the pill and the button
     return this.expenses().filter(
       (e) =>
         (f === 'ALL' || (f === 'SCHEDULED' ? this.planned(e) : f === 'APPROVED' ? e.status === 'APPROVED' && !this.planned(e) : e.status === f)) &&
@@ -208,6 +241,39 @@ export class ExpensesTab {
 
   constructor() {
     void this.api.all.load();
+    void this.loadExclusions();
+  }
+
+  private async loadExclusions(): Promise<void> {
+    if (!this.canSeeExcluded()) return;
+    try {
+      this.exclusions.set(await this.api.opsReportExclusions());
+    } catch {
+      this.exclusions.set(null); // an older server without the endpoint: the page still works
+    }
+  }
+
+  protected isExcluded(e: Expenditure): boolean {
+    return this.excludedUids().has(e.uid);
+  }
+
+  /** (ew/ex) CAPITAL_APPROVE + a real reason; the row and its journal stay, only the operating report leaves it out. */
+  protected async toggleExcluded(e: Expenditure): Promise<void> {
+    const exclude = !this.isExcluded(e);
+    const reason = await this.dialogs.openAsync<string, ReasonDialogData>(ReasonDialog, {
+      size: 'sm',
+      data: {
+        title: exclude ? this.i18n.t('Leave out of the operating report', 'Ondoa kwenye ripoti ya uendeshaji') : this.i18n.t('Put back in the operating report', 'Rudisha kwenye ripoti ya uendeshaji'),
+        message: `${e.description} · ${Money.format(e.amount)}\n${this.i18n.t('The books (GL) are not changed; the bridge shows it on its own line.', 'Vitabu (GL) havibadiliki; daraja linaionyesha kwenye mstari wake.')}`,
+        label: this.i18n.t('Reason (required)', 'Sababu (inahitajika)'),
+        confirm: this.i18n.t('Confirm', 'Thibitisha'),
+        min: 10,
+        quality: true,
+      },
+    });
+    if (!reason) return;
+    await this.run(e, () => this.api.setOpsReportExclusion(e.uid, exclude, reason), exclude ? this.i18n.t('Left out of the operating report', 'Imeondolewa kwenye ripoti ya uendeshaji') : this.i18n.t('Back in the operating report', 'Imerudishwa kwenye ripoti ya uendeshaji'));
+    await this.loadExclusions();
   }
 
   protected async create(): Promise<void> {
