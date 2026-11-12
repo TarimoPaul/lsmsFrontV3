@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (gb)
+nimesoma hadi (gc)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -54,6 +54,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Usafi 9: §17 DISPOSED (check ya capital_expenditure.status) | — | — | — | BAADA (Q4-3) | — |
 | Usafi 9: UTF-16 build log | — | — | — | BADO | — |
 | F1 footer "Babuu Liquor Store" (eg) | V3 (config) | — | — | BADO | — |
+| Wasambazaji marudio (Takawedo ×3: takawedo/Takawedo/TAKAWEDO; Serengeti ×3: Serengeti/SERENGETI/NEEMA SERENGETI) + manunuzi 241 ya jina tu bila supplier_uid (Takawedo 234, Pepsi 7) | — | — | — | **BAADA — Desemba, baada ya D** (gc: usijenge sasa) | — |
 | §14, §16, ulinganisho wa benki wa mwezi | — | — | — | BAADA (Qff-1); "Salio kwa akaunti" (fj 4) ni toleo rahisi lake | — |
 
 ## 2. Hatua za data (mpangilio)

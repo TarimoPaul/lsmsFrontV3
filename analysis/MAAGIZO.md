@@ -1339,3 +1339,10 @@ Kisha usafi 9.
    na kama yapo baada ya 28/10. 🛑 kabla ya ANDIKA.
 3. Hakiki: Takawedo na Pepsi zipo kama wasambazaji waliosajiliwa? Ripoti tu, usisajili.
 Kisha usafi 9.
+
+## 2026-11-12 (gc)
+(gb) imekubaliwa: kipengele 1 sawa, 74b sawa.
+1. Eleza V3 9ec5bd9 kwenye t2-cutover (mbele 8 → 9) — mafaili gani, kwa nini, jaribio gani. Kama ni la bahati mbaya, ripoti; usirudishe nyuma bila mimi.
+2. Wasambazaji marudio (Takawedo ×3, Serengeti ×3) + manunuzi 241 ya jina tu: ANDIKA kwenye MUHTASARI kama
+   "Desemba, baada ya D" — usijenge sasa.
+Kisha usafi 9.
