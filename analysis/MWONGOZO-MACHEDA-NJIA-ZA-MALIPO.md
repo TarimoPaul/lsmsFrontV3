@@ -11,7 +11,7 @@
 
 | Kilichotokea | Kiasi |
 |---|---|
-| Sale kwenye POS, umechagua M-Pesa (reco inaonyesha mstari wa AUTO) | 10,000 |
+| Sale kwenye POS, umechagua M-Pesa — kuanzia 02/12 tu (reco inaonyesha mstari wa AUTO) | 10,000 |
 | Sale umeandika Taslimu, lakini mteja alilipa M-Pesa | 25,000 |
 | Deni la zamani limelipwa kwa M-Pesa | 5,000 |
 | **M-Pesa: simu inaonyesha pesa iliyoingia leo** | **40,000** → andika **40,000** (siyo 30,000, siyo 50,000) |
