@@ -1181,3 +1181,28 @@ Qff-2 = akaunti ya muda "Tofauti ya ufunguzi" (siyo 1000, siyo 3900 moja kwa moj
 Qff-3 = Chief atajibu (orodha ya akaunti zinazotumika).
 04/12: Loan A awamu 2 italipwa kwenye app (kabla ya D, Cr 1000) — hakuna kazi.
 Endelea C4 → 6e → Jagger → usafi 9 → kazi 10.
+
+## 2026-11-12 (fi)
+Kanuni mpya: KABLA ya kuuliza Chief swali lolote — thibitisha kwa data (prod kusoma tu, git ls-remote, MAAGIZO).
+Swali lililojibiwa au kazi iliyofanyika halirudiwi.
+Majibu yaliyokwisha tolewa (usiulize tena):
+ - Akaunti za pesa zinazotumika: NMB (1021), Selcom (1023), M-Pesa, Tigo — nyingine zote zizimwe kabla ya D.
+ - Jagger: Chief amebadilisha majina mwenyewe kwenye V3 — thibitisha kwenye prod (kusoma tu) na funga kipengele.
+ - Push: Chief ameshapush — thibitisha kwa git ls-remote.
+KAZI SASA — ukaguzi wa mwisho wa toleo 2 (MUHTASARI-TOLEO2.md), jedwali moja:
+ kila kipengele (G1–G5, kazi 2–5, 6a/6c/6e, KUPIMA, tozo, ripoti/exclude, H1, cutover/uhamisho, C4, usafi 9) →
+ tawi, commit, majaribio (namba), hali (IMEKAMILIKA / BADO / BAADA), na hatua za data za baada ya deploy (74, 85, 89, 60).
+ Vilivyobaki "BADO": vimalize kwanza.
+ Kisha: unganisha t2-* zote → release/2.5.0 (backend) na release/3.3.0 (V3); lango kamili kwenye nakala safi
+ (suite + PG + c2 + run-all E2E, Flyway 134→150); script ya deploy (kama 76) + rollback; staging; prod 02/12.
+Ripoti ifuate muundo: nimesoma hadi (fi) → muhtasari → jedwali la origin.
+
+## 2026-11-12 (fj)
+Sahihisho la (fi): Chief — NJIA ZOTE ZA MALIPO ZIBAKI WAZI (benki zote, mitandao yote). Usizime akaunti yoyote.
+Sababu: msambazaji anaweza kudai kulipwa kupitia CRDB n.k.; mtumiaji anachagua chanzo halisi.
+Kinga badala ya kuzima:
+ 1. Hatua 60: kila akaunti ya benki/simu iliyo wazi inapata salio la ufunguzi (0 ikiwa haitumiki) — ripoti inaorodhesha zote.
+ 2. Orodha ya chanzo (C3, reco, Transfer): zinazotumika zaidi siku 30 juu (NMB, Selcom, M-Pesa, Tigo kwa sasa).
+ 3. Akaunti isiyotumika > siku 60: dialog ya uthibitisho "haijatumika tangu <tarehe> — una uhakika?".
+ 4. Ukurasa rahisi wa "Salio kwa akaunti" (mwisho wa mwezi) kwa Chief kulinganisha kwa macho na taarifa — ikiwa ≤ nusu siku; vinginevyo BAADA.
+Endelea na MUHTASARI-TOLEO2 (fi).

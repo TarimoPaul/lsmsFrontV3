@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Majaribio ya hatua 60 (ufunguzi + D) kwenye Docker-local: nakala safi ya dump 29/10, backend t2-cutover 7140df4 (Flyway 150).
 # (fg) tofauti ya pesa taslimu -> 2910 'Tofauti ya ufunguzi' (akaunti ya muda), bila uamuzi wa kuandika.
+# (fj) akaunti ZOTE 9 za benki/simu zinapata salio la ufunguzi (CRDB 25,000 hapa; nyingine zisizotajwa = 0).
 # Nakala ya kutupa tu. D = leo (journal haiwezi kuwa ya baadaye).
 S="/d/MY PROJECT/DUKA PROJECT/LsmsVersion3/lsmsFrontV3/analysis/steps/60-ufunguzi.sh"
 export L60_DIR="/d/MY PROJECT/DUKA PROJECT/Lsms/Lsms-t2-hesabu/deploy/local" L60_PROJ=lsms-local L60_BASE=http://127.0.0.1:18090
@@ -16,14 +17,15 @@ HASH=$(python -c "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), b
 q "update users set password='$HASH', status='ACTIVE', is_locked=false where email='$CEO'" >/dev/null
 q "update gl_config set bank_cutover_date=null, posting_enabled=true" >/dev/null
 TODAY=$(date +%F)
-export L60_D=$TODAY L60_NMB=1500000 L60_SELCOM=300000 L60_MPESA=200000 L60_TIGO=50000 L60_TASLIMU=900000 L60_BAHASHA=120000
+export L60_D=$TODAY L60_NMB=1500000 L60_SELCOM=300000 L60_MPESA=200000 L60_TIGO=50000 L60_CRDB=25000 L60_TASLIMU=900000 L60_BAHASHA=120000
 run(){ printf '%s\n' "$CEO" "${1:-$PW}" | bash "$S" andika 2>&1; }
 T0=$(tb); C1000=$(dc 1000); C1030=$(dc 1030); C1021=$(dc 1021); C1023=$(dc 1023); C1031=$(dc 1031)
-MOVE="((1500000-($C1021))+(300000-($C1023))+(200000-($C1030))+(50000-($C1031)))"
+C1020=$(dc 1020); C1022=$(dc 1022); C1024=$(dc 1024); C1032=$(dc 1032); C1033=$(dc 1033)
+MOVE="((1500000-($C1021))+(300000-($C1023))+(200000-($C1030))+(50000-($C1031))+(25000-($C1020))-($C1022)-($C1024)-($C1032)-($C1033))"
 
 o=$(bash "$S" kagua 2>&1); echo "$o" > /tmp/t60-kagua.out
 DIFF=$(echo "$o" | sed -n 's/^TOFAUTI_YA_UFUNGUZI \([-0-9.]*\).*/\1/p')
-ok "K1 kagua: akaunti 4, 1030 ya kabla ($C1030) inawekwa = halisi, tofauti -> 2910, MWISHO" '[[ "$o" == *"1030 MPESA: GL $C1030 -> halisi 200000 -> journal"* && "$o" == *"1021 NMB: GL $C1021 -> halisi 1500000"* && -n "$DIFF" && "$o" == *"1000 / 2910 Tofauti ya ufunguzi"* && "$o" == *"---60_KAGUA_MWISHO---"* ]]'
+ok "K1 kagua: akaunti 4, 1030 ya kabla ($C1030) inawekwa = halisi, tofauti -> 2910, MWISHO" '[[ "$o" == *"1030 MPESA: GL $C1030 -> halisi 200000 -> journal"* && "$o" == *"1021 NMB: GL $C1021 -> halisi 1500000"* && -n "$DIFF" && "$o" == *"1000 / 2910 Tofauti ya ufunguzi"* && "$o" == *"1020 CRDB: GL $C1020 -> halisi 25000"* && "$o" == *"1033 AIRTEL: GL $C1033 -> halisi 0"* && "$o" == *"akaunti ZOTE 9"* && "$o" == *"---60_KAGUA_MWISHO---"* ]]'
 ok "K2 tofauti = taslimu - (1000 - benki/simu mpya)" '[ "$(q "select (900000 - (($C1000) - $MOVE))::numeric(19,2) = $DIFF")" = t ]'
 n0=$(nj)
 q "update gl_account set is_active=false where account_code='2910'" >/dev/null
@@ -42,7 +44,7 @@ q "update journal_entry set is_deleted=true where reference_number='T60-A6 ghara
 T0=$(tb)
 
 o=$(run); echo "$o" | tail -10
-ok "W1 andika: D = leo, akaunti = halisi, 1000 = taslimu 900,000, 2910 = tofauti, TB ileile" '[[ "$o" == *"journal ya ufunguzi SAWA"* && "$o" == *"journal ya tofauti SAWA"* && "$o" == *"2910 Tofauti ya ufunguzi: $DIFF"* && "$o" == *"---60_MWISHO---"* ]] && [ "$(cut)" = "$TODAY" ] && [ "$(dc 1021)" = 1500000.00 ] && [ "$(dc 1023)" = 300000.00 ] && [ "$(dc 1030)" = 200000.00 ] && [ "$(dc 1031)" = 50000.00 ] && [ "$(dc 1000)" = 900000.00 ] && [ "$(q "select (-($(dc 2910)))::numeric(19,2) = ($DIFF)::numeric(19,2)")" = t ] && [ "$(tb)" = "$T0" ]'
+ok "W1 andika: D = leo, akaunti = halisi, 1000 = taslimu 900,000, 2910 = tofauti, TB ileile" '[[ "$o" == *"journal ya ufunguzi SAWA"* && "$o" == *"journal ya tofauti SAWA"* && "$o" == *"2910 Tofauti ya ufunguzi: $DIFF"* && "$o" == *"---60_MWISHO---"* ]] && [ "$(cut)" = "$TODAY" ] && [ "$(dc 1021)" = 1500000.00 ] && [ "$(dc 1023)" = 300000.00 ] && [ "$(dc 1030)" = 200000.00 ] && [ "$(dc 1031)" = 50000.00 ] && [ "$(dc 1020)" = 25000.00 ] && [ "$(dc 1022)" = 0.00 ] && [ "$(dc 1032)" = 0.00 ] && [ "$(dc 1033)" = 0.00 ] && [ "$(dc 1000)" = 900000.00 ] && [ "$(q "select (-($(dc 2910)))::numeric(19,2) = ($DIFF)::numeric(19,2)")" = t ] && [ "$(tb)" = "$T0" ]'
 ok "W2 journal 2 (UFUNGUZI-60, UFUNGUZI-60-TOFAUTI kwenda 2910 tu), tarehe D" '[ "$(q "select count(*) from journal_entry e where e.reference_number in ('"'"'UFUNGUZI-60'"'"','"'"'UFUNGUZI-60-TOFAUTI'"'"') and e.entry_date=date '"'"'$TODAY'"'"' and $LIVE")" = 2 ] && [ "$(q "select string_agg(distinct l.account_code,'"'"','"'"' order by l.account_code) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where e.reference_number='"'"'UFUNGUZI-60-TOFAUTI'"'"' and $LIVE")" = "1000,2910" ]'
 ok "W3 3900 haijaguswa na hatua 60" '[ "$(q "select count(*) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where e.reference_number like '"'"'UFUNGUZI-60%'"'"' and l.account_code='"'"'3900'"'"'")" = 0 ]'
 n2=$(nj); o=$(run); ok "W4 mara ya pili: ufunguzi unarukwa, CUTOVER_TAYARI, hakuna journal mpya" '[[ "$o" == *"IPO TAYARI"* && "$o" == *"CUTOVER_TAYARI"*"---60_MWISHO---"* || "$o" == *"IPO TAYARI"*"---60_MWISHO---"* ]] && [ "$(nj)" = "$n2" ]'

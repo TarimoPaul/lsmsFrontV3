@@ -5,14 +5,14 @@ PASS A2 D si leo -> SIMAMA
 PASS A3 password mbaya -> SIMAMA
 PASS A4 kiasi si halali -> SIMAMA
 PASS A6 journal ya pesa ya siku D ipo -> SIMAMA
-  MWISHO_60
---- BAADA
-  1021 NMB: 1500000
-  1023 SELCOM: 300000
-  1030 MPESA: 200000
   1031 TIGO: 50000
+  1020 CRDB: 25000
+  1022 NBC: 0
+  1024 PCB: 0
+  1032 HALOPESA: 0
+  1033 AIRTEL: 0
   1000: 900000.00   (taslimu halisi 900000)
-  2910 Tofauti ya ufunguzi: -12136508.39 (+ = Cr, pesa nyingi) - chambua kabla ya 2026-12-12; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO)
+  2910 Tofauti ya ufunguzi: -12111508.39 (+ = Cr, pesa nyingi) - chambua kabla ya 2026-12-12; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO)
   TB: 0.00   cutover: 2026-11-12
 ---60_MWISHO---
 PASS W1 andika: D = leo, akaunti = halisi, 1000 = taslimu 900,000, 2910 = tofauti, TB ileile
@@ -20,12 +20,12 @@ PASS W2 journal 2 (UFUNGUZI-60, UFUNGUZI-60-TOFAUTI kwenda 2910 tu), tarehe D
 PASS W3 3900 haijaguswa na hatua 60
 PASS W4 mara ya pili: ufunguzi unarukwa, CUTOVER_TAYARI, hakuna journal mpya
 PASS W5 (fe) baada ya ufunguzi: Selcom 300k -> NMB ada 2k: 1023 = 0, 1021 = 1,798,000, TB 0
-  1023 SELCOM: 300000
-  1030 MPESA: 200000
-  1031 TIGO: 50000
-  1000: 13036508.39   (taslimu halisi 13036508.39)
+  1024 PCB: 0
+  1032 HALOPESA: 0
+  1033 AIRTEL: 0
+  1000: 13011508.39   (taslimu halisi 13011508.39)
   TB: 0.00   cutover: 2026-11-12
 ---60_MWISHO---
-PASS W6 tofauti 0 -> journal 1 tu, 2910 haiguswi, 1000 = 13036508.39, D = leo, TB ileile
+PASS W6 tofauti 0 -> journal 1 tu, 2910 haiguswi, 1000 = 13011508.39, D = leo, TB ileile
 PASS W7 maelezo ni ASCII
 MWISHO PASS 14 FAIL 0

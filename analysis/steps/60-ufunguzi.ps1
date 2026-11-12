@@ -1,7 +1,7 @@
 # HATUA 60 (fd/fe/ff) - PROD, SIKU YA D (asubuhi, kabla ya duka kufunguliwa; BAADA ya toleo 2 kufika prod). Endesha kupitia 60-ufunguzi.cmd:
 #   60-ufunguzi.cmd kagua     kusoma tu -> analysis\steps\60-kagua.log  -> SOMA (tofauti ya ufunguzi?) kisha uamue
 #   60-ufunguzi.cmd andika    andika UFUNGUZI-60 -> email + password ya CEO -> journal ya ufunguzi -> (tofauti) -> D -> 60-andika.log
-# Utaulizwa: salio la taarifa la NMB, Selcom, M-Pesa, Tigo (jioni ya jana), pesa taslimu YOTE (droo + sefu + bahasha), bahasha,
+# Utaulizwa: salio la taarifa la NMB, Selcom, M-Pesa, Tigo (jioni ya jana), CRDB/NBC/PCB/Halopesa/Airtel (Enter = 0), pesa taslimu YOTE (droo + sefu + bahasha), bahasha,
 # D = tarehe ya leo (inawekwa na script). Tofauti ya pesa taslimu inakwenda 2910 "Tofauti ya ufunguzi" (fg, akaunti ya muda, siku 30).
 param([string]$Mode = '')
 $ErrorActionPreference = 'Continue'
@@ -19,6 +19,14 @@ function Kiasi([string]$swali) {
         Write-Host '  kiasi si halali (tarakimu tu, k.m. 1250000)'
     }
 }
+function Kiasi0([string]$swali) {
+    while ($true) {
+        $v = (Read-Host $swali).Trim() -replace '[,\s]', ''
+        if ($v -eq '') { return '0' }
+        if ($v -match '^\d+(\.\d{1,2})?$') { return $v }
+        Write-Host '  kiasi si halali (tarakimu tu, au Enter = 0)'
+    }
+}
 L "===== 60 $Mode $(Get-Date -Format 'yyyy-MM-dd') ====="
 $D = Get-Date -Format 'yyyy-MM-dd'
 $v = [ordered]@{
@@ -26,6 +34,12 @@ $v = [ordered]@{
     L60_SELCOM  = Kiasi 'Salio la Selcom'
     L60_MPESA   = Kiasi 'Salio la M-Pesa'
     L60_TIGO    = Kiasi 'Salio la Tigo Pesa'
+    # (fj) akaunti nyingine zote ziko wazi: salio lao la ufunguzi (Enter = 0, haitumiki)
+    L60_CRDB     = Kiasi0 'Salio la CRDB (Enter = 0)'
+    L60_NBC      = Kiasi0 'Salio la NBC (Enter = 0)'
+    L60_PCB      = Kiasi0 'Salio la PCB (Enter = 0)'
+    L60_HALOPESA = Kiasi0 'Salio la Halopesa (Enter = 0)'
+    L60_AIRTEL   = Kiasi0 'Salio la Airtel Money (Enter = 0)'
     L60_TASLIMU = Kiasi 'Pesa taslimu YOTE (droo + sefu + bahasha)'
     L60_BAHASHA = Kiasi 'Kati ya hizo, bahasha ya akiba'
 }

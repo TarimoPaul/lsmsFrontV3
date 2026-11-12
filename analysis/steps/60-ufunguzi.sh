@@ -3,7 +3,8 @@
 #   bash 60-ufunguzi.sh kagua    KUSOMA TU: salio la GL kabla ya D, journal itakayoandikwa, tofauti ya pesa taslimu, kinga zote
 #   bash 60-ufunguzi.sh andika   stdin = email, password ya CEO (FINANCE_WRITE) -> journal ya ufunguzi -> (tofauti) -> D
 # Thamani (env, TZS, bila koma): L60_D (= LEO, asubuhi kabla ya duka kufunguliwa), L60_NMB, L60_SELCOM, L60_MPESA, L60_TIGO
-#   (salio la taarifa za benki/simu la jioni ya jana), L60_TASLIMU (pesa taslimu YOTE: droo + sefu + bahasha), L60_BAHASHA
+#   (salio la taarifa za benki/simu la jioni ya jana); (fj) akaunti nyingine zote ziko WAZI na zinapata salio la ufunguzi pia:
+#   L60_CRDB, L60_NBC, L60_PCB, L60_HALOPESA, L60_AIRTEL (haijatajwa = 0, yaani haitumiki); L60_TASLIMU (pesa taslimu YOTE: droo + sefu + bahasha), L60_BAHASHA
 #   (sehemu ya TASLIMU iliyo bahasha ya akiba - taarifa tu).
 # Kanuni (fd): kabla ya D, NMB/Selcom/simu ni sehemu ya 1000. Ufunguzi UNAWEKA kila akaunti = salio halisi (tofauti tu inaandikwa,
 #   k.m. 1030 tayari ina 163,000 ya mauzo ya M-Pesa -> journal ni salio halisi - 163,000), na kiasi hicho kinatoka 1000:
@@ -25,9 +26,9 @@ die() { echo "SIYO: $*"; echo "---60_IMESHINDWA---"; exit 1; }
 TODAY="$(date +%F)"
 D="${L60_D:-}"
 MARK="UFUNGUZI-60"; MARKT="UFUNGUZI-60-TOFAUTI"; TOF=2910
-# akaunti zinazotumika (fe): NMB 1021, Selcom 1023, M-Pesa 1030, Tigo 1031
-ACC=(1021 1023 1030 1031); NAME=(NMB SELCOM MPESA TIGO)
-OTHER="'1020','1022','1024','1032','1033'"
+# (fj) akaunti ZOTE za benki/simu (hakuna inayozimwa): zinazotumika (fe) NMB 1021, Selcom 1023, M-Pesa 1030, Tigo 1031 - lazima
+# zitajwe; CRDB 1020, NBC 1022, PCB 1024, Halopesa 1032, Airtel 1033 - haijatajwa = 0 (ripoti inaorodhesha zote)
+ACC=(1021 1023 1030 1031 1020 1022 1024 1032 1033); NAME=(NMB SELCOM MPESA TIGO CRDB NBC PCB HALOPESA AIRTEL)
 num() { [[ "${1:-}" =~ ^[0-9]+(\.[0-9]{1,2})?$ ]]; }
 LIVE="e.status='POSTED' and not coalesce(e.is_deleted,false)"
 # salio la GL KABLA ya D (entry_date < D)
@@ -46,17 +47,17 @@ mj() { q "select count(distinct e.uid)||' | '||coalesce((select string_agg(x, ',
 [ "$MODE" = kagua ] || [ "$MODE" = andika ] || { echo "MATUMIZI: $0 kagua | andika   (env L60_D, L60_NMB, L60_SELCOM, L60_MPESA, L60_TIGO, L60_TASLIMU, L60_BAHASHA)"; exit 2; }
 echo "=== 60 $(echo "$MODE" | tr a-z A-Z) $(date '+%F %T')"
 [[ "$D" =~ ^20[0-9]{2}-[01][0-9]-[0-3][0-9]$ ]] && date -d "$D" +%F >/dev/null 2>&1 || die "L60_D si tarehe YYYY-MM-DD ([$D])"
-V=("${L60_NMB:-}" "${L60_SELCOM:-}" "${L60_MPESA:-}" "${L60_TIGO:-}")
-for i in 0 1 2 3; do num "${V[$i]}" || die "L60_${NAME[$i]} si kiasi halali ([${V[$i]}]) - salio la taarifa, bila koma"; done
+V=("${L60_NMB:-}" "${L60_SELCOM:-}" "${L60_MPESA:-}" "${L60_TIGO:-}" "${L60_CRDB:-0}" "${L60_NBC:-0}" "${L60_PCB:-0}" "${L60_HALOPESA:-0}" "${L60_AIRTEL:-0}")
+for i in "${!ACC[@]}"; do num "${V[$i]}" || die "L60_${NAME[$i]} si kiasi halali ([${V[$i]}]) - salio la taarifa, bila koma"; done
 num "${L60_TASLIMU:-}" || die "L60_TASLIMU si kiasi halali ([${L60_TASLIMU:-}]) - pesa taslimu yote (droo + sefu + bahasha)"
 BAH="${L60_BAHASHA:-0}"; num "$BAH" || die "L60_BAHASHA si kiasi halali ([$BAH])"
 [ "$(cond "$BAH <= ${L60_TASLIMU}")" = t ] || die "BAHASHA ($BAH) > TASLIMU (${L60_TASLIMU}) - bahasha ni sehemu ya pesa taslimu"
 
 CUR=$(cutover); PER=$(period); T0=$(tb)
 echo "D: $D   leo: $TODAY   cutover sasa: ${CUR:-HAIJAWEKWA}   kipindi cha D: $PER   TB: $T0"
-echo "--- salio la GL kabla ya D (entry_date < $D) -> salio halisi -> journal"
+echo "--- salio la GL kabla ya D (entry_date < $D) -> salio halisi -> journal (akaunti ZOTE ${#ACC[@]} za benki/simu)"
 SUM=0; LINES=""; DESC=""
-for i in 0 1 2 3; do
+for i in "${!ACC[@]}"; do
   a=${ACC[$i]}; b=$(bal "$a"); delta=$(calc "${V[$i]} - $b")
   echo "  $a ${NAME[$i]}: GL $b -> halisi ${V[$i]} -> journal $delta"
   SUM=$(calc "$SUM + $delta")
@@ -78,11 +79,9 @@ if [ "$(cond "$DIFF <> 0")" = t ]; then
   echo "  -> journal ya pili $MARKT: 1000 / $TOF Tofauti ya ufunguzi (akaunti ya muda; chambua ndani ya siku 30)"
   [ "$TACT" = 1 ] || echo "  SIYO: akaunti $TOF haipo (toleo 2 / V150 halijafika?) - ANDIKA itakataa"
 fi
-echo "--- akaunti nyingine za benki/simu (lazima 0 kabla ya D):"
-q "select l.account_code||' '||sum(l.debit_amount-l.credit_amount)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
-   where l.account_code in ($OTHER) and $LIVE and e.entry_date < date '$D' group by l.account_code having sum(l.debit_amount-l.credit_amount) <> 0" | sed 's/^/  SI-SIFURI /'
-OTH=$(q "select count(*) from (select 1 from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where l.account_code in ($OTHER) and $LIVE and e.entry_date < date '$D' group by l.account_code having sum(l.debit_amount-l.credit_amount) <> 0) x")
-echo "  zisizo 0: $OTH"
+CODES=$(printf "'%s'," "${ACC[@]}"); CODES=${CODES%,}
+NACT=$(q "select count(*) from gl_account where account_code in ('1000',$CODES) and is_active")
+echo "--- akaunti za pesa zilizo wazi: $NACT / $(( ${#ACC[@]} + 1 ))   (fj: zote zinabaki wazi)"
 echo "  1010 (Petty Cash Float): $(bal 1010)   (6d haijajengwa: bahasha ni sehemu ya 1000)"
 echo "--- journal za siku D au baadaye zinazogusa pesa (zisizo mauzo) - lazima 0 kabla ya kuweka D:"
 AFT="e.entry_date >= date '$D' and $LIVE and e.reference_type not like 'SALE%' and coalesce(e.reference_number,'') not in ('$MARK','$MARKT')
@@ -100,10 +99,9 @@ IFS= read -r EMAIL || true; IFS= read -r PASS || true; EMAIL=${EMAIL%$'\r'}; PAS
 [ "$D" = "$TODAY" ] || die "D ($D) lazima iwe LEO ($TODAY): journal haiwezi kuwa ya baadaye, na D ya zamani ingeacha reco/malipo ya katikati bila kuhamishwa"
 [ -z "$CUR" ] || [ "$CUR" = "$D" ] || die "cutover tayari ni $CUR (si $D) - haibadilishwi"
 [ "$PER" = CLOSED ] || [ "$PER" = LOCKED ] && die "mwezi wa D umefungwa ($PER)"
-[ "$OTH" = 0 ] || die "akaunti za benki/simu zisizotumika zina salio ($OTH) - muulize Chief kabla ya kuendelea"
 [ "$NAFT" = 0 ] || die "kuna journal $NAFT za pesa za siku D au baadaye (zisizo mauzo) - zingeandikwa kwa kanuni ya kabla ya D"
 [ "$TACT" = 1 ] || die "akaunti $TOF Tofauti ya ufunguzi haipo au haitumiki (V150 ya toleo 2) - HAKUNA kilichoandikwa"
-[ "$(q "select count(*) from gl_account where account_code in ('1000','1021','1023','1030','1031') and is_active")" = 5 ] || die "akaunti 1000/1021/1023/1030/1031 haipo au haitumiki"
+[ "$NACT" = $(( ${#ACC[@]} + 1 )) ] || die "akaunti ya pesa haipo au imezimwa ($NACT / $(( ${#ACC[@]} + 1 ))) - (fj) zote lazima ziwe wazi"
 
 jesc() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
 api() { HC=$(curl -s -o "$T/b" -w '%{http_code}' --max-time 60 -X POST -H 'Content-Type: application/json' -H 'Host: elikom.co.tz' ${TOKEN:+-H "Authorization: Bearer $TOKEN"} --data "$2" "$BASE$1"); }
@@ -135,7 +133,7 @@ if [ "$(cond "$DIFF <> 0")" = t ]; then
   fi
 fi
 # 3. kuhakiki kabla ya D: kila akaunti (kabla ya D + journal za ufunguzi) = halisi
-for i in 0 1 2 3; do
+for i in "${!ACC[@]}"; do
   a=${ACC[$i]}
   got=$(q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
      where l.account_code='$a' and $LIVE and (e.entry_date < date '$D' or e.reference_number in ('$MARK','$MARKT'))")
@@ -151,7 +149,7 @@ docker compose -p "$PROJ" exec -T -e "D=$D" postgres sh -c 'psql -X -q -At -v ON
 RC=$?; sed 's/^/  /' "$T/d"
 [ "$RC" = 0 ] && grep -qx "CUTOVER_SASA $D" "$T/d" || die "kuweka D kumeshindwa (psql $RC) - ufunguzi umeandikwa; endesha tena baada ya kurekebisha (ufunguzi utarukwa)"
 echo "--- BAADA"
-for i in 0 1 2 3; do echo "  ${ACC[$i]} ${NAME[$i]}: ${V[$i]}"; done
+for i in "${!ACC[@]}"; do echo "  ${ACC[$i]} ${NAME[$i]}: ${V[$i]}"; done
 echo "  1000: $(q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
      where l.account_code='1000' and $LIVE and (e.entry_date < date '$D' or e.reference_number in ('$MARK','$MARKT'))")   (taslimu halisi ${L60_TASLIMU})"
 [ "$(cond "$DIFF <> 0")" = t ] && echo "  $TOF Tofauti ya ufunguzi: $DIFF (+ = Cr, pesa nyingi) - chambua kabla ya $(date -d "$D +30 days" +%F); kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO)"
