@@ -211,3 +211,8 @@ Code (chanzo kimeonekana 09/11):
   Qff-2: tofauti ya ufunguzi -> 2910 "Tofauti ya ufunguzi" (V150, t2-cutover 7140df4), akaunti ya muda; siku 30 chambua, kisichoelezeka -> 3900 (CEO + Executive CEO).
   Hatua 60 inaandika 2910 moja kwa moja (L60_TOFAUTI imeondolewa); t60 14/0 kwenye nakala safi (Flyway 150). Qff-3 inasubiri Chief.
   Ufuatao: C4 -> 6e -> Jagger -> usafi 9 -> kazi 10.
+- (fg 12/11) **C4 IMEKAMILIKA** (swichi BADO IMEZIMWA):
+  - Kosa la pesa (fa) lililopatikana: marejesho yakiidhinishwa SIKU INAYOFUATA, mauzo ya reco ya siku ya mauzo yalipungua (reco iliyo wazi -> ziada ya uongo,
+    inaganda kwenye snapshot na GL ya kufunga siku; iliyoidhinishwa -> "drift" ya uongo). Rekebisho: backend t2-marejesho a268e3f.
+  - e2e marejesho_api R8 (V3 t2-cutover 5bfb448): kabla a33df5a 28/10 1,356,100 -> 1,338,100 (FAIL); baada 14/0. UI marejesho_e2e (326a90f): 4/0 swichi ON, 1/0 OFF; API OFF 1/0.
+  - unit (Reconciliation*, SalesReturn*): 663 / 0 fail.
