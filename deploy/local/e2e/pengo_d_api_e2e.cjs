@@ -53,6 +53,22 @@ const msg = (r) => String(r.j?.message || '');
   console.log(`NA TRANSFER:  1023 ${bal('1023')} (${s3})  1021 ${bal('1021')} (${n3})`);
   ok('P3 na Transfer Selcom -> NMB 10,000: 1023 +0, 1021 -40,000 -> vitabu = hali halisi', tr.j?.status === 'Success' && s3 === 0 && n3 === -40000, `${msg(tr)} 1023 ${s3} 1021 ${n3}`);
 
+  // P4 (fv) the seller's reco has drawer cash 300,000 taken to NMB (written once, by him): a CEO Transfer 1000 -> 1021 of
+  //    300,000 the same day warns "may already be on the reco"; Selcom -> NMB (nobody else writes it) gets no warning
+  sql(`insert into reconciliation_cash_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, entry_type, bank_name, amount, deposit_date, notes) values ('${ru}-nmb', now(), true, false, true, '${ru}', 'BANK_DEPOSIT', 'NMB', 300000, '${DAY}', 'cash ya mauzo')`);
+  const dupQ = (from, to, amount) => api('GET', `/api/v1/gl/transfers/possible-duplicates?from=${from}&to=${to}&amount=${amount}&date=${DAY}`, ceo);
+  const d1 = await dupQ('1000', '1021', 300000), d2 = await dupQ('1023', '1021', 10000), d3 = await dupQ('1000', '1021', 250000), d4 = await dupQ('1030', '1021', 300000);
+  ok('P4 onyo: Transfer 1000 -> NMB 300,000 = amana ya reco ya siku ile -> "Huenda imeshaandikwa" (RECO); Selcom -> NMB, kiasi kingine, 1030 -> NMB: hakuna onyo',
+    d1.j?.data?.length === 1 && d1.j.data[0].source === 'RECO' && d1.j.data[0].day === DAY && d2.j?.data?.length === 0 && d3.j?.data?.length === 0 && d4.j?.data?.length === 0,
+    JSON.stringify([d1.j, d2.j?.data, d3.j?.data, d4.j?.data]).slice(0, 300));
+
+  // P5 (fw) lipa namba moved by hand to a bank: Transfer 1030 -> NMB 100,000 with charges 1,500 -> 1030 -100,000, 1021 +98,500, 6130 +1,500
+  const c0 = { m: bal('1030'), n: bal('1021'), f: bal('6130') };
+  const lp = await api('POST', '/api/v1/gl/transfers', ceo, { fromAccount: '1030', toAccount: '1021', amount: 100000, fee: 1500, date: DAY, reason: 'Lipa namba kwenda NMB kwa mkono' });
+  ok('P5 Transfer lipa namba 1030 -> NMB 100,000 makato 1,500: 1030 -100,000, 1021 +98,500, 6130 +1,500', lp.j?.status === 'Success'
+    && bal('1030') - c0.m === -100000 && bal('1021') - c0.n === 98500 && bal('6130') - c0.f === 1500,
+    `${msg(lp)} 1030 ${bal('1030') - c0.m} 1021 ${bal('1021') - c0.n} 6130 ${bal('6130') - c0.f}`);
+
   console.log(`MWISHO PASS ${P} FAIL ${F}`);
   process.exit(F ? 1 : 0);
 })().catch((e) => { console.log('FAIL exception', e.message); process.exit(1); });

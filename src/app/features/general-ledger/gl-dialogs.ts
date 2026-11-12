@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 
 import { ApiError } from '@core/api/api.types';
 import { LanguageService } from '@core/i18n/language.service';
-import { Button, DialogShell, Icon, MoneyInput, SelectField, SelectOption, Skeleton } from '@shared/ui';
+import { Button, DialogService, DialogShell, Icon, MoneyInput, SelectField, SelectOption, Skeleton } from '@shared/ui';
 import { parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { AccountLedger, ControlCheck, eventLabel } from './gl.models';
@@ -290,6 +290,7 @@ export class TransferDialog {
   private readonly gl = inject(GlService);
 
   private readonly usage = inject(MoneyUsageService);
+  private readonly dialogs = inject(DialogService);
   /** (fj) most used in the last 30 days first. */
   protected readonly accounts = computed(() => this.usage.rank(MONEY_ACCOUNTS, (a) => a.code));
   private async ok(a: MoneyAccount): Promise<boolean> {
@@ -319,6 +320,20 @@ export class TransferDialog {
     this.saving.set(true);
     this.error.set(null);
     try {
+      // (fv) warn, never block: drawer -> bank money is written once, by whoever took it (reco / Safe Box)
+      const dup = await this.gl.possibleDuplicates(this.from(), this.to(), parse(this.amount()), this.date()).catch(() => []);
+      if (dup.length) {
+        const t = (en: string, sw: string) => this.i18n.t(en, sw);
+        const d = dup[0];
+        const where = d.source === 'RECO' ? t(`the reco of ${d.day}`, `reco ya ${d.day}`) : t(`the safe box deposit of ${d.day}`, `amana ya sefu ya ${d.day}`);
+        const go = await this.dialogs.confirm({
+          title: t('Possible double entry', 'Huenda ni mara mbili'),
+          message: t(`May already be recorded on ${where} (${d.amount.toLocaleString('en-US')}). Record this transfer anyway?`,
+            `Huenda imeshaandikwa kwenye ${where} (${d.amount.toLocaleString('en-US')}). Andika uhamisho huu hata hivyo?`),
+          confirmText: t('Yes, record it', 'Ndiyo, andika'),
+        });
+        if (!go) return;
+      }
       await this.gl.transfer({ fromAccount: this.from(), toAccount: this.to(), amount: parse(this.amount()), fee: parse(this.fee()) || 0, date: this.date(), reason: this.note().trim() });
       this.ref.close(true);
     } catch (e) {
