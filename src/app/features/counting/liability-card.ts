@@ -69,6 +69,20 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
           </p>
         }
 
+        @if (liability().chargedAtCost && liability().balance > 0) {
+          <section class="split" data-testid="tozo-split">
+            <b><lsms-icon name="account_balance" [size]="16" />{{ i18n.t('What is still owed', 'Deni lililobaki kwa sehemu') }}</b>
+            <span>{{ i18n.t('Cost of the missing stock', 'Gharama ya mzigo uliopotea') }} <em>{{ liability().costOpen | money: { decimals: 0 } }}</em></span>
+            @if (liability().agreedOpen) {
+              <span>{{ i18n.t('Price difference agreed in writing', 'Tofauti ya bei iliyokubaliwa kwa maandishi') }} <em>{{ liability().agreedOpen | money: { decimals: 0 } }}</em></span>
+            }
+            @if (liability().marginOpen) {
+              <span>{{ i18n.t('Price difference (income only when paid)', 'Tofauti ya bei (mapato yakilipwa tu)') }} <em>{{ liability().marginOpen | money: { decimals: 0 } }}</em></span>
+            }
+            <small>{{ i18n.t('The books hold the cost only. The price difference becomes income when it is paid or agreed in writing.', 'Vitabu vina gharama tu. Tofauti ya bei inakuwa mapato ikilipwa au ikikubaliwa kwa maandishi.') }}</small>
+          </section>
+        }
+
         <h4>{{ i18n.t('Charged products', 'Bidhaa zilizotozwa') }}</h4>
         <ul class="items">
           @for (i of liability().items; track i.uid) {
@@ -121,8 +135,27 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
                 <span>
                   <b>{{ i18n.isSwahili() ? payType(p.paymentType).sw : payType(p.paymentType).en }}</b>
                   <small>{{ day(p.paidAt) | date: 'dd MMM yyyy HH:mm' }}@if (p.notes) { · {{ p.notes }} }</small>
+                  @if (p.costPart !== null) {
+                    <small>{{ i18n.t('cost', 'gharama') }} {{ p.costPart | money: { decimals: 0 } }}@if (p.agreedPart) { · {{ i18n.t('agreed', 'iliyokubaliwa') }} {{ p.agreedPart | money: { decimals: 0 } }} }@if (p.marginPart) { · {{ i18n.t('price difference', 'tofauti ya bei') }} {{ p.marginPart | money: { decimals: 0 } }} }</small>
+                  }
                 </span>
                 <em>{{ p.amount | money: { decimals: 0 } }}</em>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (liability().agreements.length) {
+          <h4>{{ i18n.t('Written agreements', 'Makubaliano ya maandishi') }}</h4>
+          <ul class="pays">
+            @for (a of liability().agreements; track a.uid) {
+              <li>
+                <lsms-icon name="draw" [size]="16" />
+                <span>
+                  <b>{{ a.documentRef }}</b>
+                  <small>{{ day(a.agreedOn) | date: 'dd MMM yyyy' }} · {{ a.note }}@if (a.recordedByName) { · {{ a.recordedByName }} }</small>
+                </span>
+                <em>{{ a.amount | money: { decimals: 0 } }}</em>
               </li>
             }
           </ul>
@@ -131,6 +164,9 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
         @if (canManage()) {
           <div class="acts">
             <button lsmsButton="primary" size="sm" icon="payments" [disabled]="liability().balance <= 0 || liability().status === 'WAIVED'" (click)="pay.emit()">{{ i18n.t('Record payment', 'Rekodi malipo') }}</button>
+            @if (liability().chargedAtCost && (liability().marginOpen ?? 0) > 0 && liability().status !== 'WAIVED') {
+              <button lsmsButton="secondary" size="sm" icon="draw" (click)="agree.emit()">{{ i18n.t('Written agreement', 'Makubaliano ya maandishi') }}</button>
+            }
             <button lsmsButton="secondary" size="sm" icon="event_repeat" [disabled]="liability().balance <= 0" (click)="plan.emit()">{{ liability().monthlyDeduction ? i18n.t('Change deduction plan', 'Badili mpango wa makato') : i18n.t('Set deduction plan', 'Weka mpango wa makato') }}</button>
             @if (surplusCharge() === 'all') {
               <button lsmsButton="danger" size="sm" icon="block" (click)="voidSurplus.emit()">{{ i18n.t('Cancel — was a surplus', 'Futa — ilikuwa ziada') }}</button>
@@ -190,6 +226,11 @@ import { CASHIER_REASONS, LIABILITY_STATUS, Liability, LiabilityItem, LiabilityS
     .pays small { font-size: 0.72rem; color: var(--c-text-2); }
     .pays em { font-style: normal; font-weight: 500; color: var(--c-success); font-variant-numeric: tabular-nums; }
     .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .split { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; font-size: 0.82rem; background: color-mix(in srgb, var(--c-info) 7%, transparent); border: 1px solid color-mix(in srgb, var(--c-info) 30%, transparent); }
+    .split b { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-info); }
+    .split span { display: flex; justify-content: space-between; gap: 10px; }
+    .split em { font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .split small { font-size: 0.72rem; color: var(--c-text-2); }
     @media (max-width: 560px) {
       .top { flex-wrap: wrap; }
       .who { flex-basis: calc(100% - 100px); }
@@ -214,6 +255,8 @@ export class LiabilityCard {
   readonly pay = output<void>();
   readonly plan = output<void>();
   readonly voidSurplus = output<void>();
+  /** Kazi 4: record a written agreement for the price difference. */
+  readonly agree = output<void>();
 
   /**
    * Has lines charged for a stock SURPLUS (counted more than expected) — raised in error.

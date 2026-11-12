@@ -108,9 +108,16 @@ async function cleanup() {
   const b1 = await api('POST', '/api/v1/supplier-payments', token, body('SIMU', '1031'));
   if (b1.j.data?.uid) made.payments.push(b1.j.data.uid);
   ok('B1 baada ya D: SIMU Tigo -> Cr 1031', journal(b1.j.data?.uid) === '1031:-2000,2000:2000', journal(b1.j.data?.uid) + ' ' + JSON.stringify(b1.j).slice(0, 150));
-  const b2 = await api('POST', '/api/v1/supplier-payments', token, body('MMILIKI', null));
+  const b2 = await api('POST', '/api/v1/supplier-payments', token, body('MMILIKI', '2300'));
   if (b2.j.data?.uid) made.payments.push(b2.j.data.uid);
-  ok('B2 MMILIKI -> Cr 2300 (si 3000)', journal(b2.j.data?.uid) === '2000:2000,2300:-2000', journal(b2.j.data?.uid));
+  ok('B2 MMILIKI Paul -> Cr 2300 (si 3000)', journal(b2.j.data?.uid) === '2000:2000,2300:-2000', journal(b2.j.data?.uid));
+  // 6c (owner ct/fa, V147): which owner is required; Jess -> 2310
+  const b2n = await api('POST', '/api/v1/supplier-payments', token, body('MMILIKI', null));
+  if (b2n.j.data?.uid) made.payments.push(b2n.j.data.uid);
+  ok('B2b 6c: MMILIKI bila mmiliki -> imekataliwa', b2n.j?.status !== 'Success' && /Paul au Jess/.test(String(b2n.j?.message)), JSON.stringify(b2n.j).slice(0, 150));
+  const b2j = await api('POST', '/api/v1/supplier-payments', token, body('MMILIKI', '2310'));
+  if (b2j.j.data?.uid) made.payments.push(b2j.j.data.uid);
+  ok('B2c 6c: MMILIKI Jess -> Cr 2310', journal(b2j.j.data?.uid) === '2000:2000,2310:-2000', journal(b2j.j.data?.uid));
   sql("update gl_config set bank_cutover_date = current_date + 1");
   const b3 = await api('POST', '/api/v1/supplier-payments', token, body('BENKI', '1022'));
   if (b3.j.data?.uid) made.payments.push(b3.j.data.uid);
@@ -153,6 +160,8 @@ async function cleanup() {
   await page.waitForTimeout(900);
   ok('C2 bila chanzo: hakuna POST', posts === 0 && /Chagua chanzo|Choose where/.test(await form.locator('app-payment-source-picker .err').innerText().catch(() => '')), `posts ${posts}`);
   await form.locator('[data-source="MMILIKI"]').click();
+  // 6c: the owner must be picked too (Jess here)
+  await form.locator('[data-account="2310"]').click();
   await fsave.click();
   const jumpDlg = page.locator('lsms-confirm-dialog');
   for (let i = 0; i < 40 && posts === 0; i++) {
@@ -162,9 +171,9 @@ async function cleanup() {
   await page.waitForTimeout(1500);
   const pu = sql(`select uid, payment_source, coalesce(source_account,'-'), status from purchases where product_uid = '${pUid}' order by created_at desc limit 1`).split('|');
   if (pu[0] && pu[3] === 'PENDING') { made.purchases.push(pu[0]); sql(`update purchases set purchase_notes = coalesce(purchase_notes,'') || ' E2E-C3' where uid = '${pu[0]}'`); }
-  ok('C3 MMILIKI: ununuzi umehifadhiwa na chanzo', posts === 1 && pu.slice(1).join('|') === 'MMILIKI|-|PENDING', `posts ${posts} ${pu.join('|')}`);
+  ok('C3 MMILIKI: ununuzi umehifadhiwa na chanzo', posts === 1 && pu.slice(1).join('|') === 'MMILIKI|2310|PENDING', `posts ${posts} ${pu.join('|')}`);
   const ap = await api('POST', `/api/v1/purchases/${pu[0]}/approve`, token, {});
-  ok('C4 kuidhinisha: Dr 1200 / Cr 2300', journal(pu[0]) === `1200:${pCost},2300:-${pCost}`, `${journal(pu[0])} ${JSON.stringify(ap.j).slice(0, 120)}`);
+  ok('C4 kuidhinisha: Dr 1200 / Cr 2310 (Jess)', journal(pu[0]) === `1200:${pCost},2310:-${pCost}`, `${journal(pu[0])} ${JSON.stringify(ap.j).slice(0, 120)}`);
   await page.keyboard.press('Escape');
 
   // ── D. UI repurchase order (sending is intercepted - nothing is written) ──
@@ -200,7 +209,7 @@ async function cleanup() {
   // ── cleanup ──
   const all = [...made.payments], allPu = [...made.purchases];
   await cleanup();
-  ok('Z1 usafi: malipo ya majaribio yamefutwa (GL imerudishwa)', all.length === 4 && all.every((u) => sql(`select is_deleted from supplier_payments where uid = '${u}'`) === 't') && all.every((u) => /^(\d+:0,?)+$/.test(journal(u))), all.map(journal).join(';'));
+  ok('Z1 usafi: malipo ya majaribio yamefutwa (GL imerudishwa)', all.length === 5 && all.every((u) => sql(`select is_deleted from supplier_payments where uid = '${u}'`) === 't') && all.every((u) => /^(\d+:0,?)+$/.test(journal(u))), all.map(journal).join(';'));
   ok('Z2 usafi: ununuzi wa majaribio umesitishwa (CANCELLED)', allPu.length === 1 && allPu.every((u) => sql(`select status from purchases where uid = '${u}'`) === 'CANCELLED'), allPu.map((u) => sql(`select status from purchases where uid = '${u}'`)).join(','));
   await browser.close();
   console.log(`MUHTASARI c3_e2e: PASS ${P}, FAIL ${F}`);

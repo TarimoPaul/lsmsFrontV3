@@ -38,6 +38,14 @@ export interface CountLine {
   firstCountQty: number | null;
   recountQty: number | null;
   recountReason: string | null;
+  /** Kazi 5: a large surplus still waiting for a second person's count (approval is refused until then). */
+  needsSecondCount: boolean;
+  secondCountQty: number | null;
+  secondCountByUid: string | null;
+  secondCountAt: string | null;
+  secondCountNote: string | null;
+  /** Kazi 5: the decision kept on an approved line. */
+  decision: string | null;
 }
 
 /** Blind recount entry — structurally cannot leak variance / padding membership. */
@@ -78,6 +86,12 @@ export interface CountSession {
   noActionShortage: number | null;
   noActionSurplus: number | null;
   noActionCount: number | null;
+  /** Kazi 5: the delivery question at start (null = before V146) and the products left out of the count. */
+  unrecordedDelivery: boolean | null;
+  unrecordedDeliveryProductNames: string[];
+  unrecordedDeliveryNote: string | null;
+  /** Surplus (cost) above this needs a second person's count. */
+  secondCountThreshold: number | null;
   lines: CountLine[];
 }
 
@@ -199,6 +213,21 @@ export interface LiabilityPayment {
   paymentType: string | null;
   recordedBy: string | null;
   notes: string | null;
+  /** Kazi 4 (V144): what the payment settled - cost, agreed margin, margin (null on older debts). */
+  costPart: number | null;
+  agreedPart: number | null;
+  marginPart: number | null;
+}
+
+/** Kazi 4 (V144): a written agreement that the staff member owes the margin (Dr 1120 / Cr 4900). */
+export interface MarginAgreement {
+  uid: string;
+  amount: number;
+  agreedOn: string | null;
+  documentRef: string;
+  note: string;
+  recordedByName: string | null;
+  recordedAt: string | null;
 }
 
 export interface Liability {
@@ -217,6 +246,13 @@ export interface Liability {
   deductionFinalPartialAmount: number | null;
   items: LiabilityItem[];
   payments: LiabilityPayment[];
+  /** Kazi 4 (V144): charged at cost; the margin above cost is income only when paid or agreed in writing. */
+  chargedAtCost: boolean;
+  /** Open balance split (V144 debts only): cost in 1120, agreed margin, margin off the books. */
+  costOpen: number | null;
+  agreedOpen: number | null;
+  marginOpen: number | null;
+  agreements: MarginAgreement[];
 }
 
 export const isPendingItem = (i: LiabilityItem) => !i.acknowledgedAt && !i.disputed;
@@ -254,6 +290,12 @@ export function toLine(r: Raw): CountLine {
     firstCountQty: num(r['firstCountQty']),
     recountQty: num(r['recountQty']),
     recountReason: str(r['recountReason']),
+    needsSecondCount: !!r['needsSecondCount'],
+    secondCountQty: num(r['secondCountQty']),
+    secondCountByUid: str(r['secondCountByUid']),
+    secondCountAt: str(r['secondCountAt']),
+    secondCountNote: str(r['secondCountNote']),
+    decision: str(r['decision']),
   };
 }
 
@@ -294,6 +336,10 @@ export function toSession(r: Raw): CountSession {
     noActionShortage: num(r['noActionShortage']),
     noActionSurplus: num(r['noActionSurplus']),
     noActionCount: num(r['noActionCount']),
+    unrecordedDelivery: r['unrecordedDelivery'] == null ? null : !!r['unrecordedDelivery'],
+    unrecordedDeliveryProductNames: ((r['unrecordedDeliveryProductNames'] as unknown[] | null) ?? []).map(String),
+    unrecordedDeliveryNote: str(r['unrecordedDeliveryNote']),
+    secondCountThreshold: num(r['secondCountThreshold']),
     lines: ((r['lines'] as Raw[] | null) ?? []).map(toLine),
   };
 }
@@ -341,6 +387,22 @@ export function toLiability(r: Raw): Liability {
       paymentType: str(p['paymentType']),
       recordedBy: str(p['recordedBy']),
       notes: str(p['notes']),
+      costPart: num(p['costPart']),
+      agreedPart: num(p['agreedPart']),
+      marginPart: num(p['marginPart']),
+    })),
+    chargedAtCost: !!r['chargedAtCost'],
+    costOpen: num(r['costOpen']),
+    agreedOpen: num(r['agreedOpen']),
+    marginOpen: num(r['marginOpen']),
+    agreements: ((r['agreements'] as Raw[] | null) ?? []).map((a) => ({
+      uid: String(a['uid']),
+      amount: num(a['amount']) ?? 0,
+      agreedOn: str(a['agreedOn']),
+      documentRef: String(a['documentRef'] ?? ''),
+      note: String(a['note'] ?? ''),
+      recordedByName: str(a['recordedByName']),
+      recordedAt: str(a['recordedAt']),
     })),
   };
 }

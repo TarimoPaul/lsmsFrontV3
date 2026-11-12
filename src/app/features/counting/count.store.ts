@@ -128,11 +128,11 @@ export class CountStore {
     if (!this.sold().size) void this.api.soldByName().then((m) => this.sold.set(m), () => undefined);
   }
 
-  async start(): Promise<void> {
+  async start(answer: { unrecordedDelivery: boolean; productUids: string[]; note: string | null }): Promise<void> {
     this.starting.set(true);
     this.error.set(null);
     try {
-      const started = await this.api.start();
+      const started = await this.api.start(answer);
       // start's response omits lines.
       this.session.set(await this.api.session(started.uid).catch(() => started));
     } finally {

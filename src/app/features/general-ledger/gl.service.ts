@@ -102,10 +102,17 @@ export class GlService {
     return ref;
   }
 
-  async transfer(body: { fromAccount: string; toAccount: string; amount: number; date: string; note: string }): Promise<string> {
+  /** (fe) amount leaves `fromAccount`; `toAccount` receives amount - fee; the fee is an expense (6130). Reason required. */
+  async transfer(body: { fromAccount: string; toAccount: string; amount: number; fee: number; date: string; reason: string }): Promise<string> {
     const ref = await this.api.post<string>(`${BASE}/transfers`, body);
     this.touch();
     return ref;
+  }
+
+  /** (fv) deposits already written on a reco / Safe Box that day that a 1000 -> bank transfer of this amount may repeat. */
+  async possibleDuplicates(from: string, to: string, amount: number, date: string): Promise<TransferDuplicate[]> {
+    if (from !== '1000' || !to.startsWith('102')) return [];
+    return (await this.api.get<TransferDuplicate[] | null>(`${BASE}/transfers/possible-duplicates`, { params: { from, to, amount: String(amount), date } })) ?? [];
   }
 
   async trueUp(body: { key: ControlKey; asOfDate: string; offsetAccount: string; reason: string }): Promise<Record<string, unknown>> {
@@ -148,4 +155,13 @@ export class GlService {
     this.touch();
     return r;
   }
+}
+
+/** (fv) A drawer -> bank deposit already written by whoever took it (RECO = the seller's reco, SEFU = Safe Box). */
+export interface TransferDuplicate {
+  source: 'RECO' | 'SEFU';
+  day: string;
+  account: string;
+  amount: number;
+  by: string;
 }

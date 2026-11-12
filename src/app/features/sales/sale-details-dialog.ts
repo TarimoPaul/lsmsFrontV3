@@ -35,9 +35,16 @@ export type SaleDetailsResult = 'changed' | undefined;
     @let s = sale();
     <lsms-dialog [title]="i18n.t('Sale', 'Mauzo') + ' · ' + s.receiptNumber" icon="receipt_long">
       <header class="head">
-        <lsms-payment-status-badge [paid]="s.paid" [total]="s.total" />
+        @if (!s.isFullReturn) {
+          <lsms-payment-status-badge [paid]="s.paid" [total]="s.total" />
+        }
+        @if (s.exchangeOf) {
+          <span class="pill" style="--st: var(--c-primary)"><lsms-icon name="swap_horiz" [size]="13" />{{ i18n.t('Exchange for sale ', 'Badala ya mauzo ') }}{{ s.exchangeOf }}</span>
+        }
         @if (s.hasReturn) {
-          <span class="pill" style="--st: var(--c-warning)"><lsms-icon name="assignment_return" [size]="13" />{{ s.isFullReturn ? i18n.t('Returned', 'Imerudishwa') : i18n.t('Partly returned', 'Imerudishwa sehemu') }}</span>
+          <span class="pill" [style.--st]="s.returnStatus === 'PENDING' ? 'var(--c-warning)' : 'var(--c-info)'">
+            <lsms-icon [name]="s.returnType === 'EXCHANGE' ? 'swap_horiz' : 'assignment_return'" [size]="13" />{{ returnLabel(s) }}
+          </span>
         }
         <span class="grow"></span>
         <small class="muted">{{ date(s.saleDate) | date: 'EEE dd MMM yyyy, HH:mm' }}</small>
@@ -46,7 +53,9 @@ export type SaleDetailsResult = 'changed' | undefined;
       <section class="sum">
         <div class="big" [class.ok]="s.balance === 0">
           <small>{{ i18n.t('Total', 'Jumla') }}</small><b>{{ s.total | money }}</b>
-          @if (s.balance > 0) {
+          @if (s.isFullReturn) {
+            <span class="od"><lsms-icon name="assignment_return" [size]="13" />{{ i18n.t('Returned in full', 'Imerudishwa yote') }}</span>
+          } @else if (s.balance > 0) {
             <span class="od"><lsms-icon name="account_balance_wallet" [size]="13" />{{ i18n.t('Owes', 'Deni') }} {{ s.balance | money }}</span>
           } @else {
             <span class="od"><lsms-icon name="task_alt" [size]="13" />{{ i18n.t('Paid in full', 'Imelipwa yote') }}</span>
@@ -108,6 +117,10 @@ export type SaleDetailsResult = 'changed' | undefined;
           <p class="line"><span>{{ i18n.t('Subtotal', 'Jumla ndogo') }}</span><b>{{ s.subtotal | money }}</b></p>
           <p class="line"><span>{{ i18n.t('Discount', 'Punguzo') }}</span><b class="debit">−{{ s.discount | money }}</b></p>
         }
+        @if (s.returnedAmount > 0) {
+          <!-- Lines show what was sold; the total above is already net of approved returns. -->
+          <p class="line"><span>{{ i18n.t('Returned (taken off the total)', 'Zilizorudishwa (zimetolewa kwenye jumla)') }}</span><b class="debit">−{{ s.returnedAmount | money }}</b></p>
+        }
       </section>
 
       <section class="block">
@@ -127,9 +140,11 @@ export type SaleDetailsResult = 'changed' | undefined;
                 @for (p of s.payments; track p.uid) {
                   <tr>
                     <td class="nowrap">{{ date(p.date) | date: 'dd MMM yyyy, HH:mm' }}</td>
-                    <td>{{ method(p.method) }}@if (p.reference) { <small class="ref">{{ p.reference }}</small> }</td>
+                    <td>
+                      @if (p.refund) { <b class="debit">{{ i18n.t('Refund', 'Marejesho') }}</b> · }{{ method(p.method) }}@if (p.reference) { <small class="ref">{{ p.reference }}</small> }
+                    </td>
                     <td class="muted">{{ p.receivedBy || '—' }}</td>
-                    <td class="n credit">{{ p.amountPaid | money: { symbol: false } }}</td>
+                    <td class="n" [class.credit]="!p.refund" [class.debit]="p.refund">{{ p.refund ? '−' : '' }}{{ p.amountPaid | money: { symbol: false } }}</td>
                   </tr>
                 }
               </tbody>
@@ -185,8 +200,12 @@ export class SaleDetailsDialog {
     const list: MenuAction[] = [];
     if (this.canEdit && !s.hasReturn) list.push({ label: t('Edit sale', 'Hariri mauzo'), icon: 'edit', run: () => void this.edit() });
     if (this.canSell) list.push({ label: t('Sell again', 'Uza tena'), icon: 'content_copy', run: () => void this.sellAgain() });
-    if (s.hasReturn && s.returnUid && this.canReadReturns) list.push({ label: t('View return', 'Angalia marejesho'), icon: 'assignment_return', run: () => void this.viewReturn() });
-    else if (!s.hasReturn && this.canReturn) list.push({ label: t('Return items', 'Rudisha bidhaa'), icon: 'assignment_return', run: () => void this.requestReturn() });
+    if (s.hasReturn && s.returnUid && this.canReadReturns) list.push({ label: s.returnType === 'EXCHANGE' ? t('View exchange', 'Angalia kubadilisha') : t('View return', 'Angalia marejesho'), icon: 'assignment_return', run: () => void this.viewReturn() });
+    // A new request is allowed while nothing is pending and something is left (the server checks per line).
+    if (this.canReturn && this.api.returnsEnabled() && s.returnStatus !== 'PENDING' && !s.isFullReturn) {
+      list.push({ label: t('Return items', 'Rudisha bidhaa'), icon: 'assignment_return', run: () => void this.requestReturn() });
+      list.push({ label: t('Exchange goods', 'Badilisha bidhaa'), icon: 'swap_horiz', run: () => void this.requestReturn(true) });
+    }
     if (s.balance > 0 && this.canAdjust) list.push({ label: t('Adjust debt', 'Rekebisha deni'), icon: 'money_off', run: () => void this.adjust() });
     if (this.canDelete) list.push({ label: t('Delete sale', 'Futa mauzo'), icon: 'delete', destructive: true, run: () => void this.remove() });
     return list;
@@ -204,6 +223,7 @@ export class SaleDetailsDialog {
   protected changed = false;
 
   constructor() {
+    if (this.canReturn) void this.api.loadReturnsEnabled();
     void this.business.profile.load().catch(() => undefined);
   }
 
@@ -274,9 +294,17 @@ export class SaleDetailsDialog {
     }
   }
 
-  protected async requestReturn(): Promise<void> {
+  protected returnLabel(s: Sale): string {
+    const t = (en: string, sw: string) => this.i18n.t(en, sw);
+    const exch = s.returnType === 'EXCHANGE';
+    if (s.returnStatus === 'PENDING') return exch ? t('Exchange waiting for approval', 'Kubadilisha kunasubiri idhini') : t('Return waiting for approval', 'Marejesho yanasubiri idhini');
+    if (exch) return t('Exchanged', 'Imebadilishwa');
+    return s.isFullReturn ? t('Returned', 'Imerudishwa') : t('Partly returned', 'Imerudishwa sehemu');
+  }
+
+  protected async requestReturn(exchange = false): Promise<void> {
     const { SaleReturnDialog } = await import('./sale-return-dialog');
-    const done = await this.dialogs.openAsync<boolean>(SaleReturnDialog, { size: 'md', data: { sale: this.sale() } });
+    const done = await this.dialogs.openAsync<boolean>(SaleReturnDialog, { size: 'lg', data: { sale: this.sale(), exchange } });
     if (done) {
       this.changed = true;
       this.sale.set(await this.api.get(this.sale().uid).catch(() => ({ ...this.sale(), hasReturn: true })));

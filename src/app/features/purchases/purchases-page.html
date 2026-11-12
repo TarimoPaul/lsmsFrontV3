@@ -21,6 +21,8 @@
     </button>
   </lsms-page-header>
 
+  <app-purchase-check *lsmsCan="'PURCHASE_WRITE'" />
+
   <lsms-metrics-grid [gap]="12">
     <lsms-metric-card
       [title]="i18n.t('Spent', 'Matumizi') + ' · ' + periodLabel()"

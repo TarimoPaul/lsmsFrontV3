@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 import { AuthService } from '@core/auth/auth.service';
 import { LanguageService } from '@core/i18n/language.service';
@@ -91,7 +92,7 @@ export interface PageMeta {
               <router-outlet />
             </main>
             <footer class="footer">
-              <span>© {{ year }} Elikom Group Company Limited</span>
+              <span>© {{ year }} {{ ownerName }}</span>
               <span>LSMS v{{ version() }}</span>
             </footer>
           </div>
@@ -208,6 +209,7 @@ export class ShellLayout {
     { x: 30, y: 55, r: 55, phase: 0.7 },
   ];
   protected readonly year = new Date().getFullYear();
+  protected readonly ownerName = environment.ownerName;
   protected readonly desktop = computed(() => this.bp.width() >= 1024);
   protected readonly phone = computed(() => this.bp.width() < 768);
   protected readonly drawerOpen = signal(false);

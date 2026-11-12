@@ -6,6 +6,12 @@ import { GlService } from '../general-ledger/gl.service';
 import { CapitalMovement, Expenditure, ExpStatus, Loan, LoanCard, ReclassResult, n } from './capital.models';
 
 const CE = '/api/v1/capital-expenditure';
+
+/** (ew/ex) monthly cost rows left out of the operating report (GL keeps them; the bridge shows them). */
+export interface OpsExclusions {
+  excluded: { uid: string; referenceNumber: string; description: string; amount: number; reason: string | null; byName: string | null; at: string | null }[];
+  log: { referenceNumber: string; action: 'EXCLUDE' | 'INCLUDE'; reason: string; byName: string | null; at: string | null }[];
+}
 const CM = '/api/v1/capital-monitoring';
 
 type Raw = Record<string, unknown>;
@@ -111,6 +117,35 @@ export class CapitalService {
   }
 
   /** CANCELLED (approved → GL reversed) or REJECTED (pending). */
+  /** (ew/ex) leave a monthly cost row out of the operating report, or put it back - CAPITAL_APPROVE + a reason. GL untouched. */
+  async setOpsReportExclusion(uid: string, exclude: boolean, reason: string): Promise<void> {
+    await this.api.post(`${CE}/${uid}/ops-report-exclusion`, { exclude, reason });
+  }
+
+  /** (ew/ex) rows left out of the operating report now + every change (auditors: CAPITAL_READ). */
+  async opsReportExclusions(): Promise<OpsExclusions> {
+    const r = (await this.api.get<Raw | null>(`${CE}/ops-report-exclusions`)) ?? {};
+    const rows = (k: string) => (r[k] as Raw[] | undefined) ?? [];
+    return {
+      excluded: rows('excluded').map((x) => ({
+        uid: String(x['uid'] ?? ''),
+        referenceNumber: String(x['referenceNumber'] ?? ''),
+        description: String(x['description'] ?? ''),
+        amount: Number(x['amount'] ?? 0),
+        reason: x['reason'] == null ? null : String(x['reason']),
+        byName: x['byName'] == null ? null : String(x['byName']),
+        at: x['at'] == null ? null : String(x['at']),
+      })),
+      log: rows('log').map((x) => ({
+        referenceNumber: String(x['referenceNumber'] ?? ''),
+        action: String(x['action'] ?? '') as 'EXCLUDE' | 'INCLUDE',
+        reason: String(x['reason'] ?? ''),
+        byName: x['byName'] == null ? null : String(x['byName']),
+        at: x['at'] == null ? null : String(x['at']),
+      })),
+    };
+  }
+
   async setStatus(uid: string, newStatus: ExpStatus, reason: string): Promise<Expenditure> {
     const r = toExp(await this.api.patch<Raw>(`${CE}/${uid}/status`, {}, { params: { newStatus, reason } }));
     this.changed();
@@ -209,11 +244,123 @@ export class CapitalService {
     return ((await this.api.get<Raw[] | null>(`${CE}/recurring-monthly`)) ?? []).map(toBudget);
   }
 
-  /** Stops future months; rows already created stay. CAPITAL_APPROVE. */
-  async stopRecurring(uid: string): Promise<RecurringBudget> {
-    const r = toBudget(await this.api.patch<Raw>(`${CE}/recurring-monthly/${uid}/stop`));
+  /**
+   * Stops future months; rows already created stay. CAPITAL_APPROVE.
+   * G2: `cancelCurrentMonth` (with a reason) also removes THIS month's row and reverses its journal —
+   * only offered when {@link stopPreview} answered (an older backend ignores the flag).
+   */
+  async stopRecurring(uid: string, cancelCurrentMonth = false, reason?: string): Promise<RecurringBudget> {
+    const params: Record<string, string> = cancelCurrentMonth ? { cancelCurrentMonth: 'true', reason: reason ?? '' } : {};
+    const r = toBudget(await this.api.patch<Raw>(`${CE}/recurring-monthly/${uid}/stop`, {}, { params }));
     this.all.invalidate();
     return r;
+  }
+
+  // ── Kazi 2 / G6: pay down 2400 / 2200 (Dr liability / Cr C3 source), never a new expense ──
+
+  async liabilities(): Promise<LiabilityOverview> {
+    const r = await this.api.get<Raw | null>('/api/v1/gl/liability-payments');
+    const accounts = ((r?.['accounts'] as Raw[] | undefined) ?? []).map((a) => ({ code: String(a['code'] ?? ''), name: String(a['name'] ?? ''), balance: n(a['balance']) }));
+    const payments = ((r?.['payments'] as Raw[] | undefined) ?? []).map((p) => ({
+      uid: String(p['uid'] ?? ''),
+      referenceNumber: String(p['referenceNumber'] ?? ''),
+      accountCode: String(p['accountCode'] ?? ''),
+      amount: n(p['amount']),
+      paymentDate: String(p['paymentDate'] ?? ''),
+      paymentSource: String(p['paymentSource'] ?? ''),
+      sourceAccount: p['sourceAccount'] == null ? null : String(p['sourceAccount']),
+      creditAccount: String(p['creditAccount'] ?? ''),
+      description: String(p['description'] ?? ''),
+      status: String(p['status'] ?? 'POSTED') as 'POSTED' | 'REVERSED',
+      createdBy: p['createdBy'] == null ? null : String(p['createdBy']),
+      reverseReason: p['reverseReason'] == null ? null : String(p['reverseReason']),
+    }));
+    return { accounts, payments };
+  }
+
+  /** FINANCE_WRITE. The server refuses more than the balance, a closed period and a weak description. */
+  async payLiability(body: { accountCode: string; amount: number; paymentDate: string; paymentSource: string; sourceAccount: string | null; description: string }): Promise<void> {
+    await this.api.post('/api/v1/gl/liability-payments', body);
+  }
+
+  async reverseLiabilityPayment(uid: string, reason: string): Promise<void> {
+    await this.api.patch(`/api/v1/gl/liability-payments/${uid}/reverse`, {}, { params: { reason } });
+  }
+
+  // ── G5: annual expenses paid up front (Dr 1160 / Cr source, then 1/12 a month) ──
+
+  async annualPrepaid(): Promise<AnnualPrepaid[]> {
+    return ((await this.api.get<Raw[] | null>(`${CE}/annual-prepaid`)) ?? []).map(toPrepaid);
+  }
+
+  /** PENDING until another person approves. CAPITAL_WRITE. */
+  async createAnnualPrepaid(body: {
+    description: string;
+    capitalType: string;
+    totalAmount: number;
+    startYear: number;
+    startMonth: number;
+    months: number;
+    paymentDate: string;
+    paymentMethod: string;
+  }): Promise<AnnualPrepaid> {
+    const r = toPrepaid(await this.api.post<Raw>(`${CE}/annual-prepaid`, body));
+    this.all.invalidate();
+    return r;
+  }
+
+  /** (dz) `reason` is required when a CEO approves their own entry (>= 10 letters); anyone else needs a second person. */
+  async approveAnnualPrepaid(uid: string, reason?: string): Promise<AnnualPrepaid> {
+    const r = toPrepaid(await this.api.patch<Raw>(`${CE}/annual-prepaid/${uid}/approve`, {}, { params: { reason: reason ?? '' } }));
+    this.all.invalidate();
+    return r;
+  }
+
+  async rejectAnnualPrepaid(uid: string, reason: string): Promise<AnnualPrepaid> {
+    return toPrepaid(await this.api.patch<Raw>(`${CE}/annual-prepaid/${uid}/reject`, {}, { params: { reason } }));
+  }
+
+  async cancelAnnualPrepaid(uid: string, reason: string): Promise<AnnualPrepaid> {
+    const r = toPrepaid(await this.api.patch<Raw>(`${CE}/annual-prepaid/${uid}/cancel`, {}, { params: { reason } }));
+    this.all.invalidate();
+    return r;
+  }
+
+  /**
+   * G3: monthly/annual rows of that month (and running schedules) that look like the expense about to be saved.
+   * A warning only; [] when nothing matches or the backend predates G3.
+   */
+  async possibleDuplicates(description: string, amount: number, year: number, month: number): Promise<PossibleDuplicate[]> {
+    try {
+      const r = await this.api.get<Raw[] | null>(`${CE}/possible-duplicates`, { params: { description, amount, year, month } });
+      return (r ?? []).map((d) => ({
+        uid: String(d['uid'] ?? ''),
+        description: String(d['description'] ?? ''),
+        amount: n(d['amount']),
+        kind: String(d['kind'] ?? ''),
+        period: String(d['period'] ?? ''),
+        reason: String(d['reason'] ?? ''),
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  /** G2: this month's row of a schedule (amount, in the books) — null when the backend predates G2. */
+  async stopPreview(uid: string): Promise<StopPreview | null> {
+    try {
+      const r = await this.api.get<{ futureRows?: number; currentMonth?: Raw | null } | null>(
+        `${CE}/recurring-monthly/${uid}/stop-preview`,
+      );
+      if (!r) return null;
+      const c = r.currentMonth;
+      return {
+        futureRows: n(r.futureRows),
+        currentMonth: c ? { uid: String(c['uid'] ?? ''), month: String(c['month'] ?? ''), amount: n(c['amount']), inBooks: c['inBooks'] === true } : null,
+      };
+    } catch {
+      return null;
+    }
   }
 
   /** New amount for the months not yet paid. CAPITAL_WRITE. */
@@ -222,6 +369,103 @@ export class CapitalService {
     this.all.invalidate();
     return r;
   }
+}
+
+/** Kazi 2 / G6: the expense liabilities and their payments. */
+export interface LiabilityPaymentRow {
+  uid: string;
+  referenceNumber: string;
+  accountCode: string;
+  amount: number;
+  paymentDate: string;
+  paymentSource: string;
+  sourceAccount: string | null;
+  creditAccount: string;
+  description: string;
+  status: 'POSTED' | 'REVERSED';
+  createdBy: string | null;
+  reverseReason: string | null;
+}
+
+export interface LiabilityOverview {
+  accounts: { code: string; name: string; balance: number }[];
+  payments: LiabilityPaymentRow[];
+}
+
+/** G5: an annual expense paid up front and its months. */
+export interface AnnualPrepaid {
+  uid: string;
+  referenceNumber: string;
+  description: string;
+  capitalType: string;
+  totalAmount: number;
+  startYear: number;
+  startMonth: number;
+  months: number;
+  paymentDate: string;
+  paymentMethod: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  createdBy: string | null;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  /** (dz) the maker (a CEO) approved it themself, with approvalReason */
+  selfApproved: boolean;
+  approvalReason: string | null;
+  closeReason: string | null;
+  monthRows: { month: string; amount: number; inBooks: boolean }[];
+  expensed: number;
+  prepaidLeft: number;
+}
+
+function toPrepaid(r: Raw): AnnualPrepaid {
+  const s = (k: string) => (r[k] == null ? null : String(r[k]));
+  return {
+    uid: String(r['uid'] ?? ''),
+    referenceNumber: String(r['referenceNumber'] ?? ''),
+    description: String(r['description'] ?? ''),
+    capitalType: String(r['capitalType'] ?? ''),
+    totalAmount: n(r['totalAmount']),
+    startYear: n(r['startYear']),
+    startMonth: n(r['startMonth']),
+    months: n(r['months']),
+    paymentDate: String(r['paymentDate'] ?? ''),
+    paymentMethod: String(r['paymentMethod'] ?? ''),
+    status: (s('status') ?? 'PENDING') as AnnualPrepaid['status'],
+    createdBy: s('createdBy'),
+    approvedBy: s('approvedBy'),
+    approvedAt: s('approvedAt'),
+    selfApproved: r['selfApproved'] === true,
+    approvalReason: s('approvalReason'),
+    closeReason: s('closeReason'),
+    monthRows: ((r['monthRows'] as Raw[] | undefined) ?? []).map((m) => ({ month: String(m['month'] ?? ''), amount: n(m['amount']), inBooks: m['inBooks'] === true })),
+    expensed: n(r['expensed']),
+    prepaidLeft: n(r['prepaidLeft']),
+  };
+}
+
+/** Monthly amounts as the backend splits them: total/months to the cent, the last month takes the rest. */
+export function splitAnnual(total: number, months: number): number[] {
+  if (!(total > 0) || !(months > 0)) return [];
+  const each = Math.round((total / months) * 100) / 100;
+  const out = Array.from({ length: months - 1 }, () => each);
+  out.push(Math.round((total - each * (months - 1)) * 100) / 100);
+  return out;
+}
+
+/** G3: an existing expense that looks like the new one. */
+export interface PossibleDuplicate {
+  uid: string;
+  description: string;
+  amount: number;
+  kind: string; // SCHEDULE | MONTH | ANNUAL
+  period: string;
+  reason: string; // NAME | AMOUNT | NAME_AND_AMOUNT
+}
+
+/** G2: what stopping a schedule would touch. */
+export interface StopPreview {
+  futureRows: number;
+  currentMonth: { uid: string; month: string; amount: number; inBooks: boolean } | null;
 }
 
 export interface RecurringBudget {

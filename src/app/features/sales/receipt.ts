@@ -22,7 +22,7 @@ export function printReceipt(sale: Sale, business: BusinessProfile | null, sw: b
     })
     .join('');
   const payments = sale.payments
-    .map((p) => `<tr><td>${esc(methodLabel(p.method, sw))}</td><td class="n">${m(p.amountPaid)}</td></tr>`)
+    .map((p) => `<tr><td>${p.refund ? (sw ? 'Marejesho ' : 'Refund ') : ''}${esc(methodLabel(p.method, sw))}</td><td class="n">${p.refund ? '-' : ''}${m(p.amountPaid)}</td></tr>`)
     .join('');
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(sale.receiptNumber)}</title><style>
     @page { size: 80mm auto; margin: 4mm; }

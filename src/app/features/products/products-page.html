@@ -7,6 +7,9 @@
     (refresh)="refresh()"
   >
     <lsms-export-toolbar [formats]="['csv', 'pdf']" [dense]="true" [loading]="loading()" (export)="export($event)" />
+    @if (canKupima()) {
+      <button lsmsButton="secondary" icon="local_bar" size="sm" data-test="kupima" (click)="openKupima()">{{ i18n.t('By measure', 'Kupima') }}</button>
+    }
     <button *lsmsCan="'PRODUCT_WRITE'" lsmsButton icon="add" size="sm" (click)="openForm()">
       {{ i18n.t('Add product', 'Ongeza bidhaa') }}
     </button>

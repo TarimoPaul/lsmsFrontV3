@@ -46,7 +46,7 @@ type Filter = 'ALL' | 'DISPUTED' | LiabilityStatus;
       } @else {
         <div class="list">
           @for (l of shown(); track l.uid) {
-            <app-liability-card [liability]="l" mode="staff" [owner]="owner(l)" [canManage]="canManage()" (pay)="pay(l)" (plan)="plan(l)" (voidSurplus)="voidSurplus(l)" />
+            <app-liability-card [liability]="l" mode="staff" [owner]="owner(l)" [canManage]="canManage()" (pay)="pay(l)" (plan)="plan(l)" (voidSurplus)="voidSurplus(l)" (agree)="agree(l)" />
           }
         </div>
       }
@@ -141,6 +141,16 @@ export class StaffLiabilitiesTab {
     if (updated) {
       this.replace(updated);
       this.toast.success(this.i18n.t('Payment recorded', 'Malipo yamerekodiwa'));
+    }
+  }
+
+  /** Kazi 4: written agreement for the price difference (Dr 1120 / Cr 4900). */
+  protected async agree(l: Liability): Promise<void> {
+    const { MarginAgreementDialog } = await import('./liability-dialogs');
+    const updated = await this.dialogs.openAsync<Liability, LiabilityDialogData>(MarginAgreementDialog, { size: 'sm', data: { liability: l, owner: this.owner(l) } });
+    if (updated) {
+      this.replace(updated);
+      this.toast.success(this.i18n.t('Agreement recorded', 'Makubaliano yamerekodiwa'));
     }
   }
 

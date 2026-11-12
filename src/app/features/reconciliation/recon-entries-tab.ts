@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogService, Icon, MoneyInput, ToastService } from '@shared/ui';
 import { Money, MoneyPipe } from '@shared/utils/money';
+import { MoneyUsageService, NAME_ACCOUNT } from '../general-ledger/money-usage.service';
 import { ReconStore } from './recon.store';
 import { RECON_BANKS } from './recon-extra.models';
 import { CASH_TYPES, CASH_TYPES_ADDABLE, EXPENSE_TYPES, MOBILE_PROVIDERS } from './reconciliation.models';
@@ -52,8 +53,8 @@ interface Item {
           }
           @case ('mobile') {
             <div class="chips">
-              @for (p of providers; track p) {
-                <button type="button" [class.on]="type() === p" (click)="type.set(p)">{{ p }}</button>
+              @for (p of providers(); track p) {
+                <button type="button" [class.on]="type() === p" (click)="pickProvider(p)">{{ p }}</button>
               }
             </div>
           }
@@ -81,8 +82,8 @@ interface Item {
             <div class="wide pick" role="radiogroup" [attr.aria-label]="i18n.t('Bank', 'Benki')">
               <span>{{ i18n.t('Bank', 'Benki') }} *</span>
               <div class="chips">
-                @for (b of banks; track b) {
-                  <button type="button" role="radio" [attr.aria-checked]="bank() === b" [class.on]="bank() === b" (click)="bank.set(b)">
+                @for (b of banks(); track b) {
+                  <button type="button" role="radio" [attr.aria-checked]="bank() === b" [class.on]="bank() === b" (click)="pickBank(b)">
                     <lsms-icon [name]="b === 'OTHER' ? 'more_horiz' : 'account_balance'" [size]="14" />{{ b === 'OTHER' ? i18n.t('Other', 'Nyingine') : b }}
                   </button>
                 }
@@ -159,7 +160,9 @@ export class ReconEntriesTab {
 
   protected readonly cash = CASH_TYPES;
   protected readonly cashTypes = CASH_TYPES_ADDABLE;
-  protected readonly providers = MOBILE_PROVIDERS;
+  private readonly usage = inject(MoneyUsageService);
+  /** (fj) most used in the last 30 days first; an idle one (> 60 days) asks first. */
+  protected readonly providers = computed(() => this.usage.rank(MOBILE_PROVIDERS, (p) => NAME_ACCOUNT[p]));
   protected readonly expense = EXPENSE_TYPES;
   protected readonly expenseKeys = Object.keys(EXPENSE_TYPES);
 
@@ -169,7 +172,13 @@ export class ReconEntriesTab {
   /** Picked from chips (mobile friendly) — 'OTHER' asks for the name. */
   protected readonly bank = signal('');
   protected readonly otherBank = signal('');
-  protected readonly banks = RECON_BANKS;
+  protected readonly banks = computed(() => this.usage.rank(RECON_BANKS, (b) => NAME_ACCOUNT[b]));
+  protected async pickProvider(p: string): Promise<void> {
+    if (this.type() === p || (await this.usage.confirmPick(NAME_ACCOUNT[p], p))) this.type.set(p);
+  }
+  protected async pickBank(b: string): Promise<void> {
+    if (this.bank() === b || (await this.usage.confirmPick(NAME_ACCOUNT[b], b))) this.bank.set(b);
+  }
   private readonly bankName = computed(() => (this.bank() === 'OTHER' ? this.otherBank().trim() : this.bank()));
   protected readonly ref = signal('');
   protected readonly notes = signal('');
@@ -207,8 +216,16 @@ export class ReconEntriesTab {
       ];
     }
     if (this.kind() === 'mobile') {
+      // (fr) one rule: per provider max(typed whole-day total, AUTO rows from POS phone payments) - as the backend counts it
+      const typed = new Map<string, number>(), auto = new Map<string, number>(), label = new Map<string, string>();
+      for (const e of r.mobileEntries) {
+        const k = phoneKey(e.provider);
+        if (!label.has(k)) label.set(k, e.provider);
+        const m = e.auto ? auto : typed;
+        m.set(k, (m.get(k) ?? 0) + e.amount);
+      }
       const by = new Map<string, number>();
-      for (const e of r.mobileEntries) by.set(e.provider, (by.get(e.provider) ?? 0) + e.amount);
+      for (const k of label.keys()) by.set(label.get(k)!, Math.max(typed.get(k) ?? (auto.has(k) ? -Infinity : 0), auto.get(k) ?? -Infinity));
       return [{ label: t('Total mobile money', 'Jumla ya pesa za simu'), value: r.mobileMoneyTotal, color: 'var(--c-info)' }, ...[...by].map(([p, v]) => ({ label: p, value: v, color: 'var(--c-primary)' }))];
     }
     const pending = r.expenses.filter((e) => e.approvalStatus === 'PENDING');
@@ -309,4 +326,14 @@ export class ReconEntriesTab {
           : await this.store.act((uid) => this.api.removeExpense(uid, it.uid), this.i18n.t('Removed', 'Imeondolewa'));
     if (res.error) this.toast.error(res.error);
   }
+}
+
+/** (fr) The provider's account, as the backend groups it (MobileMoney.KEYS): "Vodacom", "VODACOM", "M-Pesa" -> 1030. */
+const PHONE_KEYS: Record<string, string> = {
+  VODACOM: '1030', MPESA: '1030', 'M-PESA': '1030', MOBILE_MONEY: '1030', TIGO: '1031', TIGOPESA: '1031', HALOPESA: '1032', HALOTEL: '1032',
+  AIRTEL: '1033', AIRTELMONEY: '1033', AIRTEL_MONEY: '1033', NMB: '1021', CRDB: '1020', NBC: '1022', SELCOM: '1023', PCB: '1024',
+};
+export function phoneKey(provider: string | null | undefined): string {
+  const n = (provider ?? '').trim().toUpperCase().replace(/ /g, '');
+  return PHONE_KEYS[n] ?? '?' + n;
 }

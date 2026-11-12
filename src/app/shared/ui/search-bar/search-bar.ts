@@ -5,6 +5,8 @@ import { Icon } from '../icon/icon';
 
 /**
  * Search field with debounce + clear button — port of `SharedSearchBar`.
+ * The native "search" event of type="search" (Chrome, on Enter) bubbles to the host as `(search)` with an Event,
+ * not text - it broke every `(search)="q.set($event)"` list (q().trim is not a function); it stops here.
  * `(search)` fires after `debounce` ms of no typing (and immediately on
  * clear / Enter). `[(value)]` tracks the raw text.
  *
@@ -25,6 +27,7 @@ import { Icon } from '../icon/icon';
       (input)="onInput($any($event.target).value)"
       (keydown.enter)="flush()"
       (keydown.escape)="clear()"
+      (search)="$event.stopPropagation()"
     />
     @if (value()) {
       <button type="button" class="clear" [attr.aria-label]="i18n.t('Clear', 'Futa')" (click)="clear()">

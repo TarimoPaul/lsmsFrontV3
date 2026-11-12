@@ -22,6 +22,13 @@ export interface CartLine {
   error?: string | null;
   /** "Make again": the unit price on the deleted sale, shown beside the line when today's price differs. */
   previousPrice?: number | null;
+  /** KUPIMA: the registered measure (fixed price, no stock pieces - the ml come off the open container). */
+  pourMeasureUid?: string | null;
+  pourMl?: number | null;
+  /** KUPIMA (ek): the answer when the container is short - SPLIT or FINISHED. */
+  pourAction?: 'SPLIT' | 'FINISHED' | null;
+  /** KUPIMA (es): the parent a new container is opened from. */
+  pourParentUid?: string | null;
 }
 
 export interface CartCustomer {
@@ -145,6 +152,51 @@ export class CartStore {
     });
   }
 
+  /** KUPIMA: one more of a registered measure (its own line per measure; the price cannot be changed). */
+  addPour(productUid: string, name: string, measure: { uid: string; ml: number; price: number; cost: number | null }): void {
+    const key = `${productUid}|POUR|${measure.uid}`;
+    this.lines.update((ls) => {
+      const i = ls.findIndex((l) => l.key === key);
+      if (i >= 0) return ls.map((l, j) => (j === i ? { ...l, qty: l.qty + 1, error: null } : l));
+      return [
+        ...ls,
+        {
+          key,
+          productUid,
+          name: `${name} ${measure.ml}ml`,
+          category: null,
+          saleType: 'PIECES',
+          unitPieces: 0,
+          qty: 1,
+          unitPrice: measure.price,
+          defaultPrice: measure.price,
+          costPerPiece: measure.cost,
+          piecesPerPackage: null,
+          abbreviation: null,
+          pourMeasureUid: measure.uid,
+          pourMl: measure.ml,
+          pourAction: null,
+        },
+      ];
+    });
+  }
+
+  /** KUPIMA (ek): remember the answer for every poured line of this product (sent with the sale). */
+  setPourAction(productUid: string, action: 'SPLIT' | 'FINISHED', parentUid: string | null = null): void {
+    this.lines.update((ls) => ls.map((l) => (l.productUid === productUid && l.pourMeasureUid ? { ...l, pourAction: action, pourParentUid: parentUid } : l)));
+  }
+
+  /** KUPIMA (eu): the new container's parent has its own prices - the lines of this drink take them (ml -> price). */
+  setPourPrices(productUid: string, priceOf: (ml: number) => number | null): void {
+    this.lines.update((ls) =>
+      ls.map((l) => {
+        if (l.productUid !== productUid || !l.pourMeasureUid || !l.pourMl) return l;
+        const p = priceOf(l.pourMl);
+        return p === null || p === l.unitPrice ? l : { ...l, unitPrice: p, defaultPrice: p };
+      }),
+    );
+  }
+
   /** Add `qty` units at once (used by "Sell again"). */
   addMany(p: PosProduct, type: SaleType, qty: number): void {
     for (let i = 0; i < qty; i++) this.add(p, type);
@@ -157,6 +209,7 @@ export class CartStore {
 
   /** Change a line's unit price; a changed price gets its own line key so the next tap adds at the default price. */
   setPrice(key: string, price: number): void {
+    if (this.lines().some((l) => l.key === key && l.pourMeasureUid)) return; // KUPIMA: registered price only
     this.lines.update((ls) => {
       const edited = ls.map((l) => {
         if (l.key !== key) return l;
