@@ -1206,3 +1206,14 @@ Kinga badala ya kuzima:
  3. Akaunti isiyotumika > siku 60: dialog ya uthibitisho "haijatumika tangu <tarehe> — una uhakika?".
  4. Ukurasa rahisi wa "Salio kwa akaunti" (mwisho wa mwezi) kwa Chief kulinganisha kwa macho na taarifa — ikiwa ≤ nusu siku; vinginevyo BAADA.
 Endelea na MUHTASARI-TOLEO2 (fi).
+
+## 2026-11-12 (fk)
+Yaliyokwisha amuliwa — usiorodheshe kama "yanasubiri":
+ M1 = (b) (dx): ondoa MaterializedViewScheduler (C7) + DROP view 4 (C6).
+ F1 = "Babuu Liquor Store" (eg).
+ Q6e-1 = RECO YA DROO ya siku ya malipo, SIYO aliyerekodi (fh). Q6e-2 = kuanzia deploy (02/12). Q6e-3 = chanzo halisi (Takawedo NMB; Pepsi/Coca pale pale DROO).
+ V039 repair = BAADA (haiguswi toleo 2).
+ C6 B2 = ndiyo: andaa hatua (KAGUA → ANDIKA) ya kuhifadhi backup_20260930_journal_entry kwenye B2 (sha256) kisha DROP — baada ya deploy.
+SASA (kabla ya 6e): thibitisha sale yenye malipo "Benki · NMB" baada ya D inaandika Dr 1021 (na M-Pesa → 103x) kwenye journal ya sale.
+ Jaribio la E2E lenye D imewekwa, nakala safi, image ya clean build. Ikiwa haiandiki → kosa la pesa, rekebisha.
+Kisha 6e (kwa majibu hapo juu), usafi 9, kazi 10.

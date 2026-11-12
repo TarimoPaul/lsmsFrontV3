@@ -219,3 +219,5 @@ Code (chanzo kimeonekana 09/11):
 - (fi/fj 12/11) MUHTASARI-TOLEO2.md (jedwali la mwisho). (fj): akaunti ZOTE wazi (switch-off ya (fi) ilibatilishwa kabla ya push);
   kinga: backend t2-cutover 710fa5a (usage) + 92a6e60 (local.sh clean build), V3 e4b87fe; akaunti_e2e 5/0, ng 103/103; hatua 60 akaunti 9 (t60 14/0); hatua 91 (prod kusoma tu).
   Ifuatayo: 6e -> usafi 9 (junk lines, C9, UTF-16) -> kazi 10.
+- (fk 12/11) Malipo baada ya D: journal ya sale inaandika akaunti sahihi kwa kila njia (malipo_d_api 15/0). KOSA lililopatikana: DB check ya
+  payments/credit_payments (njia 8) ilikataa Selcom/PCB/Airtel/BANK_TRANSFER/MOBILE_MONEY -> V151 (t2-cutover ca82e61). M1=(b), F1, Q6e-1..3, V039 BAADA, C6 B2 -> MUHTASARI.
