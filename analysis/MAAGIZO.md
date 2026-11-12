@@ -1268,3 +1268,23 @@ Pengo baada ya D: uhamisho wa nje ya mfumo (Selcom→NMB, droo→NMB) hauonekani
   Jaribio staging (D imewekwa): reco Selcom 10,000 + nunua NMB 50,000 bila Transfer → onyesha salio 1021/1023;
   kisha na Transfer Selcom→NMB → salio sahihi. Ongeza §CEO kwenye mwongozo: "kila uhamisho halisi baada ya D = Transfer ya GL".
 Kisha 6e.
+
+## 2026-11-12 (fv)
+Data yako ya amana 132 (cash ya mauzo) inabadilisha (fu). Mwongozo:
+  Muuzaji, mstari wa benki = wateja waliolipa moja kwa moja benki LEO + cash YEYE aliyoipeleka benki LEO.
+  USIBADILISHE tabia ya Macheda baada ya D — reco amana = Dr 102x / Cr 1000 ni sahihi na mara moja.
+Kanuni: kila pesa droo→benki inaandikwa MARA MOJA na aliyeipeleka (Macheda → reco; sefu → amana ya sefu).
+  Transfer ya CEO = TU harakati ambazo hakuna aliyeziandika: Selcom→NMB, lipa namba (1030)→benki, CRDB→NMB n.k.
+  Ondoa "kazi inahamia kwa CEO kupitia Transfer 1000→1021".
+Kinga (ndogo, onyo si kizuizi): CEO akiunda Transfer 1000→102x yenye kiasi sawa na amana ya reco/sefu ya siku
+  hiyo hiyo kwa akaunti ile ile → onyo "Huenda imeshaandikwa kwenye reco ya [tarehe]". Jaribio: onyo linaonekana;
+  Transfer 1023→1021 haipati onyo.
+Staging rerun ya pengo_d: HAPANA (kazi 10 inatosha).
+Kisha 6e.
+
+## 2026-11-12 (fw)
+Chief: lipa namba (1030) huhamishwa KWA MKONO kwenda benki mbalimbali → kila uhamisho = Transfer 1030→102x na CEO,
+  siku ile ile; kiasi = kilichotoka 1030, makato → 6130 (mf: 100,000 → NMB 98,500 + 6130 1,500). Weka mfano huu kwenye §CEO.
+Hakiki Transfer ya GL inaruhusu chanzo 1030 + makato (jaribio: salio 1030 linashuka 100,000, 1021 +98,500, 6130 +1,500).
+§CEO ongeza: ukaguzi wa wiki — salio GL 1030/1021/1023 vs salio halisi (simu/benki); tofauti → Transfer iliyosahaulika.
+Kisha 6e.

@@ -1,28 +1,31 @@
-# Mwongozo: malipo ya wateja, reco na uhamisho (fl, fq, fr, fs, fu — 12/11/2026)
+# Mwongozo: malipo ya wateja, reco na uhamisho (fl, fq, fr, fs, fu, fv, fw — 12/11/2026)
+
+**Kanuni ya msingi:** kila harakati ya pesa inaandikwa **MARA MOJA**, na yule aliyeifanya.
 
 ## 1. Kwa muuzaji (Macheda): kanuni ya reco
 
 > **Reco ya muuzaji = pesa WATEJA walizolipa LEO kwa kila njia (sale au deni), kama ulivyozipokea.**
+> **Mstari wa benki = wateja waliolipa moja kwa moja benki LEO + Taslimu WEWE uliyoipeleka benki LEO.**
 
 Mfano:
 
 | Njia | Kiasi |
 |---|---|
-| NMB | 200,000 |
+| NMB | 200,000 (wateja waliolipa NMB, pamoja na cash uliyoipeleka NMB leo) |
 | Lipa namba | 30,000 |
 | Selcom | 10,000 |
 | CRDB | 30,000 |
 | Taslimu | kiasi ulichokabidhi |
 
-- **Si salio, na si taarifa ya benki.** Ni malipo ya wateja wa leo tu, kwa njia waliyolipa.
+- **Si salio, na si taarifa ya benki.** Ni pesa ya leo tu, kwa njia ilivyoingia.
+- **Endelea kama unavyofanya sasa**, pia baada ya D. "Cash ya mauzo" uliyoipeleka benki iandikwe kwenye reco kama amana ya benki hiyo. Kuanzia D mfumo unaihamisha mara moja (Dr benki / Cr 1000).
 - **Muuzaji HAANDIKI:**
-  - uhamisho kati ya akaunti (k.m. Selcom → NMB);
-  - pesa ya droo iliyopelekwa benki (cash → benki);
+  - uhamisho kati ya akaunti (Selcom → NMB, lipa namba → benki, CRDB → NMB);
   - mikopo;
   - pesa ya mmiliki.
   
   Hayo ni kazi ya CEO (sehemu 3).
-- **POS:** chagua Fedha Taslimu kama unavyofanya sasa, na utangaze malipo ya simu au benki kwenye reco. Kuanzia 02/12 ukichagua M-Pesa kwenye POS, reco inaonyesha mstari wa AUTO. Mfumo hauuhesabu mara mbili, kwa hiyo andika malipo ya wateja wa siku kama kawaida.
+- **POS:** chagua Fedha Taslimu kama unavyofanya sasa, na utangaze malipo ya simu au benki kwenye reco. Kuanzia 02/12 ukichagua M-Pesa kwenye POS, reco inaonyesha mstari wa AUTO. Mfumo hauuhesabu mara mbili.
 - **Lipa namba** inaandikwa kama **M-Pesa (VODACOM)**. Ndivyo duka linavyofanya tayari ("LIPA VODA", "lipa no v"). Kuanzia D inaenda akaunti 1030.
 
 ### Mpaka 02/12 (prod ya sasa inakubali njia 8 tu)
@@ -40,12 +43,21 @@ Mfano:
 - **Hakiki kwa mkono kwamba fedha zipo** kabla ya kuidhinisha reco: NMB 200,000 iko NMB, Selcom 10,000 iko Selcom, n.k.
 - **Manunuzi na malipo ya wasambazaji** yaandikwe kwa **chanzo halisi**: benki X, lipa namba, au Taslimu (droo).
 
-## 3. Kwa CEO: kila uhamisho halisi baada ya D = Transfer ya GL
+## 3. Kwa CEO: Transfer ya GL = TU harakati ambazo hakuna aliyeziandika
 
-Kuanzia D (07/12), **kila pesa inayohamishwa nje ya mfumo lazima iandikwe kama Transfer ya GL** (Hesabu → Uhamisho), siku ile ile. Mifano:
-- Selcom → NMB;
-- droo (Taslimu) → NMB;
-- lipa namba → benki.
+Pesa ya droo → benki tayari imeandikwa na aliyeipeleka:
+- muuzaji kwenye reco (amana);
+- au amana ya sefu iliyothibitishwa.
+
+**Usiiandikie Transfer tena.** Ukijaribu Transfer Taslimu → benki yenye kiasi, benki na siku sawa na amana hiyo, mfumo unaonyesha onyo: "Huenda imeshaandikwa kwenye reco ya [tarehe]". Ni onyo tu, si kizuizi.
+
+Kuanzia D (07/12), **harakati nyingine zote zinazofanyika nje ya mfumo ni Transfer ya GL** (Hesabu → Uhamisho), siku ile ile:
+- Selcom → NMB, CRDB → NMB n.k.;
+- **lipa namba (1030) → benki:**
+  - Lipa namba inahamishwa kwa mkono kwenda benki mbalimbali.
+  - Kiasi cha Transfer = kilichotoka 1030; makato yaandikwe kwenye sehemu ya **Ada** (yanaenda 6130).
+  - Mfano: 100,000 kutoka lipa namba → NMB inapokea 98,500 + makato 1,500. Andika Kiasi 100,000, Ada 1,500.
+  - Matokeo: 1030 −100,000, 1021 +98,500, 6130 +1,500 (jaribio `pengo_d_api` P5).
 
 Usipoiandika, vitabu vinaenda kombo. Jaribio `pengo_d_api` (nakala ya prod, D imewekwa) linaonyesha hivi:
 
@@ -55,6 +67,7 @@ Usipoiandika, vitabu vinaenda kombo. Jaribio `pengo_d_api` (nakala ya prod, D im
 | CEO amehamisha Selcom → NMB, kisha amelipa msambazaji 50,000 kutoka NMB, **bila Transfer** | **+10,000** | **−50,000** | Selcom 0, NMB −40,000 |
 | **Na Transfer** Selcom → NMB 10,000 | **0** | **−40,000** | sawa ✅ |
 
-Bila Transfer, 1023 inapanda bila kushuka, na 1021 inashuka na inaweza kuwa hasi.
+### Ukaguzi wa kila wiki (CEO)
 
-**Isipokuwa amana ya sefu:** amana ya sefu → benki iliyothibitishwa kwenye mfumo tayari imeandikwa (Dr benki / Cr 1000). **Usiiandikie Transfer tena.**
+Kila wiki linganisha **salio la GL** la 1030 (lipa namba / M-Pesa), 1021 (NMB) na 1023 (Selcom) na **salio halisi** kwenye simu au benki. Tumia Hesabu → "Salio kwa akaunti", na andika salio halisi kwenye safu ya taarifa.
+- **Tofauti = Transfer iliyosahaulika**, au makato yasiyoandikwa. Iandike (Transfer ya tarehe halisi) hadi tofauti iwe 0.
