@@ -3,6 +3,7 @@
 //   P2 a supplier paid 50,000 from NMB WITHOUT a GL Transfer -> Cr 1021 50,000: 1023 +10,000 although Selcom was emptied,
 //      1021 -50,000 although only 40,000 left NMB net -> books wrong (1021 can go negative)
 //   P3 the real move recorded as a GL Transfer Selcom -> NMB 10,000 -> 1023 back to +0, 1021 -40,000: books = reality
+//   P4/P6 (fv/fx) the Transfer warning: same bank + amount, the Transfer's day ±1; P5 (fw) lipa namba 1030 -> NMB with charges
 // Throw-away local copy only (D set to 2026-11-01). Run: node pengo_d_api_e2e.cjs
 const { execFileSync } = require('child_process');
 
@@ -61,6 +62,13 @@ const msg = (r) => String(r.j?.message || '');
   ok('P4 onyo: Transfer 1000 -> NMB 300,000 = amana ya reco ya siku ile -> "Huenda imeshaandikwa" (RECO); Selcom -> NMB, kiasi kingine, 1030 -> NMB: hakuna onyo',
     d1.j?.data?.length === 1 && d1.j.data[0].source === 'RECO' && d1.j.data[0].day === DAY && d2.j?.data?.length === 0 && d3.j?.data?.length === 0 && d4.j?.data?.length === 0,
     JSON.stringify([d1.j, d2.j?.data, d3.j?.data, d4.j?.data]).slice(0, 300));
+
+  // P6 (fx) window = the Transfer's day ±1 (the seller takes yesterday's cash in the morning): reco of 2026-11-05 NMB 300,000
+  //    -> a Transfer dated 2026-11-06 warns (names the reco of 2026-11-05); dated 2026-11-07 (2 days later) does not
+  const dupOn = (date) => api('GET', `/api/v1/gl/transfers/possible-duplicates?from=1000&to=1021&amount=300000&date=${date}`, ceo);
+  const w1 = await dupOn('2026-11-06'), w2 = await dupOn('2026-11-07');
+  ok('P6 dirisha ±1 siku: amana ya reco ya jana 300,000 + Transfer leo 1000 -> NMB 300,000 -> onyo (reco ya 2026-11-05); siku 2 nyuma -> hakuna onyo',
+    w1.j?.data?.length === 1 && w1.j.data[0].day === DAY && w2.j?.data?.length === 0, JSON.stringify([w1.j?.data, w2.j?.data]).slice(0, 300));
 
   // P5 (fw) lipa namba moved by hand to a bank: Transfer 1030 -> NMB 100,000 with charges 1,500 -> 1030 -100,000, 1021 +98,500, 6130 +1,500
   const c0 = { m: bal('1030'), n: bal('1021'), f: bal('6130') };
