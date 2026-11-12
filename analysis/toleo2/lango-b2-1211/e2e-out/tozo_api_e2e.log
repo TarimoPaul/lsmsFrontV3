@@ -1,0 +1,33 @@
+PASS A1 deni = bei ya kuuza (charge > gharama)
+PASS A2 GL ya tozo: Dr 1120 = gharama, Cr 1200 = gharama, HAKUNA 4900
+PASS A3 4900 haijaguswa; 1120 +gharama tu
+PASS A4 ndoo: cost=gharama, agreed=0, margin=tofauti
+PASS A5 malipo ya nusu: yote Cr 1120, 4900 bado 0
+PASS A6 malipo ya mwisho: Cr 1120 gharama iliyobaki + Cr 4900 tofauti (sasa ndipo mapato)
+PASS A7 deni SETTLED; ndoo zote 0; 1120 imerudi; 4900 = tofauti tu
+PASS A8 TB 0
+PASS A9 malipo zaidi ya deni -> 400
+PASS B1 deni la pili: chupa 2, kwa gharama
+PASS B2 makubaliano yenye maelezo dhaifu -> 400
+PASS B3 makubaliano zaidi ya tofauti -> 400
+PASS B4 MANAGER (bila LIABILITY_MANAGE) -> 403
+PASS B5 makubaliano: Dr 1120 / Cr 4900 = AG; rekodi (nani, kiasi, hati)
+PASS B6 ndoo: agreed = AG, margin = tofauti - AG; API inaonyesha makubaliano
+PASS B7 msamaha: tofauti nje ya vitabu haina GL; agreed Dr 4900 AG; gharama Dr 5100; Cr 1120 gharama+AG
+PASS B8 upotevu (5100) = gharama tu, si bei ya kuuza; 4900 jumla 0 kwa deni hili
+PASS B9 SETTLED, TB 0
+PASS C1 deni la zamani: hakuna mgawanyo (null), Cr 1120 1 kama zamani
+PASS C2 makubaliano kwa deni la zamani -> 400 (tofauti iko 4900 tayari)
+PASS H1 control ya 1120: tofauti haijabadilika baada ya tozo, malipo, makubaliano na msamaha (A, B)
+PASS D1 tozo ya mali: Dr 1120 = NBV, Dr 1590 = uchakavu wa sehemu, Cr 1510 = gharama ya sehemu; HAKUNA 4900
+PASS D2 deni 30,000: ndoo cost = NBV, margin = 30,000 - NBV
+PASS D3 mali ya Capital imepungua: gharama - sehemu, uchakavu - sehemu (removed_accumulated), bado APPROVED
+PASS H2 control ya 1120 SAWA baada ya tozo ya mali
+PASS D4 makubaliano kwa deni la mali: Dr 1120 / Cr 4900 = 2,000; H1 SAWA
+PASS D5 malipo yote: Cr 1120 = NBV + 2,000; Cr 4900 = ziada iliyobaki (inapolipwa); SETTLED; H1 SAWA
+FAIL E1 mali yote (1/1), tozo < NBV: Dr 1120 500,000 + Dr 6900 NBV - 500,000 / Cr 1510 gharama; margin 0 {"gE":{"1120":500000,"1510":-1200000,"1590":20000,"6900":680000},"hE":{"amount":500000,"cost":"500000.00","agreed":"0.00","margin":"0.00","status":"OPEN"}}
+PASS E2 Fridge ya Capital: imeondolewa (LOST, disposal_date) - haitapata uchakavu tena
+PASS E3 msamaha wa deni la mali: Dr 6900 (hasara ya mali), si 5100; Cr 1120; H1 SAWA
+PASS E4 4900 haijaguswa na tozo ya Fridge; TB 0
+PASS C3 TB 0 mwisho
+MATOKEO 31/1

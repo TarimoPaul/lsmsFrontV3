@@ -1,0 +1,16 @@
+PASS D0 D = leo kwenye nakala safi
+PASS M NMB: sale baada ya D -> Dr 1021 1000.00 tu, journal inalingana
+PASS M SELCOM: sale baada ya D -> Dr 1023 1000.00 tu, journal inalingana
+PASS M MPESA: sale baada ya D -> Dr 1030 1000.00 tu, journal inalingana
+PASS M TIGO: sale baada ya D -> Dr 1031 1000.00 tu, journal inalingana
+PASS M CRDB: sale baada ya D -> Dr 1020 1000.00 tu, journal inalingana
+PASS M NBC: sale baada ya D -> Dr 1022 1000.00 tu, journal inalingana
+PASS M PCB: sale baada ya D -> Dr 1024 1000.00 tu, journal inalingana
+PASS M HALOPESA: sale baada ya D -> Dr 1032 1000.00 tu, journal inalingana
+PASS M AIRTEL: sale baada ya D -> Dr 1033 1000.00 tu, journal inalingana
+PASS M BANKTRANSFER: sale baada ya D -> Dr 1020 1000.00 tu, journal inalingana
+PASS M MOBILEMONEY: sale baada ya D -> Dr 1030 1000.00 tu, journal inalingana
+PASS M CASH: sale baada ya D -> Dr 1000 1000.00 tu, journal inalingana
+PASS M SPLIT: CASH 500 + NMB 500 -> Dr 1000 + Dr 1021
+PASS hakuna gl_posting_failure mpya; TB = 0
+MWISHO PASS 15 FAIL 0

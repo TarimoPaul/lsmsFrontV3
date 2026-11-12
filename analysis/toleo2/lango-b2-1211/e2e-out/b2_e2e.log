@@ -1,0 +1,23 @@
+PASS S1 login 2 za Jess kutoka Scaleway (Cloudflare)
+PASS S2 DB: safu za Jess ni DATACENTER AS12876
+PASS A1 DB: login ya V3 inatuma deviceId (hash ipo)
+PASS A2 kadi ya dashibodi: login zinahitaji kuangaliwa
+PASS A3 tab "Za kuangalia" ina login ya Jess (DATACENTER, AS12876)
+PASS A4 sababu fupi -> imezimwa
+PASS A5 mtandao unaojulikana umehifadhiwa
+PASS A6 DB: ack KNOWN_NETWORK ya Jess AS12876
+PASS A7 login inayofuata ya Jess: KNOWN_VPN (haipigi tahadhari)
+PASS A8 Nimeona: toast
+PASS A9 DB: ack SEEN imeongezeka
+PASS A10 tab ya mitandao: Jess AS12876
+PASS A11 imeondolewa
+PASS A12 orodha ya mitandao iko tupu
+PASS A13 CSV imepakuliwa
+PASS A14 DB: export imeandikwa kwenye audit_trails
+PASS A15 attribution ya DB-IP inaonyeshwa
+PASS B1 macheda@gmail.com: hakuna kadi ya login
+PASS B2 macheda@gmail.com: ukurasa umezuiwa
+PASS C1 jess@elikom.co.tz: hakuna kadi ya login
+PASS C2 jess@elikom.co.tz: ukurasa umezuiwa
+PASS Z hakuna JS error
+JUMLA PASS 22 FAIL 0

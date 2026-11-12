@@ -1,0 +1,6 @@
+PASS A1 orodha ya matumizi: akaunti 10 za pesa; NBC haijawahi kutumika, CRDB mwisho 2026-08-24
+PASS A2 Uhamisho: zinazotumika (taslimu, NMB, Selcom, M-Pesa, Tigo) kabla ya CRDB/NBC/PCB/Halopesa/Airtel
+PASS A3 NBC (haijawahi kutumika): inauliza; Ghairi = haichaguliwi; Ndiyo = imechaguliwa; CRDB inauliza "tangu 2026-08-24"
+PASS A4 Selcom (inatumika, haina historia kabla ya D) na NMB (siku 33): haziulizi
+PASS A5 "Salio kwa akaunti": akaunti 10, tofauti ya taarifa inaonyeshwa (+500); hakuna makosa ya ukurasa
+MWISHO PASS 5 FAIL 0

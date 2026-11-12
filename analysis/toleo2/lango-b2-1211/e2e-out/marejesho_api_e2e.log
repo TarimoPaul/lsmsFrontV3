@@ -1,0 +1,15 @@
+PASS R0 swichi IMEWASHWA kwa jaribio hili
+PASS R1 ombi la marejesho -> PENDING, hakuna GL bado
+PASS R2a kuidhinisha -> APPROVED, stock +1
+PASS R2b GL: Dr 4020 / Cr 1000 bei ya kuuza; Dr 1200 / Cr 5000 gharama
+PASS R2c jumla ya mauzo imepungua
+PASS R8a siku ya mauzo (2026-11-11 < 2026-11-12): mauzo ya reco hayajabadilika
+PASS R8b leo: marejesho ya CASH yanatolewa kwenye pesa ya droo
+PASS R3 zaidi ya kilichobaki -> imekataliwa
+PASS R8c M-Pesa haitolewi kwenye droo; siku ya mauzo ileile
+PASS R4 imeharibika + M-Pesa: Cr 1030, haikurudi stock, hakuna 1200
+PASS R5 mstari wa KUPIMA hauriudishwi kupitia C4
+PASS R6 exchange: mauzo mapya yameundwa, stock ileile (+1 -1)
+PASS R7 exchange haitoi bidhaa ya KUPIMA
+PASS TB = 0
+MWISHO PASS 14 FAIL 0

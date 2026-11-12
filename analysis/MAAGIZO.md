@@ -1414,3 +1414,14 @@ Uamuzi A8e: badiliko/ufutaji wa sale ndani ya reco ILIYOFUNGULIWA UPYA → rever
   ConnectTimeout)? Njia lengwa yenye nafasi ("MY PROJECT") imenukuliwa? Rekebisha ili ikwame → ishindwe ndani ya sekunde 30,
   si dakika 19. Usiguse server zaidi ya kusoma.
 
+## 2026-11-12 (gn)
+92 imekubaliwa. 1. Backend main 3b6bf61 → e1b1a53: commit zipi, mafaili gani, kwa nini? Kama ni (gl): ripoti A8e PASS/FAIL, unit ya
+   mwezi uliofungwa, na wigo. 2. (gj): release/2.4.0 / 3.2.0 — SHA = tag? Imefutwa local? 3. Kasi ~4 KB/s: 93 build/push inapakia
+   kiasi gani (MB backend + V3)? Je, 93 ina kuendelea/kurudia push ikikatika?
+
+## 2026-11-12 (go)
+92_OK: lsms_20261112_0200.dump (sha 00a19c8a…2947) na 20261111 (676df065…2356) ziko backups\, sha = server.
+Lango sasa (ruhusa imetolewa), kwenye dump ya 12/11: 1. RAM huru, container zote zimefungwa. 2. Suite peke yake kwenye backend main.
+  3. Build image za commit za main; LANGO_RUKA_SUITE=1 lango.sh <dump 12/11>. 4. Ripoti: payment_method dhidi ya V151, Flyway 138→151,
+  awamu A, B, rollback — zote, pamoja na A8e. Usihariri lango.sh likiendeshwa. Kabla ya lango, jibu (gn) 1–3 kwa ufupi.
+

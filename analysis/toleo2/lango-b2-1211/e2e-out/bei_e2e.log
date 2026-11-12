@@ -1,0 +1,15 @@
+PASS S1 nakala: bidhaa 4 zenye gharama + 1 isiyonunuliwa zimepatikana
+PASS S2 DB: last_purchase_cost = gharama/kipande ya manunuzi ya mwisho (tofauti 0)
+PASS C1 CEO: column "Kununua / kip" ipo
+PASS C2 CEO: iko kabla ya bei ya kuuza kipande
+PASS C3 BALLANTINES: 44000.00 -> 44000
+PASS C3 MOON LIGHT: 8166.00 -> 8166
+PASS C3 SAFARI LAGER kb: 1925.00 -> 1925
+PASS C3 UHAI MAJI 500ML: 291.67 -> 292
+PASS C4 YAKET MAJI 600ML (haijanunuliwa): "—"
+PASS H0 printer hana PURCHASE_READ/PROFIT_REPORT/FINANCE_READ
+ERROR page.waitForURL: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
+JUMLA PASS 10 FAIL 1

@@ -1,0 +1,32 @@
+PASS S1 nakala: V140 (1160, annual_prepayment) + kipindi cha mwezi huu kiko wazi
+PASS S2 bajeti ya majaribio (28,000) + mtoto wa mwezi huu
+PASS S3 mtoto wa mwezi huu bado hajaingia GL (job ya 00:10 itamwandika)
+PASS G3a onyo linaonekana na linataja bajeti iliyopo
+PASS G3b hakuna kilichohifadhiwa kwa click ya kwanza
+PASS G3c kitufe kimekuwa "Hifadhi hata hivyo"
+PASS G3d click ya pili inahifadhi (PENDING)
+PASS G4a baada ya kuhifadhi orodha inatafuta jina lililohifadhiwa
+PASS G4b row ya mwezi ujao = "Imepangwa", si "iko GL"
+PASS G2a Simamisha inaonyesha gharama ya mwezi huu 28,000 + "bado haijaingia vitabuni" (sawa na DB)
+PASS G2b bila sababu kitufe kimezimwa
+PASS G2c bajeti imesimamishwa
+PASS G2d gharama ya mwezi huu imefutwa
+PASS G2e hakuna journal hai ya mwezi huu (jumla 0)
+PASS G5a muhtasari: 100,000 kwa mwezi
+PASS G5b imehifadhiwa PENDING, hakuna GL bado
+PASS G5c CEO kuidhinisha aliyoiingiza mwenyewe: inaomba sababu
+PASS G5d sababu < 10: kitufe kimezimwa
+PASS G5e APPROVED + self_approved + sababu imehifadhiwa
+PASS G5f journal ya malipo: 1000 -1,200,000 / 1160 +1,200,000
+PASS G5g miezi 12; mwezi huu: Dr gharama 100,000 / Cr 1160
+PASS G5h miezi ijayo haijaandikwa bado
+PASS G5i beji "Imejiidhinisha" + sababu inaonekana
+PASS DZ1 Executive CEO anasoma orodha ya zilizojiidhinisha
+PASS DZ2 Executive CEO kujiidhinisha (hata kwa sababu) -> kataa
+PASS DZ3 CEO kuidhinisha ya Executive CEO (mtu wa pili) -> SAWA, si kujiidhinisha
+PASS DZ4 CEO bila sababu / sababu takataka -> kataa
+PASS DZ5 MANAGER kujiidhinisha -> kataa
+PASS G5j kubatilisha: hali CANCELLED, miezi imefutwa, journal zote jumla 0
+PASS G5k hakuna kosa la JavaScript
+PASS Z1 usafi: hakuna row hai ya E2E-G25 iliyobaki, TB 0
+MWISHO PASS 31 FAIL 0

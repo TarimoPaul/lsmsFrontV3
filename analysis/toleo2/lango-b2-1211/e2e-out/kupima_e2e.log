@@ -1,0 +1,11 @@
+PASS S1 CEO: mipangilio imehifadhiwa kupitia dialog (vipimo 30/60, mzazi KONYAGI 750ML)
+PASS S2 orodha ya dialog inaonyesha Konyagi ya kupima
+PASS M1 MANAGER: hakuna "+ Mipangilio" wala "Mipangilio" (KUPIMA_SETTINGS tu)
+PASS U1 POS: Konyagi ya kupima iko kama kadi (si kwenye orodha ya bidhaa), "Hakuna chupa wazi"
+PASS U2 mstari wa 30ml kwa 1,000; bei haibadilishwi (kitufe kimezimwa)
+PASS U3 hakuna chombo wazi -> dialog "Fungua chombo kipya"
+PASS U4 imeuzwa: bar 720, mzazi -1
+PASS U5 bar inaonyesha 40 / 750 ml
+PASS U6 haitoshi -> chaguo mbili: (i) tumia zilizobaki + fungua kipya, (ii) kimeisha kweli
+PASS U7 (i): chombo cha zamani CLOSED SPLIT bila upotevu; kipya bar 730 (40 + 20)
+FAIL exception locator.waitFor: Timeout 20000ms exceeded. Call log: [2m  - waiting for locator('app-sale-done-dialog') to be visible[22m
