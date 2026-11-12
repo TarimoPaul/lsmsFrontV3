@@ -1,52 +1,60 @@
-# Mwongozo kwa Macheda: malipo ya simu na benki (fl, fq, fr, fs — 12/11/2026)
+# Mwongozo: malipo ya wateja, reco na uhamisho (fl, fq, fr, fs, fu — 12/11/2026)
 
-## KANUNI MOJA
+## 1. Kwa muuzaji (Macheda): kanuni ya reco
 
-> **Kwenye POS: chagua Fedha Taslimu (kama unavyofanya sasa).**
-> **Kwenye reco andika JUMLA YA SIKU NZIMA kwa kila mtandao na kila benki, kama inavyoonekana kwenye simu au taarifa ya benki.**
-> Ndani ya jumla hiyo kuna kila kitu kilichoingia siku hiyo: malipo ya POS (hata ukichagua M-Pesa kwenye POS), sale ulizoandika Taslimu lakini mteja alilipa kwa simu au benki, madeni yaliyolipwa kwa simu au benki, na pesa ya droo uliyopeleka benki.
-> **Usiandike sehemu tu.** Mfumo unatoa wenyewe kile ambacho POS ilishaandika.
+> **Reco ya muuzaji = pesa WATEJA walizolipa LEO kwa kila njia (sale au deni), kama ulivyozipokea.**
 
-**Mfano (siku moja, M-Pesa na NMB):**
+Mfano:
 
-| Kilichotokea | Kiasi |
+| Njia | Kiasi |
 |---|---|
-| Sale kwenye POS, umechagua M-Pesa — kuanzia 02/12 tu (reco inaonyesha mstari wa AUTO) | 10,000 |
-| Sale umeandika Taslimu, lakini mteja alilipa M-Pesa | 25,000 |
-| Deni la zamani limelipwa kwa M-Pesa | 5,000 |
-| **M-Pesa: simu inaonyesha pesa iliyoingia leo** | **40,000** → andika **40,000** (siyo 30,000, siyo 50,000) |
-| Pesa ya droo uliyopeleka NMB | 300,000 |
-| Mteja alilipa moja kwa moja NMB (sale umeandika Taslimu) | 50,000 |
-| **NMB: taarifa inaonyesha pesa iliyoingia leo** | **350,000** → andika amana ya NMB **350,000** |
+| NMB | 200,000 |
+| Lipa namba | 30,000 |
+| Selcom | 10,000 |
+| CRDB | 30,000 |
+| Taslimu | kiasi ulichokabidhi |
 
-Matokeo:
-- Reco inahesabu M-Pesa 40,000 mara moja. Mstari wa AUTO wa 10,000 umo ndani ya 40,000.
-- Kuanzia D, akaunti ya M-Pesa (1030) inaongezeka 40,000 na NMB (1021) 350,000. Hakuna kinachoongezwa mara mbili.
+- **Si salio, na si taarifa ya benki.** Ni malipo ya wateja wa leo tu, kwa njia waliyolipa.
+- **Muuzaji HAANDIKI:**
+  - uhamisho kati ya akaunti (k.m. Selcom → NMB);
+  - pesa ya droo iliyopelekwa benki (cash → benki);
+  - mikopo;
+  - pesa ya mmiliki.
+  
+  Hayo ni kazi ya CEO (sehemu 3).
+- **POS:** chagua Fedha Taslimu kama unavyofanya sasa, na utangaze malipo ya simu au benki kwenye reco. Kuanzia 02/12 ukichagua M-Pesa kwenye POS, reco inaonyesha mstari wa AUTO. Mfumo hauuhesabu mara mbili, kwa hiyo andika malipo ya wateja wa siku kama kawaida.
+- **Lipa namba** inaandikwa kama **M-Pesa (VODACOM)**. Ndivyo duka linavyofanya tayari ("LIPA VODA", "lipa no v"). Kuanzia D inaenda akaunti 1030.
 
-Hivi ndivyo duka linavyofanya sasa: POS 693 kati ya 701 ni Taslimu (hatua 91, 12/11). Kanuni hii inafanya kazi **leo, baada ya toleo 2 (02/12), na baada ya D (07/12)** bila kubadilisha chochote.
+### Mpaka 02/12 (prod ya sasa inakubali njia 8 tu)
 
-**Kwa nini inatosha:**
-- Reco inatoa kwenye droo pesa za simu na amana ulizoandika. Kwa hiyo droo inabaki sahihi, ingawa sale iliandikwa Taslimu.
-- Kuanzia D, reco ikiidhinishwa, mfumo unahamisha kiasi hicho cha reco kutoka droo (1000) kwenda akaunti halisi: NMB 1021, Selcom 1023, M-Pesa 1030, Tigo 1031, Halo 1032, Airtel 1033 ...
-  - Hakuna kinachohesabiwa mara mbili. Hii imethibitishwa na majaribio ya cutover T10–T14.
-
-## Usifanye
-
-- **Usichague kwenye POS njia ambayo prod haikubali leo:** Selcom, PCB, Airtel Money, Uhamisho wa benki, Pesa ya simu. Sale au deni halihifadhiwi, na Airtel Money iko kwenye safu ya kwanza ya POS. Chagua Fedha Taslimu na utangaze pesa hiyo kwenye reco.
-- **Usiandike sale kwenye karatasi** ukisubiri baadaye.
-- **Usichague Mkopo** kwa sale iliyolipwa.
-- **Mpaka 02/12, usichague M-Pesa, Tigo au Halo kwenye POS.**
-  - Prod ya sasa ikiona hivyo inaongeza mstari wa AUTO kwenye reco ya simu. Ukiandika jumla ya siku, mstari huo unahesabiwa mara mbili na reco inaonyesha ziada.
-  - Kuanzia 02/12 hili limerekebishwa (fr): mfumo unachukua ile kubwa zaidi kati ya jumla yako na mistari ya AUTO. Lakini Taslimu kwenye POS inabaki njia rahisi zaidi.
-
-## Kwa taarifa: njia ambazo prod inakubali LEO (mpaka 02/12)
-
-| Inakubalika (8) | Haikubaliki (sale/deni linakataliwa) |
+| Inakubalika | Haikubaliki (sale/deni linakataliwa, halihifadhiwi) |
 |---|---|
 | Fedha Taslimu, M-Pesa, Tigo Pesa, Halo Pesa, CRDB, NMB, NBC, Mkopo | Selcom, PCB, Airtel Money, Uhamisho wa benki, Pesa ya simu |
 
-Kuanzia 02/12 njia zote zinakubalika.
+- Usichague njia isiyokubalika kwenye POS. Airtel Money iko kwenye safu ya kwanza. Chagua Fedha Taslimu na utangaze malipo kwenye reco.
+- Mpaka 02/12, usichague M-Pesa, Tigo au Halo kwenye POS. Prod ya sasa ingehesabu mstari wa AUTO pamoja na ulichoandika.
+- Usiandike sale kwenye karatasi, na usichague Mkopo kwa sale iliyolipwa.
 
-## Ikiwa kuna jambo la zamani
+## 2. Kwa CEO / mnunuzi: kabla ya kuidhinisha
 
-Ikiwa tangu 01/10 umewahi kuandika pesa ya Selcom, PCB au Airtel bila kuitangaza kwenye reco, mwambie Chief tarehe na kiasi. Usirekebishe reco iliyoidhinishwa mwenyewe.
+- **Hakiki kwa mkono kwamba fedha zipo** kabla ya kuidhinisha reco: NMB 200,000 iko NMB, Selcom 10,000 iko Selcom, n.k.
+- **Manunuzi na malipo ya wasambazaji** yaandikwe kwa **chanzo halisi**: benki X, lipa namba, au Taslimu (droo).
+
+## 3. Kwa CEO: kila uhamisho halisi baada ya D = Transfer ya GL
+
+Kuanzia D (07/12), **kila pesa inayohamishwa nje ya mfumo lazima iandikwe kama Transfer ya GL** (Hesabu → Uhamisho), siku ile ile. Mifano:
+- Selcom → NMB;
+- droo (Taslimu) → NMB;
+- lipa namba → benki.
+
+Usipoiandika, vitabu vinaenda kombo. Jaribio `pengo_d_api` (nakala ya prod, D imewekwa) linaonyesha hivi:
+
+| Hatua | 1023 Selcom | 1021 NMB | Hali halisi |
+|---|---|---|---|
+| Reco: mteja amelipa Selcom 10,000 | +10,000 | — | Selcom +10,000 |
+| CEO amehamisha Selcom → NMB, kisha amelipa msambazaji 50,000 kutoka NMB, **bila Transfer** | **+10,000** | **−50,000** | Selcom 0, NMB −40,000 |
+| **Na Transfer** Selcom → NMB 10,000 | **0** | **−40,000** | sawa ✅ |
+
+Bila Transfer, 1023 inapanda bila kushuka, na 1021 inashuka na inaweza kuwa hasi.
+
+**Isipokuwa amana ya sefu:** amana ya sefu → benki iliyothibitishwa kwenye mfumo tayari imeandikwa (Dr benki / Cr 1000). **Usiiandikie Transfer tena.**

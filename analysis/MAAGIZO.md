@@ -1255,3 +1255,16 @@ Kisha 6e.
 (fr) SAWA. Mwongozo wa Macheda: kanuni iseme wazi "jumla ya SIKU kwa kila mtandao/benki, kama inavyoonekana kwenye simu / taarifa
   (ikiwemo malipo ya POS na madeni)" — siyo sehemu. Ongeza mfano mmoja wa namba.
 Kisha 6e.
+
+## 2026-11-12 (fu)
+FUTA (ft) kama uliipokea — ilikosea. Kanuni sahihi (Chief):
+Reco ya muuzaji = pesa WATEJA walilipa LEO kwa kila njia (sale/deni), kama alivyopokea.
+  Mf: NMB 200,000 · lipa namba 30,000 · Selcom 10,000 · CRDB 30,000 · Taslimu = iliyokabidhiwa.
+  SI salio wala taarifa ya benki. Muuzaji HAANDIKI: uhamisho kati ya akaunti, cash→benki, mikopo, pesa ya mmiliki.
+Mwongozo §njia: andika hivyo + mfano huo. Ongeza: CEO/mnunuzi anahakiki kwa mkono fedha zipo kabla ya kuidhinisha;
+  manunuzi yanaandikwa chanzo halisi (benki X / lipa namba / cash).
+Hakiki kwa data (usimuulize Chief): "lipa namba" inaenda akaunti gani ya GL? Ripoti.
+Pengo baada ya D: uhamisho wa nje ya mfumo (Selcom→NMB, droo→NMB) hauonekani GL → 1023 inapanda, 1021 inashuka/hasi.
+  Jaribio staging (D imewekwa): reco Selcom 10,000 + nunua NMB 50,000 bila Transfer → onyesha salio 1021/1023;
+  kisha na Transfer Selcom→NMB → salio sahihi. Ongeza §CEO kwenye mwongozo: "kila uhamisho halisi baada ya D = Transfer ya GL".
+Kisha 6e.
