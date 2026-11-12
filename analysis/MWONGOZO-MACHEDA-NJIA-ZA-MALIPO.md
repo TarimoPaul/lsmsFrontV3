@@ -1,11 +1,27 @@
-# Mwongozo kwa Macheda: malipo ya simu na benki (fl, fq, fr — 12/11/2026)
+# Mwongozo kwa Macheda: malipo ya simu na benki (fl, fq, fr, fs — 12/11/2026)
 
 ## KANUNI MOJA
 
 > **Kwenye POS: chagua Fedha Taslimu (kama unavyofanya sasa).**
-> **Kwenye reco:**
-> - **Pesa za simu:** andika JUMLA YOTE ya pesa ya simu ya siku kwa kila mtandao (M-Pesa, Tigo, Halo, Airtel), kama simu yako inavyoonyesha. Ndani yake kuna sale na madeni yaliyolipwa kwa simu.
-> - **Amana ya benki:** andika kila pesa iliyoingia benki kwa jina la benki halisi (NMB, Selcom, CRDB, PCB ...). Hii ni pamoja na mteja aliyelipa moja kwa moja kwenye benki, na pesa ya droo iliyopelekwa benki.
+> **Kwenye reco andika JUMLA YA SIKU NZIMA kwa kila mtandao na kila benki, kama inavyoonekana kwenye simu au taarifa ya benki.**
+> Ndani ya jumla hiyo kuna kila kitu kilichoingia siku hiyo: malipo ya POS (hata ukichagua M-Pesa kwenye POS), sale ulizoandika Taslimu lakini mteja alilipa kwa simu au benki, madeni yaliyolipwa kwa simu au benki, na pesa ya droo uliyopeleka benki.
+> **Usiandike sehemu tu.** Mfumo unatoa wenyewe kile ambacho POS ilishaandika.
+
+**Mfano (siku moja, M-Pesa na NMB):**
+
+| Kilichotokea | Kiasi |
+|---|---|
+| Sale kwenye POS, umechagua M-Pesa (reco inaonyesha mstari wa AUTO) | 10,000 |
+| Sale umeandika Taslimu, lakini mteja alilipa M-Pesa | 25,000 |
+| Deni la zamani limelipwa kwa M-Pesa | 5,000 |
+| **M-Pesa: simu inaonyesha pesa iliyoingia leo** | **40,000** → andika **40,000** (siyo 30,000, siyo 50,000) |
+| Pesa ya droo uliyopeleka NMB | 300,000 |
+| Mteja alilipa moja kwa moja NMB (sale umeandika Taslimu) | 50,000 |
+| **NMB: taarifa inaonyesha pesa iliyoingia leo** | **350,000** → andika amana ya NMB **350,000** |
+
+Matokeo:
+- Reco inahesabu M-Pesa 40,000 mara moja. Mstari wa AUTO wa 10,000 umo ndani ya 40,000.
+- Kuanzia D, akaunti ya M-Pesa (1030) inaongezeka 40,000 na NMB (1021) 350,000. Hakuna kinachoongezwa mara mbili.
 
 Hivi ndivyo duka linavyofanya sasa: POS 693 kati ya 701 ni Taslimu (hatua 91, 12/11). Kanuni hii inafanya kazi **leo, baada ya toleo 2 (02/12), na baada ya D (07/12)** bila kubadilisha chochote.
 

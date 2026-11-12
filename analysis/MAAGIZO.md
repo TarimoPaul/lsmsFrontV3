@@ -1250,3 +1250,8 @@ Uthabiti: mwongozo §5 ("ukichagua simu kwenye POS, usiiandike tena kwenye reco"
   Na T12: sale 10,000 POS=M-Pesa + reco ya simu 10,000 → 1030 +10,000 tu (siyo 20,000).
   Rekebisha muundo AU mwongozo ili Macheda awe na KANUNI MOJA rahisi. Ripoti matokeo ya T11/T12.
 Kisha 6e.
+
+## 2026-11-12 (fs)
+(fr) SAWA. Mwongozo wa Macheda: kanuni iseme wazi "jumla ya SIKU kwa kila mtandao/benki, kama inavyoonekana kwenye simu / taarifa
+  (ikiwemo malipo ya POS na madeni)" — siyo sehemu. Ongeza mfano mmoja wa namba.
+Kisha 6e.
