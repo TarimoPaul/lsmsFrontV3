@@ -216,3 +216,6 @@ Code (chanzo kimeonekana 09/11):
     inaganda kwenye snapshot na GL ya kufunga siku; iliyoidhinishwa -> "drift" ya uongo). Rekebisho: backend t2-marejesho a268e3f.
   - e2e marejesho_api R8 (V3 t2-cutover 5bfb448): kabla a33df5a 28/10 1,356,100 -> 1,338,100 (FAIL); baada 14/0. UI marejesho_e2e (326a90f): 4/0 swichi ON, 1/0 OFF; API OFF 1/0.
   - unit (Reconciliation*, SalesReturn*): 663 / 0 fail.
+- (fi/fj 12/11) MUHTASARI-TOLEO2.md (jedwali la mwisho). (fj): akaunti ZOTE wazi (switch-off ya (fi) ilibatilishwa kabla ya push);
+  kinga: backend t2-cutover 710fa5a (usage) + 92a6e60 (local.sh clean build), V3 e4b87fe; akaunti_e2e 5/0, ng 103/103; hatua 60 akaunti 9 (t60 14/0); hatua 91 (prod kusoma tu).
+  Ifuatayo: 6e -> usafi 9 (junk lines, C9, UTF-16) -> kazi 10.
