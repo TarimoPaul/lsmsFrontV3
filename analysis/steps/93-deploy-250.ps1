@@ -1,6 +1,9 @@
 ﻿# HATUA 93 (mmiliki 12/11 ge; kama 76) - driver ya PC ya deploy 2.5.0 + 3.3.0. Endesha kupitia 93-deploy-250.cmd.
 #
-#   93-deploy-250.cmd build                  PC: docker login (token a, read/write - unaiandika wewe, haionekani) ->
+#   93-deploy-250.cmd build <be> <v3>        (gg 3) <be>/<v3> = commit/tag ILIYOTAJWA ya main (mf. 983b202 7b6fda2). Lazima iwe kwenye
+#                                            main, code ya HEAD = code yake, tree safi (V3: nje ya analysis/ - commit za analysis
+#                                            baadaye haziathiri). SHA kamili -> log + 93-build-commits.txt.
+#                                            PC: docker login (token a, read/write - unaiandika wewe, haionekani) ->
 #                                            deploy-backend.ps1 -Bump none -BuildOnly (2.5.0) -> deploy-v3.ps1 -Bump none -BuildOnly (3.3.0)
 #   93-deploy-250.cmd login                  server: token (b) READ-ONLY -> jaribio -> docker logout/login --password-stdin
 #   93-deploy-250.cmd staging refresh-db     staging: DB <- dump ya prod ya leo (02:00)
@@ -14,7 +17,7 @@
 # Deploy/rollback/refresh-db zinaendeshwa kwenye server kwa nohup: mtandao/umeme wa PC ukikatika KAZI INAENDELEA server.
 # Endesha amri ileile tena (au 'fuata'): ikiwa bado inaendesha, inafuatilia tu; ikiwa ilisimama, inaendelea pale ilipoishia.
 # Log: analysis\steps\93-<target>-<kitendo>.log (inaongezwa, haifutwi).
-param([string]$A1 = '', [string]$A2 = '')
+param([string]$A1 = '', [string]$A2 = '', [string]$A3 = '')
 $ErrorActionPreference = 'Continue'   # PS 5.1: stderr ya ssh/docker isiwe kosa la kusimamisha; exit code zinakaguliwa kwa mkono
 $Repo  = 'D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3'
 $Steps = Join-Path $Repo 'analysis\steps'
@@ -24,7 +27,7 @@ $R     = '~/lsms-250'
 
 if ($A1 -in 'build', 'login') { $Target = 'pc'; $Action = $A1 } else { $Target = $A1; $Action = $A2 }
 if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db', 'kazi', 'smoke')) {
-    Write-Host "MATUMIZI: 93-deploy-250.cmd build | login | <staging|prod> <deploy|rollback|hali|fuata> | staging refresh-db"; exit 2
+    Write-Host "MATUMIZI: 93-deploy-250.cmd build <be-commit> <v3-commit> | login | <staging|prod> <deploy|rollback|hali|fuata> | staging refresh-db"; exit 2
 }
 if ($Action -in 'refresh-db', 'kazi' -and $Target -ne 'staging') { Write-Host "SIYO: $Action ni ya staging tu (inaandika)"; exit 2 }
 $LogDir = if ($env:L93_LOGDIR) { $env:L93_LOGDIR } else { $Steps }   # L93_LOGDIR: majaribio tu
@@ -35,13 +38,31 @@ L "===== 93 $Target $Action $(Get-Date -Format 'yyyy-MM-dd') ====="
 
 # ── build (PC) ──────────────────────────────────────────────────────────────────────────────────────────────
 if ($Action -eq 'build') {
-    foreach ($p in @(@($Be, '2.5.0', '.backend-version'), @($Repo, '3.3.0', '.frontend-v3-version'))) {
+    # (gg 3) build ya commit/tag ILIYOTAJWA, si "main ya sasa": commit lazima iwe HEAD ya main na tree safi (build inasoma tree).
+    if (-not $A2 -or -not $A3) { L 'SIYO: taja commit/tag: 93-deploy-250.cmd build <be-commit> <v3-commit>'; exit 2 }
+    $built = @()
+    foreach ($p in @(@($Be, '2.5.0', '.backend-version', $A2, @()), @($Repo, '3.3.0', '.frontend-v3-version', $A3, @('--', '.', ':!analysis')))) {
+        $want = (git -C $p[0] rev-parse --verify --quiet "$($p[3])^{commit}")
+        if (-not $want) { L "SIYO: $($p[3]) si commit/tag ya $($p[0])"; exit 1 }
+        $want = $want.Trim()
+        $head = (git -C $p[0] rev-parse HEAD).Trim()
+        $main = (git -C $p[0] rev-parse main).Trim()
         $br = (git -C $p[0] rev-parse --abbrev-ref HEAD).Trim()
+        $dirty = @(git -C $p[0] status --porcelain --untracked-files=no @($p[4]))
         $v = (Get-Content (Join-Path $p[0] $p[2]) -Raw).Trim()
-        L "$($p[0]): tawi $br, $($p[2]) = $v"
-        if ($br -ne 'main') { L "SIYO: lazima iwe main"; exit 1 }
+        L "$($p[0]): imetajwa $($p[3]) = $want | HEAD $head | tawi $br | $($p[2]) = $v | mabadiliko $($dirty.Count)"
+        if ($br -ne 'main' -or $head -ne $main) { L "SIYO: lazima iwe tawi main"; exit 1 }
+        & git -C $p[0] merge-base --is-ancestor $want $head
+        if ($LASTEXITCODE -ne 0) { L "SIYO: $($p[3]) haiko kwenye main"; exit 1 }
+        & git -C $p[0] diff --quiet $want $head @($p[4])
+        if ($LASTEXITCODE -ne 0) { L "SIYO: code ya main sasa si sawa na $($p[3]) (build inasoma tree) - taja commit ya HEAD"; exit 1 }
+        if ($dirty.Count -ne 0) { L "SIYO: tree si safi: $($dirty -join '; ')"; exit 1 }
         if ($v -ne $p[1]) { L "SIYO: $($p[2]) si $($p[1])"; exit 1 }
+        $built += "$($p[1]) $want"
     }
+    $bc = Join-Path $LogDir '93-build-commits.txt'
+    Add-Content -Path $bc -Value ("{0} backend {1} | v3 {2}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm'), $built[0], $built[1]) -Encoding UTF8
+    L "COMMIT ZA BUILD: backend $($built[0]) | v3 $($built[1]) (-> $bc; tag v2.5.0/v3.3.0 baada ya prod)"
     L 'docker login ya PC: andika token (a) READ/WRITE kwenye "Password:" (haionekani).'
     & docker login -u chiefmaster
     if ($LASTEXITCODE -ne 0) { L 'SIYO: docker login imeshindwa'; exit 1 }
@@ -60,7 +81,7 @@ if ($Action -eq 'build') {
         if ($LASTEXITCODE -ne 0) { L "SIYO: $i haipo Docker Hub"; exit 1 }
         L "Docker Hub SAWA: $i"
     }
-    L '---93_BUILD_OK--- Sasa endesha push-yote (backend main + V3 main), kisha 93-deploy-250.cmd login'
+    L "---93_BUILD_OK--- backend $($built[0]) | v3 $($built[1]). Sasa push-yote (main zote mbili), kisha 93-deploy-250.cmd login"
     exit 0
 }
 

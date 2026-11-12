@@ -1368,3 +1368,18 @@ Usafi 9 umekubaliwa. Kazi 10 — vigezo vya lango:
 3. Rollback kwa KUANDIKA: 2.4.0 juu ya schema 151 → sale mpya (Taslimu), reco moja hadi kuidhinishwa, manunuzi moja,
    malipo ya deni. Zote zinaandikwa bila kosa. Orodhesha column za NOT NULL zilizoongezwa V139–V151 na default zake.
 4. Kisha script ya deploy + staging.
+
+## 2026-11-12 (gg)
+BADILISHA (gf) kipengele 2 — uamuzi wa Chief: code zote → main → staging kutoka main → prod.
+1. KABLA ya kuunganisha main: thibitisha tag v2.4.0 = 9b6678a (backend) na v3.2.0 = commit ya prod (V3) zipo
+   na zimepushwa; kama hazipo, ziunde (push ni ya Chief). Hotfix yoyote kabla ya 02/12 = hotfix/* kutoka tag hizo.
+2. Kipengele 1 cha (gf) kinabaki: is-ancestor kwa KILA feature/t2-* dhidi ya main iliyounganishwa (repo zote mbili).
+3. 93-deploy-250: ijenge kwa commit/tag iliyotajwa (iandikwe kwenye log), si "main ya sasa". Baada ya prod: tag v2.5.0/v3.3.0.
+4. Lango (ruhusa imetolewa, kama (gf) 3) liendeshwe kwenye main iliyounganishwa, dump mpya ya 92.
+5. (gf) 4 kinabaki (A6 ina jaribio lake).
+
+## 2026-11-12 (gh)
+Uamuzi wa mwisho wa Chief: main ndiyo chanzo pekee — local → main → staging → production. Hakuna release/* ya kudumu;
+release/2.5.0 na release/3.3.0 ziunganishwe main kisha zisitumike tena. Fuata (gg) 1–5.
+(Kumbuka ya Claude: maandishi ya (gf) yenyewe hayakunifikia; nimefuata (gg)/(gh) kama yalivyoandikwa.)
+

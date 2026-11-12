@@ -97,6 +97,13 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      (zimewekwa + lango linakagua sasa); k3 + kupima_api = cutover T10 iliidhinisha reco ya LEO ya Macheda (kinga A6 sahihi) -> sasa
      muuzaji wa E2E (ba74aab): cutover 16/0, k3 20/0, kupima_api 54/0. Awamu B + rollback hazikuendeshwa (script ilibadilishwa
      ikiendeshwa - kosa langu, imerekebishwa). Lango la pili lilisimamishwa na mfumo (RAM ndogo) wakati wa suite.
+   - **(gg)/(gh) 12/11 — main ndiyo chanzo pekee** (local -> main -> staging -> prod; release/* hazitumiki tena):
+     tag v2.4.0 -> 9b6678a na v3.2.0 -> 922c3ac zipo origin (V3 main = v3.2.0 nje ya analysis/ kabla ya kuunganisha). Hotfix kabla
+     ya 02/12 = `hotfix/*` kutoka tag hizo. Imeunganishwa: backend main **983b202** (+ 3b6bf61 njia ya E2E ya lango) = tree ya
+     release/2.5.0; V3 main **7b6fda2** = release/3.3.0 nje ya analysis/. is-ancestor: feature/t2-* 9 (local + origin) + release
+     + tag -> zote ndani ya main, repo zote mbili. `93-deploy-250.cmd build <be> <v3>`: commit/tag lazima itajwe, iwe ndani ya main,
+     code ya HEAD = code yake, tree safi; SHA kamili -> log + 93-build-commits.txt (majaribio 5/5). Baada ya prod: tag v2.5.0/v3.3.0
+     kwenye SHA hizo.
    (mpango wa awali:)  unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 
