@@ -1,0 +1,52 @@
+---MWENDESHO-87--- 
+Wed 11/11/2026  9:03:22.35 
+---FAILI-KWENDA-CONTABO--- 
+[exit 0] 
+---KAGUA--- 
+   (share = maelezo 'Mwaka mzima' au ANNUAL_EXPENSE; mstari wenye maelezo ya namba tu, k.m. '2400000', uangaliwe kwa macho kwenye C)
+=== A SHARE ZA MWAKA 2026 (mwezi | ref | aina | kundi | maelezo | kiasi | hali)
+2026-01-01 | OPE-MON-20260101-000000-4B42C8F1 | MONTHLY_EXPENSE | - | Malipo ya Kodi Tra (Mwaka mzima - jumla: TZS 250,000) | 20833.33 | APPROVED
+2026-01-01 | OPE-MON-20260101-000000-F7C9E331 | MONTHLY_EXPENSE | - | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000) | 200000.00 | APPROVED
+=== B MWINGILIANO (share ya mwaka inahesabiwa kila mwezi): mwezi wa mtoto | share (ref, kiasi, maelezo) | mtoto mwingine (ref, kiasi, maelezo) | neno/kundi linalofanana
+2026-01-01 | OPE-MON-20260101-000000-4B42C8F1 | 20833.33 | Malipo ya Kodi Tra (Mwaka mzima - jumla: TZS 250,000) | TAX-MON-20260101-000000-3F4D1D0F | 0.00 | Malipo Ya TRA | tra
+2026-10-01 | OPE-MON-20260101-000000-F7C9E331 | 200000.00 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000) | REN-MON-20261001-000000-0EA74497 | 0.00 | Malipo Ya Kodi YA Frame | frame
+2026-11-01 | OPE-MON-20260101-000000-4B42C8F1 | 20833.33 | Malipo ya Kodi Tra (Mwaka mzima - jumla: TZS 250,000) | TAX-MON-20261101-000000-B4F8EA66 | 250000.00 | Malipo Ya TRA (2026-11) | tra
+2026-11-01 | OPE-MON-20260101-000000-F7C9E331 | 200000.00 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000) | REN-MON-20261101-000000-5D9DD844 | 200000.00 | Malipo Ya Kodi YA Frame (2026-11) | frame
+   (rejea ew: REN-MON-20261101-...-5D9DD844 na TAX-MON-20261101-...-B4F8EA66 zinatarajiwa hapa, Nov)
+=== C WATOTO WOTE WA MWEZI 2026 WASIO SHARE, KWA MWEZI (mwezi | ref | kundi | maelezo | kiasi) - kwa ukaguzi wa macho
+2026-01-01 | OPE-MON-20260101-000000-2939F6DE | - | 2400000 | 200000.00
+2026-01-01 | TAX-MON-20260101-000000-3F4D1D0F | - | Malipo Ya TRA | 0.00
+2026-07-01 | OPE-MON-20260701-000000-AABDC814 | - | MALIPO YA KINGAMUZI AZAM | 28000.00
+2026-08-01 | OPE-MON-20260801-000000-79A1559D | - | Malipo Ya Manager | 180000.00
+2026-08-01 | OPE-MON-20260801-000000-8ED8D5EF | - | Malipo Ya Mfanyakazi | 150000.00
+2026-09-01 | OPE-MON-20260901-000000-06AC14BB | - | Malipo Ya wafanyakazi | 150000.00
+2026-09-01 | OPE-MON-20260901-000000-37FAE6D1 | - | Malipo Ya Dereva (2026-09) | 150000.00
+2026-09-01 | OPE-MON-20260901-000000-45445413 | - | Malipo Ya Kingamuzi | 28000.00
+2026-09-01 | OPE-MON-20260901-000000-4B6D0F55 | - | Malipo Ya Wafanyakazi | 150000.00
+2026-09-01 | OPE-MON-20260901-000000-B4D80D8C | - | Malipo Ya Dereva | 0.00
+2026-09-01 | OPE-MON-20260901-000000-FA8AA6E0 | - | Malipo Ya Router | 70000.00
+2026-10-01 | OPE-MON-20261001-000000-73E6ECB1 | - | malipo ya wafanyakazi | 0.00
+2026-10-01 | OPE-MON-20261001-000000-8E962367 | - | malipo ya wafanyakazi (2026-10) | 300000.00
+2026-10-01 | OPE-MON-20261001-000000-F1C30121 | - | Malipo Ya Dereva (2026-10) | 150000.00
+2026-10-01 | REN-MON-20261001-000000-0EA74497 | - | Malipo Ya Kodi YA Frame | 0.00
+2026-11-01 | OPE-MON-20261101-000000-08E11F26 | - | Malipo Ya Mlinzi (2026-11) | 18000.00
+2026-11-01 | OPE-MON-20261101-000000-188B8289 | - | Malipo Ya Bando TTCL | 0.00
+2026-11-01 | OPE-MON-20261101-000000-1F69FDCB | - | Malipo Ya Azam | 0.00
+2026-11-01 | OPE-MON-20261101-000000-7141D798 | - | Malipo Ya Azam | 0.00
+2026-11-01 | OPE-MON-20261101-000000-78B59FE9 | - | malipo ya wafanyakazi (2026-11) | 300000.00
+2026-11-01 | OPE-MON-20261101-000000-B76DE7BD | - | Kifurushi Cha Bando TTCL | 0.00
+2026-11-01 | OPE-MON-20261101-000000-C1B0BA4D | - | Kifurushi Cha Bando TTCL (2026-11) | 55000.00
+2026-11-01 | OPE-MON-20261101-000000-E4D892F9 | - | Malipo Ya Mlinzi | 0.00
+2026-11-01 | OPE-MON-20261101-000000-E811CF7D | - | Malipo Ya Azam | 0.00
+2026-11-01 | OPE-MON-20261101-000000-F681592A | - | Malipo Ya Azam (2026-11) | 28000.00
+2026-11-01 | REN-MON-20261101-000000-5D9DD844 | - | Malipo Ya Kodi YA Frame (2026-11) | 200000.00
+2026-11-01 | TAX-MON-20261101-000000-B4F8EA66 | - | Malipo Ya TRA (2026-11) | 250000.00
+2026-12-01 | OPE-MON-20261201-000000-5519446E | - | Malipo Ya Azam (2026-12) | 28000.00
+2026-12-01 | OPE-MON-20261201-000000-66FFC6C5 | - | Malipo Ya Mlinzi (2026-12) | 18000.00
+2026-12-01 | OPE-MON-20261201-000000-7A21A088 | - | Kifurushi Cha Bando TTCL (2026-12) | 55000.00
+2026-12-01 | OPE-MON-20261201-000000-EC07AC64 | - | malipo ya wafanyakazi (2026-12) | 300000.00
+=== MWISHO
+[ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[exit 0] 
+faili za /tmp zimefutwa
+---OK--- 

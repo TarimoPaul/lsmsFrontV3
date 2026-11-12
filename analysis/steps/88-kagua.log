@@ -1,0 +1,26 @@
+﻿[09:43:21] ===== 88 kagua 2026-11-11 =====
+[09:43:47] === 88 KAGUA 2026-11-11 09:43:42 - KUSOMA TU
+[09:43:47] --- (ey) row: ref | maelezo | kiasi | hali | tarehe | iliundwa | created_by | approved_by | updated_by | journal
+[09:43:47] OPE-MON-20260101-000000-2939F6DE | 2400000 | 200000 | APPROVED | 2026-01-01 | 2026-04-30 14:01 | - | - | - | 2026-01-01 POSTED JE-2026-12651943663716 [1000:-200000,6200:200000] (journal 2026-09-30 10:31)
+[09:43:47] --- aliyeiunda kwenye audit_trails (dakika 2 kabla/baada ya kuundwa):
+[09:43:47]    (tupu = hakuna rekodi; nakala ya 29/10 ilikuwa tupu, created_by tupu)
+[09:43:47] --- Frame + rows za 200,000 za Jan 2026 (kwa kulinganisha): ref | maelezo | kiasi | iliundwa | journal
+[09:43:47] OPE-MON-20260101-000000-2939F6DE | 2400000 | 200000 | 2026-04-30 14:01 | 2026-01-01 POSTED JE-2026-12651943663716 [1000:-200000,6200:200000] (journal 2026-09-30 10:31)
+[09:43:47] OPE-MON-20260101-000000-F7C9E331 | KODI YA FRAME (Mwaka mzima - jumla: TZS 2,400,000) | 200000 | 2026-07-21 09:41 | 2026-01-01 POSTED JE-2026-12653637524101 [1000:-200000,6200:200000] (journal 2026-09-30 10:31)
+[09:43:47] REN-MON-20261001-000000-0EA74497 | Malipo Ya Kodi YA Frame | 0 | 2026-11-04 15:41 | HAKUNA JOURNAL
+[09:43:47] REN-MON-20261001-000000-F4B73208 | Malipo Ya Kodi YA Frame (2026-10) | 200000 | 2026-11-04 15:41 | HAKUNA JOURNAL
+[09:43:47] REN-MON-20261101-000000-5D9DD844 | Malipo Ya Kodi YA Frame (2026-11) | 200000 | 2026-11-04 15:41 | 2026-11-01 POSTED JE-2026-1508394524229744 [1000:-200000,6000:200000] (journal 2026-11-05 00:10)
+[09:43:47] --- (ey) Septemba 'wafanyakazi' (Chief athibitishe kama ni nakala): ref | maelezo | kiasi | iliundwa | journal
+[09:43:47] OPE-MON-20260801-000000-8ED8D5EF | Malipo Ya Mfanyakazi | 150000 | 2026-08-23 12:51 | 2026-08-01 POSTED JE-2026-12654649801621 [1000:-150000,6200:150000] (journal 2026-09-30 10:31)
+[09:43:47] OPE-MON-20260801-000000-79A1559D | Malipo Ya Manager | 180000 | 2026-08-23 12:52 | 2026-08-01 POSTED JE-2026-12654653909062 [1000:-180000,6200:180000] (journal 2026-09-30 10:31)
+[09:43:47] OPE-MON-20260901-000000-06AC14BB | Malipo Ya wafanyakazi | 150000 | 2026-09-08 08:49 | 2026-09-01 POSTED JE-2026-12655296369489 [1000:-150000,6200:150000] (journal 2026-09-30 10:31)
+[09:43:47] OPE-MON-20260901-000000-4B6D0F55 | Malipo Ya Wafanyakazi | 150000 | 2026-09-08 09:11 | 2026-09-01 POSTED JE-2026-12655300588970 [1000:-150000,6200:150000] (journal 2026-09-30 10:31)
+[09:43:47] row: 200000 | 2400000 | APPROVED   (lazima 200000 | 2400000 | APPROVED)
+[09:43:47] journal ya row: 1 | 200000 | 200000   (lazima 1 | 200000 | 200000)
+[09:43:47] cutover D: HAIJAWEKWA   kipindi 2026-11-11: OPEN   journal ya 88 tayari: 0
+[09:43:47] --- salio SASA
+[09:43:47] 1000 (Dr-Cr): 13996664.87 | 6200 2026: 6162300.00 | 6000 2026: 2200000.00 | TB: 0.00
+[09:43:47] journal itakuwa (tarehe 2026-11-11), IKIWA Chief atasema ni Frame mara ya 3: Dr 1000 200,000 / Cr 6200 200,000 - 'Marekebisho: Frame Jan 2026 mara ya 3 (row 2400000, OPE-MON-20260101-000000-2939F6DE) haikutoka kwenye biashara (hatua 88)'
+[09:43:47] makadirio BAADA: 1000 = 14196664.87, 6200 2026 = 5962300.00, TB haibadiliki
+[09:43:47] ---88_KAGUA_MWISHO---
+[09:43:47] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
