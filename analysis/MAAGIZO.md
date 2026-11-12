@@ -1225,3 +1225,13 @@ V151 (check ya payment method): hakuna hotfix — inaingia toleo 2 (02/12). Mpak
 Kusoma tu (prod, ndani ya hatua 91 au 92): sale/madeni tangu 01/10 yaliyolipwa kwa njia ambayo huenda ilibadilishwa — ishara: reco yenye upungufu
  + amana ya Selcom siku hiyo. Ripoti tu.
 Kisha 6e, usafi 9, kazi 10.
+
+## 2026-11-12 (fn)
+Jagger: saizi ZIPO kwenye sehemu ya ujazo (350, 750ml, 1LT, 200ml) — ukaguzi wa 91 uliangalia jina tu. FUNGA kipengele cha Jagger.
+  Rekebisha 91 (na ukaguzi wowote wa saizi) usome sehemu ya ujazo, si jina.
+Taarifa kwa Chief tu: 886dc1ed (1LT) imerudi "6 pcs/pkg, 330,000" tarehe 03/11 baada ya hatua 63 — Chief ataamua.
+Kategoria za Jagger hazilingani (VODKA/Beer/WISKY) — Chief atazirekebisha; usiguse.
+Kisha 6e, usafi 9, kazi 10.
+
+## 2026-11-12 (fo)
+Jagger 1LT/750ml: "6 pcs/pkg" ni SAHIHI (box = 6; wananunua kwa kipande). Usiguse. Kinga ni onyo la manunuzi. Kipengele kimefungwa.
