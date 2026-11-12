@@ -1,0 +1,41 @@
+setup A: 200 Marekebisho yameandikwa: INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637:MAREKEBISHO-1
+setup B: 200 Marekebisho yameandikwa: null
+PASS A1 kadi ya A: kiasi 1,000,000, riba 158,000, jumla 1,158,000
+PASS A2 A: makato ya siku riba 1,717 + akiba 10,870 = 12,587
+PASS A3 A: awamu 3 (04/11, 04/12, 04/01) 386,000 kila moja
+PASS A4 A: deni la kadi = GL (owed)
+PASS A5 B: mara moja, awamu 1 tarehe 28/11 1,200,000, akiba 19,048
+PASS A6 mkopo wa tatu (umelipwa) uko kwenye Historia, si kwenye orodha hai
+PASS B1 muhtasari: deni lote 636,000, siku 92, mwisho 2027-02-02, riba/siku 391 TZS, akiba/siku 6,522 TZS
+PASS B2 toast: mkopo umerekodiwa
+PASS B3 DB: mkopo mpya 636,000 (600,000 + 36,000), MONTHLY, awamu 3
+PASS B4 GL: Dr 1000 600,000 + Dr 1150 36,000 / Cr 2100 636,000
+PASS B5 riba ya kufidia: siku 11 (tarehe ya kuanza hadi leo)
+PASS C1 kiasi kimejazwa = awamu inayofuata (212,000)
+PASS C2 hakuna sehemu ya riba kwenye fomu
+PASS C3 picker: taslimu na benki tu (hakuna M-Pesa)
+PASS C4 zaidi ya deni -> ujumbe na kitufe kimezimwa
+PASS C5 hakiki: awamu #1 inalipwa
+PASS C6 toast: malipo yamerekodiwa
+PASS C7 deni 636,000 -> 424,000; awamu #1 PAID
+PASS C8 GL: Dr 2100 / Cr 1000 212,000 (bank cut-over haijawekwa)
+PASS C9 hakiki ya FIFO: #2 imelipwa, #3 sehemu
+PASS C10 deni 174,000; #2 PAID; #3 PARTIAL 38,000
+PASS C11 kadi: deni 174,000 na malipo 2 kwenye orodha
+PASS D1 tarehe zisizo na mpangilio -> ujumbe na kitufe kimezimwa
+PASS D2 toast: maelezo yamehifadhiwa
+PASS D3 DB: jina na tarehe ya awamu #2 zimebadilika
+PASS D4 hakuna journal mpya
+PASS F0 mkopo wa kugeuza umesajiliwa (API)
+PASS F1 journal inaonyeshwa: Dr 2100 330,000 TZS / Cr 1150 26,000 TZS / Cr 3000 304,000 TZS
+PASS F2 hakiki haiandiki kitu
+PASS F3 toast: mkopo umegeuzwa kuwa mtaji
+PASS F4 GL: journal ileile iliyoonyeshwa
+PASS F5 mkopo: 2100 = 0, 1150 = 0, CLOSED
+PASS F6 kadi imeondoka kwenye orodha hai, iko kwenye Historia
+PASS E1 Executive CEO anaona kadi
+PASS E2 Executive CEO: hakuna kitufe cha kuandika
+PASS E3 API: Executive CEO kulipa -> 403
+PASS Z hakuna JS error
+PASS Z2 usafi: mikopo ya mwendesho huu imefutwa (rekodi, awamu, journal), TB 0
+JUMLA PASS 38 FAIL 0

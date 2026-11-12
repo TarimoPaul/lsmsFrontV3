@@ -1,0 +1,5 @@
+PASS U0 reco ya 2026-11-05 ina amana NMB 300,000 (pengo_d_api)
+PASS U1 Taslimu -> NMB 300,000: onyo "Huenda imeshaandikwa kwenye reco ya 2026-11-05"; Ghairi -> haikuandikwa
+PASS U2 "Ndiyo, andika" -> imeandikwa (onyo, si kizuizi)
+PASS U3 Selcom -> NMB: hakuna onyo, imeandikwa; hakuna makosa ya ukurasa
+MWISHO PASS 4 FAIL 0

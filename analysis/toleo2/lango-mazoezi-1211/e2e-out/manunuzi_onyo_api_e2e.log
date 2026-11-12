@@ -1,0 +1,5 @@
+PASS M0 kabla ya tarehe ya kuanza hakuna siku inayoripotiwa (reco za zamani zenye manunuzi: 60)
+PASS M1 reco ya X: Pepsi 200,000, hakuna manunuzi -> onyo (tofauti +200,000); hakuna journal
+PASS M2 manunuzi NMB 200,000 kesho yake -> onyo linabaki (chanzo si droo)
+PASS M3 manunuzi Taslimu 200,000 kesho yake -> onyo la X linaondoka; yakiidhinishwa: journal 1, Cr 1000 200,000
+MWISHO PASS 4 FAIL 0

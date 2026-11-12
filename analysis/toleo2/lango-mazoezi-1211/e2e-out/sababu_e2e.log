@@ -1,0 +1,22 @@
+SALE 121126-1617-6 2026-11-12 | R1 6c717da1-c963-4a51-8586-da192c14efd8 2026-10-28 | R2 468a093f-a8ae-4a51-874b-fd9f2e70153c
+PASS A1 "6666666666" -> kitufe kimezimwa
+PASS A2 "6666666666" -> maelezo ya kosa yanaonekana
+PASS A1 "rrrrrrrrrr" -> kitufe kimezimwa
+PASS A2 "rrrrrrrrrr" -> maelezo ya kosa yanaonekana
+PASS A1 "ab ab ab ab ab" -> kitufe kimezimwa
+PASS A2 "ab ab ab ab ab" -> maelezo ya kosa yanaonekana
+PASS A3 sababu halisi -> kitufe kinawaka, maelezo ya kosa yanaondoka
+PASS A4 DB: mauzo bado hai (tuliahirisha)
+PASS B1 API: kufuta kwa "6666666666" kunakataliwa
+PASS B2 DB: mauzo bado hai
+PASS B3 API: unsubmit kwa "rrrrrrrrrr" kunakataliwa
+PASS B4 DB: reco bado SUBMITTED
+PASS B5 API: reopen kwa "6666666666666" kunakataliwa
+PASS B6 DB: reco ya pili bado APPROVED
+PASS C1 unsubmit "rrrrrrrrrr" -> kitufe kimezimwa
+PASS C2 maelezo ya kosa yanaonekana
+PASS C3 sababu halisi -> kitufe kinawaka
+PASS C4 DB: reco bado SUBMITTED
+PASS C5 hakuna makosa ya ukurasa
+PASS D1 reco imerudishwa APPROVED na maelezo hayakubadilika
+MUHTASARI sababu: PASS 20, FAIL 0

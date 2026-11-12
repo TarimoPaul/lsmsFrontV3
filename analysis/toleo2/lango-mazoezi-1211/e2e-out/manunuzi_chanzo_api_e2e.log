@@ -1,0 +1,4 @@
+PASS S1 bila msambazaji + Benki NMB 500,000 (baada ya D) -> Cr 1021 500,000
+PASS S2 bila msambazaji + Taslimu 500,000 -> Cr 1000 500,000
+PASS S3 bila msambazaji, bila chanzo -> imekataliwa
+MWISHO PASS 3 FAIL 0

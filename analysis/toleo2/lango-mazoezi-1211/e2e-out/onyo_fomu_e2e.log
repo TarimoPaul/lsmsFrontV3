@@ -1,0 +1,17 @@
+PASS S1 setup: PENDING moja ya bei ya kawaida imeundwa
+PASS H1 kuhariri: bei ya kawaida haina onyo
+PASS H2 kuhariri: bei x10 -> "kreti au chupa?" (ya manunuzi ya mwisho)
+PASS H3 kuhifadhi: dialogi "Kreti au chupa?" inataja bidhaa
+PASS H4 Rekebisha: hakuna PUT, fomu bado wazi
+PASS H5 Bei ni sahihi: PUT inatumwa (haikatai)
+PASS N0 aina = vipande (bei kwa kipande)
+PASS N1 ununuzi mpya: bei = wastani -> hakuna onyo
+PASS N2 ununuzi mpya: bei x10 ya wastani wa Stoo -> onyo
+PASS N3 kuhifadhi: dialogi "Kreti au chupa?"
+PASS N4 Rekebisha: hakuna POST
+PASS N5 Bei ni sahihi: POST inatumwa (haikatai)
+PASS D1 DB: PENDING ya majaribio haikubadilika (PUT ilizuiwa)
+PASS D2 DB: hakuna ununuzi wa bidhaa mpya (POST ilizuiwa)
+PASS D3 usafi: PENDING ya majaribio imefutwa
+PASS Z hakuna JS error kwenye kurasa
+JUMLA PASS 16 FAIL 0

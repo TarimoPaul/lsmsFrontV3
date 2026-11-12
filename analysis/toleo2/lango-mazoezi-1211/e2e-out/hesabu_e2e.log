@@ -1,0 +1,10 @@
+PASS U1a swali la mzigo linaonekana
+PASS U1b bila jibu: Anza imezimwa
+PASS U1c NDIYO bila bidhaa: Anza imezimwa
+PASS U1d bidhaa imechaguliwa: Anza inawaka
+PASS U1e zoezi limeanza; bidhaa ya mzigo haihesabiwi leo
+PASS U2a ziada kubwa: onyo + kitufe cha mtu wa pili
+PASS U2b hesabu ya mtu wa pili imehifadhiwa (CEO, tofauti +1)
+PASS U2c mstari unaonyesha "Mtu wa pili", onyo limeondoka
+PASS Z hakuna JS error
+JUMLA PASS 9 FAIL 0

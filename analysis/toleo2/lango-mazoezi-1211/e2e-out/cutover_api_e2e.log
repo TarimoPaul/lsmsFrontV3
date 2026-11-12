@@ -1,0 +1,17 @@
+PASS T1 reco KABLA ya D imeidhinishwa -> hakuna uhamisho
+PASS T2 reco ya siku D -> Dr 1021 amana za NMB, Dr 103x pesa ya simu, Cr 1000 jumla
+PASS T3 kufungua tena -> uhamisho umerudishwa (hakuna kilicho hai)
+PASS T4 kuidhinisha tena -> umeandikwa tena, mara moja; kurudisha kuliandikwa tarehe ya siku ile
+PASS T5 malipo ya msambazaji Benki NMB baada ya D -> Cr 1021
+PASS T6 amana ya sefu NMB imethibitishwa baada ya D -> Dr 1021 / Cr 1000
+PASS T7 uhamisho Selcom -> NMB 500k ada 2k: 1023 -500k (=0 kwa amana hii), 1021 +498k, 6130 +2k
+PASS T8 uhamisho wa benki KABLA ya D -> umekataliwa
+PASS T9 bila sababu halali -> imekataliwa
+PASS T10 siku baada ya D: POS yote CASH (sale -> Dr 1000 tu) + reco ya simu/benki -> Dr 1021/1023/1030/1031 / Cr 1000 kiasi cha reco tu
+PASS T10b hakuna mara mbili: journal za sale hazina 102x/103x; uhamisho mmoja tu wa reco
+PASS T11 POS M-Pesa 1000 + reco ya simu 0 -> 1030 +1000 tu; reco inahesabu simu 1000
+PASS T12 POS M-Pesa 1000 + reco ya simu 1000 -> 1030 +1000 tu; reco inahesabu simu 1000
+PASS T13 POS M-Pesa 1000 + reco ya simu 31000 -> 1030 +31000 tu; reco inahesabu simu 31000
+PASS T14 POS NMB 1000 + amana ya NMB kwenye reco 51000 -> 1021 +51000 tu (uhamisho 50,000)
+PASS TB = 0
+MWISHO PASS 16 FAIL 0

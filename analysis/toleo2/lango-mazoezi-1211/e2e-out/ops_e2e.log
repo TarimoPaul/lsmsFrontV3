@@ -1,0 +1,20 @@
+PASS A1 bila CAPITAL_APPROVE -> 403
+PASS A2 sababu fupi / takataka -> 400, hakuna kilichobadilika
+PASS A3 gharama ya siku (si ya mwezi) -> 400
+PASS A4 CEO + sababu -> SAWA
+PASS A5 mara ya pili -> 400
+PASS O1 ripoti ya Okt: gharama za mwezi -150,000, faida +150,000
+PASS O2 daraja: mstari IMEONDOLEWA_KWENYE_RIPOTI = -150,000 (hatua 80), GHARAMA_ZA_MWEZI haijabadilika, isiyoelezeka haijabadilika, GL net ileile
+PASS O3 GL haijaguswa: TB, 6200, 1000 vilevile; row na journal yake bado zipo
+PASS N1 (ew) Nov inaonyesha Frame mara mbili (share + mtoto wa Nov)
+PASS N2 baada ya kuondolewa: Nov = share ya mwaka tu (sawa na kabla ya mtoto)
+PASS N3 kurudisha -> inahesabiwa tena
+PASS N4 orodha: zilizoondolewa 2 (sababu, nani); historia ya Nov = 3 (EXCLUDE, INCLUDE, EXCLUDE)
+PASS N5 orodha: bila CAPITAL_READ/APPROVE -> 403
+PASS N6 TB haijabadilika kwa yote
+PASS U1 kitufe "Nje ya ripoti (2)" kipo
+PASS U2 orodha inaonyesha REN-MON ya E2E na sababu
+PASS U3 UI: imeondolewa (pill "nje ya ripoti", kitufe sasa "Rudisha"), DB flag + log
+PASS U4 hakuna kosa la JavaScript
+PASS Z1 TB 0 mwisho
+MWISHO PASS 19 FAIL 0

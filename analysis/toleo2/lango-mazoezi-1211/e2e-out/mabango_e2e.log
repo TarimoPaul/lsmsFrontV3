@@ -1,0 +1,11 @@
+PASS S0 arifa 60 za jaribio zimeingia (50 mpya, 10 za zamani)
+PASS M1 mabango si zaidi ya 3
+PASS M2 mabango ni ya karibuni zaidi (FRESH 1-3), hakuna la zaidi ya saa 24
+PASS M3 "+73 zaidi kwenye kengele"
+PASS M4 vitufe vya chini kulia vinabofyeka (10 vimekaguliwa)
+PASS M5 "+N zaidi" inafungua arifa za madeni (kengele), mabango hayaonekani juu yake
+PASS M6 kufunga moja: bado 3, lililofungwa halipo
+PASS M7 za zaidi ya saa 24 tu: hakuna bango, kengele inazihesabu
+PASS Z hakuna JS error
+PASS Z2 usafi: arifa za jaribio zimefutwa
+JUMLA PASS 10 FAIL 0

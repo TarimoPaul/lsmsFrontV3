@@ -104,6 +104,14 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      + tag -> zote ndani ya main, repo zote mbili. `93-deploy-250.cmd build <be> <v3>`: commit/tag lazima itajwe, iwe ndani ya main,
      code ya HEAD = code yake, tree safi; SHA kamili -> log + 93-build-commits.txt (majaribio 5/5). Baada ya prod: tag v2.5.0/v3.3.0
      kwenye SHA hizo.
+   - **(gi) 12/11:** release/2.5.0 + release/3.3.0 (local) na worktree zake zimefutwa (zote zilikuwa ndani ya main; log za lango
+     la mazoezi zimehifadhiwa: `toleo2/lango-mazoezi-1211/`). **feature/t2-* HAZIFUTWI hadi baada ya prod 02/12 bila rollback
+     (~09/12)**, pamoja na DROP-MV/C6. **Tag hazifutwi kamwe.** Push ya main: baada ya lango kupita.
+   - **Kinga A6 baada ya muuzaji wa E2E** (gf 4 / gi): `deploy/local/e2e/a6_api_e2e.cjs` (HTTP, muuzaji wa E2E, siku 2 huru baada ya
+     kuhesabu mali; inaruka leo/jana na 01-08/11 za majaribio mengine) **7/0** kwenye dump 29/10 (image b764632): A1 kabla ya
+     kuidhinisha badiliko linaruhusiwa (kidhibiti); A2 reco IMEIDHINISHWA; A3 muuzaji kubadilisha -> RECO_APPROVED, sale haijabadilika;
+     A4 CEO pia anakataliwa; A5 kufuta kunakataliwa; A6 kuhamisha sale ya siku nyingine kwenda siku iliyoidhinishwa kunakataliwa;
+     A7 Macheda halisi hajaguswa. Matrix ya unit: `SaleChangeGuardTest` (suite). Inaendeshwa na run-all (awamu A ya lango).
    (mpango wa awali:)  unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 

@@ -1,0 +1,190 @@
+[15:58:45] ===== LANGO lsms_20261029_1027.dump | 2.5.0 lsms-backend:local-b764632 | 2.4.0 lsms-backend:local-9b6678a | git 6b3c834
+[15:58:46] --- 0 suite + pg-checks
+[15:59:45] SUITE [WARNING] Tests run: 691, Failures: 0, Errors: 0, Skipped: 1 exit 0
+PASS LoanSqlPgCheck 4/0
+PASS SaleChangePgCheck 4/0
+PASS PnlBridgePgCheck 1/0
+PASS StockValuePgCheck 2/0
+PASS TarehePgCheck 2/0
+PASS C3SourcePgCheck 6/0
+PG_CHECKS_OK 6/6
+[16:07:03] --- 1 restore tu + payment_method kabla ya migrate
+ Volume lsms-local_pgdata Creating 
+ Volume lsms-local_pgdata Creating 
+ Volume lsms-local_pgdata Created 
+ Volume lsms-local_pgdata Created 
+ Container lsms-local-postgres-1 Creating 
+ Container lsms-local-postgres-1 Created 
+ Container lsms-local-postgres-1 Starting 
+ Container lsms-local-postgres-1 Started 
+DUMP lsms_20261029_1027.dump
+pg_restore exit 0
+FLYWAY 102 134
+FLYWAY_ZILIZOSHINDWA 0
+MAJEDWALI 88
+ROWS users 8 sales 2761 journal_entry 5938 journal_entry_line 16588
+MAUZO_YA_MWISHO 2026-10-29
+TB_TOFAUTI 0.00
+RESTORE_TU (NO_BACKEND=1): backend haijaanzishwa - Flyway haijaendeshwa
+FLYWAY_KABLA 134
+DATA_YA_MWISHO sales 2026-10-28 payments 2026-10-28
+NJIA payments | CASH | 2794 | tangu 29/10: 0 | SAWA
+NJIA payments | VODACOM | 8 | tangu 29/10: 0 | SAWA
+NJIA payments | TIGOPESA | 1 | tangu 29/10: 0 | SAWA
+NJIA payments | NMB | 1 | tangu 29/10: 0 | SAWA
+HAIKUBALIKI_JUMLA 0
+[16:07:18] --- 2 Flyway -> 151 (backend 2.5.0)
+ Container lsms-local-postgres-1 Running 
+ Volume lsms-local_logs Creating 
+ Volume lsms-local_logs Creating 
+ Volume lsms-local_logs Created 
+ Volume lsms-local_logs Created 
+ Container lsms-local-backend-1 Creating 
+ Container lsms-local-backend-1 Created 
+ Container lsms-local-postgres-1 Waiting 
+ Container lsms-local-postgres-1 Healthy 
+ Container lsms-local-backend-1 Starting 
+ Container lsms-local-backend-1 Started 
+SWAP lsms-backend:local-b764632 | ERROR 0 | 
+FLYWAY_SASA 135 Loans Interest Schedule true
+FLYWAY_SASA 136 Users Token Version true
+FLYWAY_SASA 137 Login Audit true
+FLYWAY_SASA 138 Sale Change Audit true
+FLYWAY_SASA 139 Gl Control Snapshot true
+FLYWAY_SASA 140 Annual Prepayment true
+FLYWAY_SASA 141 Liability Payment true
+FLYWAY_SASA 142 Sale Below Cost Audit true
+FLYWAY_SASA 143 Kupima true
+FLYWAY_SASA 144 Staff Charge At Cost true
+FLYWAY_SASA 145 Ops Report Exclusion true
+FLYWAY_SASA 146 Counting Rules true
+FLYWAY_SASA 147 Owner Loan Jess true
+FLYWAY_SASA 148 Sales Return Refund Method And Exchange true
+FLYWAY_SASA 149 Bank Charges true
+FLYWAY_SASA 150 Opening Difference true
+FLYWAY_SASA 151 Payment Method Check All Methods true
+[16:07:37] --- 3 c2-check (kusoma tu)
+PASS C2QueryPgCheck 2/0
+PASS C2CorrectnessPgCheck 21/0
+C2 methods 93 (null-filter 71, bare Object[] 27), calls 315, {OK=229, WRAPPED=28, FAIL=58}
+per class+kind {OK JPQL=41, WRAPPED-HANDLED JPQL=4, FAIL-DEAD-C7 native=9, WRAPPED-DEAD-C7 JPQL=8, WRAPPED-DEAD-C7 native=2, FAIL-DEAD-C7 JPQL=7, OK native=17, WRAPPED-HANDLED native=5}
+NOT OK 0
+C2_OK 2/2
+[16:09:48] --- 4 E2E awamu A (swichi kama prod)
+MUHTASARI akaunti_e2e: PASS 5, FAIL 0, exit 0
+MUHTASARI b1_e2e: PASS 29, FAIL 0, exit 0
+MUHTASARI b2_e2e: PASS 22, FAIL 0, exit 0
+MUHTASARI b3_e2e: PASS 38, FAIL 0, exit 0
+MUHTASARI b4_e2e: PASS 11, FAIL 0, exit 0
+MUHTASARI b5_e2e: PASS 11, FAIL 0, exit 0
+MUHTASARI bei_e2e: PASS 14, FAIL 0, exit 0
+MUHTASARI c3_e2e: PASS 24, FAIL 0, exit 0
+MUHTASARI cutover_api_e2e: PASS 16, FAIL 0, exit 0
+MUHTASARI g25_e2e: PASS 31, FAIL 0, exit 0
+MUHTASARI g6_e2e: PASS 13, FAIL 0, exit 0
+MUHTASARI hesabu_api_e2e: PASS 22, FAIL 0, exit 0
+MUHTASARI hesabu_e2e: PASS 9, FAIL 0, exit 0
+MUHTASARI k3_e2e: PASS 20, FAIL 0, exit 0
+MUHTASARI kupima_api_e2e: PASS 54, FAIL 0, exit 0
+MUHTASARI kupima_e2e: PASS 22, FAIL 0, exit 0
+MUHTASARI mabango_e2e: PASS 10, FAIL 0, exit 0
+MUHTASARI malipo_d_api_e2e: PASS 15, FAIL 0, exit 0
+MUHTASARI manunuzi_chanzo_api_e2e: PASS 3, FAIL 0, exit 0
+MUHTASARI marejesho_api_e2e: PASS 1, FAIL 0, exit 0
+MUHTASARI marejesho_e2e: PASS 1, FAIL 0, exit 0
+MUHTASARI onyo_e2e: PASS 10, FAIL 0, exit 0
+MUHTASARI onyo_fomu_e2e: PASS 16, FAIL 0, exit 0
+MUHTASARI ops_e2e: PASS 19, FAIL 0, exit 0
+MUHTASARI pengo_d_api_e2e: PASS 6, FAIL 0, exit 0
+MUHTASARI sababu_e2e: PASS 20, FAIL 0, exit 0
+MUHTASARI tozo_api_e2e: PASS 32, FAIL 0, exit 0
+MUHTASARI tozo_e2e: PASS 8, FAIL 0, exit 0
+MUHTASARI uhamisho_onyo_e2e: PASS 4, FAIL 0, exit 0
+E2E_OK 29/29
+[16:19:18] --- 5 E2E awamu B (marejesho ON, onyo la manunuzi kuanzia 2026-11-01)
+ Volume lsms-local_pgdata Creating 
+ Volume lsms-local_pgdata Creating 
+ Volume lsms-local_pgdata Created 
+ Volume lsms-local_pgdata Created 
+ Container lsms-local-postgres-1 Creating 
+ Container lsms-local-postgres-1 Created 
+ Container lsms-local-postgres-1 Starting 
+ Container lsms-local-postgres-1 Started 
+DUMP lsms_20261029_1027.dump
+pg_restore exit 0
+FLYWAY 102 134
+FLYWAY_ZILIZOSHINDWA 0
+MAJEDWALI 88
+ROWS users 8 sales 2761 journal_entry 5938 journal_entry_line 16588
+MAUZO_YA_MWISHO 2026-10-29
+TB_TOFAUTI 0.00
+ Container lsms-local-postgres-1 Running 
+ Volume lsms-local_logs Creating 
+ Volume lsms-local_logs Creating 
+ Volume lsms-local_logs Created 
+ Volume lsms-local_logs Created 
+ Container lsms-local-backend-1 Creating 
+ Container lsms-local-backend-1 Created 
+ Container lsms-local-postgres-1 Waiting 
+ Container lsms-local-postgres-1 Healthy 
+ Container lsms-local-backend-1 Starting 
+ Container lsms-local-backend-1 Started 
+IMAGE sha256:bf90e827242b64c8bcf7695d1826fc12d038f96322fe21fd7633b294c7c71079
+FLYWAY_BAADA 151 0 zilizoshindwa
+LOCAL_TAYARI http://127.0.0.1:18090
+MUHTASARI manunuzi_onyo_api_e2e: PASS 4, FAIL 0, exit 0
+MUHTASARI manunuzi_onyo_e2e: PASS 1, FAIL 0, exit 0
+MUHTASARI marejesho_api_e2e: PASS 14, FAIL 0, exit 0
+MUHTASARI marejesho_e2e: PASS 4, FAIL 0, exit 0
+E2E_OK 4/4
+[16:20:37] --- 6 rollback kwa kuandika (2.4.0 juu ya schema 151)
+ Volume lsms-local_pgdata Creating 
+ Volume lsms-local_pgdata Creating 
+ Volume lsms-local_pgdata Created 
+ Volume lsms-local_pgdata Created 
+ Container lsms-local-postgres-1 Creating 
+ Container lsms-local-postgres-1 Created 
+ Container lsms-local-postgres-1 Starting 
+ Container lsms-local-postgres-1 Started 
+DUMP lsms_20261029_1027.dump
+pg_restore exit 0
+FLYWAY 102 134
+FLYWAY_ZILIZOSHINDWA 0
+MAJEDWALI 88
+ROWS users 8 sales 2761 journal_entry 5938 journal_entry_line 16588
+MAUZO_YA_MWISHO 2026-10-29
+TB_TOFAUTI 0.00
+ Container lsms-local-postgres-1 Running 
+ Volume lsms-local_logs Creating 
+ Volume lsms-local_logs Creating 
+ Volume lsms-local_logs Created 
+ Volume lsms-local_logs Created 
+ Container lsms-local-backend-1 Creating 
+ Container lsms-local-backend-1 Created 
+ Container lsms-local-postgres-1 Waiting 
+ Container lsms-local-postgres-1 Healthy 
+ Container lsms-local-backend-1 Starting 
+ Container lsms-local-backend-1 Started 
+IMAGE sha256:bf90e827242b64c8bcf7695d1826fc12d038f96322fe21fd7633b294c7c71079
+FLYWAY_BAADA 151 0 zilizoshindwa
+LOCAL_TAYARI http://127.0.0.1:18090
+ Container lsms-local-postgres-1 Running 
+ Container lsms-local-backend-1 Recreate 
+ Container lsms-local-backend-1 Recreated 
+ Container lsms-local-postgres-1 Waiting 
+ Container lsms-local-postgres-1 Healthy 
+ Container lsms-local-backend-1 Starting 
+ Container lsms-local-backend-1 Started 
+SWAP lsms-backend:local-9b6678a | ERROR 0 | Schema "public" has a version (151) that is newer than the latest available migration (138)
+MUHTASARI rollback_kuandika_e2e: PASS 5, FAIL 0, exit 0
+E2E_OK 1/1
+ Container lsms-local-postgres-1 Running 
+ Container lsms-local-backend-1 Recreate 
+ Container lsms-local-backend-1 Recreated 
+ Container lsms-local-postgres-1 Waiting 
+ Container lsms-local-postgres-1 Healthy 
+ Container lsms-local-backend-1 Starting 
+ Container lsms-local-backend-1 Started 
+SWAP lsms-backend:local-b764632 | ERROR 0 | 
+[16:21:56] MUHTASARI: E2E_A exit 0 | E2E_B exit 0 | ROLLBACK exit 0
+[16:21:56] LANGO_OK

@@ -1,0 +1,55 @@
+PASS S1 MANAGER bila KUPIMA_SETTINGS -> 403
+PASS S2 CEO anahifadhi: chupa 750ml, mzazi KONYAGI 750ML, vipimo 10/30/60
+PASS S3 onyo: 10ml bei 100 < gharama (avg/750 x 10)
+PASS S4 historia: AINA, CHOMBO, MZAZI, vipimo 3
+PASS P1 hakuna chombo wazi -> 422 KUPIMA_SHORT (hasOpen=false), hakuna sale
+PASS P2 kwa jibu -> chombo kipya: mzazi -1, bar 720
+PASS P3 mstari: bei 1,000 (iliyosajiliwa), gharama = avg/750 x 30, pour_ml 30
+PASS P4 hakuna movement ya stock kwa bidhaa ya kupima yenyewe
+PASS P5 GL ya sale: Dr 5000 / Cr 1200 = gharama ya kipimo
+PASS P6 bei ya kubadilishwa -> 422 KUPIMA_INVALID
+PASS P7 kufungua kwa mkono wakati kuna chombo wazi -> kataa (chombo kimoja)
+PASS P8 bar 60 baada ya 60 x 11
+PASS P9 haitoshi (60 < 120) -> 422 KUPIMA_SHORT, mlLeft 60, hakuna kilichobadilika
+PASS P10 (i) SPLIT: chombo cha zamani CLOSED SPLIT, upotevu 0; kipya: bar 750 - 60 = 690; mzazi -1
+PASS P11 kipimo kimegawanywa: 60ml kutoka chombo cha zamani + 60ml kutoka kipya
+PASS P12 hakuna journal ya upotevu kwa SPLIT
+PASS P13 (ii) FINISHED: 30ml upotevu, Dr 5100 / Cr 1200 kwa gharama; kipya bar 690
+PASS R1 kufuta sale (chombo wazi): ml 60 zinarudi kwenye bar (690 -> 750)
+PASS R2 kufuta sale ya chombo kilichofungwa: LOSS_RETURN 30ml + Dr 5100 / Cr 1200 (si kwenye bar)
+PASS C1 kiwango 3/4 dhidi ya bar 750: tofauti -187.5ml (imehifadhiwa, hakuna GL)
+PASS C2 "chombo kimeisha" kwa mkono: hakuna chombo wazi, upotevu 750ml
+PASS C3 kufungua kwa mkono (hakuna wazi) -> bar 750
+PASS B1 kipimo chini ya gharama bila sababu -> 422 BELOW_COST_REASON, bar haijaguswa
+PASS B2 kwa sababu -> inauzwa, BELOW_COST kwenye Kagua
+PASS H1 bei 30ml 1,000 -> 1,200 na 10ml kimeondolewa: historia ina zamani -> mpya
+PASS H2 kipimo cha zamani (kimebadilishwa) -> 422 KUPIMA_INVALID
+PASS M1 uhamisho bila KUPIMA_SETTINGS -> 403
+PASS M2 GL zaidi ya vipande x avg -> kataa, hakuna kilichobadilika
+PASS M3 uhamisho: vipande -> 0, Dr 3900 / Cr 1200 18,000, chombo 375ml, mzazi HAJAPUNGUZWA
+PASS M4 historia ya mauzo imebaki (bidhaa ileile, mistari ileile)
+PASS M5 uhamisho mara ya pili -> kataa (hata baada ya chombo kufungwa kwa maelezo)
+PASS W1 bei ya mzazi asiye kwenye orodha -> 422
+PASS W2 wazazi 2: GREPA 70ml = msingi 2,000; MA-LOT 70ml = yake 2,500; 80ml = msingi kwa wote
+PASS W3 historia: wazazi wote 2 + bei ya MA-LOT (msingi -> 2,500)
+PASS W4 hakuna chombo wazi -> KUPIMA_SHORT yenye wazazi 2
+PASS W5 kufungua bila kuchagua mzazi (wazazi 2) -> 422 KUPIMA_PARENT, hakuna stock iliyoguswa
+PASS W6 mzazi asiyeruhusiwa -> 422
+PASS W7 MA-LOT imechaguliwa: MA-LOT -1 (GREPA haijaguswa), chombo kinakumbuka MA-LOT, bei 2,500 (yake), gharama = avg MA-LOT / 5000 x 70
+PASS W8 POS inaonyesha bei za chombo kilicho wazi: 70ml = 2,500 (msingi 2,000), chombo = MA-LOT
+PASS W9 "Fungua chombo" kwa mkono bila mzazi (wazazi 2) -> 422 KUPIMA_PARENT
+PASS W10 GREPA imefunguliwa kwa mkono: GREPA -1, bei 2,000 (msingi), gharama = avg GREPA / 5000 x 70
+PASS W11 faida ya chombo: kila chombo kina mzazi wake na mapato yake (MA-LOT 2,500, GREPA 2,000)
+PASS W12 bei ya MA-LOT 2,500 -> 2,800: historia ipo; chombo cha GREPA kilicho wazi bado 2,000 (bei ni ya mzazi wa chombo)
+PASS T1 chombo kinahifadhi gharama yake: parent_avg_cost = avg ya mzazi siku ya kufungua, start_ml 750
+PASS T2 avg imebadilika (x3) baada ya kufungua: gharama ya kipimo 30ml BADO = avg ya zamani / 750 x 30 (mstari na POS)
+PASS T3 ripoti ya chombo wazi: gharama ya chombo = avg, mapato 1,300, gharama ya vilivyouzwa = 40ml, FAIDA = mapato - gharama, mapato ya juu = 750 x 40
+PASS T4 mapato hayahesabiwi mara mbili: jumla ya vyombo = jumla ya mistari hai (mstari wa SPLIT umegawanywa kwa ml)
+PASS T5 kila chombo kilichofungwa: gharama ya vilivyouzwa + upotevu = gharama ya chombo
+PASS T6 chombo cha uhamisho: start_ml 375 (zilizohesabiwa), gharama = 375ml, upotevu wote
+PASS T7 jumla kwa kinywaji = jumla ya vyombo (mapato, gharama, upotevu, faida); mwezi huu na kadi ya wiki sawa
+PASS T8 kadi ya wiki: jumla = jumla ya vinywaji vyote vya wiki
+PASS T9 tarehe zimegeuzwa -> 422
+PASS Z1 TB haijabadilika (Dr = Cr)
+PASS Z2 ripoti ya vyombo: 4, upotevu wa vilivyoisha unaonekana
+MWISHO PASS 54 FAIL 0

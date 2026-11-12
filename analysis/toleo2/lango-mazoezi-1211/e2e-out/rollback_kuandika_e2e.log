@@ -1,0 +1,7 @@
+BACKEND lsms-backend:local-9b6678a | FLYWAY 151
+PASS R1 sale ya Taslimu 1000 -> Success, journal 1
+PASS R2 sale ya mkopo + malipo ya deni Taslimu 1000 -> Success, payment imeandikwa
+PASS R3 reco ya leo: imeundwa, taslimu, imewasilishwa, IMEIDHINISHWA (snapshot)
+PASS R4 manunuzi (repurchase, Droo 50,000) yameidhinishwa -> journal Cr 1000
+PASS R5 hakuna gl_posting_failure mpya; TB = 0
+MWISHO PASS 5 FAIL 0

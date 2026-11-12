@@ -1,0 +1,11 @@
+PASS O0 mstari umeongezwa na bei ya mwisho
+PASS O1 bei ya kawaida: hakuna onyo
+PASS O2 bei x10: onyo "kreti au chupa?" kwenye mstari
+PASS O3 kutuma: dialogi "Kreti au chupa?" inataja bidhaa na x
+PASS O4 Rekebisha: hakuna kilichotumwa, mstari bado upo
+PASS O5 Bei ni sahihi: agizo linatumwa (haikatai)
+PASS O6 bei imerudishwa: onyo limeondoka
+PASS O7 bei ya kawaida: inatumwa bila dialogi
+PASS O8 DB: hakuna manunuzi mapya (bulk ilizuiwa)
+PASS Z hakuna JS error kwenye ukurasa
+JUMLA PASS 10 FAIL 0

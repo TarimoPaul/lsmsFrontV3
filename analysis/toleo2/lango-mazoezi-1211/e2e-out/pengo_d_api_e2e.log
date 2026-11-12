@@ -1,0 +1,10 @@
+MWANZO 1023=51000 1021=1823500
+PASS P1 reco: mteja amelipa Selcom 10,000 -> 1023 +10,000
+BILA TRANSFER: 1023 61000 (+10000)  1021 1773500 (-50000)
+PASS P2 bila Transfer: 1023 inabaki +10,000 (Selcom halisi = 0), 1021 -50,000 (NMB halisi -40,000) -> vitabu si sahihi
+NA TRANSFER:  1023 51000 (0)  1021 1783500 (-40000)
+PASS P3 na Transfer Selcom -> NMB 10,000: 1023 +0, 1021 -40,000 -> vitabu = hali halisi
+PASS P4 onyo: Transfer 1000 -> NMB 300,000 = amana ya reco ya siku ile -> "Huenda imeshaandikwa" (RECO); Selcom -> NMB, kiasi kingine, 1030 -> NMB: hakuna onyo
+PASS P6 dirisha ±1 siku: amana ya reco ya jana 300,000 + Transfer leo 1000 -> NMB 300,000 -> onyo (reco ya 2026-11-05); siku 2 nyuma -> hakuna onyo
+PASS P5 Transfer lipa namba 1030 -> NMB 100,000 makato 1,500: 1030 -100,000, 1021 +98,500, 6130 +1,500
+MWISHO PASS 6 FAIL 0

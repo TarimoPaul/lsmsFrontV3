@@ -1383,3 +1383,11 @@ Uamuzi wa mwisho wa Chief: main ndiyo chanzo pekee — local → main → stagin
 release/2.5.0 na release/3.3.0 ziunganishwe main kisha zisitumike tena. Fuata (gg) 1–5.
 (Kumbuka ya Claude: maandishi ya (gf) yenyewe hayakunifikia; nimefuata (gg)/(gh) kama yalivyoandikwa.)
 
+## 2026-11-12 (gi)
+(gf) 4 maana yake: baada ya kuhamisha majaribio kwa muuzaji wa E2E, ONYESHA jaribio linalothibitisha kinga A6
+  (reco IMEIDHINISHWA → kubadilisha sale ya siku hiyo kunakataliwa). Jina la jaribio + matokeo. Kama halipo, liongeze.
+Matawi: futa release/2.5.0 na release/3.3.0 (local) sasa. feature/t2-* ZISIFUTWE hadi baada ya prod 02/12 (~09/12);
+  weka kwenye MUHTASARI. Tag hazifutwi kamwe.
+Push ya main: baada ya lango kupita.
+Lango: endelea Chief akishafunga PID na 92 kukamilika.
+
