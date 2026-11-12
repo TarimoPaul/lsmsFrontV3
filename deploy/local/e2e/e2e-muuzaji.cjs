@@ -19,7 +19,7 @@ function ensureSeller(fromEmail, password) {
     for (const t of ['user_roles', 'user_branches']) {
       const cols = sql(`select string_agg(column_name, ',' order by ordinal_position) from information_schema.columns where table_schema = 'public' and table_name = '${t}' and column_name not in ('id')`);
       const sel = cols.split(',').map((c) => (c === 'user_uid' ? `'${uid}'` : c === 'uid' ? 'gen_random_uuid()::text' : c)).join(',');
-      sql(`insert into ${t} (${cols}) select ${sel} from ${t} where user_uid = (select uid from users where email = '${fromEmail}')`);
+      sql(`insert into ${t} (${cols}) select ${sel} from ${t} where user_uid = (select uid from users where email = '${fromEmail}') on conflict do nothing`);
     }
   }
   sql(`update users set password = '${hash}', status = 'ACTIVE', is_locked = false, is_deleted = false where uid = '${uid}'`);

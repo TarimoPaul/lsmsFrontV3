@@ -1398,3 +1398,13 @@ Ongeza A8 tu kwenye a6_api_e2e: CEO afungua reco iliyoidhinishwa (kwa sababu) �
 release/2.4.0 / 3.2.0 na image ya main: kama (gj).
 (Kumbuka ya Claude: maandishi ya (gj) hayakunifikia.)
 
+## 2026-11-12 (gl)
+Uamuzi A8e: badiliko/ufutaji wa sale ndani ya reco ILIYOFUNGULIWA UPYA → reversal/journal mpya kwa TAREHE YA SALE
+  (siku ya reco), ikiwa mwezi wake uko wazi; mwezi umefungwa → siku ya kwanza iliyo wazi (tabia ya sasa).
+  WIGO: njia hiyo tu. Reversal nyingine (marejesho, manunuzi, n.k.) hazibadiliki.
+  A8e iwe PASS/FAIL: GL ya 10/11 = reco ya 10/11 baada ya kuidhinisha tena; 12/11 haina mstari wowote.
+  Jaribio la unit: mwezi uliofungwa → siku ya kwanza iliyo wazi.
+(gj) — maandishi yake:
+  1. release/2.4.0 na release/3.2.0: futa (local + origin ni ya Chief) kama SHA = tag v2.4.0/v3.2.0; vinginevyo ripoti tofauti.
+  2. Lango liendeshwe kwenye image ya commit za main zilizotajwa (3b6bf61 + V3 ya mwisho), si image nyingine.
+

@@ -10,7 +10,8 @@
 //   A7 the real manager: no new sale / reco from this test
 //   A8 (gk) the way out: the seller cannot reopen (refused); the CEO reopens with a reason -> the seller still cannot change
 //      the day (NEEDS_CEO), the CEO deletes the day-X sale -> allowed, audit ALLOWED (reopened reco) -> approved again ->
-//      the sale's GL nets 0 on every account, TB = 0; A8e TAARIFA: the reversal's date (today by design) - Chief decides
+//      the sale's GL nets 0 on every account, TB = 0; A8e (gl) the reversal is dated on the sale's day: the day's GL revenue =
+//      the re-approved reco, the day of the change has no line of this sale
 // Throw-away local copy only. Run: node a6_api_e2e.cjs
 const { execFileSync } = require('child_process');
 const { SELLER, ensureSeller } = require('./e2e-muuzaji.cjs');
@@ -131,9 +132,15 @@ const TAG = `E2E-A6-${Date.now()}`;
   ok('A8c CEO anafuta sale ya siku iliyofunguliwa -> imeruhusiwa, audit ALLOWED (REOPENED, sababu)', d8.j?.status === 'Success' && del8 === 't' && aud8 === '1', `${msg(d8)} | deleted=${del8} audit=${aud8}`);
   ok(`A8d imeidhinishwa tena; GL ya sale ${gl0} -> imefutwa (net 0 kila akaunti); TB = 0`, ap8.j?.status === 'Success' && st8 === 'APPROVED'
     && gl0 !== '' && gl8 === '' && Math.abs(tb8) < 0.005, `${msg(ap8)} | ${st8} | GL ${gl0} -> '${gl8}' | tb ${tb8}`);
-  // (gk) "GL ya siku sawa na badiliko": PostingEngine.reverse dates a reversal TODAY by design (onDate null). Not a pass/fail
-  // until Chief decides whether a change on a reopened day should be dated that day.
-  console.log(`TAARIFA A8e tarehe za journal za sale: ${days8} (sale ${X}; reversal ya kufuta = siku ya kufuta)`);
+  // A8e (gl) a change inside a REOPENED reco is dated on the sale's day: the day's GL revenue of the seller's sales equals
+  // the re-approved reco, and the day of the change carries no line of this sale
+  const today = sql('select current_date::text');
+  const glRev = Number(sql(`select coalesce(round(sum(l.credit_amount - l.debit_amount), 2), 0) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid
+      join sales s on s.uid = j.reference_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and l.account_code = '4000' and s.user_uid = '${sUid}' and j.entry_date = '${X}'`));
+  const recoSales = Number(sql(`select coalesce(round(auto_total_sales, 2), 0) from daily_reconciliation where uid = '${ru}'`));
+  const onToday = sql(`select count(*) from journal_entry where reference_uid = '${sx.sid}' and entry_date = '${today}'`);
+  ok(`A8e journal zote za sale ni tarehe ${X} (siku ya reco); GL ${X} mapato ${glRev} = reco ${recoSales}; ${today} haina mstari wa sale hii`,
+    days8 === X && Math.abs(glRev - recoSales) < 0.005 && onToday === '0', `tarehe ${days8} | GL ${glRev} reco ${recoSales} | leo ${onToday}`);
   // A7 the real manager untouched
   const real1 = sql(`select (select count(*) from sales where user_uid = '${realMgr}') || '/' || (select count(*) from daily_reconciliation where user_uid = '${realMgr}')`);
   ok('A7 Macheda halisi: hakuna sale wala reco mpya kutoka jaribio hili', real1 === real0, `${real0} -> ${real1}`);

@@ -114,7 +114,15 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      A7 Macheda halisi hajaguswa. Matrix ya unit: `SaleChangeGuardTest` (suite). Inaendeshwa na run-all (awamu A ya lango).
      (gk) A8: muuzaji hawezi kufungua (imekataliwa); CEO anafungua kwa sababu -> muuzaji bado NEEDS_CEO; CEO anafuta sale ->
      ALLOWED (audit REOPENED + sababu); imeidhinishwa tena; GL ya sale net 0, TB 0 -> **11/0**. TAARIFA A8e: reversal imeandikwa
-     tarehe ya KUFUTA (12/11), si ya sale (10/11) - `PostingEngine.reverse` kwa muundo. Swali kwa Chief (wazi).
+     tarehe ya KUFUTA (12/11), si ya sale (10/11) - `PostingEngine.reverse` kwa muundo.
+     **(gl) imeamuliwa na kujengwa** (backend main e1b1a53): sale ikifutwa ndani ya reco ILIYOFUNGULIWA UPYA -> reversal tarehe ya
+     sale (mwezi umefungwa -> siku ya kwanza iliyo wazi, event_date = siku ya sale); reversal nyingine zote hazibadiliki (leo).
+     SaleReopenedReversalDateTest 5/0 (mwezi wazi, mwezi umefungwa, risiti kwa prefix, nyingine = leo, onReopenedDay).
+     A8e PASS/FAIL: kidhibiti (image b764632) FAIL (GL 10/11 = 1,000, reco 0, mstari 1 leo); main e1b1a53 **a6_api_e2e 12/0**.
+     Kumbuka: badiliko (PUT) la sale haliandiki GL kabisa (kusoma code: hakuna post/reversal kwenye updateSale) - nje ya wigo.
+   - **(gj) release/2.4.0 / 3.2.0:** HAZIJAFUTWA - SHA si sawa na tag. release/2.4.0 b3e04ef = mzazi wa v2.4.0 9b6678a (tofauti:
+     .backend-version tu). release/3.2.0 c12dd10 = ancestor ya v3.2.0 922c3ac (commit 69; nje ya analysis/: .frontend-v3-version,
+     .gitattributes, .gitignore). Hakuna code ya app inayopotea zikifutwa - uamuzi wa Chief.
    (mpango wa awali:)  unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 
