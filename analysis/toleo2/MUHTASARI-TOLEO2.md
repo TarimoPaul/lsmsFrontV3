@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (ga)
+nimesoma hadi (gb)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -29,6 +29,8 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | 6a "Umelipa sasa" iliyopotea | (hatua ya data) | steps/74 | t74 (ununuzi 18 -> PAID) | IMEKAMILIKA (script) | **74** |
 | 6c Jess 2310 (V147) + 7 ripoti kwa avg | t2-pesa | 1d8abb3 / 959cad4 (e97f817) | c3 + SupplierPaymentSourceTest | IMEKAMILIKA | — |
 | 6e (ga) ONYO TU "Linganisha manunuzi": reco ya droo siku X vs manunuzi/malipo ya DROO X±1 (CEO kwenye reco, mnunuzi kwenye Manunuzi); hakuna mstari wa AUTO, hakuna GL mpya; kuanzia 02/12 | t2-cutover | 62a82b6 / (V3 t2-cutover) | PurchaseCheckTest 4/0, manunuzi_onyo_api 4/0, manunuzi_onyo UI 1/0, ng 104/104 | IMEKAMILIKA | — |
+| (gb) manunuzi bila msambazaji baada ya D -> Cr ya chanzo kilichochaguliwa; chanzo LAZIMA (C3 tayari) | t2-cutover | (hakuna mabadiliko) / manunuzi_chanzo_api | manunuzi_chanzo_api 3/0 (NMB -> Cr 1021, Taslimu -> Cr 1000, bila chanzo -> imekataliwa) | IMEKAMILIKA | — |
+| (gb) 74b: manunuzi YOTE bila msambazaji + UNPAID -> PAID bila journal (sheria, si orodha) | analysis/steps | 74b-bila-msambazaji.{sh,ps1,cmd} | t74b 4/0 (nakala 29/10: 307 / 37,600,452, 30/09-28/10, GL-SAWA 307, GL haibadiliki) | IMEKAMILIKA (script) | **74b** baada ya deploy (KAGUA -> STOP -> ANDIKA) |
 | 6d 1010 akiba ya mkopo | — | — | — | BAADA (Qff-1) | — |
 | H1 kizingiti cha Health (V139) | t2-afya | 2a64f7e / e70d2ba | suite + afya e2e | IMEKAMILIKA | — (mwelekeo unaanza siku ya deploy) |
 | Cutover: reco -> 102x/103x baada ya D | t2-cutover | 8dd0a2d, 2be5211 / cb4e895 | cutover_api 16/0 | IMEKAMILIKA | **60** siku ya D |
@@ -60,6 +62,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 |---|---|---|
 | Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo, 5 (fl) + 90 (Flutter) — IMEFANYIKA 12/11; tena kabla ya deploy |
 | Baada ya deploy 02/12 | **74** | ununuzi 18 -> PAID (bila journal) |
+| Baada ya deploy | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
 | Baada ya deploy + hesabu ya Chief | **85** | uhamisho wa KUPIMA |
 | Baada ya deploy | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |

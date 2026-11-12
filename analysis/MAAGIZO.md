@@ -1327,3 +1327,15 @@ journal yoyote; ripoti mstari 1.
 Jaribio: reco Pepsi 200,000 bila manunuzi → onyo; manunuzi Taslimu 200,000 kesho → onyo linaondoka;
   manunuzi NMB 200,000 → onyo linabaki (chanzo si droo).
 Kisha usafi 9.
+
+## 2026-11-12 (gb)
+6e: imekubaliwa.
+1. KOSA LA PESA (batch): baada ya D, manunuzi BILA msambazaji yaliyolipwa NMB/Selcom/lipa namba → akaunti gani?
+   Kama PostingEngine inaandika Cr 1000 bila kujali chanzo → rekebisha: chanzo kilichochaguliwa ndicho kinapewa Cr
+   (1000/102x/103x). Chanzo kiwe LAZIMA kwenye manunuzi yasiyo na msambazaji kuanzia 02/12.
+   Jaribio (D imewekwa): bila msambazaji + NMB 500,000 → Cr 1021; + Taslimu → Cr 1000; bila chanzo → kukataliwa.
+2. Manunuzi 307 UNPAID (37.6M): Chief alishajibu (6b) — yalilipwa siku ile ile. Panua hatua 74 (au hatua mpya):
+   yote yasiyo na msambazaji + UNPAID hadi leo → PAID, BILA journal. KAGUA: idadi, jumla, tarehe ya kwanza/mwisho,
+   na kama yapo baada ya 28/10. 🛑 kabla ya ANDIKA.
+3. Hakiki: Takawedo na Pepsi zipo kama wasambazaji waliosajiliwa? Ripoti tu, usisajili.
+Kisha usafi 9.
