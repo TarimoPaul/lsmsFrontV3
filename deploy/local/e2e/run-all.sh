@@ -4,6 +4,7 @@
 # (deploy/local/v3-local.sh build && up, 127.0.0.1:4300/v3). The checks change the throw-away local copy only.
 #
 #   deploy/local/e2e/run-all.sh        -> one MUHTASARI line per script, then E2E_OK n/n or E2E_IMESHINDWA (exit 1)
+#   E2E_ONLY='regex' / E2E_SKIP='regex' (ge): run a subset (the gate runs 2 phases: switches as on prod, then switches ON)
 #
 # Playwright: PLAYWRIGHT_NODE_PATH, else the npx cache (npx playwright@1.61.1 was used on 31/10).
 set -u
@@ -16,7 +17,10 @@ curl -s -o /dev/null http://127.0.0.1:18090/api/auth/login || { echo "E2E_IMESHI
 
 ok=0; n=0; bad=()
 for s in "$H"/*_e2e.cjs; do
-  name=$(basename "$s" .cjs); n=$((n+1))
+  name=$(basename "$s" .cjs)
+  [ -n "${E2E_ONLY:-}" ] && ! [[ "$name" =~ $E2E_ONLY ]] && continue
+  [ -n "${E2E_SKIP:-}" ] && [[ "$name" =~ $E2E_SKIP ]] && continue
+  n=$((n+1))
   NODE_PATH="$NP" node "$s" > "$H/out/$name.log" 2>&1; rc=$?
   p=$(grep -c '^PASS ' "$H/out/$name.log"); f=$(grep -c '^FAIL ' "$H/out/$name.log")
   echo "MUHTASARI $name: PASS $p, FAIL $f, exit $rc"
