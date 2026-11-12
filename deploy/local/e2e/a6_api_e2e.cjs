@@ -8,6 +8,9 @@
 //   A5 CEO deletes the day-X sale -> refused, sale not deleted
 //   A6 a sale of day Y moved onto day X -> refused, its date unchanged
 //   A7 the real manager: no new sale / reco from this test
+//   A8 (gk) the way out: the seller cannot reopen (refused); the CEO reopens with a reason -> the seller still cannot change
+//      the day (NEEDS_CEO), the CEO deletes the day-X sale -> allowed, audit ALLOWED (reopened reco) -> approved again ->
+//      the sale's GL nets 0 on every account, TB = 0; A8e TAARIFA: the reversal's date (today by design) - Chief decides
 // Throw-away local copy only. Run: node a6_api_e2e.cjs
 const { execFileSync } = require('child_process');
 const { SELLER, ensureSeller } = require('./e2e-muuzaji.cjs');
@@ -99,6 +102,38 @@ const TAG = `E2E-A6-${Date.now()}`;
   const yDay = sql(`select sale_date::date from sales where uid = '${sy.sid}'`);
   ok(`A6 sale ya ${Y} inahamishiwa ${X} (imeidhinishwa) -> IMEKATALIWA, tarehe haijabadilika`, sy.r.j?.status === 'Success' && e6?.j?.status !== 'Success' && yDay === Y
     && audit(sy.sid, "result = 'REFUSED' and refuse_code = 'RECO_APPROVED'") === '1', `${msg(sy.r)} | ${e6?.status} ${msg(e6)} | ${yDay}`);
+  // A8 (gk) reopen -> change -> approve again
+  const tb = () => Number(sql("select coalesce(round(sum(l.debit_amount - l.credit_amount), 2), 0) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false)"));
+  const saleGl = () => sql(`select coalesce(string_agg(a || ':' || n, ',' order by a), '') from (select l.account_code a, round(sum(l.debit_amount - l.credit_amount), 2) n from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and j.reference_uid = '${sx.sid}' group by 1) x where n <> 0`);
+  const gl0 = saleGl();
+  const why8 = 'Mteja alirudisha bidhaa yote siku hiyo';
+  const ro1 = await api('POST', `/api/v1/reconciliation/${ru}/reopen?reason=${encodeURIComponent('Muuzaji anajaribu kufungua reco')}`, sel);
+  const st1 = sql(`select status from daily_reconciliation where uid = '${ru}'`);
+  const ro2 = await api('POST', `/api/v1/reconciliation/${ru}/reopen?reason=${encodeURIComponent('Marekebisho ya sale iliyorudishwa na mteja')}`, ceo);
+  const st2 = sql(`select status || '|' || coalesce(reopen_count,0) from daily_reconciliation where uid = '${ru}'`);
+  const e8 = await api('DELETE', `/api/v1/sales/${sx.sid}?deleteReason=${encodeURIComponent(why8)}`, sel);
+  const d8 = await api('DELETE', `/api/v1/sales/${sx.sid}?deleteReason=${encodeURIComponent(why8)}`, ceo);
+  await sleep(800);
+  const del8 = sql(`select coalesce(is_deleted,false) from sales where uid = '${sx.sid}'`);
+  const aud8 = audit(sx.sid, `result = 'ALLOWED' and action = 'DELETE' and by_email = '${CEO}' and reason = '${why8}' and reco_status = 'REOPENED'`);
+  sql(`update daily_reconciliation set status = 'SUBMITTED' where uid = '${ru}'`);
+  for (const t of ['reconciliation_cash_entries', 'reconciliation_mobile_entries', 'reconciliation_expenses', 'reconciliation_purchases', 'reconciliation_debt_collections', 'reconciliation_retail_debts']) {
+    try { sql(`update ${t} set is_verified = true where reconciliation_uid = '${ru}'`); } catch { /* table without the flag */ }
+  }
+  const ap8 = await api('POST', `/api/v1/reconciliation/${ru}/approve?notes=${encodeURIComponent('E2E A6 baada ya marekebisho')}`, ceo);
+  const st8 = sql(`select status from daily_reconciliation where uid = '${ru}'`);
+  const gl8 = saleGl();
+  const days8 = sql(`select coalesce(string_agg(distinct j.entry_date::text, ','), '') from journal_entry j where j.reference_uid = '${sx.sid}' and j.status = 'POSTED'`);
+  const tb8 = tb();
+  ok('A8a muuzaji HAWEZI kufungua reco iliyoidhinishwa -> imekataliwa, bado APPROVED', ro1.j?.status !== 'Success' && st1 === 'APPROVED', `${ro1.status} ${msg(ro1)} | ${st1}`);
+  ok('A8b CEO anafungua kwa sababu -> REOPENED; muuzaji bado hawezi kubadilisha (NEEDS_CEO)', ro2.j?.status === 'Success' && /^REOPENED\|[1-9]/.test(st2) && e8.j?.status !== 'Success'
+    && audit(sx.sid, `result = 'REFUSED' and refuse_code = 'NEEDS_CEO' and by_email = '${SELLER}'`) === '1', `${msg(ro2)} | ${st2} | ${e8.status} ${msg(e8)}`);
+  ok('A8c CEO anafuta sale ya siku iliyofunguliwa -> imeruhusiwa, audit ALLOWED (REOPENED, sababu)', d8.j?.status === 'Success' && del8 === 't' && aud8 === '1', `${msg(d8)} | deleted=${del8} audit=${aud8}`);
+  ok(`A8d imeidhinishwa tena; GL ya sale ${gl0} -> imefutwa (net 0 kila akaunti); TB = 0`, ap8.j?.status === 'Success' && st8 === 'APPROVED'
+    && gl0 !== '' && gl8 === '' && Math.abs(tb8) < 0.005, `${msg(ap8)} | ${st8} | GL ${gl0} -> '${gl8}' | tb ${tb8}`);
+  // (gk) "GL ya siku sawa na badiliko": PostingEngine.reverse dates a reversal TODAY by design (onDate null). Not a pass/fail
+  // until Chief decides whether a change on a reopened day should be dated that day.
+  console.log(`TAARIFA A8e tarehe za journal za sale: ${days8} (sale ${X}; reversal ya kufuta = siku ya kufuta)`);
   // A7 the real manager untouched
   const real1 = sql(`select (select count(*) from sales where user_uid = '${realMgr}') || '/' || (select count(*) from daily_reconciliation where user_uid = '${realMgr}')`);
   ok('A7 Macheda halisi: hakuna sale wala reco mpya kutoka jaribio hili', real1 === real0, `${real0} -> ${real1}`);

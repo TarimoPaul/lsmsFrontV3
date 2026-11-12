@@ -112,6 +112,9 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      kuidhinisha badiliko linaruhusiwa (kidhibiti); A2 reco IMEIDHINISHWA; A3 muuzaji kubadilisha -> RECO_APPROVED, sale haijabadilika;
      A4 CEO pia anakataliwa; A5 kufuta kunakataliwa; A6 kuhamisha sale ya siku nyingine kwenda siku iliyoidhinishwa kunakataliwa;
      A7 Macheda halisi hajaguswa. Matrix ya unit: `SaleChangeGuardTest` (suite). Inaendeshwa na run-all (awamu A ya lango).
+     (gk) A8: muuzaji hawezi kufungua (imekataliwa); CEO anafungua kwa sababu -> muuzaji bado NEEDS_CEO; CEO anafuta sale ->
+     ALLOWED (audit REOPENED + sababu); imeidhinishwa tena; GL ya sale net 0, TB 0 -> **11/0**. TAARIFA A8e: reversal imeandikwa
+     tarehe ya KUFUTA (12/11), si ya sale (10/11) - `PostingEngine.reverse` kwa muundo. Swali kwa Chief (wazi).
    (mpango wa awali:)  unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 

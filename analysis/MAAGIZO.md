@@ -1391,3 +1391,10 @@ Matawi: futa release/2.5.0 na release/3.3.0 (local) sasa. feature/t2-* ZISIFUTWE
 Push ya main: baada ya lango kupita.
 Lango: endelea Chief akishafunga PID na 92 kukamilika.
 
+## 2026-11-12 (gk)
+BADILISHA (gj) kipengele 1 — Chief: njia ipo (CEO anafungua reco upya → marekebisho → kuidhinisha tena). Usichunguze.
+Ongeza A8 tu kwenye a6_api_e2e: CEO afungua reco iliyoidhinishwa (kwa sababu) → badiliko la sale linaruhusiwa →
+  audit imeandikwa → idhinisha tena → TB=0, GL ya siku sawa na badiliko. Muuzaji hawezi kufungua (kukataliwa).
+release/2.4.0 / 3.2.0 na image ya main: kama (gj).
+(Kumbuka ya Claude: maandishi ya (gj) hayakunifikia.)
+
