@@ -1408,3 +1408,9 @@ Uamuzi A8e: badiliko/ufutaji wa sale ndani ya reco ILIYOFUNGULIWA UPYA → rever
   1. release/2.4.0 na release/3.2.0: futa (local + origin ni ya Chief) kama SHA = tag v2.4.0/v3.2.0; vinginevyo ripoti tofauti.
   2. Lango liendeshwe kwenye image ya commit za main zilizotajwa (3b6bf61 + V3 ya mwisho), si image nyingine.
 
+## 2026-11-12 (gm)
+92 pakua: ssh/orodha sawa (dump 11/11 + 12/11, sha256 zimeonyeshwa), lakini scp lsms_20261111_0200.dump ilishindwa
+  baada ya dakika 19 (MB 9.8). Soma log kamili ya 92 na script: scp inatumia key/chaguo zile zile za ssh (-i, BatchMode=yes,
+  ConnectTimeout)? Njia lengwa yenye nafasi ("MY PROJECT") imenukuliwa? Rekebisha ili ikwame → ishindwe ndani ya sekunde 30,
+  si dakika 19. Usiguse server zaidi ya kusoma.
+
