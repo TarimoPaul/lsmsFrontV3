@@ -7,7 +7,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { Button, EmptyState, Icon, Skeleton, ToastService } from '@shared/ui';
 import { parseLocal } from '@shared/utils/date-utils';
 import { MoneyPipe } from '@shared/utils/money';
-import { CONTROL_HELP, ControlCheck, FinancialPosition, GlStatus, PostingFailure } from './gl.models';
+import { CONTROL_HELP, ControlCheck, controlLevel, FinancialPosition, GlStatus, PostingFailure } from './gl.models';
 import { GlService } from './gl.service';
 
 /**
@@ -76,13 +76,14 @@ import { GlService } from './gl.service';
       <section class="checks">
         <header>
           <h3><lsms-icon name="rule" [size]="18" />{{ i18n.t('GL vs operational records', 'GL dhidi ya kumbukumbu za kila siku') }}</h3>
-          <small>{{ i18n.t('As of', 'Hadi') }} {{ day(asOf()) | date: 'd MMM yyyy' }} · {{ i18n.t(unreconciled() + ' need attention', unreconciled() + ' zinahitaji kurekebishwa') }}</small>
+          <small>{{ i18n.t('As of', 'Hadi') }} {{ day(asOf()) | date: 'd MMM yyyy' }} · {{ i18n.t(unreconciled() + ' need attention', unreconciled() + ' zinahitaji kuchunguzwa') }}@if (infoOnly()) { · {{ i18n.t(infoOnly() + ' small (information)', infoOnly() + ' ndogo (taarifa)') }} }</small>
         </header>
         <div class="grid">
           @for (c of checks(); track c.key) {
-            <article [class.ok]="c.reconciled" [class.bad]="!c.reconciled">
+            @let lv = level(c);
+            <article [class.ok]="lv === 'SAWA'" [class.info]="lv === 'TAARIFA'" [class.bad]="lv === 'ONYO'">
               <div class="top">
-                <lsms-icon [name]="c.reconciled ? 'check_circle' : 'error'" [size]="18" />
+                <lsms-icon [name]="lv === 'SAWA' ? 'check_circle' : lv === 'TAARIFA' ? 'info' : 'error'" [size]="18" />
                 <b>{{ i18n.isSwahili() ? c.labelSw : c.label }}</b>
                 <span class="code">{{ c.accountCode }}</span>
               </div>
@@ -92,10 +93,22 @@ import { GlService } from './gl.service';
                 <div><dt>{{ i18n.t('Records', 'Kumbukumbu') }}</dt><dd>{{ c.subLedgerBalance | money: { decimals: 0 } }}</dd></div>
                 <div class="diff"><dt>{{ i18n.t('Difference', 'Tofauti') }}</dt><dd>{{ c.difference | money: { decimals: 0 } }}</dd></div>
               </dl>
+              @if (lv !== 'SAWA' && c.note) {
+                <p class="note">{{ c.note }}</p>
+              }
+              @if (c.trend?.length && lv !== 'SAWA') {
+                <div class="trend" [attr.aria-label]="i18n.t('Difference, last 7 days', 'Tofauti, siku 7 zilizopita')">
+                  @for (t of c.trend; track t.date) {
+                    <span class="bar" [class.none]="t.difference === null" [style.height.%]="barHeight(c, t.difference)"
+                      [title]="(day(t.date) | date: 'd MMM') + ': ' + (t.difference === null ? '—' : (t.difference | money: { decimals: 0 }))"></span>
+                  }
+                  <small>{{ i18n.t('7 days', 'siku 7') }}</small>
+                </div>
+              }
               <div class="acts">
                 <button type="button" class="link" (click)="openAccount.emit(c.accountCode)">{{ i18n.t('Ledger', 'Leja') }}</button>
-                @if (!c.reconciled && canWrite()) {
-                  <button lsmsButton="secondary" size="sm" icon="build" (click)="trueUp.emit(c)">{{ i18n.t('Correct', 'Rekebisha') }}</button>
+                @if (lv !== 'SAWA' && canCorrect()) {
+                  <button lsmsButton="secondary" size="sm" icon="build" [title]="i18n.t('CEO decision - recommended at month end', 'Uamuzi wa CEO - inapendekezwa mwisho wa mwezi')" (click)="trueUp.emit(c)">{{ i18n.t('Correct', 'Rekebisha') }}</button>
                 }
               </div>
             </article>
@@ -165,6 +178,15 @@ import { GlService } from './gl.service';
     .top b { flex: 1; font-size: 0.88rem; font-weight: 500; color: var(--c-text); }
     article.ok .top lsms-icon { color: var(--c-success); }
     article.bad .top lsms-icon { color: var(--c-error); }
+    article.info { border-color: color-mix(in srgb, var(--c-info, var(--c-primary)) 35%, var(--c-border)); }
+    article.info .top lsms-icon { color: var(--c-info, var(--c-primary)); }
+    .note { margin: 0; font-size: 12px; color: var(--c-text-secondary); }
+    .trend { display: flex; align-items: flex-end; gap: 3px; height: 28px; }
+    .trend .bar { flex: 1; min-height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--c-text-secondary) 45%, transparent); }
+    article.bad .trend .bar { background: color-mix(in srgb, var(--c-error) 55%, transparent); }
+    article.info .trend .bar { background: color-mix(in srgb, var(--c-info, var(--c-primary)) 55%, transparent); }
+    .trend .bar.none { height: 2px !important; background: var(--c-border); }
+    .trend small { flex: none; margin-left: 4px; font-size: 11px; color: var(--c-text-secondary); align-self: center; }
     .code { font-size: 0.72rem; color: var(--c-text-2); }
     .help { margin: 0; font-size: 0.74rem; color: var(--c-text-2); }
     dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0; }
@@ -206,7 +228,11 @@ export class GlOverview {
   protected readonly error = signal<string | null>(null);
 
   protected readonly canWrite = computed(() => this.auth.hasPermission('FINANCE_WRITE'));
-  protected readonly unreconciled = computed(() => this.checks().filter((c) => !c.reconciled).length);
+  /** Toleo 2 H1 (owner 09/11 dv): "Correct" (true-up) is the CEO's decision only - the backend refuses anyone else. */
+  protected readonly canCorrect = computed(() => this.canWrite() && this.auth.hasRole('CEO'));
+  protected readonly unreconciled = computed(() => this.checks().filter((c) => controlLevel(c) === 'ONYO').length);
+  protected readonly infoOnly = computed(() => this.checks().filter((c) => controlLevel(c) === 'TAARIFA').length);
+  protected readonly level = controlLevel;
 
   constructor() {
     effect(() => {
@@ -267,6 +293,13 @@ export class GlOverview {
     };
     const m = map[type];
     return m ? (sw ? m[1] : m[0]) : type;
+  }
+
+  /** Bar height (% of the row) for one day of the 7-day trend, scaled to the largest |difference| shown. */
+  protected barHeight(c: ControlCheck, d: number | null): number {
+    if (d === null) return 0;
+    const max = Math.max(...(c.trend ?? []).map((t) => Math.abs(t.difference ?? 0)), 1);
+    return Math.max(8, (Math.abs(d) / max) * 100);
   }
 
   protected help(c: ControlCheck): string {

@@ -6,7 +6,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { EmptyState, Icon, MetricCard, MetricsGrid, SegmentOption, SegmentedFilterBar, Skeleton } from '@shared/ui';
 import { downloadCsv, printReport } from '@shared/utils/export';
 import { Money } from '@shared/utils/money';
-import { ControlCheck, FinancialPosition, IncomeStatement } from '../general-ledger/gl.models';
+import { ControlCheck, controlLevel, FinancialPosition, IncomeStatement } from '../general-ledger/gl.models';
 import { GlService } from '../general-ledger/gl.service';
 import { ReportFrame } from './report-frame';
 import { MonthPnl, ReportsService } from './reports.service';
@@ -139,8 +139,8 @@ type Span = 6 | 12 | 24;
             @if (checks(); as cs) {
               <ul class="checks">
                 @for (c of cs; track c.key) {
-                  <li [class.bad]="!c.reconciled">
-                    <lsms-icon [name]="c.reconciled ? 'check_circle' : 'error'" [size]="18" />
+                  <li [class.bad]="lvl(c) === 'ONYO'">
+                    <lsms-icon [name]="c.reconciled ? 'check_circle' : lvl(c) === 'TAARIFA' ? 'info' : 'error'" [size]="18" />
                     <span class="nm">{{ i18n.isSwahili() ? c.labelSw : c.label }}<small>GL {{ m(c.glBalance) }} · {{ i18n.t('register', 'rejista') }} {{ m(c.subLedgerBalance) }}</small></span>
                     <b>{{ c.reconciled ? i18n.t('Matches', 'Inalingana') : (c.difference > 0 ? '+' : '') + m(c.difference) }}</b>
                   </li>
@@ -227,6 +227,8 @@ type Span = 6 | 12 | 24;
 })
 export class FinancialReport {
   protected readonly i18n = inject(LanguageService);
+  /** Toleo 2 H1: SAWA | TAARIFA (small, information) | ONYO; an older backend falls back to `reconciled`. */
+  protected readonly lvl = controlLevel;
   private readonly api = inject(ReportsService);
   private readonly gl = inject(GlService);
 

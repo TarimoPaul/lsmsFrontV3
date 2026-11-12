@@ -164,6 +164,22 @@ export interface ControlCheck {
   subLedgerBalance: number;
   difference: number;
   reconciled: boolean;
+  /** Toleo 2 H1 (backend >= toleo 2): SAWA | TAARIFA (small, information only) | ONYO. */
+  level?: ControlLevel;
+  /** Difference below which INVENTORY is information only: max(5,000, 0.1% of stock value). */
+  threshold?: number;
+  /** Consecutive days the difference grew (3 = warning even below the threshold). */
+  risingDays?: number;
+  note?: string;
+  /** Last 7 days, oldest first; difference null = no snapshot that day. */
+  trend?: { date: string; difference: number | null }[];
+}
+
+export type ControlLevel = 'SAWA' | 'TAARIFA' | 'ONYO';
+
+/** Level of a check; an older backend (no level) = the old rule: anything over 1.00 is a warning. */
+export function controlLevel(c: ControlCheck): ControlLevel {
+  return c.level ?? (c.reconciled ? 'SAWA' : 'ONYO');
 }
 
 export interface JournalLine {
