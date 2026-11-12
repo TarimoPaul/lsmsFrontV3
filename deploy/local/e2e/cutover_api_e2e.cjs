@@ -7,6 +7,7 @@
 //   T6 a Safe Box bank deposit (NMB) confirmed, after D -> Dr 1021 / Cr 1000
 //   T7-T9 transfers with a fee; T10 (fq) a day after D with every POS sale CASH + phone/bank money only on the reco ->
 //      the sales Dr 1000 only, the reco Dr 102x/103x / Cr 1000 its own amounts, nothing twice
+//   T11-T13 (fr) one rule "reco phone = the whole day": POS M-Pesa P + typed 0 / P / P+30k -> 1030 +P / +P / +P+30k, reco the same
 // Throw-away local copy only. Run: node cutover_api_e2e.cjs
 const { execFileSync } = require('child_process');
 
@@ -148,6 +149,55 @@ async function reapprove(ceo, uid) {
   const twice = sql(`select count(*) from journal_entry j where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and j.reference_uid in (${inList}) and exists (select 1 from journal_entry_line l where l.journal_entry_uid = j.uid and (l.account_code like '102%' or l.account_code like '103%'))`);
   ok('T10b hakuna mara mbili: journal za sale hazina 102x/103x; uhamisho mmoja tu wa reco', twice === '0'
     && sql(`select count(*) from journal_entry where reference_uid = 'RECO-TRF:${r10}' and status = 'POSTED' and reversed_entry_uid is null`) === '1', `twice=${twice}`);
+
+  // ── T11-T13 (fr) ONE rule: the reco's phone money = the day's WHOLE phone money (POS phone sales included) ──
+  //   a POS sale of P (the product's price) paid by M-Pesa (Dr 1030 at the sale, mirrored on the reco as an automatic entry), then what the
+  //   seller types: T11 nothing, T12 P (the whole day), T13 P + 30,000 (POS + 30,000 more by phone rung up as CASH).
+  //   1030 must move: T11 +P, T12 +P (not 2P), T13 +P + 30,000; the reco counts the same phone figure.
+  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
+  const d1030 = (refs) => Number(sql(`select coalesce(round(sum(l.debit_amount - l.credit_amount), 2), 0) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and l.account_code = '1030' and j.reference_uid in (${refs.map((x) => `'${x}'`).join(',')})`));
+  const P10 = Number(pr);
+  for (const [tag, day, typed, want] of [['T11', '2026-11-01', 0, P10], ['T12', '2026-11-02', P10, P10], ['T13', '2026-11-03', P10 + 30000, P10 + 30000]]) {
+    const clean = sql(`select count(*) from sales where user_uid = '${mgrUid}' and sale_date::date = '${day}'`) === '0' && sql(`select count(*) from daily_reconciliation where user_uid = '${mgrUid}' and reconciliation_date = '${day}'`) === '0';
+    const s = await api('POST', '/api/v1/sales/partial', mgr, { saleDate: `${day}T11:00:00`, customerUid: null, userUid: mgrUid, discountAmount: 0, saleNotes: `E2E-CUTOVER-${tag}`,
+      saleDetails: [{ productUid: pu, productName: pn, saleType: 'PIECES', pieceQuantity: 1, packageQuantity: 1, unitPrice: P10, subTotal: P10, overrideUnitPrice: null }],
+      payments: [{ customerName: 'Walk-in Customer', paymentMethod: 'VODACOM', totalAmount: P10, amountPaid: P10, paymentDate: `${day}T11:00:00` }] });
+    await new Promise((res) => setTimeout(res, 800));
+    const sid = sql(`select coalesce((select uid from sales where sale_notes like '%E2E-CUTOVER-${tag}' order by id desc limit 1),'')`);
+    const ru = `e2e-${tag.toLowerCase()}-${Date.now()}`;
+    sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${day}', '${mgrUid}', 'macheda macheda', '${brUid}', 'DRAFT')`);
+    if (typed) sql(`insert into reconciliation_mobile_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, provider, amount) values ('${ru}-typed', now(), true, false, true, '${ru}', 'VODACOM', ${typed})`);
+    const rf = await api('POST', `/api/v1/reconciliation/${ru}/refresh`, mgr);
+    const mirrored = sql(`select count(*) from reconciliation_mobile_entries where reconciliation_uid = '${ru}' and source_payment_uid is not null and not is_deleted`);
+    const recoPhone = Number(rf.j?.data?.mobileMoneytotal ?? rf.j?.data?.mobileMoneyTotal ?? NaN);
+    sql(`update daily_reconciliation set status = 'SUBMITTED', variance_explanation = 'E2E cutover ${tag} maelezo ya tofauti' where uid = '${ru}'`);
+    sql(`update reconciliation_mobile_entries set is_verified = true where reconciliation_uid = '${ru}'`);
+    const ap = await api('POST', `/api/v1/reconciliation/${ru}/approve?notes=${encodeURIComponent('E2E cutover ' + tag)}`, ceo);
+    const got = d1030([sid, 'RECO-TRF:' + ru]);
+    ok(`${tag} POS M-Pesa ${P10} + reco ya simu ${typed} -> 1030 +${want} tu; reco inahesabu simu ${want}`, clean && s.j?.status === 'Success' && mirrored === '1' && ap.j?.status === 'Success'
+      && Math.abs(got - want) < 0.005 && Math.abs(recoPhone - want) < 0.005, `clean=${clean} sale=${msg(s)} mirrored=${mirrored} recoPhone=${recoPhone} | ${msg(ap)} | 1030 ${got} transfer=${live('RECO-TRF:' + ru)}`);
+  }
+
+  // ── T14 (fr) a POS sale paid by NMB is declared on the reco as an NMB deposit (Formula 1 takes nothing off for it):
+  //   P by NMB on the POS + 50,000 drawer cash to NMB, declared together as P + 50,000 -> 1021 +P + 50,000 (not 2P + 50,000)
+  {
+    const day = '2026-11-04';
+    const s = await api('POST', '/api/v1/sales/partial', mgr, { saleDate: `${day}T11:00:00`, customerUid: null, userUid: mgrUid, discountAmount: 0, saleNotes: 'E2E-CUTOVER-T14',
+      saleDetails: [{ productUid: pu, productName: pn, saleType: 'PIECES', pieceQuantity: 1, packageQuantity: 1, unitPrice: P10, subTotal: P10, overrideUnitPrice: null }],
+      payments: [{ customerName: 'Walk-in Customer', paymentMethod: 'NMB', totalAmount: P10, amountPaid: P10, paymentDate: `${day}T11:00:00` }] });
+    await new Promise((res) => setTimeout(res, 800));
+    const sid = sql("select coalesce((select uid from sales where sale_notes like '%E2E-CUTOVER-T14' order by id desc limit 1),'')");
+    const ru = `e2e-t14-${Date.now()}`;
+    sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${day}', '${mgrUid}', 'macheda macheda', '${brUid}', 'DRAFT')`);
+    sql(`insert into reconciliation_cash_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, entry_type, bank_name, amount, deposit_date) values ('${ru}-nmb', now(), true, false, true, '${ru}', 'BANK_DEPOSIT', 'NMB', ${P10 + 50000}, '${day}')`);
+    await api('POST', `/api/v1/reconciliation/${ru}/refresh`, mgr);
+    sql(`update daily_reconciliation set status = 'SUBMITTED', variance_explanation = 'E2E cutover T14 maelezo ya tofauti' where uid = '${ru}'`);
+    sql(`update reconciliation_cash_entries set is_verified = true where reconciliation_uid = '${ru}'`);
+    const ap = await api('POST', `/api/v1/reconciliation/${ru}/approve?notes=${encodeURIComponent('E2E cutover T14')}`, ceo);
+    const n1021 = Number(sql(`select coalesce(round(sum(l.debit_amount - l.credit_amount), 2), 0) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and l.account_code = '1021' and j.reference_uid in ('${sid}', 'RECO-TRF:${ru}')`));
+    ok(`T14 POS NMB ${P10} + amana ya NMB kwenye reco ${P10 + 50000} -> 1021 +${P10 + 50000} tu (uhamisho 50,000)`, s.j?.status === 'Success' && ap.j?.status === 'Success'
+      && Math.abs(n1021 - (P10 + 50000)) < 0.005 && live('RECO-TRF:' + ru) === '1000:-50000.00,1021:50000.00', `${msg(s)} | ${msg(ap)} | 1021 ${n1021} transfer=${live('RECO-TRF:' + ru)}`);
+  }
 
   ok('TB = 0', Math.abs(tb()) < 0.005 && Math.abs(tb() - tb0) < 0.005, `${tb0} -> ${tb()}`);
   console.log(`MWISHO PASS ${P} FAIL ${F}`);

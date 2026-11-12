@@ -216,8 +216,16 @@ export class ReconEntriesTab {
       ];
     }
     if (this.kind() === 'mobile') {
+      // (fr) one rule: per provider max(typed whole-day total, AUTO rows from POS phone payments) - as the backend counts it
+      const typed = new Map<string, number>(), auto = new Map<string, number>(), label = new Map<string, string>();
+      for (const e of r.mobileEntries) {
+        const k = phoneKey(e.provider);
+        if (!label.has(k)) label.set(k, e.provider);
+        const m = e.auto ? auto : typed;
+        m.set(k, (m.get(k) ?? 0) + e.amount);
+      }
       const by = new Map<string, number>();
-      for (const e of r.mobileEntries) by.set(e.provider, (by.get(e.provider) ?? 0) + e.amount);
+      for (const k of label.keys()) by.set(label.get(k)!, Math.max(typed.get(k) ?? (auto.has(k) ? -Infinity : 0), auto.get(k) ?? -Infinity));
       return [{ label: t('Total mobile money', 'Jumla ya pesa za simu'), value: r.mobileMoneyTotal, color: 'var(--c-info)' }, ...[...by].map(([p, v]) => ({ label: p, value: v, color: 'var(--c-primary)' }))];
     }
     const pending = r.expenses.filter((e) => e.approvalStatus === 'PENDING');
@@ -318,4 +326,14 @@ export class ReconEntriesTab {
           : await this.store.act((uid) => this.api.removeExpense(uid, it.uid), this.i18n.t('Removed', 'Imeondolewa'));
     if (res.error) this.toast.error(res.error);
   }
+}
+
+/** (fr) The provider's account, as the backend groups it (MobileMoney.KEYS): "Vodacom", "VODACOM", "M-Pesa" -> 1030. */
+const PHONE_KEYS: Record<string, string> = {
+  VODACOM: '1030', MPESA: '1030', 'M-PESA': '1030', MOBILE_MONEY: '1030', TIGO: '1031', TIGOPESA: '1031', HALOPESA: '1032', HALOTEL: '1032',
+  AIRTEL: '1033', AIRTELMONEY: '1033', AIRTEL_MONEY: '1033', NMB: '1021', CRDB: '1020', NBC: '1022', SELCOM: '1023', PCB: '1024',
+};
+export function phoneKey(provider: string | null | undefined): string {
+  const n = (provider ?? '').trim().toUpperCase().replace(/ /g, '');
+  return PHONE_KEYS[n] ?? '?' + n;
 }
