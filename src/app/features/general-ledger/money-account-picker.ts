@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, model } fr
 import { LanguageService } from '@core/i18n/language.service';
 import { Icon } from '@shared/ui';
 import { MONEY_ACCOUNTS, MoneyAccount } from './money-accounts';
+import { MoneyUsageService } from './money-usage.service';
 
 /**
  * "Where did the money move?" — cash, a bank or a mobile wallet. The choice
@@ -16,7 +17,7 @@ import { MONEY_ACCOUNTS, MoneyAccount } from './money-accounts';
     <span class="lbl">{{ label() || i18n.t('Paid from', 'Imelipwa kutoka') }}</span>
     <div class="chips" role="radiogroup" [attr.aria-label]="label() || i18n.t('Paid from', 'Imelipwa kutoka')">
       @for (a of accounts(); track a.method) {
-        <button type="button" role="radio" [attr.aria-checked]="value() === a.method" [class.on]="value() === a.method" (click)="value.set(a.method)">
+        <button type="button" role="radio" [attr.aria-checked]="value() === a.method" [class.on]="value() === a.method" (click)="pick(a)">
           <lsms-icon [name]="a.icon" [size]="15" />{{ i18n.isSwahili() ? a.sw : a.en }}
         </button>
       }
@@ -34,12 +35,18 @@ import { MONEY_ACCOUNTS, MoneyAccount } from './money-accounts';
 })
 export class MoneyAccountPicker {
   protected readonly i18n = inject(LanguageService);
+  private readonly usage = inject(MoneyUsageService);
   readonly value = model<string>('CASH');
   readonly label = input<string | undefined>(undefined);
   /** Only these kinds of account (e.g. a loan is repaid from cash or a bank, never a mobile wallet). */
   readonly groups = input<MoneyAccount['group'][] | undefined>(undefined);
   protected readonly accounts = computed(() => {
     const g = this.groups();
-    return g ? MONEY_ACCOUNTS.filter((a) => g.includes(a.group)) : MONEY_ACCOUNTS;
+    return this.usage.rank(g ? MONEY_ACCOUNTS.filter((a) => g.includes(a.group)) : MONEY_ACCOUNTS, (a) => a.code);
   });
+
+  /** (fj) an account not used for more than 60 days asks first. */
+  protected async pick(a: MoneyAccount): Promise<void> {
+    if (this.value() === a.method || (await this.usage.confirmPick(a.code, this.i18n.isSwahili() ? a.sw : a.en))) this.value.set(a.method);
+  }
 }

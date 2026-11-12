@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogService, Icon, MoneyInput, ToastService } from '@shared/ui';
 import { Money, MoneyPipe } from '@shared/utils/money';
+import { MoneyUsageService, NAME_ACCOUNT } from '../general-ledger/money-usage.service';
 import { ReconStore } from './recon.store';
 import { RECON_BANKS } from './recon-extra.models';
 import { CASH_TYPES, CASH_TYPES_ADDABLE, EXPENSE_TYPES, MOBILE_PROVIDERS } from './reconciliation.models';
@@ -52,8 +53,8 @@ interface Item {
           }
           @case ('mobile') {
             <div class="chips">
-              @for (p of providers; track p) {
-                <button type="button" [class.on]="type() === p" (click)="type.set(p)">{{ p }}</button>
+              @for (p of providers(); track p) {
+                <button type="button" [class.on]="type() === p" (click)="pickProvider(p)">{{ p }}</button>
               }
             </div>
           }
@@ -81,8 +82,8 @@ interface Item {
             <div class="wide pick" role="radiogroup" [attr.aria-label]="i18n.t('Bank', 'Benki')">
               <span>{{ i18n.t('Bank', 'Benki') }} *</span>
               <div class="chips">
-                @for (b of banks; track b) {
-                  <button type="button" role="radio" [attr.aria-checked]="bank() === b" [class.on]="bank() === b" (click)="bank.set(b)">
+                @for (b of banks(); track b) {
+                  <button type="button" role="radio" [attr.aria-checked]="bank() === b" [class.on]="bank() === b" (click)="pickBank(b)">
                     <lsms-icon [name]="b === 'OTHER' ? 'more_horiz' : 'account_balance'" [size]="14" />{{ b === 'OTHER' ? i18n.t('Other', 'Nyingine') : b }}
                   </button>
                 }
@@ -159,7 +160,9 @@ export class ReconEntriesTab {
 
   protected readonly cash = CASH_TYPES;
   protected readonly cashTypes = CASH_TYPES_ADDABLE;
-  protected readonly providers = MOBILE_PROVIDERS;
+  private readonly usage = inject(MoneyUsageService);
+  /** (fj) most used in the last 30 days first; an idle one (> 60 days) asks first. */
+  protected readonly providers = computed(() => this.usage.rank(MOBILE_PROVIDERS, (p) => NAME_ACCOUNT[p]));
   protected readonly expense = EXPENSE_TYPES;
   protected readonly expenseKeys = Object.keys(EXPENSE_TYPES);
 
@@ -169,7 +172,13 @@ export class ReconEntriesTab {
   /** Picked from chips (mobile friendly) — 'OTHER' asks for the name. */
   protected readonly bank = signal('');
   protected readonly otherBank = signal('');
-  protected readonly banks = RECON_BANKS;
+  protected readonly banks = computed(() => this.usage.rank(RECON_BANKS, (b) => NAME_ACCOUNT[b]));
+  protected async pickProvider(p: string): Promise<void> {
+    if (this.type() === p || (await this.usage.confirmPick(NAME_ACCOUNT[p], p))) this.type.set(p);
+  }
+  protected async pickBank(b: string): Promise<void> {
+    if (this.bank() === b || (await this.usage.confirmPick(NAME_ACCOUNT[b], b))) this.bank.set(b);
+  }
   private readonly bankName = computed(() => (this.bank() === 'OTHER' ? this.otherBank().trim() : this.bank()));
   protected readonly ref = signal('');
   protected readonly notes = signal('');

@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { LanguageService } from '@core/i18n/language.service';
 import { Button, DialogShell, Icon, MoneyInput } from '@shared/ui';
 import { MoneyPipe } from '@shared/utils/money';
+import { MoneyUsageService, NAME_ACCOUNT } from '../general-ledger/money-usage.service';
 import { RECON_BANKS, SafeBoxDeposit, SafeBoxDepositType } from './recon-extra.models';
 import { DepositRequest } from './safe-box.service';
 
@@ -58,8 +59,8 @@ export interface SafeBoxDepositData {
 
         @if (type() === 'BANK_DEPOSIT') {
           <div class="chips">
-            @for (b of banks; track b) {
-              <button type="button" [class.on]="bank() === b" (click)="bank.set(b)">{{ b === 'OTHER' ? i18n.t('Other', 'Nyingine') : b }}</button>
+            @for (b of banks(); track b) {
+              <button type="button" [class.on]="bank() === b" (click)="pickBank(b)">{{ b === 'OTHER' ? i18n.t('Other', 'Nyingine') : b }}</button>
             }
           </div>
           @if (bank() === 'OTHER') {
@@ -116,7 +117,12 @@ export class SafeBoxDepositDialog {
   protected readonly ref = inject<DialogRef<DepositRequest>>(DialogRef);
   protected readonly i18n = inject(LanguageService);
 
-  protected readonly banks = RECON_BANKS;
+  private readonly usage = inject(MoneyUsageService);
+  /** (fj) most used in the last 30 days first; an idle one (> 60 days) asks first. */
+  protected readonly banks = computed(() => this.usage.rank(RECON_BANKS, (b) => NAME_ACCOUNT[b]));
+  protected async pickBank(b: string): Promise<void> {
+    if (this.bank() === b || (await this.usage.confirmPick(NAME_ACCOUNT[b], b))) this.bank.set(b);
+  }
   private readonly e = this.data.editing;
   protected readonly amountText = signal(String(this.e?.amount ?? Math.max(0, Math.round(this.data.remaining))));
   protected readonly type = signal<SafeBoxDepositType>(this.e?.type ?? 'BANK_DEPOSIT');

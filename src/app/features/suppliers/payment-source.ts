@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, model } fr
 
 import { LanguageService } from '@core/i18n/language.service';
 import { Icon } from '@shared/ui';
+import { MoneyUsageService } from '../general-ledger/money-usage.service';
 import { PAYMENT_SOURCES, PaymentSource, SOURCE_ACCOUNTS, needsAccount, sourceProblem } from './payment-source.model';
 
 export * from './payment-source.model';
@@ -22,7 +23,7 @@ export * from './payment-source.model';
     @if (accounts().length) {
       <div class="chips sub" role="radiogroup" data-test="akaunti" [attr.aria-label]="i18n.t('Account', 'Akaunti')">
         @for (a of accounts(); track a.code) {
-          <button type="button" role="radio" [attr.data-account]="a.code" [attr.aria-checked]="account() === a.code" [class.on]="account() === a.code" (click)="account.set(a.code)">{{ a.name }}</button>
+          <button type="button" role="radio" [attr.data-account]="a.code" [attr.aria-checked]="account() === a.code" [class.on]="account() === a.code" (click)="pickAccount(a)">{{ a.name }}</button>
         }
       </div>
     }
@@ -45,6 +46,7 @@ export * from './payment-source.model';
 })
 export class PaymentSourcePicker {
   protected readonly i18n = inject(LanguageService);
+  private readonly usage = inject(MoneyUsageService);
   readonly source = model<PaymentSource | null>(null);
   readonly account = model<string | null>(null);
   readonly label = input<string | undefined>(undefined);
@@ -55,9 +57,15 @@ export class PaymentSourcePicker {
   protected readonly meta = PAYMENT_SOURCES;
   protected readonly accounts = computed(() => {
     const s = this.source();
-    return needsAccount(s) ? SOURCE_ACCOUNTS[s] : [];
+    // (fj) BENKI / SIMU: most used in the last 30 days first; the owners keep their order
+    return !needsAccount(s) ? [] : s === 'MMILIKI' ? SOURCE_ACCOUNTS[s] : this.usage.rank(SOURCE_ACCOUNTS[s], (a) => a.code);
   });
   protected readonly problem = computed(() => sourceProblem(this.source(), this.account(), this.i18n.isSwahili()));
+
+  /** (fj) an account not used for more than 60 days asks first. */
+  protected async pickAccount(a: { code: string; name: string }): Promise<void> {
+    if (this.account() === a.code || (await this.usage.confirmPick(a.code, a.name))) this.account.set(a.code);
+  }
 
   protected pick(s: PaymentSource): void {
     if (this.source() !== s) this.account.set(null);

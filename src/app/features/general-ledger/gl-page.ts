@@ -8,6 +8,7 @@ import { GlAccounts } from './gl-accounts';
 import { GlBalanceSheet } from './gl-balance-sheet';
 import type { LedgerDialogData, TrueUpDialogData } from './gl-dialogs';
 import { GlJournal } from './gl-journal';
+import { GlMoneyBalances } from './gl-money-balances';
 import { GlOverview } from './gl-overview';
 import { GlPeriods } from './gl-periods';
 import { GlPnl } from './gl-pnl';
@@ -15,8 +16,8 @@ import { GlTrialBalance } from './gl-trial-balance';
 import { ControlCheck } from './gl.models';
 import { GlService } from './gl.service';
 
-type Tab = 'overview' | 'balance-sheet' | 'pnl' | 'trial-balance' | 'journal' | 'accounts' | 'periods';
-const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journal', 'accounts', 'periods'];
+type Tab = 'overview' | 'balance-sheet' | 'money' | 'pnl' | 'trial-balance' | 'journal' | 'accounts' | 'periods';
+const TABS: Tab[] = ['overview', 'balance-sheet', 'money', 'pnl', 'trial-balance', 'journal', 'accounts', 'periods'];
 
 /**
  * General Ledger — the accountant's workspace. One period drives every tab:
@@ -25,7 +26,7 @@ const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journ
  */
 @Component({
   selector: 'app-gl-page',
-  imports: [PageHeader, SegmentedFilterBar, DateRangeSelector, GlOverview, GlBalanceSheet, GlPnl, GlTrialBalance, GlJournal, GlAccounts, GlPeriods],
+  imports: [PageHeader, SegmentedFilterBar, DateRangeSelector, GlOverview, GlBalanceSheet, GlMoneyBalances, GlPnl, GlTrialBalance, GlJournal, GlAccounts, GlPeriods],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="wrap">
@@ -43,6 +44,7 @@ const TABS: Tab[] = ['overview', 'balance-sheet', 'pnl', 'trial-balance', 'journ
       @switch (tab()) {
         @case ('overview') { <app-gl-overview [asOf]="end()" (openAccount)="ledger($event)" (trueUp)="trueUp($event)" (cashCount)="cashCount($event)" /> }
         @case ('balance-sheet') { <app-gl-balance-sheet [asOf]="end()" (openAccount)="ledger($event)" /> }
+        @case ('money') { <app-gl-money-balances [asOf]="end()" (openAccount)="ledger($event)" /> }
         @case ('pnl') { <app-gl-pnl [start]="start()" [end]="end()" (openAccount)="ledger($event)" /> }
         @case ('trial-balance') { <app-gl-trial-balance [start]="start()" [end]="end()" (openAccount)="ledger($event)" /> }
         @case ('journal') { <app-gl-journal [start]="start()" [end]="end()" (openAccount)="ledger($event)" (manual)="manual()" (transfer)="transfer()" /> }
@@ -77,6 +79,7 @@ export class GlPage {
     return [
       { value: 'overview', label: t('Health', 'Afya ya vitabu'), icon: 'monitor_heart' },
       { value: 'balance-sheet', label: t('Balance sheet', 'Mizania'), icon: 'balance' },
+      { value: 'money', label: t('Balance per account', 'Salio kwa akaunti'), icon: 'account_balance' },
       { value: 'pnl', label: t('Profit & loss', 'Faida na hasara'), icon: 'query_stats' },
       { value: 'trial-balance', label: t('Trial balance', 'Trial balance'), icon: 'table_rows' },
       { value: 'journal', label: t('Journal', 'Journal'), icon: 'receipt_long' },

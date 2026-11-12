@@ -9,7 +9,8 @@ import { parseLocal, toIsoDate } from '@shared/utils/date-utils';
 import { Money, MoneyPipe } from '@shared/utils/money';
 import { AccountLedger, ControlCheck, eventLabel } from './gl.models';
 import { GlService } from './gl.service';
-import { MONEY_ACCOUNTS } from './money-accounts';
+import { MONEY_ACCOUNTS, MoneyAccount } from './money-accounts';
+import { MoneyUsageService } from './money-usage.service';
 
 const parse = (t: string) => Money.parse(t) ?? 0;
 const today = () => toIsoDate(new Date());
@@ -259,9 +260,9 @@ export class ManualJournalDialog {
     <lsms-dialog [title]="i18n.t('Move money between accounts', 'Hamisha pesa kati ya akaunti')" icon="swap_horiz">
       <p class="info"><lsms-icon name="info" [size]="16" />{{ i18n.t('E.g. Selcom or M-Pesa moved to NMB. The fee charged by the bank / network is recorded as an expense (Bank and mobile charges).', 'Mf. Selcom au M-Pesa zimehamishiwa NMB. Ada ya benki / mtandao inaandikwa kama gharama (Ada za benki na simu).') }}</p>
       <span class="lbl">{{ i18n.t('From', 'Kutoka') }}</span>
-      <div class="chips">@for (a of accounts; track a.code) { <button type="button" [class.on]="from() === a.code" (click)="from.set(a.code)">{{ i18n.isSwahili() ? a.sw : a.en }}</button> }</div>
+      <div class="chips">@for (a of accounts(); track a.code) { <button type="button" [class.on]="from() === a.code" (click)="pickFrom(a)">{{ i18n.isSwahili() ? a.sw : a.en }}</button> }</div>
       <span class="lbl">{{ i18n.t('To', 'Kwenda') }}</span>
-      <div class="chips">@for (a of accounts; track a.code) { <button type="button" [class.on]="to() === a.code" [disabled]="from() === a.code" (click)="to.set(a.code)">{{ i18n.isSwahili() ? a.sw : a.en }}</button> }</div>
+      <div class="chips">@for (a of accounts(); track a.code) { <button type="button" [class.on]="to() === a.code" [disabled]="from() === a.code" (click)="pickTo(a)">{{ i18n.isSwahili() ? a.sw : a.en }}</button> }</div>
       <div class="two">
         <label><span>{{ i18n.t('Amount', 'Kiasi') }} (TZS)</span><input lsmsMoneyInput type="text" [value]="amount()" (input)="amount.set($any($event.target).value)" /></label>
         <label><span>{{ i18n.t('Fee', 'Ada') }} (TZS)</span><input lsmsMoneyInput type="text" data-test="ada" [value]="fee()" (input)="fee.set($any($event.target).value)" /></label>
@@ -288,10 +289,21 @@ export class TransferDialog {
   protected readonly i18n = inject(LanguageService);
   private readonly gl = inject(GlService);
 
-  protected readonly accounts = MONEY_ACCOUNTS;
+  private readonly usage = inject(MoneyUsageService);
+  /** (fj) most used in the last 30 days first. */
+  protected readonly accounts = computed(() => this.usage.rank(MONEY_ACCOUNTS, (a) => a.code));
+  private async ok(a: MoneyAccount): Promise<boolean> {
+    return this.usage.confirmPick(a.code, this.i18n.isSwahili() ? a.sw : a.en);
+  }
+  protected async pickFrom(a: MoneyAccount): Promise<void> {
+    if (this.from() === a.code || (await this.ok(a))) this.from.set(a.code);
+  }
+  protected async pickTo(a: MoneyAccount): Promise<void> {
+    if (this.to() === a.code || (await this.ok(a))) this.to.set(a.code);
+  }
   protected readonly today = today();
   protected readonly from = signal('1000');
-  protected readonly to = signal('1020');
+  protected readonly to = signal('1021');
   protected readonly amount = signal('');
   protected readonly date = signal(today());
   protected readonly note = signal('');
