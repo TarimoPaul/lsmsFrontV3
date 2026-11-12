@@ -81,3 +81,106 @@
 [12:23:10] NYINGINE | Stock | 1
 [12:23:10] ---90_KAGUA_MWISHO---
 [12:23:10] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:56:37] ===== 91 kagua 2026-11-12 =====
+[12:57:07] === 91 KAGUA 2026-11-12 12:57:04 - KUSOMA TU
+[12:57:07] --- 1. Jagger (uid8 | jina | UJAZO (item_measure.unit_type) | pcs/pkg | kategoria | active | stock | bei ya kipande | ilibadilishwa)
+[12:57:07]     (fn: saizi iko kwenye sehemu ya ujazo, si kwenye jina)
+[12:57:07]   4453f20a | JAGER MASTER | 350 | 12 | Vodka | t | 1 | 36000.00 | 2026-11-08
+[12:57:07]   4d727520 | JAGER MASTER | 750ml | 6 | Beer | t | 0 | 45000.00 | 2026-11-03
+[12:57:07]   6dc452f6 | JAGGER MASTER | 200ml | 24 | Whisky | t | 1 | 25000.00 | 2026-11-08
+[12:57:07]   886dc1ed | JAGGER MASTER | 1LT | 6 | Whisky | t | 1 | 60000.00 | 2026-11-03
+[12:57:07]   JAGGER_BILA_UJAZO 0   (0 = kila SKU ina ujazo, k.m. 750ml / 1LT)
+[12:57:07] --- 2. Flyway na gl_config
+[12:57:07]   FLYWAY 138   zilizoshindwa: 0
+[12:57:07]   CUTOVER_D HAIJAWEKWA   posting: true
+[12:57:07]   TB 0.00
+[12:57:07] --- 3. akaunti za pesa (code | jina | active | salio | ilitumika mwisho | journal siku 30)
+[12:57:07]   1000 | Cash on Hand | t | 14543664.87 | 2026-11-11 | 1106
+[12:57:07]   1010 | Petty Cash Float | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   1020 | Bank CRDB | t | 0.00 | 2026-08-24 | 0
+[12:57:07]   1021 | Bank NMB | t | 1000000.00 | 2026-10-11 | 0
+[12:57:07]   1022 | Bank NBC | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   1023 | Bank Selcom | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   1024 | Bank PCB | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   1030 | Mobile Money Vodacom | t | 166000.00 | 2026-10-18 | 5
+[12:57:07]   1031 | Mobile Money Tigo | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   1032 | Mobile Money Halotel | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   1033 | Mobile Money Airtel | t | 0.00 | HAIJAWAHI | 0
+[12:57:07]   2900 | Suspense | t | -742500.00 | 2026-07-04 | 0
+[12:57:07]   (2910 / 6130 zinaonekana tu baada ya toleo 2 - V149/V150)
+[12:57:07] --- 4. mikopo: malipo yaliyoandikwa (mkopo | tarehe | kiasi)
+[12:57:07]    | 2026-09-26 | 1200000.00
+[12:57:07]    | 2026-10-04 | 2186000.00
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-04 | 187717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-05 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-06 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-07 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-08 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-09 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-10 | 1717.39
+[12:57:07]    | 2026-10-11 | 1000000.00
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-11 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-12 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-13 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-14 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-15 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-16 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-17 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-18 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-19 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-20 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-21 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-22 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-23 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-24 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-25 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-26 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-27 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-28 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-29 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-30 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-10-31 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-01 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-02 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-03 | 387717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-04 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-05 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-06 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-07 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-08 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-09 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-10 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-11 | 1717.39
+[12:57:07]   INJ-0c98b69e-67de-4e66-98c3-8bf6ace52637 | 2026-11-12 | 1717.39
+[12:57:07] --- 5. (fl) malipo yaliyokataliwa tangu 01/10: check ya prod ina njia 8 tu (CASH VODACOM TIGOPESA HALOPESA CRDB NMB NBC CREDIT)
+[12:57:07]   5a. makosa ya check kwenye log ya backend (tangu kontena lilipoanza; sale/deni lililokataliwa = halikuhifadhiwa)
+[12:57:07]   KONTENA_LOG_KUANZIA 2026-11-09T11:02:42
+[12:57:07]   CHECK_ILIKATAA 0
+[12:57:07]   5b. njia zilizotumika tangu 01/10 (jedwali | njia | idadi | kiasi)
+[12:57:07]     payments | CASH | 693 | 64948300.00
+[12:57:07]     payments | VODACOM | 8 | 166000.00
+[12:57:07]   5c. siku zenye amana ya Selcom (reco au safe box) - upungufu = variance > 0 (expected - accounted)
+[12:57:08]       (tarehe | muuzaji | hali | variance | amana Selcom reco | safe box Selcom | taslimu | simu | benki | UPUNGUFU?)
+[12:57:08]     2026-10-04 | macheda macheda | APPROVED | -2000.00 | 0 | 160000.00 | 1320000.00 | 0.00 | 1160000.00 | -
+[12:57:08]     2026-10-06 | macheda macheda | APPROVED | 3000.00 | 1075000.00 | 0 | 1355500.00 | 0.00 | 1075000.00 | UPUNGUFU
+[12:57:08]     2026-10-16 | macheda macheda | APPROVED | 2500.00 | 465000.00 | 9200.00 | 1135000.00 | 0.00 | 694200.00 | UPUNGUFU
+[12:57:08]     2026-10-17 | macheda macheda | APPROVED | 4800.00 | 300000.00 | 0 | 1627500.00 | 0.00 | 1322200.00 | UPUNGUFU
+[12:57:08]     2026-10-25 | macheda macheda | APPROVED | 3000.00 | 0 | 310000.00 | 2027000.00 | 0.00 | 310000.00 | UPUNGUFU
+[12:57:08]     2026-10-26 | macheda macheda | APPROVED | 5100.00 | 0 | 100000.00 | 1767100.00 | 0.00 | 500000.00 | UPUNGUFU
+[12:57:08]     2026-10-29 | macheda macheda | APPROVED | -500.00 | 0 | 100000.00 | 1157000.00 | 0.00 | 623000.00 | -
+[12:57:08]     2026-11-10 | macheda macheda | APPROVED | -1900.00 | 0 | 432400.00 | 1536500.00 | 0.00 | 1432400.00 | -
+[12:57:08]     2026-11-11 | macheda macheda | DRAFT | 9500.00 | 650000.00 | 0 | 1472500.00 | 0.00 | 1055000.00 | UPUNGUFU
+[12:57:08]   5d. maelezo ya sale / reco / pesa ya simu yanayotaja Selcom, Airtel au PCB tangu 01/10 (tarehe | wapi | maandishi)
+[12:57:08] ---91_KAGUA_MWISHO---
+[12:57:08] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:57:09] === 90 KAGUA 2026-11-12 12:57:07 - KUSOMA TU
+[12:57:09] --- logins siku 30: mteja | idadi | watumiaji | ya mwisho
+[12:57:09] KIVINJARI | 24 | 2 | 2026-11-12 12:24:06
+[12:57:09] NYINGINE | 7 | 1 | 2026-11-11 09:51:07
+[12:57:09] --- watumiaji wa FLUTTER siku 30: email | logins | ya mwisho
+[12:57:09] --- audit_trails siku 30: mteja | moduli | idadi
+[12:57:09] NYINGINE | Sales | 35
+[12:57:09] NYINGINE | Products | 1
+[12:57:09] NYINGINE | Stock | 1
+[12:57:09] ---90_KAGUA_MWISHO---
+[12:57:09] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0

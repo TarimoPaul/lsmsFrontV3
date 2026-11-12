@@ -47,6 +47,15 @@ Pesa ya Airtel itaonekana chini ya **Halo Pesa**, ya Selcom chini ya **NBC**, na
 
 Ikiwa umeshawahi kuandika malipo ya Selcom, PCB au Airtel kama Taslimu tangu 01/10, mwambie Chief tarehe na kiasi. Usirekebishe reco iliyoidhinishwa mwenyewe.
 
-## 5. Kuanzia 02/12
+## 5. Utaratibu wa sasa unaendelea (fq)
 
-Toleo 2 likishawekwa, chagua njia halisi (Selcom, PCB, Airtel Money n.k.). Mwongozo huu unaisha.
+Utaratibu wa sasa wa duka ni huu: **POS = Fedha Taslimu**, na pesa ya simu au benki inaandikwa kwenye **reco** (pesa ya simu, amana ya benki). Utaratibu huu **unaendelea kufanya kazi** kabla na baada ya D (07/12), bila kubadilisha chochote.
+
+- **Kabla ya D:** hakuna mabadiliko.
+- **Kuanzia D:** reco ikiidhinishwa, mfumo unahamisha kiasi cha reco tu kutoka droo (1000) kwenda akaunti ya benki au simu (NMB 1021, Selcom 1023, M-Pesa 1030, Tigo 1031 ...).
+  - Sale za Taslimu zinabaki Dr 1000. Hakuna kinachohesabiwa mara mbili (jaribio la cutover T10).
+- **Ukichagua njia ya simu au benki kwenye POS**, usiandike kiasi hicho tena kwenye reco ya simu. Mfumo unakitoa wenyewe, lakini ni rahisi kuepuka mkanganyiko.
+
+## 6. Kuanzia 02/12
+
+Toleo 2 likishawekwa, njia zote zinakubalika. Ukichagua njia kwenye POS, chagua njia halisi (Selcom, PCB, Airtel Money n.k.). Sehemu 2 ya mwongozo huu inaisha.

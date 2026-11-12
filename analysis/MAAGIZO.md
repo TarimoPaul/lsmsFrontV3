@@ -1235,3 +1235,10 @@ Kisha 6e, usafi 9, kazi 10.
 
 ## 2026-11-12 (fo)
 Jagger 1LT/750ml: "6 pcs/pkg" ni SAHIHI (box = 6; wananunua kwa kipande). Usiguse. Kinga ni onyo la manunuzi. Kipengele kimefungwa.
+
+## 2026-11-12 (fq)
+91-5 (fl): HAKUNA athari — CHECK_ILIKATAA 0; POS inaandika karibu yote CASH (693/701), simu/benki zinaingia kupitia reco.
+  Upungufu wa siku za Selcom (2,500–9,500) ni wa kawaida, si wa njia ya malipo. Funga (fl).
+  Mwongozo wa Macheda: ongeza kwamba utaratibu wa sasa (POS = CASH, simu/benki kwenye reco) unaendelea kufanya kazi baada ya D.
+Thibitisha kwenye jaribio la cutover: siku yenye POS yote CASH + reco ya simu/benki → Dr 102x/103x / Cr 1000 kwa kiasi cha reco tu (hakuna mara mbili).
+Endelea na 6e.

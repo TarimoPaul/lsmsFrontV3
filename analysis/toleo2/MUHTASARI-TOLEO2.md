@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (fo)
+nimesoma hadi (fq)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -31,12 +31,12 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | 6e droo kwenye reco (mstari wa auto wa DROO) | t2-cutover | — | — | **BADO** — majibu (fk): reco ya DROO ya siku ya malipo; kuanzia deploy 02/12; chanzo halisi (Takawedo NMB, Pepsi/Coca DROO) | — |
 | 6d 1010 akiba ya mkopo | — | — | — | BAADA (Qff-1) | — |
 | H1 kizingiti cha Health (V139) | t2-afya | 2a64f7e / e70d2ba | suite + afya e2e | IMEKAMILIKA | — (mwelekeo unaanza siku ya deploy) |
-| Cutover: reco -> 102x/103x baada ya D | t2-cutover | 8dd0a2d, 2be5211 / cb4e895 | cutover_api 10/0 | IMEKAMILIKA | **60** siku ya D |
-| Uhamisho wenye ada (6130, V149) + sababu + kinga ya kabla ya D | t2-cutover | d9498e1 / 61a618e | cutover_api 10/0 (T7–T9) | IMEKAMILIKA | — |
+| Cutover: reco -> 102x/103x baada ya D | t2-cutover | 8dd0a2d, 2be5211 / cb4e895 | cutover_api 12/0 | IMEKAMILIKA | **60** siku ya D |
+| Uhamisho wenye ada (6130, V149) + sababu + kinga ya kabla ya D | t2-cutover | d9498e1 / 61a618e | cutover_api 12/0 (T7–T10) | IMEKAMILIKA | — |
 | Tofauti ya ufunguzi 2910 (V150, Qff-2) | t2-cutover | 7140df4 / — | t60 14/0 | IMEKAMILIKA | **60** |
 | (fj) akaunti zote wazi + kinga: zinazotumika juu, "una uhakika?" > siku 60, "Salio kwa akaunti" | t2-cutover | 710fa5a / e4b87fe | akaunti_e2e 5/0, ng 103/103, t60 14/0 (akaunti 9) | IMEKAMILIKA | **60** (akaunti zote 9 zinapata salio la ufunguzi) |
 | (fk) malipo baada ya D: kila njia -> akaunti yake; V151 check ya payments/credit_payments = njia zote (Selcom/PCB/Airtel/BANK_TRANSFER/MOBILE_MONEY zilikataliwa) | t2-cutover | ca82e61 / (e2e kwenye t2-cutover) | malipo_d_api 15/0 (kabla 10/5), PaymentMethodCheckMigrationTest | IMEKAMILIKA | — |
-| (fl) mpaka 02/12: mwongozo kwa Macheda (njia 8 za prod; Selcom→NBC, PCB→CRDB, Airtel→Halo Pesa + maelezo) | analysis | (hii) | data ya prod: NBC/CRDB/Halo Pesa hazijawahi kutumika kwa sale | IMEKAMILIKA (MWONGOZO-MACHEDA-NJIA-ZA-MALIPO.md) | **91 sehemu 5** (ripoti tu: log ya check, njia tangu 01/10, siku za Selcom + upungufu) |
+| (fl) mpaka 02/12: mwongozo kwa Macheda (njia 8 za prod; Selcom→NBC, PCB→CRDB, Airtel→Halo Pesa) + (fq) utaratibu wa sasa (POS = CASH, simu/benki kwenye reco) unaendelea baada ya D | analysis + t2-cutover | 95856a4 / (e2e) | 91-5 prod: CHECK_ILIKATAA 0, POS CASH 693/701; cutover_api 12/0 (T10: POS yote CASH + reco -> Dr 102x/103x / Cr 1000 kiasi cha reco tu) | **IMEKAMILIKA** (fq: hakuna athari, (fl) imefungwa) | — |
 | C4 marejesho (V148), swichi OFF | t2-marejesho | a268e3f / 326a90f (kwenye t2-cutover) | marejesho_api 14/0 (ON) + 1/0 (OFF), marejesho UI 4/0 + 1/0, unit 663/0 | IMEKAMILIKA | — (Chief anawasha swichi baadaye) |
 | Jagger: SKU 4 | (data, Chief) | — | hatua 91 sehemu 1 sasa inasoma UJAZO (item_measure.unit_type): 350 / 750ML / 200ml / 1L, JAGGER_BILA_UJAZO 0 | **IMEKAMILIKA** (fn/fo: saizi ziko kwenye ujazo; 1LT/750ml "6 pcs/pkg" ni sahihi; kategoria = Chief) | — |
 | Usafi 9: config junk lines (§6) | t2-cutover | — | — | BADO | — |
@@ -55,7 +55,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 
 | Lini | Hatua | Nini |
 |---|---|---|
-| Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo + 90 (Flutter); **endesha tena** kwa sehemu 5 (fl) |
+| Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo, 5 (fl) + 90 (Flutter) — IMEFANYIKA 12/11; tena kabla ya deploy |
 | Baada ya deploy 02/12 | **74** | ununuzi 18 -> PAID (bila journal) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
 | Baada ya deploy + hesabu ya Chief | **85** | uhamisho wa KUPIMA |
@@ -72,4 +72,4 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 3. **Kazi 10:** unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 
-Kwa Chief kuendesha (si maswali): hatua 91 tena (sehemu 5, fl). Mengine yote yameamuliwa (fk).
+Kwa Chief kuendesha (si maswali): hatua 91 mara moja kabla ya deploy (D lazima HAIJAWEKWA). Mengine yote yameamuliwa (fk).
