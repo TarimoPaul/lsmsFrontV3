@@ -1242,3 +1242,11 @@ Jagger 1LT/750ml: "6 pcs/pkg" ni SAHIHI (box = 6; wananunua kwa kipande). Usigus
   Mwongozo wa Macheda: ongeza kwamba utaratibu wa sasa (POS = CASH, simu/benki kwenye reco) unaendelea kufanya kazi baada ya D.
 Thibitisha kwenye jaribio la cutover: siku yenye POS yote CASH + reco ya simu/benki → Dr 102x/103x / Cr 1000 kwa kiasi cha reco tu (hakuna mara mbili).
 Endelea na 6e.
+
+## 2026-11-12 (fr)
+Uthabiti: mwongozo §5 ("ukichagua simu kwenye POS, usiiandike tena kwenye reco") dhidi ya muundo wa (fc)
+  ("uhamisho wa simu = reco ya simu − sehemu ya mauzo ya POS iliyolipwa kwa simu"). Zote mbili zikitumika → M-Pesa inapungua mara mbili.
+  Jaribio T11: sale 10,000 POS=M-Pesa + reco ya simu 0 (kama mwongozo) → 1030 lazima iwe +10,000 tu (kutoka sale), uhamisho 0.
+  Na T12: sale 10,000 POS=M-Pesa + reco ya simu 10,000 → 1030 +10,000 tu (siyo 20,000).
+  Rekebisha muundo AU mwongozo ili Macheda awe na KANUNI MOJA rahisi. Ripoti matokeo ya T11/T12.
+Kisha 6e.
