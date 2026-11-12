@@ -1,4 +1,7 @@
 @echo off
+rem (ff) 12/11: IMESTAAFU. D haiwekwi peke yake tena - tumia 60-ufunguzi.cmd (journal ya ufunguzi + D, kinga zilezile za 60-bank-cutover.sql).
+echo IMESTAAFU: tumia analysis\steps\60-ufunguzi.cmd kagua / andika - hakuna kilichoendeshwa.
+exit /b 2
 rem HATUA 60 - TAREHE YA KUKATA D YA BENKI (mmiliki 28/10 x, S-A). IMEANDALIWA TU - HAIJAENDESHWA. INABADILISHA PROD (gl_config).
 rem   Inaendeshwa SIKU YA KUKATA pamoja na journal ya ufunguzi, baada ya 2.3.0 kuwa prod. Hakuna restart: backend inasoma D kila malipo.
 rem   Kuanzia D malipo ya mkopo ni Cr 102x iliyochaguliwa; kabla ya D ni Cr 1000 (M-13).

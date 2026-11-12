@@ -1117,3 +1117,59 @@ Kisha exclude_from_ops_report, kisha kazi 5.
 ## 2026-11-11 (ez)
 Chief amethibitisha: OPE-MON-…-2939F6DE ("2400000") = Frame mara ya 2 (30/04) → hatua 88 ANDIKA. Septemba 06AC14BB + 4B6D0F55 = watu wawili, sahihi (haiguswi).
 Baada ya 88: pango 2026 = 6000 2.2M (+ 80e 01/12 = 2.4M); 6200 haina pango. Kisha kazi 5.
+
+## 2026-11-11 (fa) — malizia toleo 2
+Endelea bila kusimama kati ya kazi (ripoti fupi + jedwali la origin kila moja ikiisha). Mpangilio:
+ 5. Kanuni za hesabu ya stock (BAADA §2): recount ya mtu wa pili kwa ziada > 50,000; NO_ACTION isijirudie (post au recount);
+    swali "kuna mzigo uliofika leo ambao haujaandikwa?"; KUPIMA nje ya hesabu ya kila siku (hesabu ya wiki ya vyombo ipo).
+ 6. Pesa/GL zilizobaki:
+    a. hatua 74 (§9): "Umelipa sasa" iliyopotea + Grepa 02/10 (75,000) → PAID bila journal mpya;
+    b. wasambazaji wa mkopo: tathmini ya AP inayokosekana (kusoma tu + pendekezo);
+    c. "Deni kwa mmiliki" kwa Jess (akaunti + chanzo C3);
+    d. 1010 akiba ya mkopo/pango (§1);
+    e. droo kwenye reco (§8) bila kuhesabu mara mbili.
+ 7. SKU za Jagger (majina yaonyeshe saizi; Chief atataja); ripoti ya uendeshaji itumie avg kwa thamani ya stock.
+ 8. C4 marejesho ya mauzo.
+ 9. Usafi: ORODHA-FLUTTER-V3 (Chief achague) → C7 (dead code 26, M1 MV scheduler, docker-compose.aws.yml; Flutter MWISHO)
+    → C6 (DROP backup table + view 4) → BAADA §17 (DISPOSED) → Flyway V039/outOfOrder → config (mistari ya takataka) → log ya build UTF-16.
+10. Toleo 2 la kutolewa: unganisha matawi yote ya feature/t2-* kwenye release/2.5.0 (backend) na release/3.3.0 (V3); lango kamili
+    (suite + PG + c2 + run-all E2E kwenye nakala safi, Flyway 134→145); script ya deploy (kama 76) yenye hatua za data 85 (KUPIMA) na 89 (ripoti)
+    baada ya deploy; staging + rollback halisi. Niambie tarehe inayopendekezwa (si wiki ya 14–31/12).
+Kipengele kikihitaji Chief: kiweke kando, endelea, orodhesha maswali mwishoni mwa ripoti.
+Kosa jipya: liingie tu ikiwa linaandika pesa/stock/data isiyo sahihi kwenye prod.
+
+## 2026-11-11 (fc)
+Majibu ya Chief (6a/6b):
+ - Wasambazaji wote wanalipwa SIKU HIYO HIYO kupitia NMB (cash ya mauzo → amana NMB → kesho yake malipo). Cash ya droo mara chache sana. HAKUNA mkopo wa wasambazaji.
+ - "Vyote ni vya bwana" (12.56M) = pesa ya BIASHARA (siyo 2300).
+ - Manunuzi 17 UNPAID (≈0.7M) = yalilipwa siku hiyo hiyo → hatua 74: PAID bila journal mpya (pamoja na Grepa 02/10).
+ Hitimisho: kabla ya cutover, Cr 1000 ya manunuzi ni sahihi (NMB ni sehemu ya 1000). Hakuna marekebisho ya GL kwa 6b. Andika hivyo kwenye AP-WASAMBAZAJI-6B.
+KABLA YA CUTOVER D (kipaumbele): thibitisha (code + jaribio kwenye nakala, D ikiwa imewekwa):
+ - reco BANK_DEPOSIT → Dr 102x NMB / Cr 1000 (uhamisho), MOBILE (M-Pesa/Tigo/…) → Dr 103x / Cr 4000/1000 sahihi;
+ - malipo ya msambazaji "Benki · NMB" baada ya D → Cr 102x NMB.
+ Kama hakuna → ni kosa la pesa (kanuni ya ct-2) → ingiza toleo 2 au hatua ya data. Ripoti kabla ya kuchagua tarehe ya D.
+6e: kwa kuwa droo hulipa mara chache, mstari wa auto wa droo kwenye reco (manunuzi chanzo DROO) — endelea na muundo; Q6d/Q6e nitakuletea majibu.
+
+## 2026-11-11 (fd)
+Qfc-1: D = Jumatatu ya kwanza baada ya toleo 2 prod. Lengo: toleo 2 prod mwisho wa Nov → D 30/11 au 07/12.
+  Toleo 2 likichelewa kupita 07/12 → toleo + D Januari (04/01). Cutover D ni sehemu ya mpango wa kutoa toleo 2 (kazi 10).
+  Kadiria sasa: siku za kazi zilizobaki (C4, 6d/6e, Jagger, usafi, release, staging) → tarehe halisi inayowezekana.
+Qfc-2: Chief atasema kama Selcom ni benki au huduma ya malipo.
+Hatua 60 (ufunguzi) isasishwe: salio halisi la NMB/Selcom/M-Pesa/Tigo (Dr 102x/103x / Cr 1000), droo halisi, bahasha; 1030 ya kabla ya D
+  (163,000) iwekwe kwenye salio halisi, si kuongezwa. TB 0; tofauti yoyote → mstari wazi "tofauti ya ufunguzi" kwa uamuzi wa Chief.
+
+## 2026-11-11 (fe)
+Selcom = BENKI (1023). Mtiririko: amana Selcom/NMB/M-Pesa/Tigo → ZOTE zinahamishiwa NMB → NMB inalipa wasambazaji.
+Baada ya D lazima kuwe na njia rahisi ya kuandika uhamisho: chanzo (1023/103x) → NMB (1021), kiasi, ADA (gharama ya benki/simu), tarehe.
+  Kagua kitufe "Transfer" cha GL kama kinatosha (ruhusa, ada, sababu, audit); kama hakitoshi → toleo 2.
+  Jaribio: amana Selcom 500k → uhamisho kwenda NMB 500k ada 2k → 1023 = 0, 1021 = 498k, gharama ya benki 2k, TB 0.
+Toleo 2 (au BAADA, niambie makadirio): ulinganisho wa benki wa mwezi — salio la 1021/1023/103x dhidi ya salio la taarifa (Chief anaingiza),
+  tofauti inaonyeshwa (H1-style, bila kizingiti).
+Hatua 60: salio la ufunguzi la 1023 = salio halisi la Selcom siku ya D.
+
+## 2026-11-12 (ff)
+Ndiyo, endelea — mpangilio: 4 → 3 → 2 → 1 → 5.
+ 4 kwanza: makadirio ya siku za kazi zilizobaki kwa toleo 2 (C4, 6d/6e, Jagger, usafi wa 9, release + lango + staging + rollback, hatua 60)
+   → tarehe halisi ya prod, na D (30/11, 07/12, au Januari 04/01).
+Utaratibu: ripoti kwa Kiswahili, ianze "nimesoma hadi (herufi)", na imalizike na jedwali la origin (matawi yote ya t2-*, ikiwemo t2-cutover, t2-hesabu).
+Baada ya 1–5: endelea na (fa) iliyobaki — C4, 6d/6e, usafi wa 9, kazi 10.

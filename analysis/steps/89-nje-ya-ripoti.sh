@@ -3,8 +3,9 @@
 # uendeshaji" kwa rows ambazo GL yake imeshashughulikiwa na hatua 80, ili ripoti ya Nov isionyeshe Frame/TRA mara mbili:
 #   REN-MON-20261101-000000-5D9DD844  Frame Nov 200,000  (share ya mwaka F7C9E331 tayari ipo kila mwezi)
 #   TAX-MON-20261101-000000-B4F8EA66  TRA Nov 250,000    (share ya mwaka 4B42C8F1 tayari ipo kila mwezi)
-#   (L89_ZAIDI="REF1 REF2" ikiwa Chief ataongeza nyingine, mf. 2939F6DE baada ya jibu la hatua 88)
-# Row na journal HAZIGUSWI (GL ya 80 inabaki). Sababu: "zimeshughulikiwa na hatua 80".
+#   OPE-MON-20260101-000000-2939F6DE  Frame Jan 200,000 mara ya 2 ("2400000", 30/04) - GL yake imerudishwa na hatua 88 (Chief 11/11 ez)
+#   (L89_ZAIDI="REF1 REF2" ikiwa Chief ataongeza nyingine)
+# Row na journal HAZIGUSWI (GL ya 80/88 inabaki). Sababu: "zimeshughulikiwa na hatua 80" (2939F6DE: "...hatua 88 ...").
 #   bash 89-nje-ya-ripoti.sh kagua    KUSOMA TU: kila row (ipo? alama? journal), V145 ipo?, TB
 #   bash 89-nje-ya-ripoti.sh andika   stdin = email, password ya mwenye CAPITAL_APPROVE -> API kwa kila row
 # Kinga: V145 lazima iwe imefanyika; kila ref lazima iwe row MOJA ya MONTHLY_EXPENSE; iliyowekwa alama tayari inarukwa;
@@ -17,8 +18,9 @@ cd "$DIR" || { echo "SIYO: $DIR haipo"; exit 1; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 q() { docker compose -p "$PROJ" exec -T -e "SQL=$1" postgres sh -c 'psql -X -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -At -F " | " -c "$SQL"' < /dev/null; }
 die() { echo "SIYO: $*"; echo "---89_IMESHINDWA---"; exit 1; }
-REFS="REN-MON-20261101-000000-5D9DD844 TAX-MON-20261101-000000-B4F8EA66 ${L89_ZAIDI:-}"
+REFS="REN-MON-20261101-000000-5D9DD844 TAX-MON-20261101-000000-B4F8EA66 OPE-MON-20260101-000000-2939F6DE ${L89_ZAIDI:-}"
 WHY="zimeshughulikiwa na hatua 80"
+why() { case "$1" in *-2939F6DE) echo "imeshughulikiwa na hatua 88 (Frame Jan 2026 mara ya 2)" ;; *) echo "$WHY" ;; esac; }
 tb() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid where e.status='POSTED' and not coalesce(e.is_deleted,false)"; }
 dc() { q "select coalesce(sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)),0)::numeric(19,2) from journal_entry_line l join journal_entry e on e.uid=l.journal_entry_uid
    where l.account_code='$1' and e.status='POSTED' and not coalesce(e.is_deleted,false)"; }
@@ -39,7 +41,7 @@ if [ "$MODE" = kagua ]; then
   done
   echo "--- zilizo nje ya ripoti sasa:"; q "select reference_number, amount::numeric(19,0) from capital_expenditure where exclude_from_ops_report order by 1"
   echo "--- GL sasa: $(gl)"
-  echo "ANDIKA itaweka alama kwa: $REFS - sababu '$WHY'. GL haibadiliki."
+  for r in $REFS; do echo "ANDIKA itaweka alama: $r - sababu '$(why "$r")'"; done; echo "GL haibadiliki."
   echo "---89_KAGUA_MWISHO---"; exit 0
 fi
 [ "$MODE" = andika ] || { echo "MATUMIZI: $0 kagua | andika"; exit 2; }
@@ -66,7 +68,7 @@ TOKEN=; api /api/auth/login "{\"email\":\"$(jesc "$EMAIL")\",\"password\":\"$(je
 TOKEN=$(sed -n 's/.*"token" *: *"\([^"]*\)".*/\1/p' "$T/b" | head -n1); [ -n "$TOKEN" ] || die "login HTTP $HC $(msg)"; echo "login SAWA"
 for t in $TODO; do
   uid=${t%%:*}; r=${t#*:}
-  api "/api/v1/capital-expenditure/$uid/ops-report-exclusion" "{\"exclude\":true,\"reason\":\"$WHY\"}"
+  api "/api/v1/capital-expenditure/$uid/ops-report-exclusion" "{\"exclude\":true,\"reason\":\"$(why "$r")\"}"
   okb || die "$r: HTTP $HC $(msg) (zilizotangulia kwenye orodha hii zimeshawekwa alama; endesha KAGUA)"
   echo "$r: SAWA - $(msg)"
 done

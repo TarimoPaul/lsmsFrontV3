@@ -1,4 +1,4 @@
-# HATUA 89 (mmiliki 11/11 ew/ex) - PROD, BAADA ya toleo 2: alama "nje ya ripoti ya uendeshaji" kwa REN-MON Nov 5D9DD844 + TAX-MON Nov B4F8EA66 (GL haiguswi). Endesha kupitia 89-nje-ya-ripoti.cmd:
+# HATUA 89 (mmiliki 11/11 ew/ex) - PROD, BAADA ya toleo 2: alama "nje ya ripoti ya uendeshaji" kwa REN-MON Nov 5D9DD844 + TAX-MON Nov B4F8EA66 + OPE-MON Jan 2939F6DE (88) (GL haiguswi). Endesha kupitia 89-nje-ya-ripoti.cmd:
 #   89-nje-ya-ripoti.cmd kagua     PROD, kusoma tu -> analysis\steps\89-kagua.log  -> SOMA, kisha (STOP) uamue
 #   89-nje-ya-ripoti.cmd andika    andika ANDIKA-89 -> email + password ya CEO (haionekani) -> alama (API) -> 89-andika.log
 # Inahitaji V145 (toleo 2) prod. Row iliyowekwa alama tayari inarukwa.

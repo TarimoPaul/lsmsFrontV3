@@ -189,3 +189,21 @@ Code (chanzo kimeonekana 09/11):
   - (er): Q4-3 NBV + H1, t2-tozo 55b1d26 / af82b73. suite 652/0/1, E2E_OK 18/18.
   - (ev): hatua 86 HAIHITAJIKI.
   - (ew): hatua 87 (kusoma tu) iko tayari; exclude_from_ops_report ni ijayo, kisha kazi 5.
+- **11/11 (ez)(fa):** ripoti `RIPOTI-EZ-FA-11-11.md`.
+  - (ez) 88 iliandikwa 09:51 (6000 2026 = 2.2M, 6200 Frame = 0); 89 sasa ina 2939F6DE (t89 7/0).
+  - Kazi 5 IMEKAMILIKA local: backend feature/t2-hesabu dfbfc4d (V146), V3 bddc178; suite 661/0/1, ng 102/102, hesabu_api 22/0, hesabu (UI) 9/0.
+  - 6a hatua 74 tayari (steps/74-umelipa-sasa.*); 6b tathmini AP-WASAMBAZAJI-6B; 6c Jess 2310 (V147) feature/t2-pesa bf697a4 + 1d8abb3, V3 e97f817;
+    6d/6e muundo + maswali (MUUNDO-6D-6E) - kando mpaka Q6b-1.
+  - 7: ripoti ya uendeshaji kwa avg (t2-pesa bf697a4); SKU za Jagger zinasubiri Q7-1.
+  - Lango: PG checks 6/6 (safu ya V145 kwenye entity - LoanSql/PnlBridge zilishindwa tangu t2-ripoti).
+  - 8 C4: feature/t2-marejesho bf14542 = merge ya sales-returns, V148; WIP (flag + majaribio bado).
+  - 8 C4 (11/11 jioni): t2-marejesho backend 7db84a3 / V3 4f45964; swichi OFF; marejesho_api 11/0 (ON); kinga KUPIMA.
+  - 9: ORODHA-FLUTTER-V3-11-11.md + hatua 90 (kusoma tu) - inasubiri Chief; C7/C6/... bado.
+- **11/11 (fc):** RIPOTI-FC-CUTOVER-11-11.md. 6b: hakuna marekebisho ya GL. 74 = ununuzi 18 PAID bila journal.
+  Kabla ya D: reco/sefu hazikuandika GL ya amana/simu -> KOSA LA PESA baada ya D -> rekebisho feature/t2-cutover 8dd0a2d + 2be5211
+  (suite 666/0/1, cutover_api_e2e 7/0 ikiwa D imewekwa). Siku ya D: journal ya ufunguzi ya salio halisi la 102x/103x.
+- **11/11 (fe):** uhamisho wenye ada (6130, V149), sababu ya lazima, kinga ya kabla ya D: backend t2-cutover d9498e1, V3 61a618e; cutover_api_e2e 10/0 (T7 Selcom -> NMB 500k ada 2k).
+- **12/11 (ff):** RIPOTI-FE-FF-12-11.md.
+  - 4: makadirio 10.6 siku (+15% = 12.2) bila 6d/§14/§16/ulinganisho wa benki -> **prod Jtn 02/12, D Jtt 07/12** (akiba hadi 04/12; vinginevyo Januari 04/01). Majibu kufikia 18/11.
+  - 3: hatua 60 = `steps/60-ufunguzi.*` (ufunguzi wa salio halisi 1021/1023/1030/1031 kutoka 1000 + tofauti ya ufunguzi WAZI + D); 60-prod-bank-cutover.cmd imestaafu. t60 15/0 (nakala safi 29/10, local-d9498e1).
+  - 2: ulinganisho wa benki wa mwezi = siku 2 -> BAADA (Januari).

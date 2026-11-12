@@ -1,35 +1,35 @@
 ---MWENDESHO-PUSH-YOTE--- 
-saa Tue 11/10/2026 11:17:32.34 
+saa Tue 11/10/2026 13:45:54.98 
 ---KAGUA--- 
 TAWI_1 release/2.4.0 local b3e04eff0dc4e07a9fd2cbaeb65cb318ddd50d3f origin b3e04eff0dc4e07a9fd2cbaeb65cb318ddd50d3f - TAYARI, hakuna cha kupush 
 TAWI_2 release/3.2.0 local c12dd10418bebbe154ae46001871aaca2c246c7b origin c12dd10418bebbe154ae46001871aaca2c246c7b - TAYARI, hakuna cha kupush 
-TAWI_3 main local a355ef96225c7922779a0250c60b03f98fb014a7 origin 6d5bb1b24f530a821ebe4b4189c5ea6fb868577a - FF, commit 1 mpya 
+TAWI_3 main local b31ec7e38732d67e9d76dd329529deef9fa008c9 origin a355ef96225c7922779a0250c60b03f98fb014a7 - FF, commit 5 mpya 
 TAWI_4 feature/c2-null-params local 3ab2b3b66785a17051701ae5f5847120d291f895 origin 3ab2b3b66785a17051701ae5f5847120d291f895 - TAYARI, hakuna cha kupush 
 TAWI_5 main local 9b6678ac2aeb9f0a103b7be463f2ccf32779b33a origin 9b6678ac2aeb9f0a103b7be463f2ccf32779b33a - TAYARI, hakuna cha kupush 
 TAG_6 v2.4.0 local 238b7dc92d216aebd5913542490bbf4de77189e1 origin 238b7dc92d216aebd5913542490bbf4de77189e1 - TAYARI 
 TAG_7 v3.2.0 local ff6f1c6ee061f42015e941cdfdeaea925e1d53f1 origin ff6f1c6ee061f42015e941cdfdeaea925e1d53f1 - TAYARI 
 TAWI_8 feature/t2-afya local 2a64f7e4084b70c40769a7b329f8985ca8362a83 origin 2a64f7e4084b70c40769a7b329f8985ca8362a83 - TAYARI, hakuna cha kupush 
-TAWI_9 feature/t2-gharama local 216c88dfa4ee1e3386f60b1845b35fce2a4c7441 origin eca430bfe8421849de977cf73836111e6541700b - FF, commit 1 mpya 
+TAWI_9 feature/t2-gharama local 9c496b84df2d388588fb945534dd6f4b436d7fdb origin 216c88dfa4ee1e3386f60b1845b35fce2a4c7441 - FF, commit 1 mpya 
 TAWI_10 feature/t2-afya local e70d2ba5f4bddfa9d70516ae9bf358d8d6af2d29 origin e70d2ba5f4bddfa9d70516ae9bf358d8d6af2d29 - TAYARI, hakuna cha kupush 
-TAWI_11 feature/t2-gharama local d9c63535eacbc49f9f1543bc03fa7eb52d958c59 origin ca2d099195596f4f04883f9e87c61f1cfbcb37c8 - FF, commit 1 mpya 
+TAWI_11 feature/t2-gharama local 6c34ca779700eecedde66fd17988f8e2afc192f4 origin d9c63535eacbc49f9f1543bc03fa7eb52d958c59 - FF, commit 3 mpya 
 MATAWI_YA_TOLEO_2 feature/t2-*: 4 yamegunduliwa 
 mmiliki ameandika: push 
 ---PUSH--- 
 PUSH_1 release/2.4.0 - TAYARI, imerukwa 
 PUSH_2 release/3.2.0 - TAYARI, imerukwa 
 To https://github.com/TarimoPaul/lsmsFrontV3.git
-   6d5bb1b..a355ef9  main -> main
-PUSH_3 main SAWA origin = local = a355ef96225c7922779a0250c60b03f98fb014a7 
+   a355ef9..59af624  main -> main
+PUSH_3 main SAWA origin = local = 59af624cab34eb2953bfd023a3c661adc3c93621 
 PUSH_4 feature/c2-null-params - TAYARI, imerukwa 
 PUSH_5 main - TAYARI, imerukwa 
 PUSH_6 v2.4.0 - TAYARI, imerukwa 
 PUSH_7 v3.2.0 - TAYARI, imerukwa 
 PUSH_8 feature/t2-afya - TAYARI, imerukwa 
 To https://github.com/TarimoPaul/lsmsBackend.git
-   eca430b..216c88d  feature/t2-gharama -> feature/t2-gharama
-PUSH_9 feature/t2-gharama SAWA origin = local = 216c88dfa4ee1e3386f60b1845b35fce2a4c7441 
+   216c88d..9c496b8  feature/t2-gharama -> feature/t2-gharama
+PUSH_9 feature/t2-gharama SAWA origin = local = 9c496b84df2d388588fb945534dd6f4b436d7fdb 
 PUSH_10 feature/t2-afya - TAYARI, imerukwa 
 To https://github.com/TarimoPaul/lsmsFrontV3.git
-   ca2d099..d9c6353  feature/t2-gharama -> feature/t2-gharama
-PUSH_11 feature/t2-gharama SAWA origin = local = d9c63535eacbc49f9f1543bc03fa7eb52d958c59 
+   d9c6353..6c34ca7  feature/t2-gharama -> feature/t2-gharama
+PUSH_11 feature/t2-gharama SAWA origin = local = 6c34ca779700eecedde66fd17988f8e2afc192f4 
 ---OK--- 

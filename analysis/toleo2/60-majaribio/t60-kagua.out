@@ -1,0 +1,17 @@
+=== 60 KAGUA 2026-11-12 08:24:48
+D: 2026-11-12   leo: 2026-11-12   cutover sasa: HAIJAWEKWA   kipindi cha D: OPEN   TB: 0.00
+--- salio la GL kabla ya D (entry_date < 2026-11-12) -> salio halisi -> journal
+  1021 NMB: GL 1186000.00 -> halisi 1500000 -> journal 314000.00
+  1023 SELCOM: GL 0.00 -> halisi 300000 -> journal 300000.00
+  1030 MPESA: GL 166000.00 -> halisi 200000 -> journal 34000.00
+  1031 TIGO: GL 0.00 -> halisi 50000 -> journal 50000.00
+  1000 pesa taslimu: GL 13734508.39 -> baada ya journal 13036508.39 -> halisi 900000 (bahasha 120000 ndani yake)
+TOFAUTI_YA_UFUNGUZI -12136508.39   (halisi - vitabu; + = pesa nyingi kuliko vitabu)
+  uamuzi: HAUJATOLEWA (L60_TOFAUTI = acha au namba ya akaunti) - ANDIKA itakataa
+--- akaunti nyingine za benki/simu (lazima 0 kabla ya D):
+  zisizo 0: 0
+  1010 (Petty Cash Float): 0.00   (6d haijajengwa: bahasha ni sehemu ya 1000)
+--- journal za siku D au baadaye zinazogusa pesa (zisizo mauzo) - lazima 0 kabla ya kuweka D:
+  idadi: 0
+journal ya ufunguzi tayari: 0 |    ya tofauti: 0 | 
+---60_KAGUA_MWISHO---

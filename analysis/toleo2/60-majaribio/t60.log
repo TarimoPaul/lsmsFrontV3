@@ -1,0 +1,32 @@
+PASS K1 kagua: akaunti 4, 1030 ya kabla (166000.00) inawekwa = halisi, tofauti inaonyeshwa, MWISHO
+PASS K2 tofauti = taslimu - (1000 - benki/simu mpya)
+PASS A1 tofauti bila uamuzi -> SIMAMA, hakuna journal, D haijawekwa
+PASS A2 D si leo -> SIMAMA
+PASS A3 password mbaya -> SIMAMA
+PASS A4 kiasi si halali -> SIMAMA
+PASS A5 tofauti kwenda akaunti ya pesa -> SIMAMA
+PASS A6 journal ya pesa ya siku D ipo -> SIMAMA
+  MWISHO_60
+--- BAADA
+  1021 NMB: 1500000
+  1023 SELCOM: 300000
+  1030 MPESA: 200000
+  1031 TIGO: 50000
+  1000: 13036508.39   (taslimu halisi 900000)
+  TOFAUTI_YA_UFUNGUZI -12136508.39 HAIJAANDIKWA - inasubiri uamuzi wa Chief
+  TB: 0.00   cutover: 2026-11-12
+---60_MWISHO---
+PASS W1 andika (acha): D = leo, akaunti = halisi, TB ileile, tofauti haijaandikwa
+PASS W2 journal 1 tu (UFUNGUZI-60), tarehe D, hakuna ya tofauti
+PASS W3 1000 = vitabu - benki/simu mpya
+PASS W4 mara ya pili: ufunguzi unarukwa, CUTOVER_TAYARI, hakuna journal mpya
+PASS W5 (fe) baada ya ufunguzi: Selcom 300k -> NMB ada 2k: 1023 = 0, 1021 = 1,798,000, TB 0
+  1023 SELCOM: 300000
+  1030 MPESA: 200000
+  1031 TIGO: 50000
+  1000: 900000.00   (taslimu halisi 900000)
+  TB: 0.00   cutover: 2026-11-12
+---60_MWISHO---
+PASS W6 tofauti -> 3900: journal ya pili WAZI, 1000 = taslimu halisi 900,000, D = leo, TB ileile
+PASS W7 maelezo ni ASCII
+MWISHO PASS 15 FAIL 0
