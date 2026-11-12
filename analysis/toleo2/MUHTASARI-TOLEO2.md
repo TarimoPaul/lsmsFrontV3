@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (fw)
+nimesoma hadi (fx)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -39,7 +39,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | (fl) mpaka 02/12: mwongozo kwa Macheda (njia 8 za prod; Selcom→NBC, PCB→CRDB, Airtel→Halo Pesa) + (fq) utaratibu wa sasa (POS = CASH, simu/benki kwenye reco) unaendelea baada ya D | analysis + t2-cutover | 95856a4 / (e2e) | 91-5 prod: CHECK_ILIKATAA 0, POS CASH 693/701; cutover_api 12/0 (T10: POS yote CASH + reco -> Dr 102x/103x / Cr 1000 kiasi cha reco tu) | **IMEKAMILIKA** (fq: hakuna athari, (fl) imefungwa) | — |
 | (fr) KANUNI MOJA: POS = Taslimu; reco ya simu = jumla ya siku kwa mtandao; amana = kila pesa iliyoingia benki. Fomula ya reco + uhamisho: kwa kila mtandao max(iliyoandikwa, AUTO ya POS); amana ya benki − kilicholipwa na POS kwa benki hiyo | t2-cutover | 5b198a6, 6f987e8 / (V3 chips + e2e) | MobileMoneyOneRuleTest 7/0 (mutation 4 fail), cutover_api 16/0 (T11–T14; kabla: T12/T13 reco 2P), malipo_d 15/0, ng 104/104 | IMEKAMILIKA | — |
 | (fu) mwongozo: reco = malipo ya wateja ya leo kwa kila njia (si salio); muuzaji haandiki uhamisho/cash→benki/mikopo; CEO anahakiki fedha + manunuzi kwa chanzo halisi; kila uhamisho halisi baada ya D = Transfer ya GL; lipa namba = VODACOM → 1030 | analysis + t2-cutover | (mwongozo) / pengo_d_api | pengo_d_api 3/0 (bila Transfer: 1023 +10k, 1021 −50k; na Transfer: 0 / −40k) | IMEKAMILIKA | — |
-| (fv/fw) droo→benki MARA MOJA na aliyeipeleka (reco/sefu); Transfer ya CEO = harakati zisizoandikwa tu (Selcom→NMB, 1030→benki + makato 6130); onyo la Transfer 1000→102x = amana ya siku ile; ukaguzi wa wiki | t2-cutover | 1fe2ee7 / 6cde43c | TransferDuplicateTest 3/0, pengo_d_api 5/0 (P4 onyo, P5 1030→NMB 100k ada 1.5k), uhamisho_onyo UI 4/0, ng 104/104 | IMEKAMILIKA | — |
+| (fv/fw) droo→benki MARA MOJA na aliyeipeleka (reco/sefu); Transfer ya CEO = harakati zisizoandikwa tu (Selcom→NMB, 1030→benki + makato 6130); onyo la Transfer 1000→102x = amana ya siku ile; ukaguzi wa wiki | t2-cutover | 1fe2ee7, 4b1a727 (fx ±1 siku) / 6cde43c | suite 677/0/1 (1fe2ee7), TransferDuplicateTest 4/0, pengo_d_api 6/0 (P4 onyo, P6 ±1 siku, P5 1030→NMB 100k ada 1.5k), uhamisho_onyo UI 4/0, ng 104/104 | IMEKAMILIKA | — |
 | C4 marejesho (V148), swichi OFF | t2-marejesho | a268e3f / 326a90f (kwenye t2-cutover) | marejesho_api 14/0 (ON) + 1/0 (OFF), marejesho UI 4/0 + 1/0, unit 663/0 | IMEKAMILIKA | — (Chief anawasha swichi baadaye) |
 | Jagger: SKU 4 | (data, Chief) | — | hatua 91 sehemu 1 sasa inasoma UJAZO (item_measure.unit_type): 350 / 750ML / 200ml / 1L, JAGGER_BILA_UJAZO 0 | **IMEKAMILIKA** (fn/fo: saizi ziko kwenye ujazo; 1LT/750ml "6 pcs/pkg" ni sahihi; kategoria = Chief) | — |
 | Usafi 9: config junk lines (§6) | t2-cutover | — | — | BADO | — |
@@ -68,6 +68,9 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | 07/12 + siku 30 | journal ya mkono | 2910 chambua; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO) |
 
 ## 3. Kilichobaki kabla ya kuunganisha (kazi 10)
+
+Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + staging) siku 3–4 kabla ya **25/11**; prod 02/12.
+
 
 1. **6e** (droo kwenye reco, majibu ya fk) — code + majaribio. Siku ~1.5.
 2. **Usafi 9:** M1 (b) ondoa scheduler + DROP view 4; F1 footer; hatua ya C6 (B2 + DROP); config junk lines; C9 `ssh -n`; UTF-16 log. Siku ~1.

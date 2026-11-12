@@ -1288,3 +1288,9 @@ Chief: lipa namba (1030) huhamishwa KWA MKONO kwenda benki mbalimbali → kila u
 Hakiki Transfer ya GL inaruhusu chanzo 1030 + makato (jaribio: salio 1030 linashuka 100,000, 1021 +98,500, 6130 +1,500).
 §CEO ongeza: ukaguzi wa wiki — salio GL 1030/1021/1023 vs salio halisi (simu/benki); tofauti → Transfer iliyosahaulika.
 Kisha 6e.
+
+## 2026-11-12 (fx)
+1. Endesha suite KAMILI ya backend kwenye 1fe2ee7 (mwisho ilikuwa 674/0/1 kwenye 6f987e8). Ripoti idadi.
+2. Onyo la Transfer: dirisha = tarehe ya Transfer ±1 siku (Macheda hupeleka cash ya jana asubuhi). Jaribio: amana
+   reco ya jana 300,000 + Transfer leo 1000→1021 300,000 → onyo; siku 2 nyuma → hakuna onyo.
+3. Kisha 6e. Lengo: 6e + usafishaji 9 viishe ~20/11 ili kazi 10 ipate siku 3–4 kabla ya 25/11.
