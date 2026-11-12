@@ -1,8 +1,8 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (fk)
+nimesoma hadi (fl)
 
-Toleo 2 = backend **release/2.5.0** (V139–V151) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
+Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
 
 Kwa nini nimeweza kuthibitisha kwa data tu sehemu: siwezi kuingia prod (ssh: `Permission denied (publickey)`), kwa hiyo yote ya prod
@@ -36,12 +36,13 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Tofauti ya ufunguzi 2910 (V150, Qff-2) | t2-cutover | 7140df4 / — | t60 14/0 | IMEKAMILIKA | **60** |
 | (fj) akaunti zote wazi + kinga: zinazotumika juu, "una uhakika?" > siku 60, "Salio kwa akaunti" | t2-cutover | 710fa5a / e4b87fe | akaunti_e2e 5/0, ng 103/103, t60 14/0 (akaunti 9) | IMEKAMILIKA | **60** (akaunti zote 9 zinapata salio la ufunguzi) |
 | (fk) malipo baada ya D: kila njia -> akaunti yake; V151 check ya payments/credit_payments = njia zote (Selcom/PCB/Airtel/BANK_TRANSFER/MOBILE_MONEY zilikataliwa) | t2-cutover | ca82e61 / (e2e kwenye t2-cutover) | malipo_d_api 15/0 (kabla 10/5), PaymentMethodCheckMigrationTest | IMEKAMILIKA | — |
+| (fl) mpaka 02/12: mwongozo kwa Macheda (njia 8 za prod; Selcom→NBC, PCB→CRDB, Airtel→Halo Pesa + maelezo) | analysis | (hii) | data ya prod: NBC/CRDB/Halo Pesa hazijawahi kutumika kwa sale | IMEKAMILIKA (MWONGOZO-MACHEDA-NJIA-ZA-MALIPO.md) | **91 sehemu 5** (ripoti tu: log ya check, njia tangu 01/10, siku za Selcom + upungufu) |
 | C4 marejesho (V148), swichi OFF | t2-marejesho | a268e3f / 326a90f (kwenye t2-cutover) | marejesho_api 14/0 (ON) + 1/0 (OFF), marejesho UI 4/0 + 1/0, unit 663/0 | IMEKAMILIKA | — (Chief anawasha swichi baadaye) |
-| Jagger: majina ya SKU 4 | (data, Chief) | — | hatua 91 sehemu 1 | **CHIEF** (amebadilisha kwenye V3; 91 inathibitisha, kisha nafunga) | — |
+| Jagger: majina ya SKU 4 | (data, Chief) | — | hatua 91 (12/11 12:23): prod bado `JAGER MASTER` x2 / `JAGGER MASTER` x2, JAGGER_BILA_SAIZI 4 (bei 25k/36k/45k/60k) | **CHIEF** — mabadiliko hayakufika prod (huenda staging); badilisha kwenye V3 ya prod, kisha 91 tena | — |
 | Usafi 9: config junk lines (§6) | t2-cutover | — | — | BADO | — |
 | Usafi 9: C9 deploy-v3 `ssh -n` | V3 | — | — | BADO | — |
 | Usafi 9: build safi (`mvnw clean package`) | t2-cutover | 92a6e60 | V151 iliyobatilishwa ilibaki target/ -> imezuiwa | IMEKAMILIKA | — (kanuni ya release: image kutoka worktree safi + clean) |
-| Usafi 9: C7 code iliyokufa (Flutter) | — | — | hatua 90 | BADO kwa sehemu ya M1; Flutter yenyewe inasubiri log ya 91/90 | — |
+| Usafi 9: C7 code iliyokufa (Flutter) | — | — | hatua 90 (12/11): watumiaji wa FLUTTER siku 30 = 0, lakini mteja "NYINGINE" (mtumiaji 1, logins 7, audit Sales 35) | BADO kwa sehemu ya M1; code ya Flutter **haiondolewi** (mteja NYINGINE hajatambulika) -> BAADA | — |
 | Usafi 9: C6 backup_20260930_journal_entry -> B2 (sha256) -> DROP | (hatua ya data) | — | — | BADO (fk: ndiyo) — hatua KAGUA -> ANDIKA | **C6** baada ya deploy |
 | Usafi 9: V039 / Flyway outOfOrder | — | — | — | BAADA (fk) | — |
 | Usafi 9: M1 = (b) (dx): ondoa MaterializedViewScheduler + refresh (C7) + DROP view 4 (C6) | t2-cutover | — | — | BADO | — |
@@ -54,7 +55,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 
 | Lini | Hatua | Nini |
 |---|---|---|
-| Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo + 90 (Flutter) |
+| Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo + 90 (Flutter); **endesha tena** kwa sehemu 5 (fl) na Jagger |
 | Baada ya deploy 02/12 | **74** | ununuzi 18 -> PAID (bila journal) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
 | Baada ya deploy + hesabu ya Chief | **85** | uhamisho wa KUPIMA |
@@ -68,7 +69,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 1. **6e** (droo kwenye reco, majibu ya fk) — code + majaribio. Siku ~1.5.
 2. **Usafi 9:** M1 (b) ondoa scheduler + DROP view 4; F1 footer; hatua ya C6 (B2 + DROP); config junk lines; C9 `ssh -n`; UTF-16 log. Siku ~1.
    (Flyway ya toleo 2 sasa 134 -> 151; view 4 zikidondoshwa kwa migration -> V152.)
-3. **Kazi 10:** unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 150);
+3. **Kazi 10:** unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 
 Kwa Chief kuendesha (si maswali): hatua 91 (Jagger + Flutter). Mengine yote yameamuliwa (fk).

@@ -1217,3 +1217,11 @@ Yaliyokwisha amuliwa — usiorodheshe kama "yanasubiri":
 SASA (kabla ya 6e): thibitisha sale yenye malipo "Benki · NMB" baada ya D inaandika Dr 1021 (na M-Pesa → 103x) kwenye journal ya sale.
  Jaribio la E2E lenye D imewekwa, nakala safi, image ya clean build. Ikiwa haiandiki → kosa la pesa, rekebisha.
 Kisha 6e (kwa majibu hapo juu), usafi 9, kazi 10.
+
+## 2026-11-12 (fl)
+V151 (check ya payment method): hakuna hotfix — inaingia toleo 2 (02/12). Mpaka hapo:
+ Andika mwongozo mfupi kwa Macheda (Kiswahili, analysis/): njia 8 zinazokubalika LEO kwenye prod, na kwa kila njia isiyokubalika
+ (Selcom, PCB, Airtel, BANK_TRANSFER/MOBILE_MONEY kwa madeni) achague ipi badala yake ili reco ibaki sahihi (siyo Taslimu ikiwa pesa haikuingia droo).
+Kusoma tu (prod, ndani ya hatua 91 au 92): sale/madeni tangu 01/10 yaliyolipwa kwa njia ambayo huenda ilibadilishwa — ishara: reco yenye upungufu
+ + amana ya Selcom siku hiyo. Ripoti tu.
+Kisha 6e, usafi 9, kazi 10.

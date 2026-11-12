@@ -5,6 +5,8 @@
 #   2. Flyway ya prod (toleo 2 litaongeza hadi 150) na gl_config (D lazima iwe HAIJAWEKWA kabla ya toleo 2)
 #   3. akaunti za pesa (fj: ZOTE wazi): hali, salio, ilitumika mwisho, journal za siku 30 - kwa hatua 60 na orodha za chanzo
 #   4. mkopo A (04/12): malipo ya mkopo yaliyopo
+#   5. (fl) malipo tangu 01/10 ambayo huenda njia yake ilibadilishwa (check ya njia 8): log ya check, njia zilizotumika,
+#      siku zenye amana ya Selcom + upungufu, maelezo yanayotaja Selcom/Airtel/PCB - RIPOTI TU
 #   bash 91-ukaguzi-toleo2.sh kagua
 # Hakuna kinachoandikwa. ASCII tu.
 set -uo pipefail
@@ -35,4 +37,31 @@ echo "  (2910 / 6130 zinaonekana tu baada ya toleo 2 - V149/V150)"
 echo "--- 4. mikopo: malipo yaliyoandikwa (mkopo | tarehe | kiasi)"
 q "select coalesce(e.reference_number,''), e.entry_date, sum(l.debit_amount)::numeric(19,2) from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid
    where $LIVE and e.reference_type like 'LOAN%' and e.entry_date >= current_date - 60 group by 1,2 order by 2" | sed 's/^/  /'
+echo "--- 5. (fl) malipo yaliyokataliwa tangu 01/10: check ya prod ina njia 8 tu (CASH VODACOM TIGOPESA HALOPESA CRDB NMB NBC CREDIT)"
+echo "  5a. makosa ya check kwenye log ya backend (tangu kontena lilipoanza; sale/deni lililokataliwa = halikuhifadhiwa)"
+LOGC=$(docker compose -p "$PROJ" logs --no-color --timestamps --no-log-prefix --since 2026-10-01T00:00:00 backend < /dev/null 2>/dev/null)
+echo "  KONTENA_LOG_KUANZIA $(head -1 <<<"$LOGC" | cut -c1-19)"
+echo "  CHECK_ILIKATAA $(grep -c 'payment_method_check' <<<"$LOGC")"
+grep 'payment_method_check' <<<"$LOGC" | cut -c1-19 | cut -c1-16 | sort | uniq -c | head -40 | sed 's/^/    /'
+echo "  5b. njia zilizotumika tangu 01/10 (jedwali | njia | idadi | kiasi)"
+q "select 'payments', payment_method, count(*), sum(amount_paid)::numeric(19,2) from payments where payment_date >= '2026-10-01' and not coalesce(is_deleted,false) group by 2
+   union all select 'credit_payments', payment_method, count(*), sum(amount)::numeric(19,2) from credit_payments where payment_date >= '2026-10-01' and not coalesce(is_deleted,false) group by 2 order by 1, 3 desc" | sed 's/^/    /'
+echo "  5c. siku zenye amana ya Selcom (reco au safe box) - upungufu = variance > 0 (expected - accounted)"
+echo "      (tarehe | muuzaji | hali | variance | amana Selcom reco | safe box Selcom | taslimu | simu | benki | UPUNGUFU?)"
+q "with sel as (select r.uid ruid, sum(e.amount) a from reconciliation_cash_entries e join daily_reconciliation r on r.uid = e.reconciliation_uid
+                where e.bank_name ilike '%selcom%' and not coalesce(e.is_deleted,false) group by 1),
+        sb as (select source_recon_uid ruid, sum(submitted_amount) a from safe_box_deposits where bank_name ilike '%selcom%' and not coalesce(is_deleted,false) and status <> 'CANCELLED' group by 1)
+   select r.reconciliation_date, r.user_name, r.status, r.variance_amount, coalesce(sel.a,0), coalesce(sb.a,0), coalesce(r.auto_cash_sales,0), coalesce(r.auto_mobile_sales,0),
+          coalesce(r.bank_deposits_total,0), case when r.variance_amount > 0 then 'UPUNGUFU' else '-' end
+   from daily_reconciliation r left join sel on sel.ruid = r.uid left join sb on sb.ruid = r.uid
+   where r.reconciliation_date >= '2026-10-01' and not coalesce(r.is_deleted,false) and (sel.a is not null or sb.a is not null)
+   order by 1" | sed 's/^/    /'
+echo "  5d. maelezo ya sale / reco / pesa ya simu yanayotaja Selcom, Airtel au PCB tangu 01/10 (tarehe | wapi | maandishi)"
+q "select sale_date::date, 'sale ' || coalesce(receipt_number,left(uid,8)), left(regexp_replace(regexp_replace(sale_notes, '^.*Profit: [0-9.,-]+ ?', ''), '\s+', ' ', 'g'), 120) from sales
+     where sale_date >= '2026-10-01' and sale_notes ~* '(selcom|airtel|pcb)'
+   union all select r.reconciliation_date, 'reco', left(regexp_replace(coalesce(r.notes,'') || ' ' || coalesce(r.variance_explanation,''), '\s+', ' ', 'g'), 120) from daily_reconciliation r
+     where r.reconciliation_date >= '2026-10-01' and (coalesce(r.notes,'') || coalesce(r.variance_explanation,'')) ~* '(selcom|airtel|pcb)'
+   union all select r.reconciliation_date, 'simu ' || m.provider, m.amount::text || ' ' || left(coalesce(m.notes,''), 100) from reconciliation_mobile_entries m join daily_reconciliation r on r.uid = m.reconciliation_uid
+     where r.reconciliation_date >= '2026-10-01' and m.provider ~* 'airtel' and not coalesce(m.is_deleted,false)
+   order by 1" | sed 's/^/    /'
 echo "---91_KAGUA_MWISHO---"
