@@ -5,6 +5,8 @@
 //   T3 reopen -> the transfer is reversed (nothing live); T4 approved again -> posted again, once
 //   T5 supplier payment "Benki - NMB" dated after D -> Cr 1021 (not 1000)
 //   T6 a Safe Box bank deposit (NMB) confirmed, after D -> Dr 1021 / Cr 1000
+//   T7-T9 transfers with a fee; T10 (fq) a day after D with every POS sale CASH + phone/bank money only on the reco ->
+//      the sales Dr 1000 only, the reco Dr 102x/103x / Cr 1000 its own amounts, nothing twice
 // Throw-away local copy only. Run: node cutover_api_e2e.cjs
 const { execFileSync } = require('child_process');
 
@@ -106,6 +108,46 @@ async function reapprove(ceo, uid) {
   ok('T8 uhamisho wa benki KABLA ya D -> umekataliwa', early.j?.status !== 'Success' && /Kabla ya tarehe ya kukata/.test(msg(early)), msg(early));
   const noWhy = await api('POST', '/api/v1/gl/transfers', ceo, { fromAccount: '1023', toAccount: '1021', amount: 1000, fee: 0, date: dayA, reason: 'aaaa' });
   ok('T9 bila sababu halali -> imekataliwa', noWhy.j?.status !== 'Success', msg(noWhy));
+
+  // ── T10 (fq) today's way of working after D: every POS sale rung up as CASH, phone / bank money only on the reco ──
+  //   -> the sales post Dr 1000 only; the reco moves exactly its own amounts Dr 102x/103x / Cr 1000 (nothing twice)
+  const mgr = await login(MGR);
+  const mgrUid = sql(`select uid from users where email = '${MGR}'`);
+  const day10 = sql('select current_date::text');
+  const pad = (n) => String(n).padStart(2, '0');
+  const now10 = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
+  const free = sql(`select count(*) from daily_reconciliation where user_uid = '${mgrUid}' and reconciliation_date = '${day10}' and not is_deleted`) === '0'
+    && sql(`select count(*) from payments p join sales s on s.uid = p.sale_uid where s.user_uid = '${mgrUid}' and p.payment_date::date = '${day10}' and p.payment_method <> 'CASH'`) === '0';
+  const [pu, pn, pr] = sql("select uid || '|' || product_name || '|' || round(piece_sale_price) from products where not coalesce(is_deleted,false) and is_active and current_stock >= 10 and piece_sale_price > coalesce(current_average_cost,0) * 1.05 and product_name not ilike '%pima%' order by current_stock desc, id limit 1").split('|');
+  const saleUids = [];
+  for (const i of [1, 2]) {
+    const s = await api('POST', '/api/v1/sales/partial', mgr, { saleDate: now10(), customerUid: null, userUid: mgrUid, discountAmount: 0, saleNotes: `E2E-CUTOVER-T10 ${i}`,
+      saleDetails: [{ productUid: pu, productName: pn, saleType: 'PIECES', pieceQuantity: 1, packageQuantity: 1, unitPrice: Number(pr), subTotal: Number(pr), overrideUnitPrice: null }],
+      payments: [{ customerName: 'Walk-in Customer', paymentMethod: 'CASH', totalAmount: Number(pr), amountPaid: Number(pr), paymentDate: now10() }] });
+    if (s.j?.status === 'Success') saleUids.push(sql(`select uid from sales where sale_notes like '%E2E-CUTOVER-T10 ${i}' order by id desc limit 1`));
+  }
+  await new Promise((res) => setTimeout(res, 800));
+  const inList = saleUids.map((u) => `'${u}'`).join(',') || "''";
+  const saleMoney = sql(`select coalesce(string_agg(account_code || ':' || v, ',' order by account_code), '') from (select l.account_code, round(sum(l.debit_amount - l.credit_amount), 2) v from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and j.reference_uid in (${inList}) and (l.account_code = '1000' or l.account_code like '102%' or l.account_code like '103%') group by 1) x`);
+  const r10 = `e2e-t10-${Date.now()}`;
+  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status, variance_explanation)
+       values ('${r10}', now(), '${day10}', '${mgrUid}', 'macheda macheda',
+               (select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1),
+               'SUBMITTED', 'E2E cutover T10 maelezo ya tofauti')`);
+  for (const [prov, amt] of [['VODACOM', 30000], ['TIGO', 20000]]) {
+    sql(`insert into reconciliation_mobile_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, provider, amount) values ('${r10}-${prov}', now(), true, false, true, '${r10}', '${prov}', ${amt})`);
+  }
+  for (const [bank, amt] of [['NMB', 100000], ['SELCOM', 50000]]) {
+    sql(`insert into reconciliation_cash_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, entry_type, bank_name, amount, deposit_date) values ('${r10}-${bank}', now(), true, false, true, '${r10}', 'BANK_DEPOSIT', '${bank}', ${amt}, '${day10}')`);
+  }
+  const ap10 = await api('POST', `/api/v1/reconciliation/${r10}/approve?notes=${encodeURIComponent('E2E cutover T10')}`, ceo);
+  const want10 = '1000:-200000.00,1021:100000.00,1023:50000.00,1030:30000.00,1031:20000.00';
+  ok('T10 siku baada ya D: POS yote CASH (sale -> Dr 1000 tu) + reco ya simu/benki -> Dr 1021/1023/1030/1031 / Cr 1000 kiasi cha reco tu',
+    free && saleUids.length === 2 && saleMoney === `1000:${(2 * Number(pr)).toFixed(2)}` && ap10.j?.status === 'Success' && live('RECO-TRF:' + r10) === want10,
+    `free=${free} sales=${saleUids.length} saleMoney=${saleMoney} | ${msg(ap10)} | ${live('RECO-TRF:' + r10)} (lazima ${want10})`);
+  const twice = sql(`select count(*) from journal_entry j where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and j.reference_uid in (${inList}) and exists (select 1 from journal_entry_line l where l.journal_entry_uid = j.uid and (l.account_code like '102%' or l.account_code like '103%'))`);
+  ok('T10b hakuna mara mbili: journal za sale hazina 102x/103x; uhamisho mmoja tu wa reco', twice === '0'
+    && sql(`select count(*) from journal_entry where reference_uid = 'RECO-TRF:${r10}' and status = 'POSTED' and reversed_entry_uid is null`) === '1', `twice=${twice}`);
 
   ok('TB = 0', Math.abs(tb()) < 0.005 && Math.abs(tb() - tb0) < 0.005, `${tb0} -> ${tb()}`);
   console.log(`MWISHO PASS ${P} FAIL ${F}`);
