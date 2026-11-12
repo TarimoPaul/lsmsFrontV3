@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (gc)
+nimesoma hadi (gd)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -44,16 +44,17 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | (fv/fw) droo→benki MARA MOJA na aliyeipeleka (reco/sefu); Transfer ya CEO = harakati zisizoandikwa tu (Selcom→NMB, 1030→benki + makato 6130); onyo la Transfer 1000→102x = amana ya siku ile; ukaguzi wa wiki | t2-cutover | 1fe2ee7, 4b1a727 (fx ±1 siku) / 6cde43c | suite 677/0/1 (1fe2ee7), TransferDuplicateTest 4/0, pengo_d_api 6/0 (P4 onyo, P6 ±1 siku, P5 1030→NMB 100k ada 1.5k), uhamisho_onyo UI 4/0, ng 104/104 | IMEKAMILIKA | — |
 | C4 marejesho (V148), swichi OFF | t2-marejesho | a268e3f / 326a90f (kwenye t2-cutover) | marejesho_api 14/0 (ON) + 1/0 (OFF), marejesho UI 4/0 + 1/0, unit 663/0 | IMEKAMILIKA | — (Chief anawasha swichi baadaye) |
 | Jagger: SKU 4 | (data, Chief) | — | hatua 91 sehemu 1 sasa inasoma UJAZO (item_measure.unit_type): 350 / 750ML / 200ml / 1L, JAGGER_BILA_UJAZO 0 | **IMEKAMILIKA** (fn/fo: saizi ziko kwenye ujazo; 1LT/750ml "6 pcs/pkg" ni sahihi; kategoria = Chief) | — |
-| Usafi 9: config junk lines (§6) | t2-cutover | — | — | BADO | — |
-| Usafi 9: C9 deploy-v3 `ssh -n` | V3 | — | — | BADO | — |
+| Usafi 9: config junk lines (BAADA §6: `git211`, `git spring.jpa.show-sql=false`) | t2-cutover | 3286f3a | suite 682/0/1; image 3286f3a inawaka (Flyway 151, ERROR 0), cutover_api 16/0 | IMEKAMILIKA | — |
+| Usafi 9: C9 deploy-v3 `ssh -n` | V3 | fd67e97 (21/10) | `deploy-v3.ps1` mistari 155 na 209: `ssh -n` (ssh zote 2); iko kwenye release/3.2.0 (prod) | IMEKAMILIKA (tayari) | — |
 | Usafi 9: build safi (`mvnw clean package`) | t2-cutover | 92a6e60 | V151 iliyobatilishwa ilibaki target/ -> imezuiwa | IMEKAMILIKA | — (kanuni ya release: image kutoka worktree safi + clean) |
-| Usafi 9: C7 code iliyokufa (Flutter) | — | — | hatua 90 (12/11): watumiaji wa FLUTTER siku 30 = 0, lakini mteja "NYINGINE" (mtumiaji 1, logins 7, audit Sales 35) | BADO kwa sehemu ya M1; code ya Flutter **haiondolewi** (mteja NYINGINE hajatambulika) -> BAADA | — |
-| Usafi 9: C6 backup_20260930_journal_entry -> B2 (sha256) -> DROP | (hatua ya data) | — | — | BADO (fk: ndiyo) — hatua KAGUA -> ANDIKA | **C6** baada ya deploy |
+| Usafi 9: C7 code iliyokufa (Flutter) | — | — | hatua 90 (12/11): watumiaji wa FLUTTER siku 30 = 0, lakini mteja "NYINGINE" (mtumiaji 1, audit Sales 35) | BAADA (code ya Flutter haiondolewi) | — |
+| Usafi 9: C6 backup_20260930_journal_entry -> B2 (sha256) -> DROP | (hatua ya data) | — | — | **BAADA ~09/12** (gd): KAGUA -> ANDIKA, BAADA ya kuthibitisha dump ya B2 ina backup table; HAIFUTWI kwenye 2.5.0 | **C6** ~09/12 |
 | Usafi 9: V039 / Flyway outOfOrder | — | — | — | BAADA (fk) | — |
-| Usafi 9: M1 = (b) (dx): ondoa MaterializedViewScheduler + refresh (C7) + DROP view 4 (C6) | t2-cutover | — | — | BADO | — |
+| Usafi 9: M1 (dx/gd): ondoa MaterializedViewScheduler + refresh ya SaleService | t2-cutover | 116dd75 + a645cf6 | Sale* tests 0 kosa, suite 682/0/1; **rollback** (M1-mv/rollback-240.log): DB ya 2.5.0 (Flyway 151, V139/V148) + image 2.4.0 -> inawaka, Flyway onyo tu (151 > 138), ERROR 0, refresh ya 2.4.0 + REFRESH CONCURRENTLY sawa | IMEKAMILIKA | — |
+| DROP view 4 (mv_daily/hourly/monthly/top_products) + initializer + repository | (migration/hatua tofauti) | — | — | **BAADA ~09/12** (gd): siku 7 baada ya prod 02/12 bila rollback; HAIFUTWI kwenye 2.5.0 (2.4.0 inaihitaji kwa rollback) | **DROP-MV** ~09/12 |
 | Usafi 9: §17 DISPOSED (check ya capital_expenditure.status) | — | — | — | BAADA (Q4-3) | — |
-| Usafi 9: UTF-16 build log | — | — | — | BADO | — |
-| F1 footer "Babuu Liquor Store" (eg) | V3 (config) | — | — | BADO | — |
+| Usafi 9: UTF-16 build log | analysis/steps | 76-deploy-240.ps1 | 76-pc-build.log (09/11): NUL 594,542 kati ya byte 1,191,146 (Tee-Object -Append ya PS 5.1 = UTF-16LE ndani ya log ya UTF-8). Sasa `Add-Content -Encoding UTF8`; jaribio `-NoProfile`: ya zamani NUL 33, mpya NUL 0, exit code inafika (3 = 3) | IMEKAMILIKA (script ya deploy ya 2.5.0 itanakili 76) | — |
+| F1 footer "Babuu Liquor Store" (eg) | V3 (config) | 6c34ca7 (10/11) | `environment.prod.ts` ownerName = 'Babuu Liquor Store' (shell footer + login); iko t2-cutover -> 3.3.0 | IMEKAMILIKA | — |
 | Wasambazaji marudio (Takawedo ×3: takawedo/Takawedo/TAKAWEDO; Serengeti ×3: Serengeti/SERENGETI/NEEMA SERENGETI) + manunuzi 241 ya jina tu bila supplier_uid (Takawedo 234, Pepsi 7) | — | — | — | **BAADA — Desemba, baada ya D** (gc: usijenge sasa) | — |
 | §14, §16, ulinganisho wa benki wa mwezi | — | — | — | BAADA (Qff-1); "Salio kwa akaunti" (fj 4) ni toleo rahisi lake | — |
 
@@ -66,7 +67,8 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Baada ya deploy | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
 | Baada ya deploy + hesabu ya Chief | **85** | uhamisho wa KUPIMA |
-| Baada ya deploy | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
+| ~09/12 (siku 7 bila rollback) | **DROP-MV** | migration/hatua tofauti: DROP view 4 + kuondoa initializer/repository |
+| ~09/12, baada ya kuthibitisha dump ya B2 ina backup table | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
 | 04/12 | — | Loan A awamu 2 kwenye app (Cr 1000), hakuna kazi |
 | **07/12 asubuhi (D)** | **60** kagua -> andika | salio la ufunguzi kwa akaunti ZOTE 9 za benki/simu + tofauti -> 2910 + D |
 | 07/12 + siku 30 | journal ya mkono | 2910 chambua; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO) |
@@ -77,7 +79,7 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
 
 
 1. ~~6e~~ IMEKAMILIKA (ga: onyo tu).
-2. **Usafi 9:** M1 (b) ondoa scheduler + DROP view 4; F1 footer; hatua ya C6 (B2 + DROP); config junk lines; C9 `ssh -n`; UTF-16 log. Siku ~1.
+2. ~~Usafi 9~~ IMEKAMILIKA (gd): M1 (scheduler tu), junk lines, UTF-16; C9 na F1 tayari. DROP view 4 + C6 -> ~09/12. Suite 682/0/1, ng 104/104.
    (Flyway ya toleo 2 sasa 134 -> 151; view 4 zikidondoshwa kwa migration -> V152.)
 3. **Kazi 10:** unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.

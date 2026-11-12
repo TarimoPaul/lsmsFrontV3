@@ -1346,3 +1346,14 @@ Kisha usafi 9.
 2. Wasambazaji marudio (Takawedo ×3, Serengeti ×3) + manunuzi 241 ya jina tu: ANDIKA kwenye MUHTASARI kama
    "Desemba, baada ya D" — usijenge sasa.
 Kisha usafi 9.
+
+## 2026-11-12 (gd)
+(gc) imekubaliwa. Usafi 9 — vigezo:
+1. GAWANYA: 2.5.0 = ondoa scheduler (M1) TU. View 4 + backup table ya C6 HAZIFUTWI kwenye 2.5.0.
+   DROP iwe migration/hatua tofauti, "siku 7 baada ya prod 02/12 bila rollback" (~09/12), na C6 baada ya kuthibitisha
+   dump ya B2 ina backup table. Weka kwenye MUHTASARI.
+2. Jaribio la rollback: DB yenye migrations zote za 2.5.0 → endesha image 2.4.0 → inawaka, scheduler ya zamani
+   inafanya REFRESH bila kosa, Flyway haikatai (migrations za mbele). Ripoti log.
+3. F1 footer, config junk, C9 ssh -n, UTF-16 log: kila moja na ushahidi mfupi (diff/log).
+4. Suite kamili ya backend + ng mwisho wa usafi 9.
+Kisha kazi 10.

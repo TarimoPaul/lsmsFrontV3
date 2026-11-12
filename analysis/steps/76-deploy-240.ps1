@@ -1,4 +1,4 @@
-# HATUA 76 (mmiliki 09/11 cz/da/de/df) - driver ya PC ya deploy 2.4.0 + 3.2.0. Endesha kupitia 76-deploy-240.cmd.
+﻿# HATUA 76 (mmiliki 09/11 cz/da/de/df) - driver ya PC ya deploy 2.4.0 + 3.2.0. Endesha kupitia 76-deploy-240.cmd.
 #
 #   76-deploy-240.cmd build                  PC: docker login (token a, read/write - unaiandika wewe, haionekani) ->
 #                                            deploy-backend.ps1 -Bump none -BuildOnly (2.4.0) -> deploy-v3.ps1 -Bump none -BuildOnly (3.2.0)
@@ -45,13 +45,15 @@ if ($Action -eq 'build') {
     L 'docker login ya PC: andika token (a) READ/WRITE kwenye "Password:" (haionekani).'
     & docker login -u chiefmaster
     if ($LASTEXITCODE -ne 0) { L 'SIYO: docker login imeshindwa'; exit 1 }
+    # (gd usafi 9) build output -> the log as UTF-8 (Add-Content -Encoding UTF8): Tee-Object -Append of PowerShell 5.1 wrote
+    # UTF-16LE into this UTF-8 log (76-pc-build.log 09/11: 594,542 NUL bytes of 1,191,146).
     L 'BACKEND 2.4.0: deploy-backend.ps1 -Bump none -BuildOnly (mvn + majaribio + docker build + push)'
     Push-Location $Be
-    try { & powershell -NoProfile -ExecutionPolicy Bypass -File .\deploy\deploy-backend.ps1 -Bump none -BuildOnly *>&1 | ForEach-Object { "$_" } | Tee-Object -FilePath $Log -Append; $rc = $LASTEXITCODE } finally { Pop-Location }
+    try { & powershell -NoProfile -ExecutionPolicy Bypass -File .\deploy\deploy-backend.ps1 -Bump none -BuildOnly *>&1 | ForEach-Object { "$_" } | ForEach-Object { Write-Host $_; Add-Content -Path $Log -Value $_ -Encoding UTF8 }; $rc = $LASTEXITCODE } finally { Pop-Location }
     if ($rc -ne 0) { L "SIYO: build ya backend imeshindwa (exit $rc)"; exit 1 }
     L 'V3 3.2.0: deploy-v3.ps1 -Bump none -BuildOnly'
     Push-Location $Repo
-    try { & powershell -NoProfile -ExecutionPolicy Bypass -File .\deploy\deploy-v3.ps1 -Bump none -BuildOnly *>&1 | ForEach-Object { "$_" } | Tee-Object -FilePath $Log -Append; $rc = $LASTEXITCODE } finally { Pop-Location }
+    try { & powershell -NoProfile -ExecutionPolicy Bypass -File .\deploy\deploy-v3.ps1 -Bump none -BuildOnly *>&1 | ForEach-Object { "$_" } | ForEach-Object { Write-Host $_; Add-Content -Path $Log -Value $_ -Encoding UTF8 }; $rc = $LASTEXITCODE } finally { Pop-Location }
     if ($rc -ne 0) { L "SIYO: build ya V3 imeshindwa (exit $rc)"; exit 1 }
     foreach ($i in 'chiefmaster/my-lsms-backend:2.4.0', 'chiefmaster/lsms-frontend-v3:3.2.0') {
         & docker manifest inspect $i *> $null

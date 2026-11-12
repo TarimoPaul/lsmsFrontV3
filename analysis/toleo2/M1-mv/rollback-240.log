@@ -1,0 +1,19 @@
+# (gd 2) Jaribio la rollback 12/11: DB yenye migrations zote za 2.5.0 (muungano wa muda t2-cutover+marejesho+afya, image local-90116ef,
+# Flyway 151 ikiwemo V139/V148) -> backend image 2.4.0 (local-9b6678a = prod 9b6678a), APP_SCHEDULERS_ENABLED=true, DB ile ile.
+## image ya backend: lsms-backend:local-9b6678a
+## log ya kuwaka (mistari muhimu):
+2026-11-12 15:13:52 WARN  o.f.core.internal.command.DbMigrate - outOfOrder mode is active. Migration of schema "public" may not be reproducible.
+2026-11-12 15:13:52 WARN  o.f.core.internal.command.DbMigrate - Schema "public" has a version (151) that is newer than the latest available migration (138) !
+2026-11-12 15:14:04 INFO  com.Lsms.LsmsApplication - Started LsmsApplication in 16.768 seconds (process running for 17.442)
+2026-11-12 15:14:07 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_daily_sales_summary already exists
+2026-11-12 15:14:07 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_hourly_sales_summary already exists
+2026-11-12 15:14:07 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_monthly_sales_summary already exists
+2026-11-12 15:14:07 INFO  c.L.M.MaterializedViewInitializer - Materialized view mv_top_products_summary already exists
+2026-11-12 15:14:07 INFO  c.L.M.MaterializedViewInitializer - All materialized views created/verified successfully
+## mistari ya ERROR kwenye log yote: 0
+## njia ya refresh ya 2.4.0 (sale ya leo -> tarehe ya jana, PUT /api/v1/sales/{uid}): UPDATE Success
+2026-11-12 15:14:35 INFO  com.Lsms.Sales.Services.SaleService - Materialized views refreshed after sale date change for uid: 88eeebbc-42b3-4057-9031-65e6dd54bdeb
+## SQL ya scheduler ya 2.4.0 (MaterializedViewScheduler.refreshSalesViews), psql:
+REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_sales_summary -> REFRESH MATERIALIZED VIEW (exit 0)
+REFRESH MATERIALIZED VIEW CONCURRENTLY mv_monthly_sales_summary -> REFRESH MATERIALIZED VIEW (exit 0)
+mv_daily_sales_summary: safu 270, tarehe ya mwisho 2026-11-11
