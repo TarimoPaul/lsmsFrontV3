@@ -5,6 +5,7 @@
 // Throw-away local copy only. Run: NODE_PATH=<npx playwright node_modules> node manunuzi_onyo_e2e.cjs
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
+const { ensureSeller } = require('./e2e-muuzaji.cjs');
 
 const V3 = 'http://127.0.0.1:4300/v3';
 const CEO = 'tarimo@gmail.com';
@@ -19,10 +20,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 (async () => {
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email = '${CEO}'`);
-  const mgrUid = sql(`select uid from users where email = '${MGR}'`);
-  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
+  const realMgrUid = sql(`select uid from users where email = '${MGR}'`);
+  const mgrUid = ensureSeller(MGR, PW); // (ge) E2E seller: its days are always free; the real manager's day is never locked
+  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${realMgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
+  // (ge) the reco total of the day before this test (a dump with real data may already have reco purchases on that day)
+  const r0 = Number(sql(`select coalesce(sum(p.amount), 0) from reconciliation_purchases p join daily_reconciliation r on r.uid = p.reconciliation_uid where not p.is_deleted and not r.is_deleted and r.reconciliation_date = '${DAY}'`));
+  const want = (r0 + 150000).toLocaleString('en-US');
   const ru = `e2e-6e-ui-${Date.now()}`;
-  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${DAY}', '${mgrUid}', 'macheda macheda', '${brUid}', 'DRAFT')`);
+  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${DAY}', '${mgrUid}', 'E2E Muuzaji', '${brUid}', 'DRAFT')`);
   sql(`insert into reconciliation_purchases (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, supplier_name, description, amount) values ('${ru}-p', now(), true, false, true, '${ru}', 'Coca', 'E2E 6e UI Coca malipo ya droo', 150000)`);
 
   const browser = await chromium.launch();
@@ -39,7 +44,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const box = page.locator('[data-test="linganisha-manunuzi"]');
   const text = (await box.count()) ? (await box.innerText()).replace(/\s+/g, ' ') : '';
   ok('W1 ukurasa wa manunuzi: "Linganisha manunuzi — Reco ya 2026-11-08 inaonyesha manunuzi ya droo 150,000; yaliyoandikwa 0"; hakuna makosa ya ukurasa',
-    /(Compare purchases|Linganisha manunuzi)/.test(text) && /2026-11-08/.test(text) && /150,000/.test(text) && errors.length === 0, `${text.slice(0, 300)} | ${errors.join(' | ').slice(0, 200)}`);
+    /(Compare purchases|Linganisha manunuzi)/.test(text) && /2026-11-08/.test(text) && text.includes(want) && errors.length === 0, `want=${want} ${text.slice(0, 300)} | ${errors.join(' | ').slice(0, 200)}`);
 
   await browser.close();
   console.log(`MWISHO PASS ${P} FAIL ${F}`);

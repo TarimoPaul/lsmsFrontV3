@@ -8,6 +8,7 @@
 //   M3 a purchase of 200,000 paid from the drawer (Taslimu) on X+1 -> the warning goes; approved: one journal, Cr 1000
 // Throw-away local copy only, backend up with LSMS_PURCHASE_CHECK_FROM=2026-11-01. Run: node manunuzi_onyo_api_e2e.cjs
 const { execFileSync } = require('child_process');
+const { ensureSeller } = require('./e2e-muuzaji.cjs');
 
 const API = 'http://127.0.0.1:18090';
 const CEO = 'tarimo@gmail.com';
@@ -31,10 +32,14 @@ const msg = (r) => String(r.j?.message || '');
   const ceo = (await api('POST', '/api/auth/login', null, { email: CEO, password: PW })).j.data.tokenInfo.token;
   // X = yesterday, X+1 = today (a repurchase is dated now)
   const X = sql("select (current_date - 1)::text"), X1 = sql("select current_date::text");
-  const mgrUid = sql(`select uid from users where email = '${MGR}'`);
-  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
+  const realMgrUid = sql(`select uid from users where email = '${MGR}'`);
+  const mgrUid = ensureSeller(MGR, PW); // (ge) E2E seller: its days are always free; the real manager's day is never locked
+  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${realMgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
   const check = async () => (await api('GET', `/api/v1/reconciliation/purchase-check?from=${X}&to=${X1}`, ceo)).j?.data || [];
   const gapX = (g) => g.find((x) => x.day === X);
+  /** reco - recorded of day X (0 when it agrees): the test looks at how its own rows move it (works on a dump with real data) */
+  const dX = (g) => { const x = gapX(g); return x ? x.reco - x.recorded : 0; };
+  const d0 = dX(await check());
 
   const old = await api('GET', '/api/v1/reconciliation/purchase-check?from=2026-06-01&to=2026-10-31', ceo);
   const oldReco = Number(sql("select count(*) from reconciliation_purchases p join daily_reconciliation r on r.uid = p.reconciliation_uid where not p.is_deleted and r.reconciliation_date < '2026-11-01'"));
@@ -43,10 +48,10 @@ const msg = (r) => String(r.j?.message || '');
   // M1 the seller's reco of X: Pepsi 200,000 from the drawer (evidence only)
   const ru = `e2e-6e-${Date.now()}`;
   const j0 = Number(sql("select count(*) from journal_entry"));
-  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${X}', '${mgrUid}', 'macheda macheda', '${brUid}', 'DRAFT')`);
+  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${X}', '${mgrUid}', 'E2E Muuzaji', '${brUid}', 'DRAFT')`);
   sql(`insert into reconciliation_purchases (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, supplier_name, description, amount) values ('${ru}-p', now(), true, false, true, '${ru}', 'Pepsi', 'E2E 6e Pepsi malipo ya droo', 200000)`);
   let g = await check();
-  ok('M1 reco ya X: Pepsi 200,000, hakuna manunuzi -> onyo (reco 200,000; yaliyoandikwa 0); hakuna journal', gapX(g)?.reco === 200000 && gapX(g)?.recorded === 0 && Number(sql('select count(*) from journal_entry')) === j0, JSON.stringify(g));
+  ok('M1 reco ya X: Pepsi 200,000, hakuna manunuzi -> onyo (tofauti +200,000); hakuna journal', !!gapX(g) && dX(g) - d0 === 200000 && Number(sql('select count(*) from journal_entry')) === j0, `d0=${d0} ${JSON.stringify(g)}`);
 
   const pu = sql("select p.uid from products p where not coalesce(p.is_deleted,false) and p.is_active and exists (select 1 from purchases x where x.product_uid = p.uid) and not exists (select 1 from purchases x where x.product_uid = p.uid and x.status = 'PENDING') order by p.id limit 1");
   const buy = async (source, account, tag) => {
@@ -59,7 +64,7 @@ const msg = (r) => String(r.j?.message || '');
   // M2 paid from NMB on X+1 -> not the drawer
   const nmb = await buy('BENKI', '1021', 'NMB');
   g = await check();
-  ok('M2 manunuzi NMB 200,000 kesho yake -> onyo linabaki (chanzo si droo)', nmb.uid !== '' && gapX(g)?.reco === 200000 && gapX(g)?.recorded === 0, `${msg(nmb.r)} ${JSON.stringify(g)}`);
+  ok('M2 manunuzi NMB 200,000 kesho yake -> onyo linabaki (chanzo si droo)', nmb.uid !== '' && !!gapX(g) && dX(g) - d0 === 200000, `${msg(nmb.r)} ${JSON.stringify(g)}`);
   if (nmb.uid) await api('POST', `/api/v1/purchases/${nmb.uid}/cancel?cancellationReason=${encodeURIComponent('E2E 6e jaribio la NMB')}`, ceo);
 
   // M3 paid from the drawer on X+1
@@ -71,7 +76,7 @@ const msg = (r) => String(r.j?.message || '');
   await new Promise((res) => setTimeout(res, 800));
   const jr = sql(`select count(*) || '|' || coalesce(string_agg(l.account_code || ':' || l.credit_amount, ',') filter (where l.credit_amount > 0), '') from journal_entry j join journal_entry_line l on l.journal_entry_uid = j.uid where j.reference_uid = '${du}' and j.status = 'POSTED'`);
   const nJ = sql(`select count(*) from journal_entry where reference_uid = '${du}' and status = 'POSTED'`);
-  ok('M3 manunuzi Taslimu 200,000 kesho yake -> onyo la X linaondoka; yakiidhinishwa: journal 1, Cr 1000 200,000', droo.uid !== '' && !gapX(g) && g.length === 0 && nJ === '1' && /1000:200000/.test(jr), `${msg(droo.r)} | approve: ${msg(apv)} | gaps=${JSON.stringify(g)} journals=${nJ} ${jr}`);
+  ok('M3 manunuzi Taslimu 200,000 kesho yake -> onyo la X linaondoka; yakiidhinishwa: journal 1, Cr 1000 200,000', droo.uid !== '' && dX(g) === d0 && (d0 !== 0 || !gapX(g)) && nJ === '1' && /1000:200000/.test(jr), `${msg(droo.r)} | approve: ${msg(apv)} | gaps=${JSON.stringify(g)} journals=${nJ} ${jr}`);
 
   console.log(`MWISHO PASS ${P} FAIL ${F}`);
   process.exit(F ? 1 : 0);

@@ -10,6 +10,7 @@
 //   T11-T13 (fr) one rule "reco phone = the whole day": POS M-Pesa P + typed 0 / P / P+30k -> 1030 +P / +P / +P+30k, reco the same
 // Throw-away local copy only. Run: node cutover_api_e2e.cjs
 const { execFileSync } = require('child_process');
+const { SELLER, ensureSeller } = require('./e2e-muuzaji.cjs');
 
 const API = 'http://127.0.0.1:18090';
 const CEO = 'tarimo@gmail.com';
@@ -112,8 +113,11 @@ async function reapprove(ceo, uid) {
 
   // ── T10 (fq) today's way of working after D: every POS sale rung up as CASH, phone / bank money only on the reco ──
   //   -> the sales post Dr 1000 only; the reco moves exactly its own amounts Dr 102x/103x / Cr 1000 (nothing twice)
-  const mgr = await login(MGR);
-  const mgrUid = sql(`select uid from users where email = '${MGR}'`);
+  // (ge) T10-T14 run as the E2E SELLER (a copy of the manager with no sales / recos): its days are always free, and
+  // approving its recos never locks the manager's day for the tests that follow (k3, kupima_api)
+  const mgrUid = ensureSeller(MGR, PW);
+  const mgr = await login(SELLER);
+  const realMgrUid = sql(`select uid from users where email = '${MGR}'`);
   const day10 = sql('select current_date::text');
   const pad = (n) => String(n).padStart(2, '0');
   const now10 = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
@@ -132,8 +136,8 @@ async function reapprove(ceo, uid) {
   const saleMoney = sql(`select coalesce(string_agg(account_code || ':' || v, ',' order by account_code), '') from (select l.account_code, round(sum(l.debit_amount - l.credit_amount), 2) v from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and j.reference_uid in (${inList}) and (l.account_code = '1000' or l.account_code like '102%' or l.account_code like '103%') group by 1) x`);
   const r10 = `e2e-t10-${Date.now()}`;
   sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status, variance_explanation)
-       values ('${r10}', now(), '${day10}', '${mgrUid}', 'macheda macheda',
-               (select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1),
+       values ('${r10}', now(), '${day10}', '${mgrUid}', 'E2E Muuzaji',
+               (select branch_uid from daily_reconciliation where user_uid = '${realMgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1),
                'SUBMITTED', 'E2E cutover T10 maelezo ya tofauti')`);
   for (const [prov, amt] of [['VODACOM', 30000], ['TIGO', 20000]]) {
     sql(`insert into reconciliation_mobile_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, provider, amount) values ('${r10}-${prov}', now(), true, false, true, '${r10}', '${prov}', ${amt})`);
@@ -154,7 +158,7 @@ async function reapprove(ceo, uid) {
   //   a POS sale of P (the product's price) paid by M-Pesa (Dr 1030 at the sale, mirrored on the reco as an automatic entry), then what the
   //   seller types: T11 nothing, T12 P (the whole day), T13 P + 30,000 (POS + 30,000 more by phone rung up as CASH).
   //   1030 must move: T11 +P, T12 +P (not 2P), T13 +P + 30,000; the reco counts the same phone figure.
-  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
+  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${realMgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
   const d1030 = (refs) => Number(sql(`select coalesce(round(sum(l.debit_amount - l.credit_amount), 2), 0) from journal_entry_line l join journal_entry j on j.uid = l.journal_entry_uid where j.status = 'POSTED' and not coalesce(j.is_deleted,false) and l.account_code = '1030' and j.reference_uid in (${refs.map((x) => `'${x}'`).join(',')})`));
   const P10 = Number(pr);
   for (const [tag, day, typed, want] of [['T11', '2026-11-01', 0, P10], ['T12', '2026-11-02', P10, P10], ['T13', '2026-11-03', P10 + 30000, P10 + 30000]]) {
@@ -165,7 +169,7 @@ async function reapprove(ceo, uid) {
     await new Promise((res) => setTimeout(res, 800));
     const sid = sql(`select coalesce((select uid from sales where sale_notes like '%E2E-CUTOVER-${tag}' order by id desc limit 1),'')`);
     const ru = `e2e-${tag.toLowerCase()}-${Date.now()}`;
-    sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${day}', '${mgrUid}', 'macheda macheda', '${brUid}', 'DRAFT')`);
+    sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${day}', '${mgrUid}', 'E2E Muuzaji', '${brUid}', 'DRAFT')`);
     if (typed) sql(`insert into reconciliation_mobile_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, provider, amount) values ('${ru}-typed', now(), true, false, true, '${ru}', 'VODACOM', ${typed})`);
     const rf = await api('POST', `/api/v1/reconciliation/${ru}/refresh`, mgr);
     const mirrored = sql(`select count(*) from reconciliation_mobile_entries where reconciliation_uid = '${ru}' and source_payment_uid is not null and not is_deleted`);
@@ -188,7 +192,7 @@ async function reapprove(ceo, uid) {
     await new Promise((res) => setTimeout(res, 800));
     const sid = sql("select coalesce((select uid from sales where sale_notes like '%E2E-CUTOVER-T14' order by id desc limit 1),'')");
     const ru = `e2e-t14-${Date.now()}`;
-    sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${day}', '${mgrUid}', 'macheda macheda', '${brUid}', 'DRAFT')`);
+    sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status) values ('${ru}', now(), '${day}', '${mgrUid}', 'E2E Muuzaji', '${brUid}', 'DRAFT')`);
     sql(`insert into reconciliation_cash_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, entry_type, bank_name, amount, deposit_date) values ('${ru}-nmb', now(), true, false, true, '${ru}', 'BANK_DEPOSIT', 'NMB', ${P10 + 50000}, '${day}')`);
     await api('POST', `/api/v1/reconciliation/${ru}/refresh`, mgr);
     sql(`update daily_reconciliation set status = 'SUBMITTED', variance_explanation = 'E2E cutover T14 maelezo ya tofauti' where uid = '${ru}'`);

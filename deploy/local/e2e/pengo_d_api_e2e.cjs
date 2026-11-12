@@ -6,6 +6,7 @@
 //   P4/P6 (fv/fx) the Transfer warning: same bank + amount, the Transfer's day ±1; P5 (fw) lipa namba 1030 -> NMB with charges
 // Throw-away local copy only (D set to 2026-11-01). Run: node pengo_d_api_e2e.cjs
 const { execFileSync } = require('child_process');
+const { ensureSeller } = require('./e2e-muuzaji.cjs');
 
 const API = 'http://127.0.0.1:18090';
 const CEO = 'tarimo@gmail.com';
@@ -29,14 +30,15 @@ const msg = (r) => String(r.j?.message || '');
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email in ('${CEO}','${MGR}')`);
   sql("update gl_config set posting_enabled = true, bank_cutover_date = '2026-11-01'");
   const ceo = (await api('POST', '/api/auth/login', null, { email: CEO, password: PW })).j.data.tokenInfo.token;
-  const mgrUid = sql(`select uid from users where email = '${MGR}'`);
-  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${mgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
+  const realMgrUid = sql(`select uid from users where email = '${MGR}'`);
+  const mgrUid = ensureSeller(MGR, PW); // (ge) E2E seller: its days are always free; the real manager's day is never locked
+  const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${realMgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
   const b0 = { s: bal('1023'), n: bal('1021') };
   console.log(`MWANZO 1023=${b0.s} 1021=${b0.n}`);
 
   // P1 the seller's reco: Selcom 10,000 received from a customer
   const ru = `e2e-pengo-${Date.now()}`;
-  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status, variance_explanation) values ('${ru}', now(), '${DAY}', '${mgrUid}', 'macheda macheda', '${brUid}', 'SUBMITTED', 'E2E pengo maelezo ya tofauti')`);
+  sql(`insert into daily_reconciliation (uid, created_at, reconciliation_date, user_uid, user_name, branch_uid, status, variance_explanation) values ('${ru}', now(), '${DAY}', '${mgrUid}', 'E2E Muuzaji', '${brUid}', 'SUBMITTED', 'E2E pengo maelezo ya tofauti')`);
   sql(`insert into reconciliation_cash_entries (uid, created_at, is_active, is_deleted, is_verified, reconciliation_uid, entry_type, bank_name, amount, deposit_date) values ('${ru}-sel', now(), true, false, true, '${ru}', 'BANK_DEPOSIT', 'SELCOM', 10000, '${DAY}')`);
   const ap = await api('POST', `/api/v1/reconciliation/${ru}/approve?notes=${encodeURIComponent('E2E pengo')}`, ceo);
   ok('P1 reco: mteja amelipa Selcom 10,000 -> 1023 +10,000', ap.j?.status === 'Success' && bal('1023') - b0.s === 10000, `${msg(ap)} 1023 ${b0.s}->${bal('1023')}`);
@@ -60,7 +62,7 @@ const msg = (r) => String(r.j?.message || '');
   const dupQ = (from, to, amount) => api('GET', `/api/v1/gl/transfers/possible-duplicates?from=${from}&to=${to}&amount=${amount}&date=${DAY}`, ceo);
   const d1 = await dupQ('1000', '1021', 300000), d2 = await dupQ('1023', '1021', 10000), d3 = await dupQ('1000', '1021', 250000), d4 = await dupQ('1030', '1021', 300000);
   ok('P4 onyo: Transfer 1000 -> NMB 300,000 = amana ya reco ya siku ile -> "Huenda imeshaandikwa" (RECO); Selcom -> NMB, kiasi kingine, 1030 -> NMB: hakuna onyo',
-    d1.j?.data?.length === 1 && d1.j.data[0].source === 'RECO' && d1.j.data[0].day === DAY && d2.j?.data?.length === 0 && d3.j?.data?.length === 0 && d4.j?.data?.length === 0,
+    (d1.j?.data || []).some((d) => d.source === 'RECO' && d.day === DAY && d.by === 'E2E Muuzaji') && d2.j?.data?.length === 0 && !(d3.j?.data || []).some((d) => d.by === 'E2E Muuzaji') && d4.j?.data?.length === 0,
     JSON.stringify([d1.j, d2.j?.data, d3.j?.data, d4.j?.data]).slice(0, 300));
 
   // P6 (fx) window = the Transfer's day ±1 (the seller takes yesterday's cash in the morning): reco of 2026-11-05 NMB 300,000
@@ -68,7 +70,7 @@ const msg = (r) => String(r.j?.message || '');
   const dupOn = (date) => api('GET', `/api/v1/gl/transfers/possible-duplicates?from=1000&to=1021&amount=300000&date=${date}`, ceo);
   const w1 = await dupOn('2026-11-06'), w2 = await dupOn('2026-11-07');
   ok('P6 dirisha ±1 siku: amana ya reco ya jana 300,000 + Transfer leo 1000 -> NMB 300,000 -> onyo (reco ya 2026-11-05); siku 2 nyuma -> hakuna onyo',
-    w1.j?.data?.length === 1 && w1.j.data[0].day === DAY && w2.j?.data?.length === 0, JSON.stringify([w1.j?.data, w2.j?.data]).slice(0, 300));
+    (w1.j?.data || []).some((d) => d.day === DAY && d.by === 'E2E Muuzaji') && !(w2.j?.data || []).some((d) => d.by === 'E2E Muuzaji'), JSON.stringify([w1.j?.data, w2.j?.data]).slice(0, 300));
 
   // P5 (fw) lipa namba moved by hand to a bank: Transfer 1030 -> NMB 100,000 with charges 1,500 -> 1030 -100,000, 1021 +98,500, 6130 +1,500
   const c0 = { m: bal('1030'), n: bal('1021'), f: bal('6130') };
