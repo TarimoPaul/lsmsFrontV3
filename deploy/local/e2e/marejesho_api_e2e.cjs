@@ -6,6 +6,8 @@
 //   R3 more than is left on the line -> refused
 //   R4 a DAMAGED piece refunded by M-Pesa (VODACOM): Cr 1030, no stock back, no 1200 line
 //   R5 a KUPIMA (poured) line is never returned through C4
+//   R8 (fg) a return approved on a LATER day: the sale day's reco sales stay as they were (no false excess / drift);
+//      today's reco deducts the CASH refund only (M-Pesa refund not from the drawer)
 //   TB stays 0
 // Throw-away local copy only. Run: node marejesho_api_e2e.cjs
 const { execFileSync } = require('child_process');
@@ -53,6 +55,9 @@ const msg = (r) => String(r.j?.message || '');
   const unitA = Number(subA) / Number(qA), unitCostA = Number(costA) / Number(qA), unitB = Number(subB) / Number(qB);
   const total0 = Number(sql(`select total_amount from sales where uid = '${sid}'`));
   const s0 = stock(pA), sB0 = stock(pB);
+  const saleDay = sql(`select sale_date::date from sales where uid = '${sid}'`), today = sql('select current_date');
+  const auto = async (d) => (await api('GET', `/api/v1/reconciliation/auto-summary/${d}`, ceo)).j?.data || {};
+  const day0 = Number((await auto(saleDay)).totalSales), ded0 = Number((await auto(today)).returnDeductions);
 
   // ── R1 / R2 good piece, refund CASH ──
   let r = await api('POST', '/api/v1/sales/returns', mgr, { saleUid: sid, returnType: 'PARTIAL_RETURN', returnReason: 'E2E C4 mteja amerudisha',
@@ -64,6 +69,9 @@ const msg = (r) => String(r.j?.message || '');
   ok('R2a kuidhinisha -> APPROVED, stock +1', r.j?.status === 'Success' && sql(`select return_status from sales_returns where uid = '${ret1}'`) === 'APPROVED' && stock(pA) === s0 + 1, `${msg(r)} stock ${s0}->${stock(pA)}`);
   ok('R2b GL: Dr 4020 / Cr 1000 bei ya kuuza; Dr 1200 / Cr 5000 gharama', jl(ret1) === want1, `${jl(ret1)} (lazima ${want1})`);
   ok('R2c jumla ya mauzo imepungua', Math.abs(Number(sql(`select total_amount from sales where uid = '${sid}'`)) - (total0 - unitA)) < 0.01);
+  { const d1 = Number((await auto(saleDay)).totalSales), e1 = Number((await auto(today)).returnDeductions);
+    ok(`R8a siku ya mauzo (${saleDay} < ${today}): mauzo ya reco hayajabadilika`, saleDay < today && Math.abs(d1 - day0) < 0.01, `${day0} -> ${d1}`);
+    ok('R8b leo: marejesho ya CASH yanatolewa kwenye pesa ya droo', Math.abs(e1 - ded0 - unitA) < 0.01, `${ded0} -> ${e1} (lazima +${unitA})`); }
 
   // ── R3 more than is left ──
   r = await api('POST', '/api/v1/sales/returns', mgr, { saleUid: sid, returnType: 'PARTIAL_RETURN', returnReason: 'E2E C4 zaidi',
@@ -76,6 +84,7 @@ const msg = (r) => String(r.j?.message || '');
   const ret2 = r.j?.data?.uid;
   r = await api('POST', `/api/v1/sales/returns/${ret2}/approve`, ceo, { refundMethod: 'VODACOM', approvalNotes: 'E2E C4' });
   const want2 = `1030:${(-unitB).toFixed(2)},4020:${unitB.toFixed(2)}`;
+  ok('R8c M-Pesa haitolewi kwenye droo; siku ya mauzo ileile', Math.abs(Number((await auto(today)).returnDeductions) - ded0 - unitA) < 0.01 && Math.abs(Number((await auto(saleDay)).totalSales) - day0) < 0.01);
   ok('R4 imeharibika + M-Pesa: Cr 1030, haikurudi stock, hakuna 1200', r.j?.status === 'Success' && jl(ret2) === want2 && stock(pB) === sB0, `${msg(r)} ${jl(ret2)} (lazima ${want2}) stock ${sB0}->${stock(pB)}`);
 
   // ── R5 KUPIMA line (made so on the throw-away copy) ──
