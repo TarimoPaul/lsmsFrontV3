@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (fx)
+nimesoma hadi (ga)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -28,7 +28,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Kazi 5 kanuni za hesabu ya stock (V146) | t2-hesabu | dfbfc4d / bddc178 | suite 661/0/1, ng 102/102, hesabu_api 22/0, hesabu 9/0 | IMEKAMILIKA | — |
 | 6a "Umelipa sasa" iliyopotea | (hatua ya data) | steps/74 | t74 (ununuzi 18 -> PAID) | IMEKAMILIKA (script) | **74** |
 | 6c Jess 2310 (V147) + 7 ripoti kwa avg | t2-pesa | 1d8abb3 / 959cad4 (e97f817) | c3 + SupplierPaymentSourceTest | IMEKAMILIKA | — |
-| 6e droo kwenye reco (mstari wa auto wa DROO) | t2-cutover | — | — | **BADO** — majibu (fk): reco ya DROO ya siku ya malipo; kuanzia deploy 02/12; chanzo halisi (Takawedo NMB, Pepsi/Coca DROO) | — |
+| 6e (ga) ONYO TU "Linganisha manunuzi": reco ya droo siku X vs manunuzi/malipo ya DROO X±1 (CEO kwenye reco, mnunuzi kwenye Manunuzi); hakuna mstari wa AUTO, hakuna GL mpya; kuanzia 02/12 | t2-cutover | 62a82b6 / (V3 t2-cutover) | PurchaseCheckTest 4/0, manunuzi_onyo_api 4/0, manunuzi_onyo UI 1/0, ng 104/104 | IMEKAMILIKA | — |
 | 6d 1010 akiba ya mkopo | — | — | — | BAADA (Qff-1) | — |
 | H1 kizingiti cha Health (V139) | t2-afya | 2a64f7e / e70d2ba | suite + afya e2e | IMEKAMILIKA | — (mwelekeo unaanza siku ya deploy) |
 | Cutover: reco -> 102x/103x baada ya D | t2-cutover | 8dd0a2d, 2be5211 / cb4e895 | cutover_api 16/0 | IMEKAMILIKA | **60** siku ya D |
@@ -72,7 +72,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + staging) siku 3–4 kabla ya **25/11**; prod 02/12.
 
 
-1. **6e** (droo kwenye reco, majibu ya fk) — code + majaribio. Siku ~1.5.
+1. ~~6e~~ IMEKAMILIKA (ga: onyo tu).
 2. **Usafi 9:** M1 (b) ondoa scheduler + DROP view 4; F1 footer; hatua ya C6 (B2 + DROP); config junk lines; C9 `ssh -n`; UTF-16 log. Siku ~1.
    (Flyway ya toleo 2 sasa 134 -> 151; view 4 zikidondoshwa kwa migration -> V152.)
 3. **Kazi 10:** unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);

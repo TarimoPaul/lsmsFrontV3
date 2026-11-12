@@ -1294,3 +1294,36 @@ Kisha 6e.
 2. Onyo la Transfer: dirisha = tarehe ya Transfer ±1 siku (Macheda hupeleka cash ya jana asubuhi). Jaribio: amana
    reco ya jana 300,000 + Transfer leo 1000→1021 300,000 → onyo; siku 2 nyuma → hakuna onyo.
 3. Kisha 6e. Lengo: 6e + usafishaji 9 viishe ~20/11 ili kazi 10 ipate siku 3–4 kabla ya 25/11.
+
+## 2026-11-12 (fy)
+Vigezo vya kukubali 6e (weka majaribio haya kabla ya ripoti):
+1. Kwanza hakiki kwa data: leo malipo ya supplier kutoka droo (Pepsi/Coca) yanaonekanaje kwenye reco — gharama
+   iliyoandikwa, makato ya cash, au hayaonekani? Ripoti mifano 3 halisi. Mstari wa AUTO usirudie kilichopo.
+2. Manunuzi yaliyolipwa Taslimu siku X → mstari 1 wa AUTO kwenye reco ya droo ya siku X; GL Cr 1000 mara MOJA.
+3. Manunuzi yaliyolipwa NMB/Selcom/lipa namba → HAYAGUSI reco ya droo; Cr 102x/1030 tu.
+4. Macheda akiandika pia malipo hayo kwa mkono → onyo (si kizuizi), kama Transfer.
+5. Inaanza 02/12 tu: reco za kabla ya 02/12 hazibadiliki (jaribio kwenye nakala safi: jumla ya reco zote za zamani sawa kabla/baada).
+6. Manunuzi yakibadilishwa chanzo (Taslimu → NMB) baada ya reco kuidhinishwa → nini kinatokea? Eleza na ujaribu.
+Kisha usafi 9.
+
+## 2026-11-12 (fz)
+BADILISHA (fy): Chief — reco tayari ina sehemu ya purchase; Macheda huandika malipo ya droo hapo. USIJENGE mstari wa AUTO.
+Hakiki kwa data (ripoti kabla ya kujenga chochote):
+1. Sehemu ya purchase ya reco: inaandika GL? (Cr 1000 / Dr nini?) Imeunganishwa na purchase_id au ni kiasi huru?
+2. Moduli ya manunuzi PAID Taslimu: inaandika GL? Kwa siku 3 halisi zenye Pepsi/Coca kutoka droo, onyesha journal
+   zote za malipo hayo — ni moja au mbili?
+3. Kama ni MBILI: kiasi cha jumla tangu 06/2026 + je kinahusiana na 2900 (−742,500)? Hili ni kosa la pesa → batch.
+4. Kama ni MOJA: 6e = onyo tu — jumla purchase ya reco siku X ≠ manunuzi Taslimu siku X → "Linganisha manunuzi".
+   Inaanza 02/12; reco za zamani hazibadiliki.
+Vigezo 3 (NMB/Selcom/lipa namba haziguse reco ya droo) na 6 (kubadilisha chanzo baada ya reco kuidhinishwa) vinabaki.
+
+## 2026-11-12 (ga)
+BADILISHA (fy)/(fz). Chief: sehemu ya purchase ya reco = USHAHIDI TU, haiandiki GL. GL inaandikwa na mnunuzi
+kwenye moduli ya manunuzi (Taslimu → Cr 1000) mara moja. Hakiki kwa kusoma code kwamba reco-purchase haiandiki
+journal yoyote; ripoti mstari 1.
+6e = ONYO TU (hakuna mstari wa AUTO, hakuna GL mpya):
+  Jumla purchase ya reco siku X vs manunuzi yaliyolipwa Taslimu siku X±1. Tofauti → onyo kwa CEO/mnunuzi:
+  "Reco ya [tarehe] inaonyesha manunuzi ya droo [kiasi]; yaliyoandikwa [kiasi]". Inaanza 02/12.
+Jaribio: reco Pepsi 200,000 bila manunuzi → onyo; manunuzi Taslimu 200,000 kesho → onyo linaondoka;
+  manunuzi NMB 200,000 → onyo linabaki (chanzo si droo).
+Kisha usafi 9.
