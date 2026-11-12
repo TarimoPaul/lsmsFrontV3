@@ -1173,3 +1173,11 @@ Ndiyo, endelea — mpangilio: 4 → 3 → 2 → 1 → 5.
    → tarehe halisi ya prod, na D (30/11, 07/12, au Januari 04/01).
 Utaratibu: ripoti kwa Kiswahili, ianze "nimesoma hadi (herufi)", na imalizike na jedwali la origin (matawi yote ya t2-*, ikiwemo t2-cutover, t2-hesabu).
 Baada ya 1–5: endelea na (fa) iliyobaki — C4, 6d/6e, usafi wa 9, kazi 10.
+
+## 2026-11-12 (fg)
+Qff-1 = NDIYO: toleo 2 prod Jumatano 02/12; D Jumatatu 07/12; 6d (1010), §14, §16, ulinganisho wa benki → BAADA.
+Qff-2 = akaunti ya muda "Tofauti ya ufunguzi" (siyo 1000, siyo 3900 moja kwa moja). Siku 30: chambua; kinachoelezeka → mahali sahihi;
+  kisichoelezeka → 3900 kwa uamuzi wa CEO + taarifa kwa Executive CEO. Hatua 60 iandike hivyo; jaribio.
+Qff-3 = Chief atajibu (orodha ya akaunti zinazotumika).
+04/12: Loan A awamu 2 italipwa kwenye app (kabla ya D, Cr 1000) — hakuna kazi.
+Endelea C4 → 6e → Jagger → usafi 9 → kazi 10.

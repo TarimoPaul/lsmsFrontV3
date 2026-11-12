@@ -1,10 +1,9 @@
-PASS K1 kagua: akaunti 4, 1030 ya kabla (166000.00) inawekwa = halisi, tofauti inaonyeshwa, MWISHO
+PASS K1 kagua: akaunti 4, 1030 ya kabla (166000.00) inawekwa = halisi, tofauti -> 2910, MWISHO
 PASS K2 tofauti = taslimu - (1000 - benki/simu mpya)
-PASS A1 tofauti bila uamuzi -> SIMAMA, hakuna journal, D haijawekwa
+PASS A1 2910 haitumiki (V150 haijafika) -> SIMAMA, hakuna journal, D haijawekwa
 PASS A2 D si leo -> SIMAMA
 PASS A3 password mbaya -> SIMAMA
 PASS A4 kiasi si halali -> SIMAMA
-PASS A5 tofauti kwenda akaunti ya pesa -> SIMAMA
 PASS A6 journal ya pesa ya siku D ipo -> SIMAMA
   MWISHO_60
 --- BAADA
@@ -12,21 +11,21 @@ PASS A6 journal ya pesa ya siku D ipo -> SIMAMA
   1023 SELCOM: 300000
   1030 MPESA: 200000
   1031 TIGO: 50000
-  1000: 13036508.39   (taslimu halisi 900000)
-  TOFAUTI_YA_UFUNGUZI -12136508.39 HAIJAANDIKWA - inasubiri uamuzi wa Chief
+  1000: 900000.00   (taslimu halisi 900000)
+  2910 Tofauti ya ufunguzi: -12136508.39 (+ = Cr, pesa nyingi) - chambua kabla ya 2026-12-12; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO)
   TB: 0.00   cutover: 2026-11-12
 ---60_MWISHO---
-PASS W1 andika (acha): D = leo, akaunti = halisi, TB ileile, tofauti haijaandikwa
-PASS W2 journal 1 tu (UFUNGUZI-60), tarehe D, hakuna ya tofauti
-PASS W3 1000 = vitabu - benki/simu mpya
+PASS W1 andika: D = leo, akaunti = halisi, 1000 = taslimu 900,000, 2910 = tofauti, TB ileile
+PASS W2 journal 2 (UFUNGUZI-60, UFUNGUZI-60-TOFAUTI kwenda 2910 tu), tarehe D
+PASS W3 3900 haijaguswa na hatua 60
 PASS W4 mara ya pili: ufunguzi unarukwa, CUTOVER_TAYARI, hakuna journal mpya
 PASS W5 (fe) baada ya ufunguzi: Selcom 300k -> NMB ada 2k: 1023 = 0, 1021 = 1,798,000, TB 0
   1023 SELCOM: 300000
   1030 MPESA: 200000
   1031 TIGO: 50000
-  1000: 900000.00   (taslimu halisi 900000)
+  1000: 13036508.39   (taslimu halisi 13036508.39)
   TB: 0.00   cutover: 2026-11-12
 ---60_MWISHO---
-PASS W6 tofauti -> 3900: journal ya pili WAZI, 1000 = taslimu halisi 900,000, D = leo, TB ileile
+PASS W6 tofauti 0 -> journal 1 tu, 2910 haiguswi, 1000 = 13036508.39, D = leo, TB ileile
 PASS W7 maelezo ni ASCII
-MWISHO PASS 15 FAIL 0
+MWISHO PASS 14 FAIL 0

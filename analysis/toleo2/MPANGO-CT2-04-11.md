@@ -207,3 +207,7 @@ Code (chanzo kimeonekana 09/11):
   - 4: makadirio 10.6 siku (+15% = 12.2) bila 6d/§14/§16/ulinganisho wa benki -> **prod Jtn 02/12, D Jtt 07/12** (akiba hadi 04/12; vinginevyo Januari 04/01). Majibu kufikia 18/11.
   - 3: hatua 60 = `steps/60-ufunguzi.*` (ufunguzi wa salio halisi 1021/1023/1030/1031 kutoka 1000 + tofauti ya ufunguzi WAZI + D); 60-prod-bank-cutover.cmd imestaafu. t60 15/0 (nakala safi 29/10, local-d9498e1).
   - 2: ulinganisho wa benki wa mwezi = siku 2 -> BAADA (Januari).
+- (fg 12/11) Qff-1 NDIYO: prod Jumatano 02/12, D Jumatatu 07/12; 6d, §14, §16, ulinganisho wa benki -> BAADA.
+  Qff-2: tofauti ya ufunguzi -> 2910 "Tofauti ya ufunguzi" (V150, t2-cutover 7140df4), akaunti ya muda; siku 30 chambua, kisichoelezeka -> 3900 (CEO + Executive CEO).
+  Hatua 60 inaandika 2910 moja kwa moja (L60_TOFAUTI imeondolewa); t60 14/0 kwenye nakala safi (Flyway 150). Qff-3 inasubiri Chief.
+  Ufuatao: C4 -> 6e -> Jagger -> usafi 9 -> kazi 10.

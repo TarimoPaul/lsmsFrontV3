@@ -2,7 +2,7 @@
 #   60-ufunguzi.cmd kagua     kusoma tu -> analysis\steps\60-kagua.log  -> SOMA (tofauti ya ufunguzi?) kisha uamue
 #   60-ufunguzi.cmd andika    andika UFUNGUZI-60 -> email + password ya CEO -> journal ya ufunguzi -> (tofauti) -> D -> 60-andika.log
 # Utaulizwa: salio la taarifa la NMB, Selcom, M-Pesa, Tigo (jioni ya jana), pesa taslimu YOTE (droo + sefu + bahasha), bahasha,
-# na (andika) uamuzi wa tofauti: acha, au namba ya akaunti. D = tarehe ya leo (inawekwa na script).
+# D = tarehe ya leo (inawekwa na script). Tofauti ya pesa taslimu inakwenda 2910 "Tofauti ya ufunguzi" (fg, akaunti ya muda, siku 30).
 param([string]$Mode = '')
 $ErrorActionPreference = 'Continue'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -29,13 +29,9 @@ $v = [ordered]@{
     L60_TASLIMU = Kiasi 'Pesa taslimu YOTE (droo + sefu + bahasha)'
     L60_BAHASHA = Kiasi 'Kati ya hizo, bahasha ya akiba'
 }
-$tof = ''
-if ($Mode -eq 'andika') {
-    $tof = (Read-Host 'Tofauti ya ufunguzi (kwenye 60-kagua.log): acha, au namba ya akaunti (Enter = hakuna tofauti)').Trim()
-}
 foreach ($k in $v.Keys) { L "$k = $($v[$k])" }
-L "L60_D = $D   L60_TOFAUTI = $tof"
-$envs = "L60_D=$D " + (($v.Keys | ForEach-Object { "$_=$($v[$_])" }) -join ' ') + " L60_TOFAUTI='$tof'"
+L "L60_D = $D"
+$envs = "L60_D=$D " + (($v.Keys | ForEach-Object { "$_=$($v[$_])" }) -join ' ')
 foreach ($f in '60-ufunguzi.sh', '60-bank-cutover.sql', 'ficha.awk') {
     & scp @SshO (Join-Path $Steps $f) "contabo:$R/$f" 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { L "SIYO: scp $f imeshindwa"; exit 1 }
