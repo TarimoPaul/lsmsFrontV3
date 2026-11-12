@@ -1,3 +1,4 @@
+import { PurchaseCheck } from '../reconciliation/purchase-check';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -68,6 +69,7 @@ type Filter = 'ALL' | PurchaseStatus;
     Icon,
     MoneyPipe,
     DatePipe,
+    PurchaseCheck,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchases-page.html',

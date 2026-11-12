@@ -1,3 +1,4 @@
+import { PurchaseCheck } from './purchase-check';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 
@@ -40,11 +41,14 @@ const ZERO_CASH_PRESETS = [
  */
 @Component({
   selector: 'app-recon-approval-tab',
-  imports: [ReconStatement, Button, Icon, MoneyPipe, DatePipe],
+  imports: [ReconStatement, Button, Icon, MoneyPipe, DatePipe, PurchaseCheck],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (store.current(); as r) {
       <app-recon-statement [recon]="r" [liveTotal]="store.summary()?.totalSales ?? null" />
+      @if (canApprove()) {
+        <app-purchase-check />
+      }
 
       @if (r.reopenCount >= 2) {
         <p class="alert err"><lsms-icon name="history" [size]="18" />{{ i18n.t('This reconciliation has been reopened ' + r.reopenCount + ' times — check the history and audit log carefully.', 'Upatanisho huu umefunguliwa tena mara ' + r.reopenCount + ' — kagua historia na kumbukumbu kwa makini.') }}</p>
