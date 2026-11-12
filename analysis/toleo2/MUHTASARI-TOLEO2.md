@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (gd)
+nimesoma hadi (ge)
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -81,7 +81,23 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
 1. ~~6e~~ IMEKAMILIKA (ga: onyo tu).
 2. ~~Usafi 9~~ IMEKAMILIKA (gd): M1 (scheduler tu), junk lines, UTF-16; C9 na F1 tayari. DROP view 4 + C6 -> ~09/12. Suite 682/0/1, ng 104/104.
    (Flyway ya toleo 2 sasa 134 -> 151; view 4 zikidondoshwa kwa migration -> V152.)
-3. **Kazi 10:** unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
+3. **Kazi 10 (ge) — hali 12/11:**
+   - Kuunganisha: backend `release/2.5.0` = t2-cutover + t2-marejesho (mgongano: compose ya local tu) + t2-afya + version 2.5.0 (b764632; zana za lango dfa054c).
+     V3 `release/3.3.0` = t2-cutover + t2-afya + version 3.3.0 (4712a1a; zana 5742790). Bado hazijapushwa (push-yote).
+   - Flyway V139–V151: 13, kila namba mara moja, hakuna pengo, hakuna namba iliyorudiwa kwenye folda.
+   - NOT NULL kwenye jedwali ZILIZOPO (2.4.0 inaziandikia): `capital_expenditure.removed_accumulated` DEFAULT 0 (V144),
+     `capital_expenditure.exclude_from_ops_report` DEFAULT FALSE (V145). Mengine yote ni jedwali mapya au safu nullable;
+     check za V142/V151 ni pana zaidi; hakuna trigger.
+   - Rollback kwa kuandika (2.4.0 juu ya schema 151): sale Taslimu, deni + malipo, reco hadi APPROVED, manunuzi yameidhinishwa,
+     hakuna gl_posting_failure, TB 0 — rollback_kuandika 5/0; 2.5.0 inawaka tena juu ya DB ile ile.
+   - Lango: `deploy/local/lango.sh <dump>` (suite + pg-checks, payment_method kabla ya migrate, Flyway -> 151, c2, E2E A/B, rollback).
+     Dump ya B2 ya karibuni: **hatua 92** (Chief) -> lango -> staging (**hatua 93**: refresh-db, deploy, kazi, rollback, deploy) -> prod 02/12.
+   - Lango la MAZOEZI (dump 29/10, 12/11): suite 691/0/1, pg-checks 6/6, payment_method HAIKUBALIKI 0, Flyway 134 -> 151 (zote true),
+     c2 2/2, E2E awamu A 26/29. Matatu yaliyoshindwa yamechunguzwa: b2 = faili za GeoIP za majaribio hazikuwa kwenye worktree mpya
+     (zimewekwa + lango linakagua sasa); k3 + kupima_api = cutover T10 iliidhinisha reco ya LEO ya Macheda (kinga A6 sahihi) -> sasa
+     muuzaji wa E2E (ba74aab): cutover 16/0, k3 20/0, kupima_api 54/0. Awamu B + rollback hazikuendeshwa (script ilibadilishwa
+     ikiendeshwa - kosa langu, imerekebishwa). Lango la pili lilisimamishwa na mfumo (RAM ndogo) wakati wa suite.
+   (mpango wa awali:)  unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 
 Kwa Chief kuendesha (si maswali): hatua 91 mara moja kabla ya deploy (D lazima HAIJAWEKWA). Mengine yote yameamuliwa (fk).

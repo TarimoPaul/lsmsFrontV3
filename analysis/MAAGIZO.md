@@ -1357,3 +1357,14 @@ Kisha usafi 9.
 3. F1 footer, config junk, C9 ssh -n, UTF-16 log: kila moja na ushahidi mfupi (diff/log).
 4. Suite kamili ya backend + ng mwisho wa usafi 9.
 Kisha kazi 10.
+
+## 2026-11-12 (ge)
+Usafi 9 umekubaliwa. Kazi 10 — vigezo vya lango:
+1. Lango kwenye DUMP YA PROD YA KARIBUNI (B2, Flyway 138), si 29/10 peke yake. Kabla ya migrate: hesabu thamani zote
+   za payment_method kwenye data mpya (tangu 29/10) dhidi ya check ya V151 — ripoti yoyote isiyokubalika.
+   Kisha migrate 138 → 151 + majaribio yote (cutover, malipo_d, pengo_d, manunuzi_*, marejesho, uhamisho_onyo, ng).
+   Kumbuka: dump ni ya kusoma tu kwenye kompyuta yako; usiguse prod.
+2. Flyway: orodhesha V139–V151 baada ya kuunganisha — namba za kipekee, hakuna pengo/mgongano kati ya matawi.
+3. Rollback kwa KUANDIKA: 2.4.0 juu ya schema 151 → sale mpya (Taslimu), reco moja hadi kuidhinishwa, manunuzi moja,
+   malipo ya deni. Zote zinaandikwa bila kosa. Orodhesha column za NOT NULL zilizoongezwa V139–V151 na default zake.
+4. Kisha script ya deploy + staging.
