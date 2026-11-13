@@ -1,7 +1,8 @@
 @echo off
 rem PUSH-YOTE (mmiliki 01/11 bn; 03/11 cm + tawi 4) - matawi 5 kwenda origin, BILA force, kwa mpangilio:
-rem   1. backend  lsmsBackend  release/2.4.0
-rem   2. V3       lsmsFrontV3  release/3.2.0
+rem   1-2. (13/11 gp 6) release/2.4.0 na release/3.2.0 ZIMEFUTWA local - haziko tena hapa (tag v2.4.0 / v3.2.0 zinabaki).
+rem   (13/11 gu) KINGA YA SIRI kabla ya push: analysis\steps\94-kagua-siri.py kwenye commit zote ambazo hazijapushwa -
+rem        V3 (analysis/) na backend (repo nzima). Isiposema KAGUA_SIRI_SAFI = KATAA, hakuna kilichopushwa.
 rem   3. V3       lsmsFrontV3  main
 rem   4. backend  lsmsBackend  feature/c2-null-params (C2, jipya kwenye origin mara ya kwanza)
 rem   5. backend  lsmsBackend  main (09/11 cz: main = 2.4.0 + .backend-version; image zinajengwa kutoka main)
@@ -29,8 +30,6 @@ set KAZI=0
 set IDADI=7
 
 echo ---KAGUA--- >> %L%
-call :kagua "%BE%" release/2.4.0 1
-call :kagua "%V3%" release/3.2.0 2
 call :kagua "%V3%" main 3
 call :kagua "%BE%" feature/c2-null-params 4
 call :kagua "%BE%" main 5
@@ -41,8 +40,24 @@ call :gundua "%BE%"
 call :gundua "%V3%"
 set /a T2=IDADI-7
 echo MATAWI_YA_TOLEO_2 feature/t2-*: %T2% yamegunduliwa >> %L%
+echo ---KINGA-YA-SIRI--- >> %L%
+python analysis\steps\94-kagua-siri.py "%V3%" origin/main analysis > "%TEMP%\push-yote-94.txt" 2>&1
+set RC94=%errorlevel%
+findstr /b "KINGA_73 COMMIT IMEPATA KAGUA_SIRI" "%TEMP%\push-yote-94.txt" >> %L%
+if not "%RC94%"=="0" (
+  set KOSA=1
+  set "KOSA_LA=kinga ya siri V3 analysis/"
+)
+python analysis\steps\94-kagua-siri.py "%BE%" origin/main . > "%TEMP%\push-yote-94.txt" 2>&1
+set RC94=%errorlevel%
+findstr /b "KINGA_73 COMMIT IMEPATA KAGUA_SIRI" "%TEMP%\push-yote-94.txt" >> %L%
+if not "%RC94%"=="0" (
+  set KOSA=1
+  set "KOSA_LA=kinga ya siri backend"
+)
+del "%TEMP%\push-yote-94.txt" 2> nul
 if not "%KOSA%"=="0" (
-  echo ---IMEKATALIWA: tawi %KOSA_LA% halipushiki bila force - hakuna kilichopushwa--- >> %L%
+  echo ---IMEKATALIWA: %KOSA_LA% - hakuna kilichopushwa--- >> %L%
   echo IMEKATALIWA - soma %L%. Hakuna kilichopushwa.
   goto end
 )
@@ -64,10 +79,6 @@ if /i not "%JIBU%"=="push" (
 echo mmiliki ameandika: push >> %L%
 
 echo ---PUSH--- >> %L%
-call :push "%BE%" release/2.4.0 1
-if not "%KOSA%"=="0" goto fail
-call :push "%V3%" release/3.2.0 2
-if not "%KOSA%"=="0" goto fail
 call :push "%V3%" main 3
 if not "%KOSA%"=="0" goto fail
 call :push "%BE%" feature/c2-null-params 4
