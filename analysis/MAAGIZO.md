@@ -1585,3 +1585,20 @@ PROD DEPLOY_OK 14:05: backend 2.5.0 + V3 3.3.0, Flyway 151, marejesho OFF (hh), 
 3. Kalenda: image 2.4.0/3.2.0 zibaki hadi ≥20/11; DROP-MV + C6 + kufuta feature/t2-* ≥20/11; D 07/12 haibadiliki.
 4. Andaa ripoti ya siku ya kwanza (kesho jioni): onyo la manunuzi la 14/11, reco ya 14/11, ERROR za backend log 24h — kusoma tu.
 5. Hatua 74 (manunuzi 18 yenye msambazaji → PAID): bado inahitajika baada ya 74b? Endesha KAGUA yake kwenye ripoti ya kesho (kusoma tu).
+
+## 2026-11-13 (hk)
+KUPIMA prod: code iko 2.5.0; mipangilio bado. Andaa hatua 85 kwa PROD (KAGUA→🛑→ANDIKA), maamuzi ya Chief yaliyopo:
+Konyagi 30ml=1,000; Moon Light 50ml=2,000; Golden King/Gilbeys/Camino 50ml=3,000; Wine dumu 5L 70ml=2,000, 80ml=3,000;
+MA-LOT/Grepa bei = Chief. Parent UIDs ulizonazo (Konyagi 33, Moon Light 105, Golden King 64, Wine Grepa 59, MA-LOT 102) —
+hakiki kwenye data ya prod ya leo; Gilbeys/Camino 750ml Chief anazisajili kwanza, KAGUA ionyeshe kama zipo.
+Maswali (jibu kwa code, usimuulize Chief):
+1. Chupa ILIYO WAZI dukani leo inaanzishwaje (ml zilizobaki)? Kama hakuna njia → pendekeza (mf. hoja ya ml kwa kila mzazi kwenye ANDIKA).
+2. Bidhaa za zamani za vipimo bandia: zinazimwa na 85? Stock yao?
+3. Progress bar inaonekana wapi (POS/bidhaa) na inaanza lini?
+Jaribio: KAGUA kwenye dump ya leo. Lengo: ANDIKA kesho asubuhi kabla ya duka kufunguliwa.
+
+## 2026-11-13 (hl)
+Chief amesajili: Camino 750ml (Brandy/Cognac, 6/pkg, 270,000/pkg) na Gilbeys 750ml (12/pkg, 216,000/pkg); Grepa = "GREPA WINE 5LT".
+KAGUA ya 85 itafute hizi kwa data ya prod. Bei ya Camino 50ml = [Chief ajaze] (si 3,000 — gharama 45,000/chupa = faida 0).
+KAGUA ionyeshe kwa kila mzazi: gharama/chupa, vipimo kwa chupa, mapato kwa chupa kwa bei ya kipimo, faida/chupa —
+na ionye (ONYO) kipimo chochote chenye faida/chupa ≤ 10% ya gharama.

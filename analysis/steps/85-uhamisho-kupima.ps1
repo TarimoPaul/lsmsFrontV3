@@ -1,6 +1,9 @@
-# HATUA 85 (mmiliki 10/11 el/eo) - PROD, BAADA ya toleo 2: uhamisho wa KUPIMA. Endesha kupitia 85-uhamisho-kupima.cmd:
-#   85-uhamisho-kupima.cmd kagua     PROD, kusoma tu -> 85-kagua.log (ORODHA YA WAZAZI kwa uid (eq) - thibitisha -, vipande, GL ya kufuta)
-#   85-uhamisho-kupima.cmd andika    ml ulizohesabu kwa kila chombo kilicho wazi (0 = hakuna) -> ANDIKA-85 -> password ya CEO
+# HATUA 85 (mmiliki 10/11 el/eo; 13/11 hk/hl) - PROD (2.5.0 tangu 13/11): uhamisho wa KUPIMA. Endesha kupitia 85-uhamisho-kupima.cmd:
+#   85-uhamisho-kupima.cmd kagua     PROD, kusoma tu -> 85-kagua.log: wazazi (uid + id), wagombea wa GILBEYS/CAMINO (uid8),
+#                                    FAIDA KWA CHUPA kwa kila mzazi (ONYO faida <= 10%), vipande vya bandia, GL ya kufuta
+#   85-uhamisho-kupima.cmd andika    ASUBUHI kabla ya duka kufunguliwa: ml ulizohesabu kwa kila chupa/dumu iliyo wazi (0 = hakuna),
+#                                    mzazi wa dumu ya WINE, uid8 za GILBEYS/CAMINO (kutoka 85-kagua.log), bei ya Camino 50ml,
+#                                    bei za MA-LOT/Grepa (hiari) -> ANDIKA-85 -> password ya CEO
 # Bidhaa isiyo na mzazi inarukwa; iliyokwisha hamishwa inarukwa. Unaweza kuendesha tena baada ya kusajili mzazi.
 param([string]$Mode = '')
 $ErrorActionPreference = 'Continue'
@@ -24,12 +27,20 @@ if ($Mode -eq 'kagua') {
 Write-Host 'Weka ml ulizohesabu kwenye chombo kilicho wazi cha kila kinywaji (0 = hakuna chombo wazi).'
 Write-Host 'Kiwango -> ml: chupa 750ml: 1 = 750, 3/4 = 563, 1/2 = 375, 1/4 = 188.  Dumu 5000ml: 1/2 = 2500, 1/4 = 1250.'
 $lines = @()
-foreach ($k in @('KONYAGI', 'MOONLIGHT', 'GOLDENKING', 'GILBEYS', 'CAMINO', 'WINE')) {
-    $v = Read-Host "ml za $k"
-    if ($v -notmatch '^\d+$') { L "SIYO: ml za $k si namba ('$v') - hakuna kilichoandikwa"; exit 2 }
-    $lines += "$k=$v"
-    L "ml $k = $v"
+function Ask([string]$key, [string]$prompt, [string]$re) {
+    $v = (Read-Host $prompt).Trim()
+    if ($v -notmatch $re) { L "SIYO: $key '$v' si sahihi - hakuna kilichoandikwa"; exit 2 }
+    $script:lines += "$key=$v"; L "$key = $v"; return $v
 }
+foreach ($k in @('KONYAGI', 'MOONLIGHT', 'GOLDENKING', 'GILBEYS', 'CAMINO', 'WINE')) { [void](Ask $k "ml za $k (0 = hakuna iliyo wazi)" '^\d+$') }
+if (($lines | Where-Object { $_ -eq 'WINE=0' }).Count -eq 0) { [void](Ask 'WINE_MZAZI' 'Dumu ya WINE iliyo wazi ilitoka kwa mzazi yupi? GREPA au MALOT' '^(GREPA|MALOT)$') }
+foreach ($k in @('GILBEYS', 'CAMINO')) {
+    $v = Read-Host "uid8 ya mzazi wa $k kutoka 85-kagua.log (herufi 8 ndani ya [ ]; - = ruka $k)"
+    if ($v -ne '-') { if ($v -notmatch '^[0-9a-fA-F]{8}$') { L "SIYO: uid8 ya $k '$v' - hakuna kilichoandikwa"; exit 2 }; $lines += "${k}_MZAZI=$v"; L "${k}_MZAZI = $v" }
+}
+[void](Ask 'CAMINO_BEI' 'Bei ya Camino 50ml (0 = ruka CAMINO)' '^\d+$')
+[void](Ask 'WINE_GREPA' 'Bei za GREPA WINE 5LT, mf. 70:2000,80:3000 (Enter = bei ya msingi 70:2000,80:3000)' '^((70|80):[1-9]\d*(,(70|80):[1-9]\d*)?)?$')
+[void](Ask 'WINE_MALOT' 'Bei za MA-LOT BOX WINE, mf. 70:2500,80:3500 (Enter = bei ya msingi)' '^((70|80):[1-9]\d*(,(70|80):[1-9]\d*)?)?$')
 $ans = Read-Host 'Umesoma 85-kagua.log na kuthibitisha ORODHA YA WAZAZI (uid, jina)? Andika ANDIKA-85 kuendelea (kingine = simama)'
 if ($ans -cne 'ANDIKA-85') { L 'Umesimamisha - hakuna kilichoandikwa.'; exit 2 }
 L 'mmiliki ameandika ANDIKA-85'
