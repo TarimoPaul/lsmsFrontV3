@@ -7,7 +7,8 @@ rem   3. V3       lsmsFrontV3  main
 rem   4. backend  lsmsBackend  feature/c2-null-params (C2, jipya kwenye origin mara ya kwanza)
 rem   5. backend  lsmsBackend  main (09/11 cz: main = 2.4.0 + .backend-version; image zinajengwa kutoka main)
 rem   Tag (09/11 dm): 6. backend v2.4.0  7. V3 v3.2.0 - annotated; tag ikiwa tayari origin kwa hash TOFAUTI = KATAA (hakuna force).
-rem   8+. (09/11 dv) MATAWI YA TOLEO 2 - yanaongezwa KIOTOMATIKI: kila tawi la local linaloitwa feature/t2-*
+rem   (13/11 hi 1) 8. backend v2.5.0 (a86fbcf)  9. V3 v3.3.0 (a1caafc) - prod tangu 13/11 14:05; sheria ileile.
+rem   10+. (09/11 dv) MATAWI YA TOLEO 2 - yanaongezwa KIOTOMATIKI: kila tawi la local linaloitwa feature/t2-*
 rem       kwenye backend NA V3 (k.m. feature/t2-gharama). Tawi jipya la toleo 2 = liite feature/t2-<jina>,
 rem       hakuna haja ya kubadilisha faili hili. Sheria ni zile zile: fast-forward tu, bila force.
 rem   Majaribio: set PUSH_YOTE_LOG=<faili> ili log iende mahali pengine.
@@ -27,7 +28,7 @@ echo ---MWENDESHO-PUSH-YOTE--- > %L%
 echo saa %DATE% %TIME% >> %L%
 set KOSA=0
 set KAZI=0
-set IDADI=7
+set IDADI=9
 
 echo ---KAGUA--- >> %L%
 call :kagua "%V3%" main 3
@@ -35,10 +36,12 @@ call :kagua "%BE%" feature/c2-null-params 4
 call :kagua "%BE%" main 5
 call :kagua_tag "%BE%" v2.4.0 6
 call :kagua_tag "%V3%" v3.2.0 7
-rem 8+: matawi ya toleo 2 (feature/t2-*) yanagunduliwa kiotomatiki
+call :kagua_tag "%BE%" v2.5.0 8
+call :kagua_tag "%V3%" v3.3.0 9
+rem 10+: matawi ya toleo 2 (feature/t2-*) yanagunduliwa kiotomatiki
 call :gundua "%BE%"
 call :gundua "%V3%"
-set /a T2=IDADI-7
+set /a T2=IDADI-9
 echo MATAWI_YA_TOLEO_2 feature/t2-*: %T2% yamegunduliwa >> %L%
 echo ---KINGA-YA-SIRI--- >> %L%
 python analysis\steps\94-kagua-siri.py "%V3%" origin/main analysis > "%TEMP%\push-yote-94.txt" 2>&1
@@ -89,7 +92,11 @@ call :push_tag "%BE%" v2.4.0 6
 if not "%KOSA%"=="0" goto fail
 call :push_tag "%V3%" v3.2.0 7
 if not "%KOSA%"=="0" goto fail
-for /l %%i in (8,1,%IDADI%) do (
+call :push_tag "%BE%" v2.5.0 8
+if not "%KOSA%"=="0" goto fail
+call :push_tag "%V3%" v3.3.0 9
+if not "%KOSA%"=="0" goto fail
+for /l %%i in (10,1,%IDADI%) do (
   call :push "!AUTO_R_%%i!" !AUTO_B_%%i! %%i
   if not "!KOSA!"=="0" goto fail
 )

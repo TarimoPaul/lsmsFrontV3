@@ -23,3 +23,69 @@
 [13:08:56] [93 prod 13:08:50] SIYO: (gy) prod: marejesho lazima yawe =true kuanzia deploy hii - endesha kwanza: 93-deploy-250.cmd prod marejesho
 [13:08:56] ---93_IMESHINDWA---
 [13:08:56] ---93_IMESHINDWA--- soma log hapo juu
+[14:03:58] ===== 93 prod deploy 2026-11-13 =====
+[14:04:30] script zimenakiliwa server (~/lsms-250)
+[14:04:37] ANZISHWA
+[14:04:37] nafuatilia ~/lsms-250/logs/prod-deploy.log (mtandao ukikatika: endesha '93-deploy-250.cmd prod fuata')
+[14:04:49] [93 prod 14:04:37] === K1-KAGUA
+[14:04:49] [93 prod 14:04:38] inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 138
+[14:04:49] [93 prod 14:04:38] image za rollback zipo: 2.4.0 + 3.2.0
+[14:04:49] [93 prod 14:04:39] payment_method dhidi ya V151: HAIKUBALIKI 0 (payments 3117, credit_payments 0)
+[14:04:49] [93 prod 14:04:39] diski wazi 181G
+[14:04:49] [93 prod 14:04:39] K1-KAGUA IMEKAMILIKA (2s)
+[14:04:49] [93 prod 14:04:39] K2-BACKUP ilishakamilika - inarukwa (backup ya awali: /home/chief/lsms-250/prod/backup)
+[14:04:49] [93 prod 14:04:39] K3-PULL ilishakamilika - inarukwa
+[14:04:49] [93 prod 14:04:39] === K4-KAGUA
+[14:04:49] [93 prod 14:04:39] marejesho APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA (default ya jar: false)
+[14:04:49] [93 prod 14:04:39] onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =2026-11-14
+[14:04:49] [93 prod 14:04:39] marejesho OFF (uamuzi hh) - APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA
+[14:04:49] [93 prod 14:04:39] .env + compose: BACKEND_VERSION / FRONTEND_V3_VERSION zinabadilishwa na K5; swichi kama zilivyo hapo juu
+[14:04:49] [93 prod 14:04:39] K4-KAGUA IMEKAMILIKA (0s)
+[14:04:49] [93 prod 14:04:39] === K5-BADILI
+[14:04:49]  Container lsms-deployment-backend-1 Recreate 
+[14:04:49]  Container lsms-deployment-frontend-v3-1 Recreate 
+[14:04:49]  Container lsms-deployment-frontend-v3-1 Recreated 
+[14:04:49]  Container lsms-deployment-backend-1 Recreated 
+[14:04:49]  Container lsms-deployment-frontend-v3-1 Starting 
+[14:04:49]  Container lsms-deployment-backend-1 Starting 
+[14:04:49]  Container lsms-deployment-frontend-v3-1 Started 
+[14:04:49]  Container lsms-deployment-backend-1 Started 
+[14:05:30] [93 prod 14:05:29] backend: 'Started LsmsApplication' baada ya ~45s
+[14:05:30] [93 prod 14:05:30] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[14:05:30] [93 prod 14:05:30] HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0
+[14:05:41] [93 prod 14:05:31] Flyway: 139:true 140:true 141:true 142:true 143:true 144:true 145:true 146:true 147:true 148:true 149:true 150:true 151:true (max 151)
+[14:05:41] [93 prod 14:05:31] K5-BADILI IMEKAMILIKA (52s)
+[14:05:41] [93 prod 14:05:31] === K6-SMOKE
+[14:05:41] [93 prod 14:05:32] backend: 'Started LsmsApplication' baada ya ~0s
+[14:05:41] [93 prod 14:05:32] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[14:05:41] [93 prod 14:05:32] HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0
+[14:05:41] [93 prod 14:05:37] jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA
+[14:05:41] [93 prod 14:05:37] D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)
+[14:05:41] [93 prod 14:05:37] marejesho kwenye container inayoendesha: APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA (default ya jar: false)
+[14:05:41] [93 prod 14:05:38] onyo la manunuzi kwenye container inayoendesha: LSMS_PURCHASE_CHECK_FROM =2026-11-14
+[14:05:41] [93 prod 14:05:38] marejesho OFF (uamuzi hh) kwenye container - APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA
+[14:05:41] [93 prod 14:05:38] ERROR baada ya kuanza (maombi ya moja kwa moja): 0
+[14:05:41] [93 prod 14:05:38] K6-SMOKE IMEKAMILIKA (7s)
+[14:05:41] [93 prod 14:05:39] backend 2.5.0 | frontend-v3 3.3.0 | .env BACKEND_VERSION=***FICHWA***
+[14:05:49] [93 prod 14:05:39] Flyway ya mwisho: 151
+[14:05:49] [93 prod 14:05:39] .env HAINA ADMIN_EMAIL
+[14:05:49] [93 prod 14:05:39] .env HAINA ADMIN_PASSWORD
+[14:05:49] [93 prod 14:05:39] .env HAINA DOCKERHUB_USERNAME
+[14:05:49] [93 prod 14:05:39] .env HAINA DOCKERHUB_PASSWORD
+[14:05:49] [93 prod 14:05:39] .env ina DAILY_SALES_PROFIT_ROLES
+[14:05:49] [93 prod 14:05:40] image IPO chiefmaster/my-lsms-backend:2.4.0
+[14:05:49] [93 prod 14:05:40] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[14:05:49] [93 prod 14:05:40] image IPO chiefmaster/my-lsms-backend:2.5.0
+[14:05:49] [93 prod 14:05:40] image IPO chiefmaster/lsms-frontend-v3:3.3.0
+[14:05:49] [93 prod 14:05:40] .backend.prev=2.4.0 .frontend-v3.prev=3.2.0
+[14:05:49] [hali] DONE K1-KAGUA 2026-11-13T13:08:36 1s
+[14:05:49] [hali] DONE K2-BACKUP 2026-11-13T13:08:46 10s
+[14:05:49] [hali] DONE K3-PULL 2026-11-13T13:08:49 3s
+[14:05:49] [hali] DONE K1-KAGUA 2026-11-13T14:04:39 2s
+[14:05:49] [hali] DONE K4-KAGUA 2026-11-13T14:04:39 0s
+[14:05:49] [hali] DONE K5-BADILI 2026-11-13T14:05:31 52s
+[14:05:49] [hali] DONE K6-SMOKE 2026-11-13T14:05:38 7s
+[14:05:49] [93 prod 14:05:41] compose: marejesho APP_FEATURES_SALES_RETURNS_ENABLED =; onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =2026-11-14
+[14:05:49] [93 prod 14:05:41] DEPLOY_OK 2.5.0 + 3.3.0 (jumla 64s)
+[14:05:49] ---93_MWISHO---
+[14:05:49] ---93_OK--- (72s)

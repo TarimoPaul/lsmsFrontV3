@@ -1,0 +1,17 @@
+﻿[14:08:08] ===== 93 prod smoke 2026-11-13 =====
+[14:08:40] script zimenakiliwa server (~/lsms-250)
+[14:09:11] === 93-kazi prod smoke | backend 2.5.0 | KAZI93-140908
+[14:09:11] PASS login (2.5.0)
+[14:09:11] PASS GET /api/v1/sales
+[14:09:11] PASS GET /api/v1/purchases
+[14:09:11] PASS GET /api/v1/gl/trial-balance
+[14:09:11] PASS GET /api/v1/gl/journal-entries
+[14:09:11] PASS GET /api/v1/gl/accounts
+[14:09:11] PASS GET /api/v1/notifications/unread-counts
+[14:09:11] PASS GET /api/v1/sales/changes/pending (tangu 2.4.0; backend 2.5.0)
+[14:09:11] PASS login_audit imeandika login hii (tangu 2.4.0; backend 2.5.0)
+[14:09:11] SMOKE_MATOKEO PASS 9 FAIL 0
+[14:09:11] SMOKE_OK 9/9
+[14:09:11] ---93K_MWISHO---
+[14:09:11] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 0
+[14:09:11] ---93_OK--- smoke

@@ -1,6 +1,8 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (ge)
+nimesoma hadi (hi)
+
+**(hi) PROD = backend 2.5.0 + V3 3.3.0 tangu 13/11/2026 14:05 EAT** (hatua 93: DEPLOY_OK, Flyway 151, marejesho OFF (hh), onyo la manunuzi 2026-11-14, D HAIJAWEKWA, ERROR 0; smoke 9/9; 74b ANDIKA 419 -> PAID, GL haikubadilika). Tag (local, push ni ya Chief kwa push-yote 8/9): **v2.5.0 -> a86fbcf**, **v3.3.0 -> a1caafc**. **Main iko WAZI tena** kwa kazi ya Desemba (lango zima + staging kabla ya prod yoyote).
 
 Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod ~~Jumatano 02/12~~ **(gy) mara baada ya staging kupita: (hh) 13/11**, marejesho (C4) **OFF** (hh: kasoro ya he), onyo la manunuzi kuanzia 14/11; D **Jumatatu 07/12** (Qff-1) haibadiliki.
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
@@ -63,12 +65,12 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Lini | Hatua | Nini |
 |---|---|---|
 | Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo, 5 (fl) + 90 (Flutter) — IMEFANYIKA 12/11; tena kabla ya deploy |
-| Baada ya deploy (14/15-11) | **74** | ununuzi 18 -> PAID (bila journal) |
-| **Siku ya deploy** (gy) | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
+| Baada ya deploy (hi 5: KAGUA kwenye ripoti 95 ya 14/11) | **74** | ununuzi 18 -> PAID (bila journal). Baada ya 74b: Grepa (bila msambazaji) inatarajiwa TAYARI-PAID; 17 wenye msambazaji HAWAGUSWI na 74b -> 74 bado inahitajika kwa hao (nakala 12/11: SAWA 18) |
+| ~~Siku ya deploy~~ IMEFANYIKA 13/11 14:12 | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
 | Baada ya deploy + hesabu ya Chief | **85** | uhamisho wa KUPIMA |
-| **Siku 7 baada ya prod** bila rollback (gy; ~21-22/11) | **DROP-MV** | migration/hatua tofauti: DROP view 4 + kuondoa initializer/repository |
-| **Siku 7 baada ya prod** (gy), baada ya kuthibitisha dump ya B2 ina backup table | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
+| **>= 20/11** (hi: siku 7 baada ya prod 13/11, bila rollback) | **DROP-MV** | migration/hatua tofauti: DROP view 4 + kuondoa initializer/repository |
+| **>= 20/11** (hi), baada ya kuthibitisha dump ya B2 ina backup table | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
 | 04/12 | — | Loan A awamu 2 kwenye app (Cr 1000), hakuna kazi |
 | **07/12 asubuhi (D)** | **60** kagua -> andika | salio la ufunguzi kwa akaunti ZOTE 9 za benki/simu + tofauti -> 2910 + D |
 | 07/12 + siku 30 | journal ya mkono | 2910 chambua; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO) |
@@ -148,12 +150,25 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
      | Siku 7 baada ya prod bila rollback | DROP-MV + C6; kufuta feature/t2-* (kiungo cha node_modules kwanza) |
      | 07/12 (haibadiliki) | hatua 60: salio la ufunguzi + D |
      LSMS_PURCHASE_CHECK_FROM = **tarehe ya deploy** (hc: Chief amekubali) - inawekwa na `93 <t> marejesho` pamoja na marejesho.
+   - **(hi) 13/11 PROD 2.5.0 / 3.3.0 tangu 14:05 — KALENDA iliyosasishwa:**
+     | Lini | Nini |
+     |---|---|
+     | 14/11 jioni | **hatua 95** `95-siku-ya-kwanza.cmd 2026-11-14` (kusoma tu): onyo la manunuzi la 14/11, reco ya 14/11, mauzo/GL, ERROR za log ya backend saa 24, hatua 74 KAGUA. Siku 14 inalinganishwa pia na DROO ya 15/11 -> endesha tena 15/11 kwa picha ya mwisho |
+     | Baada ya ripoti 95 | 74 (kama KAGUA inaonyesha SAWA 17 + TAYARI-PAID 1), 89, 85 |
+     | Hadi >= 20/11 | image **2.4.0 / 3.2.0 zibaki** kwenye server (rollback) |
+     | >= 20/11 (bila rollback) | DROP-MV + C6 + kufuta feature/t2-* (kiungo cha node_modules kwanza) |
+     | 07/12 (haibadiliki) | hatua 60: salio la ufunguzi + D |
+     **Compose ya prod (server)** sasa ina `LSMS_PURCHASE_CHECK_FROM` ndani ya environment ya backend kwenye **docker-compose.yml (CRLF)**,
+     na .env ina `LSMS_PURCHASE_CHECK_FROM=2026-11-14`. Deploy / badiliko lolote la compose la baadaye LAZIMA lihifadhi mstari huo
+     (ukikosekana, jar inarudi kwenye default 2026-12-02 bila kelele).
    - **DESEMBA (gr 3) - usijenge sasa:**
      **KIPAUMBELE CHA KWANZA (hh):** kasoro ya (he) - kufuta (au kurejesha) sale yenye marejesho yaliyoidhinishwa kunarudisha
         stock na mapato ya kipande kilichorudishwa MARA YA PILI (`SaleService.deleteSale` haiangalii sales_returns; Docker-local
         13/11: stock +2 zaidi, 4020 / 1000 / 1030 / 1200 / 5000 si 0). Kinga: sale yenye marejesho yasiyokataliwa haifutwi wala
         kurejeshwa (+ jaribio la unit + marejesho-jaribio kufuta). **Marejesho ON tu baada ya kinga + lango + staging**
         (`93 <t> marejesho <tarehe>` bila 'bila-marejesho'), kisha sehemu 1b ya Mwongozo wa Macheda irudishwe.
+     0a. (hi 2) hatua ya deploy ijayo (9x): **K4 iangalie kwamba `docker compose config` ya backend bado ina
+        LSMS_PURCHASE_CHECK_FROM = tarehe** (na APP_FEATURES_SALES_RETURNS_ENABLED kama ilivyoamuliwa) - vinginevyo simama kabla ya K5.
      0. (hc 2) a. malipo ya msambazaji yenye purchaseUid HAYABADILISHI payment_status / amount_paid ya ununuzi (lebo tu; GL
         sawa - kazi93 13/11: ununuzi + malipo = 1000 -100 mara moja, 2000 = 0, lakini ununuzi unabaki "UNPAID 0"). Hadi
         litakaporekebishwa: hatua 74 (ununuzi -> PAID bila journal) kila mwezi.

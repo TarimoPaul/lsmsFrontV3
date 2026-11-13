@@ -1576,3 +1576,12 @@ kosa la pesa/stock). Onyo la manunuzi =2026-11-14 linabaki.
 3. MUHTASARI: kasoro ya (he) = kipaumbele cha kwanza Desemba; marejesho ON tu baada ya kinga + lango + staging.
    Mwongozo wa Macheda: ondoa sehemu 1b (marejesho) kwa sasa.
 Jaribio la ndani la hoja mpya; niambie "done" + amri.
+
+## 2026-11-13 (hi)
+PROD DEPLOY_OK 14:05: backend 2.5.0 + V3 3.3.0, Flyway 151, marejesho OFF (hh), onyo 2026-11-14, D HAIJAWEKWA, ERROR 0.
+1. Tag: v2.5.0 → a86fbcf, v3.3.0 → a1caafc (local; push ni ya Chief). Main inafunguka tena kwa kazi ya Desemba.
+2. MUHTASARI: prod = 2.5.0/3.3.0 tangu 13/11 14:05. Compose ya prod (server) sasa ina LSMS_PURCHASE_CHECK_FROM
+   kwenye docker-compose.yml (CRLF) — deploy/compose yoyote ya baadaye ihifadhi mstari huo (ongeza ukaguzi K4 kwa 9x ijayo).
+3. Kalenda: image 2.4.0/3.2.0 zibaki hadi ≥20/11; DROP-MV + C6 + kufuta feature/t2-* ≥20/11; D 07/12 haibadiliki.
+4. Andaa ripoti ya siku ya kwanza (kesho jioni): onyo la manunuzi la 14/11, reco ya 14/11, ERROR za backend log 24h — kusoma tu.
+5. Hatua 74 (manunuzi 18 yenye msambazaji → PAID): bado inahitajika baada ya 74b? Endesha KAGUA yake kwenye ripoti ya kesho (kusoma tu).
