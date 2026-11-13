@@ -17,10 +17,15 @@ case "${1:-}" in
   build)
     cd "$ROOT" || exit 1
     rm -rf dist/lsmsFrontV3
+    # (gp 4) "npx ng build" skips the npm prebuild hook, so version.json was never stamped here (it stayed 3.0.0 of 06/10):
+    # stamp it as the image build does (npm run build -> prebuild), from .frontend-v3-version
+    node scripts/stamp-version.mjs || die "stamp-version"
     # ng-exit.cjs: a finished ng build does not exit by itself (see that file)
     MSYS_NO_PATHCONV=1 NODE_OPTIONS="--require ./deploy/ng-exit.cjs" npx ng build --configuration production --base-href /v3/ \
       || die "ng build"
     grep -q '<base href="/v3/">' dist/lsmsFrontV3/browser/index.html || die "base href si /v3/"
+    WANT=$(tr -d '[:space:]' < .frontend-v3-version)
+    grep -q "\"version\": *\"$WANT\"" dist/lsmsFrontV3/browser/version.json || die "version.json ya build si $WANT"
     echo "BUILD_SAWA $(git rev-parse --short HEAD)$([ -n "$(git status --porcelain -- src)" ] && echo ' (+ mabadiliko yasiyocommitiwa)')"
     ;;
   up)

@@ -177,19 +177,27 @@ const lastPay = (uid) => sql(`select uid || '|' || coalesce(cost_part::text,'nul
   const lpD = lastPay(D.liab); const gPD = jl('LIABPAY:' + lpD[0]);
   ok('D5 malipo yote: Cr 1120 = NBV + 2,000; Cr 4900 = ziada iliyobaki (inapolipwa); SETTLED; H1 SAWA', payD.j?.status === 'Success' && eq(gPD['1120'], -(nbvD + AGD)) && eq(gPD['4900'], -(30000 - nbvD - AGD))
     && header(D.liab).status === 'SETTLED' && eq(acct('1120'), d0.r) && eq(acct('4900') - d0.o, -(30000 - nbvD)) && eq(await h1(ceo), h0), JSON.stringify({ gPD, st: header(D.liab).status }));
-  // E: the fridge (1 of 1, capex 1,200,000), staff charged 500,000 < NBV -> the rest is a loss (6900); waiver of the cost -> 6900
-  const FR = sql("select c.uid || '|' || c.amount from asset_item a join capital_expenditure c on c.uid = a.capital_expenditure_uid where a.name = 'Fridge' and not coalesce(a.is_deleted,false)").split('|');
+  // E: a whole asset (1 of 1) worth more than the charge, staff charged 500,000 < NBV -> the rest is a loss (6900); waiver of the cost -> 6900
+  // (gq) picked from the copy (on prod: the fridge, capex 1,200,000); its NBV = cost - the depreciation ALREADY booked on this
+  // dump (20,000 on 12/11; 0 on 29/10), read here - the journal must carry that depreciation as Dr 1590
+  const FR = sql(`select c.uid || '|' || c.amount || '|' || coalesce(c.accumulated_depreciation, 0) || '|' || a.name from asset_item a join capital_expenditure c on c.uid = a.capital_expenditure_uid
+      where not coalesce(a.is_deleted,false) and a.status = 'APPROVED' and a.approved_qty = 1 and c.disposal_method is null and not c.is_deleted
+        and c.amount - coalesce(c.accumulated_depreciation, 0) > 500000 order by c.amount desc, a.id limit 1`).split('|');
+  if (!FR[0]) throw new Error('E: hakuna mali ya kipande 1 yenye NBV > 500,000 kwenye nakala hii');
+  const costE = Number(FR[1]), accE = Number(FR[2]), nbvE = costE - accE;
+  console.log(`E mali "${FR[3]}" gharama ${costE} uchakavu ${accE} NBV ${nbvE}`);
   const e0 = { r: acct('1120'), x: acct('6900'), s: acct('5100'), o: acct('4900') };
-  const E = await assetCount('Fridge', 0, 500000);
+  const E = await assetCount(FR[3], 0, 500000);
   const gE = jl('ASSETCHG:' + E.line); const hE = header(E.liab);
-  ok('E1 mali yote (1/1), tozo < NBV: Dr 1120 500,000 + Dr 6900 NBV - 500,000 / Cr 1510 gharama; margin 0', eq(gE['1120'], 500000) && eq(gE['6900'], Number(FR[1]) - 500000) && eq(gE['1510'], -Number(FR[1]))
+  ok(`E1 mali yote (1/1), tozo < NBV: Dr 1120 500,000 + Dr 6900 NBV - 500,000 = ${nbvE - 500000} + Dr 1590 uchakavu ${accE} / Cr 1510 gharama ${costE}; margin 0`, eq(gE['1120'], 500000) && eq(gE['6900'], nbvE - 500000) && eq(gE['1510'], -costE)
+    && (accE > 0 ? eq(gE['1590'], accE) : gE['1590'] === undefined)
     && eq(hE.cost, 500000) && eq(hE.margin, 0), JSON.stringify({ gE, hE }));
-  ok('E2 Fridge ya Capital: imeondolewa (LOST, disposal_date) - haitapata uchakavu tena', sql(`select disposal_method || '|' || (disposal_date is not null) || '|' || current_asset_value from capital_expenditure where uid = '${FR[0]}'`) === 'LOST|true|0.00');
+  ok('E2 mali hiyo kwenye Capital: imeondolewa (LOST, disposal_date) - haitapata uchakavu tena', sql(`select disposal_method || '|' || (disposal_date is not null) || '|' || current_asset_value from capital_expenditure where uid = '${FR[0]}'`) === 'LOST|true|0.00');
   const wE = await api('POST', `/api/liabilities/${E.liab}/payments`, ceo, { amount: 100000, paymentType: 'WAIVER_PARTIAL', paymentMethod: 'CASH', notes: 'E2E Q4-3 msamaha' });
   const lwE = lastPay(E.liab); const gWE = jl('LIABPAY:' + lwE[0]);
   ok('E3 msamaha wa deni la mali: Dr 6900 (hasara ya mali), si 5100; Cr 1120; H1 SAWA', wE.j?.status === 'Success' && eq(gWE['6900'], 100000) && gWE['5100'] === undefined && eq(gWE['1120'], -100000)
     && eq(acct('5100'), e0.s) && eq(await h1(ceo), h0), JSON.stringify(gWE));
-  ok('E4 4900 haijaguswa na tozo ya Fridge; TB 0', eq(acct('4900'), e0.o) && eq(tb(), tb0), `${acct('4900') - e0.o} ${tb()}`);
+  ok('E4 4900 haijaguswa na tozo ya mali hiyo; TB 0', eq(acct('4900'), e0.o) && eq(tb(), tb0), `${acct('4900') - e0.o} ${tb()}`);
   ok('C3 TB 0 mwisho', eq(tb(), tb0), `${tb()}`);
   console.log(`MATOKEO ${P}/${F}`);
   process.exit(F ? 1 : 0);

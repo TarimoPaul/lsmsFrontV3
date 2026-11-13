@@ -4,15 +4,17 @@
 //      1021 -50,000 although only 40,000 left NMB net -> books wrong (1021 can go negative)
 //   P3 the real move recorded as a GL Transfer Selcom -> NMB 10,000 -> 1023 back to +0, 1021 -40,000: books = reality
 //   P4/P6 (fv/fx) the Transfer warning: same bank + amount, the Transfer's day ±1; P5 (fw) lipa namba 1030 -> NMB with charges
-// Throw-away local copy only (D set to 2026-11-01). Run: node pengo_d_api_e2e.cjs
+// (gq) no fixed date: DAY = the latest day up to the day before yesterday (DAY+1 and DAY+2 are asked about, P6) on which no
+// reco within DAY-1..DAY+2 already carries an NMB deposit of 300,000 (the 12/11 dump has a real one on 05/11) and its own
+// seller (e2e.muuzaji.pengo) has no reco; D on the copy = 10 days before DAY. uhamisho_onyo reads this reco's day.
+// Throw-away local copy only. Run: node pengo_d_api_e2e.cjs
 const { execFileSync } = require('child_process');
-const { ensureSeller } = require('./e2e-muuzaji.cjs');
+const { ensureSeller, loginOrFail } = require('./e2e-muuzaji.cjs');
 
 const API = 'http://127.0.0.1:18090';
 const CEO = 'tarimo@gmail.com';
 const MGR = 'macheda@gmail.com';
 const PW = 'Pengo-Jaribio-Local-2026';
-const DAY = '2026-11-05';
 let P = 0, F = 0;
 const ok = (name, cond, info = '') => { if (cond) { P++; console.log('PASS', name); } else { F++; console.log('FAIL', name, info); } };
 const sql = (q) => execFileSync('docker', ['exec', '-i', 'lsms-local-postgres-1', 'psql', '-U', 'postgres', '-d', 'Lsms', '-At', '-F', '|', '-c', q], { encoding: 'utf8' }).trim();
@@ -28,10 +30,19 @@ const msg = (r) => String(r.j?.message || '');
 (async () => {
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email in ('${CEO}','${MGR}')`);
-  sql("update gl_config set posting_enabled = true, bank_cutover_date = '2026-11-01'");
-  const ceo = (await api('POST', '/api/auth/login', null, { email: CEO, password: PW })).j.data.tokenInfo.token;
+  const ceo = await loginOrFail(API, CEO, PW);
   const realMgrUid = sql(`select uid from users where email = '${MGR}'`);
-  const mgrUid = ensureSeller(MGR, PW); // (ge) E2E seller: its days are always free; the real manager's day is never locked
+  const mgrUid = ensureSeller(MGR, PW, 'pengo'); // (ge) E2E seller of this test: its days are free; the real manager's day is never locked
+  const DAY = sql(`select coalesce((select g::date::text from generate_series((current_date - 2)::timestamp, (current_date - 40)::timestamp, interval '-1 day') g
+      where not exists (select 1 from daily_reconciliation r where r.user_uid = '${mgrUid}' and r.reconciliation_date = g::date)
+        and not exists (select 1 from reconciliation_cash_entries e join daily_reconciliation r on r.uid = e.reconciliation_uid
+                        where not e.is_deleted and e.entry_type = 'BANK_DEPOSIT' and upper(trim(e.bank_name)) = 'NMB' and e.amount = 300000
+                          and r.reconciliation_date between g::date - 1 and g::date + 2)
+      order by g desc limit 1), '')`);
+  if (!DAY) throw new Error('hakuna siku huru (bila amana ya NMB 300,000 karibu) ndani ya siku 40 zilizopita');
+  const [D1, D2, DCUT] = sql(`select (date '${DAY}' + 1) || '|' || (date '${DAY}' + 2) || '|' || (date '${DAY}' - 10)`).split('|');
+  sql(`update gl_config set posting_enabled = true, bank_cutover_date = '${DCUT}'`);
+  console.log(`SIKU ${DAY} | D ya nakala ${DCUT}`);
   const brUid = sql(`select branch_uid from daily_reconciliation where user_uid = '${realMgrUid}' and branch_uid is not null order by reconciliation_date desc limit 1`);
   const b0 = { s: bal('1023'), n: bal('1021') };
   console.log(`MWANZO 1023=${b0.s} 1021=${b0.n}`);
@@ -65,11 +76,11 @@ const msg = (r) => String(r.j?.message || '');
     (d1.j?.data || []).some((d) => d.source === 'RECO' && d.day === DAY && d.by === 'E2E Muuzaji') && d2.j?.data?.length === 0 && !(d3.j?.data || []).some((d) => d.by === 'E2E Muuzaji') && d4.j?.data?.length === 0,
     JSON.stringify([d1.j, d2.j?.data, d3.j?.data, d4.j?.data]).slice(0, 300));
 
-  // P6 (fx) window = the Transfer's day ±1 (the seller takes yesterday's cash in the morning): reco of 2026-11-05 NMB 300,000
-  //    -> a Transfer dated 2026-11-06 warns (names the reco of 2026-11-05); dated 2026-11-07 (2 days later) does not
+  // P6 (fx) window = the Transfer's day ±1 (the seller takes yesterday's cash in the morning): reco of DAY NMB 300,000
+  //    -> a Transfer dated DAY+1 warns (names the reco of DAY); dated DAY+2 (2 days later) does not
   const dupOn = (date) => api('GET', `/api/v1/gl/transfers/possible-duplicates?from=1000&to=1021&amount=300000&date=${date}`, ceo);
-  const w1 = await dupOn('2026-11-06'), w2 = await dupOn('2026-11-07');
-  ok('P6 dirisha ±1 siku: amana ya reco ya jana 300,000 + Transfer leo 1000 -> NMB 300,000 -> onyo (reco ya 2026-11-05); siku 2 nyuma -> hakuna onyo',
+  const w1 = await dupOn(D1), w2 = await dupOn(D2);
+  ok(`P6 dirisha ±1 siku: amana ya reco ya jana 300,000 + Transfer leo 1000 -> NMB 300,000 -> onyo (reco ya ${DAY}); siku 2 nyuma -> hakuna onyo`,
     (w1.j?.data || []).some((d) => d.day === DAY && d.by === 'E2E Muuzaji') && !(w2.j?.data || []).some((d) => d.by === 'E2E Muuzaji'), JSON.stringify([w1.j?.data, w2.j?.data]).slice(0, 300));
 
   // P5 (fw) lipa namba moved by hand to a bank: Transfer 1030 -> NMB 100,000 with charges 1,500 -> 1030 -100,000, 1021 +98,500, 6130 +1,500

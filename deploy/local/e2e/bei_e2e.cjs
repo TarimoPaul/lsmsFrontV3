@@ -3,14 +3,16 @@
 // (http://127.0.0.1:4300/v3/ + backend Docker-local with lastPurchaseCost in ProductDto).
 // - CEO (PURCHASE_READ) sees the column; 4 bought products show the DB value, a never-bought one shows "—".
 // - A user with PRODUCT_READ but none of PURCHASE_READ / PROFIT_REPORT / FINANCE_READ does not see it.
-//   No such role exists on the copy, so the printer role gets PRODUCT_READ for this run and loses it again.
-// Writes on the throw-away copy only: test passwords + that temporary role permission (removed at the end).
+//   (gq) No such role exists on prod, so the test makes its own: the temporary role E2E_KIKOMO with PRODUCT_READ only and its
+//   only user (e2e-muuzaji.cjs); the role is emptied again at the end. No real role (the printer role is deleted on prod) is used.
+// Writes on the throw-away copy only: test passwords + that temporary role / user (its permission removed at the end).
 // Run: NODE_PATH=<npx playwright node_modules> node bei_e2e.cjs
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
+const { ensureLimitedUser, permissionsOf } = require('./e2e-muuzaji.cjs');
 
 const V3 = 'http://127.0.0.1:4300/v3';
-const CEO = 'tarimo@gmail.com', PRINTER = 'printer@elikom.co.tz';
+const CEO = 'tarimo@gmail.com', MGR = 'macheda@gmail.com';
 const PW = 'B1-Jaribio-Local-2026';
 const HEAD = /^(Buying \/ pc|Kununua \/ kip)$/i;
 let P = 0, F = 0;
@@ -55,7 +57,7 @@ async function buyingCell(page, name, col) {
 
 (async () => {
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
-  sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email in ('${CEO}','${PRINTER}')`);
+  sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email = '${CEO}'`);
 
   // Products whose name is unique (the cell lookup goes by name): 4 bought ones with different costs, 1 never bought.
   const bought = sql(`select product_name, last_purchase_cost from products p where coalesce(is_deleted,false)=false and last_purchase_cost is not null
@@ -92,23 +94,20 @@ async function buyingCell(page, name, col) {
   await ceo.context().close();
 
   // ── PRODUCT_READ without cost permissions: no column ──
-  const role = sql(`select uid from roles where name='printer'`);
-  const perm = sql(`select uid from permissions where name='PRODUCT_READ'`);
-  const had = sql(`select count(*) from role_permissions where role_uid='${role}' and permission_uid='${perm}'`) !== '0';
-  const costPerms = sql(`select count(*) from users u join user_roles ur on ur.user_uid=u.uid join role_permissions rp on rp.role_uid=ur.role_uid
-      join permissions p on p.uid=rp.permission_uid where u.email='${PRINTER}' and p.name in ('PURCHASE_READ','PROFIT_REPORT','FINANCE_READ')`);
-  ok('H0 printer hana PURCHASE_READ/PROFIT_REPORT/FINANCE_READ', costPerms === '0', costPerms);
-  if (!had) sql(`insert into role_permissions(role_uid, permission_uid) values ('${role}','${perm}')`);
+  const lim = ensureLimitedUser(MGR, PW, ['PRODUCT_READ']);
+  const perms = permissionsOf(lim.email);
+  const costPerms = perms.split(',').filter((x) => ['PURCHASE_READ', 'PROFIT_REPORT', 'FINANCE_READ'].includes(x)).length;
+  ok('H0 mtumiaji wa muda (role E2E_KIKOMO) ana PRODUCT_READ tu: hana PURCHASE_READ/PROFIT_REPORT/FINANCE_READ', perms === 'PRODUCT_READ' && costPerms === 0, perms);
   try {
-    const pr = await login(browser, PRINTER, errors);
+    const pr = await login(browser, lim.email, errors);
     const ph = await headers(pr);
-    ok('H1 printer (PRODUCT_READ tu): orodha inaonekana', ph.some((t) => /^(Product|Bidhaa)$/i.test(t)), JSON.stringify(ph));
-    ok('H2 printer: column ya bei ya kununua HAIPO', !ph.some((t) => HEAD.test(t)), JSON.stringify(ph));
+    ok('H1 mtumiaji wa muda (PRODUCT_READ tu): orodha inaonekana', ph.some((t) => /^(Product|Bidhaa)$/i.test(t)), JSON.stringify(ph));
+    ok('H2 mtumiaji wa muda: column ya bei ya kununua HAIPO', !ph.some((t) => HEAD.test(t)), JSON.stringify(ph));
     await pr.context().close();
   } finally {
-    if (!had) sql(`delete from role_permissions where role_uid='${role}' and permission_uid='${perm}'`);
+    sql(`delete from role_permissions where role_uid='${lim.role}'`);
   }
-  ok('H3 ruhusa ya muda imeondolewa', had || sql(`select count(*) from role_permissions where role_uid='${role}' and permission_uid='${perm}'`) === '0');
+  ok('H3 ruhusa ya muda imeondolewa', permissionsOf(lim.email) === '');
 
   ok('E0 hakuna page error', errors.length === 0, errors.join(' | '));
   await browser.close();

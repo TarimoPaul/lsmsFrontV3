@@ -1,7 +1,8 @@
 // (owner 12/11 fv) the Transfer dialog warns (never blocks) when a CEO Transfer 1000 -> bank has the same amount, bank and
 // day as a deposit the seller already wrote on his reco; Selcom -> NMB gets no warning. PRODUCTION build of V3 t2-cutover +
-// backend Docker-local of t2-cutover, D set. Run after pengo_d_api (its reco of 2026-11-05 has NMB 300,000 "cash ya mauzo").
-//   U1 Taslimu -> NMB 300,000 on 2026-11-05: the warning names the reco of that day; Cancel -> nothing posted
+// backend Docker-local of t2-cutover, D set. Run after pengo_d_api: its reco has NMB 300,000 "cash ya mauzo"; (gq) the day (DAY)
+// is READ from that reco, and pengo picked it so that no other reco around it has the same deposit.
+//   U1 Taslimu -> NMB 300,000 on DAY: the warning names the reco of that day; Cancel -> nothing posted
 //   U2 the same, "Yes, record it" -> posted (a warning, not a block)
 //   U3 Selcom -> NMB 5,000: no warning, posted
 // Throw-away local copy only. Run: NODE_PATH=<npx playwright node_modules> node uhamisho_onyo_e2e.cjs
@@ -12,7 +13,6 @@ const V3 = 'http://127.0.0.1:4300/v3';
 const API = 'http://127.0.0.1:18090';
 const CEO = 'tarimo@gmail.com';
 const PW = 'Onyo-Uhamisho-Local-2026';
-const DAY = '2026-11-05';
 let P = 0, F = 0;
 const ok = (name, cond, info = '') => { if (cond) { P++; console.log('PASS', name); } else { F++; console.log('FAIL', name, info); } };
 const sql = (q) => execFileSync('docker', ['exec', '-i', 'lsms-local-postgres-1', 'psql', '-U', 'postgres', '-d', 'Lsms', '-At', '-F', '|', '-c', q], { encoding: 'utf8' }).trim();
@@ -22,7 +22,9 @@ const transfers = (why) => Number(sql(`select count(*) from journal_entry where 
 (async () => {
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email = '${CEO}'`);
-  ok('U0 reco ya 2026-11-05 ina amana NMB 300,000 (pengo_d_api)', sql(`select count(*) from reconciliation_cash_entries e join daily_reconciliation r on r.uid = e.reconciliation_uid where r.reconciliation_date = '${DAY}' and e.bank_name = 'NMB' and e.amount = 300000 and not e.is_deleted`) === '1');
+  const DAY = sql("select coalesce((select r.reconciliation_date::text from daily_reconciliation r where r.uid like 'e2e-pengo-%' and not r.is_deleted order by r.created_at desc limit 1), '')");
+  if (!DAY) { console.log('FAIL U0 reco ya pengo_d_api haipo - endesha pengo_d_api_e2e kwanza'); process.exit(1); }
+  ok(`U0 reco ya ${DAY} ina amana NMB 300,000 (pengo_d_api), moja tu siku hiyo`, sql(`select count(*) from reconciliation_cash_entries e join daily_reconciliation r on r.uid = e.reconciliation_uid where r.reconciliation_date = '${DAY}' and e.bank_name = 'NMB' and e.amount = 300000 and not e.is_deleted`) === '1');
 
   const browser = await chromium.launch();
   const page = await (await browser.newContext({ viewport: { width: 1400, height: 950 } })).newPage();
@@ -53,8 +55,8 @@ const transfers = (why) => Number(sql(`select count(*) from journal_entry where 
   let w = await fill(/^(Cash|Taslimu)$/, /^NMB$/, 300000, 'E2E onyo U1 droo NMB');
   const text = (await w.count()) ? await w.innerText() : '';
   await w.getByRole('button', { name: /^(Cancel|Ghairi)$/ }).click(); await sleep(800);
-  ok('U1 Taslimu -> NMB 300,000: onyo "Huenda imeshaandikwa kwenye reco ya 2026-11-05"; Ghairi -> haikuandikwa',
-    /(reco ya 2026-11-05|reco of 2026-11-05)/.test(text) && transfers('E2E onyo U1') === 0, text.slice(0, 200));
+  ok(`U1 Taslimu -> NMB 300,000: onyo "Huenda imeshaandikwa kwenye reco ya ${DAY}"; Ghairi -> haikuandikwa`,
+    (text.includes(`reco ya ${DAY}`) || text.includes(`reco of ${DAY}`)) && transfers('E2E onyo U1') === 0, text.slice(0, 200));
   await page.keyboard.press('Escape'); await sleep(300);
 
   w = await fill(/^(Cash|Taslimu)$/, /^NMB$/, 300000, 'E2E onyo U2 droo NMB');
