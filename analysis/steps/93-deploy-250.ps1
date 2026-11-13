@@ -22,7 +22,7 @@
 # Deploy/rollback/refresh-db zinaendeshwa kwenye server kwa nohup: mtandao/umeme wa PC ukikatika KAZI INAENDELEA server.
 # Endesha amri ileile tena (au 'fuata'): ikiwa bado inaendesha, inafuatilia tu; ikiwa ilisimama, inaendelea pale ilipoishia.
 # Log: analysis\steps\93-<target>-<kitendo>.log (inaongezwa, haifutwi).
-param([string]$A1 = '', [string]$A2 = '', [string]$A3 = '')
+param([string]$A1 = '', [string]$A2 = '', [string]$A3 = '', [string]$A4 = '')
 $ErrorActionPreference = 'Continue'   # PS 5.1: stderr ya ssh/docker isiwe kosa la kusimamisha; exit code zinakaguliwa kwa mkono
 $Repo  = 'D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3'
 $Steps = Join-Path $Repo 'analysis\steps'
@@ -128,15 +128,20 @@ if ($Action -in 'kazi', 'smoke', 'marejesho-jaribio') {
 # ── marejesho (gy): KAGUA -> 🛑 -> ANDIKA, moja kwa moja ─────────────────────────────────────────────────────
 if ($Action -eq 'marejesho') {
     # (hd) hoja ya 3 = tarehe ya onyo la manunuzi (YYYY-MM-DD); bila hoja = leo. Inakaguliwa kwenye server (leo..leo+2).
+    # (hh) '<tarehe> bila-marejesho' (au 'bila-marejesho' peke yake = leo): onyo la manunuzi tu, marejesho OFF
+    if ($A3 -eq 'bila-marejesho') { $A4 = 'bila-marejesho'; $A3 = '' }
     if ($A3 -and $A3 -notmatch '^\d{4}-\d{2}-\d{2}$') { L "SIYO: tarehe '$A3' si YYYY-MM-DD"; exit 2 }
-    $k = @(Remote "bash $R/93-deploy-250.sh $Target marejesho kagua $A3 2>&1 | $F")
+    if ($A4 -and $A4 -ne 'bila-marejesho') { L "SIYO: hoja '$A4' - inakubaliwa 'bila-marejesho' tu"; exit 2 }
+    $D3 = if ($A3) { $A3 } else { "''" }
+    $X4 = if ($A4) { " $A4" } else { '' }
+    $k = @(Remote "bash $R/93-deploy-250.sh $Target marejesho kagua $D3$X4 2>&1 | $F")
     $k | ForEach-Object { L $_ }
-    if ($k -match 'MAREJESHO_TAYARI') { L "---93_OK--- marejesho =true na onyo la manunuzi =leo tayari"; exit 0 }
+    if ($k -match 'MAREJESHO_TAYARI') { L "---93_OK--- swichi tayari (soma MAREJESHO_TAYARI)"; exit 0 }
     if (-not ($k -match 'MAREJESHO_KAGUA_OK') -or -not ($k -match '^---93_MWISHO---$')) { L '---93_IMESHINDWA--- KAGUA (hakuna kilichoandikwa)'; exit 1 }
-    $j = Read-Host "STOP: andika ANDIKA kuweka marejesho =true na onyo la manunuzi kuanzia $(if ($A3) { $A3 } else { 'leo' }) kwenye $Target (kingine chochote = simama)"
+    $j = Read-Host "STOP: andika ANDIKA kuweka $(if ($A4) { 'marejesho OFF (hh) +' } else { 'marejesho =true +' }) onyo la manunuzi kuanzia $(if ($A3) { $A3 } else { 'leo' }) kwenye $Target (kingine chochote = simama)"
     if ($j -cne 'ANDIKA') { L "IMESIMAMISHWA na mmiliki - hakuna kilichoandikwa"; exit 1 }
     L 'mmiliki ameandika: ANDIKA'
-    $a = @(Remote "bash $R/93-deploy-250.sh $Target marejesho andika $A3 2>&1 | $F")
+    $a = @(Remote "bash $R/93-deploy-250.sh $Target marejesho andika $D3$X4 2>&1 | $F")
     $a | ForEach-Object { L $_ }
     if (($a -match 'MAREJESHO_IMEANDIKWA') -and ($a -match '^---93_MWISHO---$')) { L "---93_OK--- marejesho; sasa: 93-deploy-250.cmd $Target deploy"; exit 0 }
     L '---93_IMESHINDWA--- marejesho (soma log; backup imerudishwa kama ilivyoandikwa)'; exit 1

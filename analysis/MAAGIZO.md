@@ -1565,3 +1565,14 @@ hakuna kilichobadilishwa. prod deploy ilisimama K4 (K1/K2/K3 DONE: payment 0, du
 3. Jaribio kwa compose ya mtindo huo hapa local. Niambie "done" + amri ya Chief.
 Swali: staging marejesho-jaribio (he)1 iliendeshwa? Matokeo?
 (Kumbuka ya Claude: (hf) haikunifikia.)
+
+## 2026-11-13 (hh)
+HARAKA — uamuzi: prod LEO na marejesho OFF (kasoro ya (he): kufuta sale yenye marejesho → stock + mapato mara 2 =
+kosa la pesa/stock). Onyo la manunuzi =2026-11-14 linabaki.
+1. Hatua ya marejesho: hoja mpya, mf. `prod marejesho 2026-11-14 bila-marejesho` → inaweka LSMS_PURCHASE_CHECK_FROM tu
+   (APP_FEATURES_SALES_RETURNS_ENABLED haiguswi / =false wazi). Muundo wa compose wa (hg) unabaki.
+2. K4/K6 prod: kubali marejesho =false/HAIJAWEKWA IKIWA onyo la manunuzi lina tarehe; ichapishe wazi
+   "marejesho OFF (uamuzi hh)". Bila tarehe ya onyo → simama.
+3. MUHTASARI: kasoro ya (he) = kipaumbele cha kwanza Desemba; marejesho ON tu baada ya kinga + lango + staging.
+   Mwongozo wa Macheda: ondoa sehemu 1b (marejesho) kwa sasa.
+Jaribio la ndani la hoja mpya; niambie "done" + amri.

@@ -2,7 +2,7 @@
 
 nimesoma hadi (ge)
 
-Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod ~~Jumatano 02/12~~ **(gy) mara baada ya staging kupita: 14 au 15/11**, marejesho (C4) ON kuanzia deploy hiyo; D **Jumatatu 07/12** (Qff-1) haibadiliki.
+Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod ~~Jumatano 02/12~~ **(gy) mara baada ya staging kupita: (hh) 13/11**, marejesho (C4) **OFF** (hh: kasoro ya he), onyo la manunuzi kuanzia 14/11; D **Jumatatu 07/12** (Qff-1) haibadiliki.
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
 
 Kwa nini nimeweza kuthibitisha kwa data tu sehemu: siwezi kuingia prod (ssh: `Permission denied (publickey)`), kwa hiyo yote ya prod
@@ -149,6 +149,11 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
      | 07/12 (haibadiliki) | hatua 60: salio la ufunguzi + D |
      LSMS_PURCHASE_CHECK_FROM = **tarehe ya deploy** (hc: Chief amekubali) - inawekwa na `93 <t> marejesho` pamoja na marejesho.
    - **DESEMBA (gr 3) - usijenge sasa:**
+     **KIPAUMBELE CHA KWANZA (hh):** kasoro ya (he) - kufuta (au kurejesha) sale yenye marejesho yaliyoidhinishwa kunarudisha
+        stock na mapato ya kipande kilichorudishwa MARA YA PILI (`SaleService.deleteSale` haiangalii sales_returns; Docker-local
+        13/11: stock +2 zaidi, 4020 / 1000 / 1030 / 1200 / 5000 si 0). Kinga: sale yenye marejesho yasiyokataliwa haifutwi wala
+        kurejeshwa (+ jaribio la unit + marejesho-jaribio kufuta). **Marejesho ON tu baada ya kinga + lango + staging**
+        (`93 <t> marejesho <tarehe>` bila 'bila-marejesho'), kisha sehemu 1b ya Mwongozo wa Macheda irudishwe.
      0. (hc 2) a. malipo ya msambazaji yenye purchaseUid HAYABADILISHI payment_status / amount_paid ya ununuzi (lebo tu; GL
         sawa - kazi93 13/11: ununuzi + malipo = 1000 -100 mara moja, 2000 = 0, lakini ununuzi unabaki "UNPAID 0"). Hadi
         litakaporekebishwa: hatua 74 (ununuzi -> PAID bila journal) kila mwezi.

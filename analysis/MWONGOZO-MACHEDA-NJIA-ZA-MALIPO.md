@@ -1,4 +1,4 @@
-# Mwongozo: malipo ya wateja, reco, marejesho na uhamisho (fl, fq, fr, fs, fu, fv, fw — 12/11/2026; gy — 13/11/2026)
+# Mwongozo: malipo ya wateja, reco na uhamisho (fl, fq, fr, fs, fu, fv, fw — 12/11/2026; gy — 13/11/2026)
 
 > **Tarehe ya mabadiliko (gy):** toleo jipya linaingia prod **siku ya deploy (14 au 15/11)**, si 02/12 tena. Chief atataja siku kamili; kila
 > "siku ya deploy" hapa chini ni siku hiyo. D (benki, 07/12) haibadiliki.
@@ -41,26 +41,10 @@ Mfano:
 - Mpaka siku ya deploy, usichague M-Pesa, Tigo au Halo kwenye POS. Prod ya sasa ingehesabu mstari wa AUTO pamoja na ulichoandika.
 - Usiandike sale kwenye karatasi, na usichague Mkopo kwa sale iliyolipwa.
 
-## 1b. Marejesho ya mauzo (kuanzia siku ya deploy)
+## 1b. Marejesho ya mauzo — BADO HAYAJAWASHWA (hh, 13/11)
 
-Mteja akirudisha bidhaa, **usifute sale na usiibadilishe**. Tumia marejesho:
-
-1. Mauzo → tafuta risiti ya mteja → menyu ya sale (⋮) → **Rudisha bidhaa**.
-2. Chagua bidhaa na idadi inayorudishwa (kipande 1, au zote), na hali yake (nzima / imeharibika).
-3. Andika sababu (mf. "mteja amerudisha chupa moja, imefunguliwa vibaya") → **Omba kurudisha**. Ombi linakuwa
-   PENDING: hakuna pesa wala stock iliyobadilika bado.
-4. **CEO** anafungua menyu ya sale ileile → **Marejesho — idhinisha / kataa** → Idhinisha, na anachagua pesa ilitoka
-   wapi: **Taslimu** (droo) au **M-Pesa** n.k.
-5. Baada ya kuidhinishwa:
-   - bidhaa nzima inarudi stock (iliyoharibika hairudi);
-   - pesa ya Taslimu iliyorudishwa inatolewa kwenye **reco ya siku ya kuidhinisha** (si ya siku ya mauzo); M-Pesa haitolewi droo;
-   - **mauzo ya siku ya awali hayabadiliki**: reco ya siku ile ileile, iliyoidhinishwa, inabaki kama ilivyo.
-
-Mfano: Jumatatu mteja alinunua bia 2 × 2,500 = 5,000 (Taslimu). Jumanne anarudisha 1. Macheda anaomba marejesho
-ya kipande 1 Jumanne; CEO anaidhinisha Jumanne kwa Taslimu. Matokeo: stock +1; reco ya **Jumanne** inaonyesha marejesho
-2,500 (droo inapungua 2,500); reco ya **Jumatatu** inabaki 5,000. Bidhaa za KUPIMA (vipimo) haziwezi kurudishwa hapa.
-
-Kubadilisha bidhaa (mteja anataka nyingine): menyu ya sale → **Badilisha bidhaa** — kanuni ni zile zile.
+Marejesho yatawashwa baadaye (Desemba), baada ya kurekebishwa. Mpaka hapo: **usifute sale ili "kurudisha" bidhaa**;
+mteja akirudisha bidhaa, mjulishe CEO, naye ataamua jinsi ya kuiandika.
 
 ## 2. Kwa CEO / mnunuzi: kabla ya kuidhinisha
 

@@ -111,7 +111,12 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
    - angalia: stock +1; reco ya **leo** ina marejesho = bei ya kipande; reco ya **siku ya mauzo** haijabadilika (jumla ileile);
      GL ya marejesho: Dr 4020 / Cr 1000 na Dr 1200 / Cr 5000; mtumiaji asiye na ruhusa ya marejesho haoni vitufe.
 
-## 7. Prod (14 au 15/11) — mpangilio
+## 7. Prod (hh: 13/11, marejesho OFF) — mpangilio
+
+**(hh) Amri ya leo:** `93-deploy-250.cmd prod marejesho 2026-11-14 bila-marejesho` → STOP `ANDIKA` → `93-deploy-250.cmd prod deploy`
+(K4/K6: `marejesho OFF (uamuzi hh)` + `onyo la manunuzi … =2026-11-14`) → `93-deploy-250.cmd prod smoke`.
+Maelezo ya chini (marejesho =true) ni ya baadaye, kinga ya kasoro ya (he) ikishajengwa.
+
 
 1. `93-deploy-250.cmd prod marejesho [YYYY-MM-DD]` (KAGUA → STOP `ANDIKA` → ANDIKA) — 2.4.0 inaendelea, haiguswi.
    Tarehe ni siku ya kwanza ya onyo la manunuzi (hd):
