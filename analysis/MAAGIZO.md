@@ -1425,3 +1425,30 @@ Lango sasa (ruhusa imetolewa), kwenye dump ya 12/11: 1. RAM huru, container zote
   3. Build image za commit za main; LANGO_RUKA_SUITE=1 lango.sh <dump 12/11>. 4. Ripoti: payment_method dhidi ya V151, Flyway 138→151,
   awamu A, B, rollback — zote, pamoja na A8e. Usihariri lango.sh likiendeshwa. Kabla ya lango, jibu (gn) 1–3 kwa ufupi.
 
+
+## 2026-11-12 (gp)
+Lango likiisha (A, B, rollback), chunguza makosa 7 kwa mpangilio huu:
+1. KWANZA cutover_api T13/T14 — inahusu pesa. Thibitisha kwa data: code au jaribio? Kama ni code → simama, ripoti kabla ya kurekebisha.
+2. Mengine: kila jaribio linalotegemea data ya 29/10 lijitengenezee data yake (kama A6 na muuzaji wa E2E).
+   MARUFUKU kulegeza/kuondoa assertion bila kuiorodhesha kwenye ripoti (jaribio | assertion | kwa nini).
+3. Jedwali la mwisho: jaribio | sababu (code/data) | ushahidi | rekebisho. Kisha lango zima tena kwenye dump 12/11.
+4. version.json ya V3 inaonyesha 3.0.0: build ya 3.3.0 inaandika version sahihi? Kuna kitu kinasoma version.json
+   (taarifa ya toleo jipya / cache)? Rekebisha kama haiandiki.
+5. Dockerfile: COPY --chown=lsms:lsms badala ya RUN chown (Chief amekubali). Jaribio: container inawaka kama lsms,
+   inaandika log; ukubwa wa layer mpya ripoti.
+6. release/2.4.0 na release/3.2.0: futa local (origin ni ya Chief kupitia push-yote/amri utakayoniandikia).
+(Kumbuka ya Claude: (gp) ilinifikia 13/11 pamoja na (gq).)
+
+## 2026-11-13 (gq)
+Lango: uchambuzi wa makosa 7 umekubaliwa. Kabla ya kuendelea: (gp) ilikufikia? Kama hapana, vipengele vyake vimo humu.
+1. Rekebisha majaribio 6 kwa kanuni moja: data ya jaribio inajitengeneza kutokana na hali ya DB — tarehe HURU
+   zinachaguliwa BAADA ya kuhesabu mali ya mwisho (soma tarehe hiyo kwa query, usiibandike), muuzaji wa E2E,
+   mali/role za jaribio zinaundwa na jaribio lenyewe. Hakuna tarehe za kudumu ndani ya code ya jaribio.
+2. ops: token tupu = FAIL ya wazi, KAMWE si fallback kwenda token ya CEO — fallback hiyo ilificha ukaguzi wa ruhusa.
+   Role ya printer: jaribio liunde role/user wake wa muda au liruke kwa ujumbe wa SKIP unaoonekana, si kupita kimya.
+3. MARUFUKU kulegeza/kuondoa assertion bila kuiorodhesha: jaribio | assertion | kwa nini. cutover T11–T14 zibaki
+   zinapima kanuni ya max na sehemu ya POS kwenye benki — zihamishe tarehe, si vipimo.
+4. Kisha lango ZIMA tena kwenye nakala safi ya dump ya 12/11, ikiwemo A8e. Jedwali: jaribio | chanzo | rekebisho | matokeo.
+5. (gp)4: version.json ya V3 inaonyesha 3.0.0 — build ya 3.3.0 inaandika version sahihi? Kuna kinachoisoma (cache/taarifa ya toleo)? Rekebisha.
+6. (gp)5: Dockerfile COPY --chown=lsms:lsms badala ya RUN chown (nimekubali). Jaribio: container inawaka kama lsms, inaandika log; ripoti ukubwa wa layer.
+7. (gp)6: futa release/2.4.0 na release/3.2.0 local (SHA zinatofautiana na tag kwa version/gitignore tu — hakuna code inayopotea).
