@@ -13,7 +13,8 @@
 #   93-deploy-250.cmd <staging|prod> fuata   fuatilia log ya kazi inayoendelea (baada ya mtandao kukatika)
 #   93-deploy-250.cmd <staging|prod> smoke   KUSOMA TU: login + GET za kawaida (dg: baada ya deploy ya prod)
 #   93-deploy-250.cmd staging kazi           INAANDIKA: sale cash+GL, kufuta sale, ununuzi+malipo ya msambazaji+GL, reco expense
-#   93-deploy-250.cmd <staging|prod> marejesho   (gy) KAGUA (kusoma tu) -> 🛑 andika ANDIKA -> ANDIKA: marejesho =true kwenye
+#   93-deploy-250.cmd <staging|prod> marejesho   (gy, hc) KAGUA (kusoma tu) -> 🛑 andika ANDIKA -> ANDIKA: marejesho =true +
+#                                            LSMS_PURCHASE_CHECK_FROM = tarehe ya leo (EAT) kwenye
 #                                            .env + compose (backup kwanza); inaanza kufanya kazi kwenye deploy inayofuata
 #
 # Deploy/rollback/refresh-db zinaendeshwa kwenye server kwa nohup: mtandao/umeme wa PC ukikatika KAZI INAENDELEA server.
@@ -124,9 +125,9 @@ if ($Action -in 'kazi', 'smoke') {
 if ($Action -eq 'marejesho') {
     $k = @(Remote "bash $R/93-deploy-250.sh $Target marejesho kagua 2>&1 | $F")
     $k | ForEach-Object { L $_ }
-    if ($k -match 'MAREJESHO_TAYARI') { L "---93_OK--- marejesho tayari =true"; exit 0 }
+    if ($k -match 'MAREJESHO_TAYARI') { L "---93_OK--- marejesho =true na onyo la manunuzi =leo tayari"; exit 0 }
     if (-not ($k -match 'MAREJESHO_KAGUA_OK') -or -not ($k -match '^---93_MWISHO---$')) { L '---93_IMESHINDWA--- KAGUA (hakuna kilichoandikwa)'; exit 1 }
-    $j = Read-Host "STOP: andika ANDIKA kuweka marejesho =true kwenye $Target (kingine chochote = simama)"
+    $j = Read-Host "STOP: andika ANDIKA kuweka marejesho =true na onyo la manunuzi kuanzia leo kwenye $Target (kingine chochote = simama)"
     if ($j -cne 'ANDIKA') { L "IMESIMAMISHWA na mmiliki - hakuna kilichoandikwa"; exit 1 }
     L 'mmiliki ameandika: ANDIKA'
     $a = @(Remote "bash $R/93-deploy-250.sh $Target marejesho andika 2>&1 | $F")

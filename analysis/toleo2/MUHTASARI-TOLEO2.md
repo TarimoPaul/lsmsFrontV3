@@ -147,8 +147,14 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
      | Baada ya prod | hotfix = `hotfix/*` kutoka tag **v2.5.0 / v3.3.0** |
      | Siku 7 baada ya prod bila rollback | DROP-MV + C6; kufuta feature/t2-* (kiungo cha node_modules kwanza) |
      | 07/12 (haibadiliki) | hatua 60: salio la ufunguzi + D |
-     LSMS_PURCHASE_CHECK_FROM: pendekezo (gy 3) - tarehe ya deploy; Chief ataamua (bila kuiweka = 02/12, default ya jar).
+     LSMS_PURCHASE_CHECK_FROM = **tarehe ya deploy** (hc: Chief amekubali) - inawekwa na `93 <t> marejesho` pamoja na marejesho.
    - **DESEMBA (gr 3) - usijenge sasa:**
+     0. (hc 2) a. malipo ya msambazaji yenye purchaseUid HAYABADILISHI payment_status / amount_paid ya ununuzi (lebo tu; GL
+        sawa - kazi93 13/11: ununuzi + malipo = 1000 -100 mara moja, 2000 = 0, lakini ununuzi unabaki "UNPAID 0"). Hadi
+        litakaporekebishwa: hatua 74 (ununuzi -> PAID bila journal) kila mwezi.
+        b. "Nunua tena" (repurchase, moja / bulk) HAUPOKEI msambazaji wala deni - daima "imelipwa sasa" (chanzo kinadaiwa).
+        Ununuzi wa kwanza tu (POST /purchases) unapokea supplierUid + amountPaid. Muhimu tu Chief akianza kununua kwa mkopo
+        (data: tangu Julai 2-6 kwa mwezi wenye msambazaji; Novemba 116/118 ni "Nunua tena").
      1. Tarehe zilizobandikwa kwenye majaribio: `manunuzi_onyo` (08/11 + LSMS_PURCHASE_CHECK_FROM=2026-11-01 ya lango.sh),
         `b3`/`b4` (mikopo 26/09, 04/10), `akaunti` (CRDB 24/08), `kupima_api` (kipindi 2026-12-01..2026-11-01).
      2. `tozo_api`: iunde mali yake kupitia manunuzi ya Capital (sasa: E kwa query, D kwa jina "Kreti za soda coca").

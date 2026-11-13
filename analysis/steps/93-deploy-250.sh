@@ -10,14 +10,15 @@
 #                                                    NOT NULL DEFAULT, check pana zaidi). Jaribio (ge): 2.4.0 juu ya schema 151 inawaka
 #                                                    na inaandika sale/deni/reco/manunuzi bila kosa (rollback_kuandika 5/0).
 #   bash 93-deploy-250.sh staging refresh-db [dump]  STAGING TU: DB <- dump ya prod (default: ~/backups/daily ya leo)
-#   bash 93-deploy-250.sh <staging|prod> marejesho kagua|andika   (gy) swichi ya marejesho C4 = ON:
+#   bash 93-deploy-250.sh <staging|prod> marejesho kagua|andika   (gy) swichi ya marejesho C4 = ON + (hc) onyo la manunuzi
+#                                                    LSMS_PURCHASE_CHECK_FROM = tarehe ya ANDIKA (EAT) = tarehe ya deploy:
 #                                                    kagua = kusoma tu (thamani ya .env, compose, container); andika = backup ya
 #                                                    .env + compose, kisha APP_FEATURES_SALES_RETURNS_ENABLED=true kwenye .env NA
 #                                                    kwenye environment ya backend ya compose; docker compose config inathibitisha
 #                                                    (badiliko lolote jingine -> inarudisha backup). HAIWASHI upya container:
 #                                                    inaanza kufanya kazi kwenye K5 ya deploy inayofuata (K4/K6 zinaonyesha =true).
 #   (gy 4) K1 ya deploy: kila payment_method ya data dhidi ya check ya V151 (kusoma tu) KABLA ya K5 - HAIKUBALIKI > 0 -> simama.
-#   (gy 1/4) K4: prod LAZIMA iwe marejesho =true (vinginevyo: endesha 'marejesho' kwanza); staging inaripoti tu.
+#   (gy 1/4, hc) K4: prod LAZIMA iwe marejesho =true NA onyo la manunuzi = tarehe (vinginevyo: 'marejesho' kwanza); staging inaripoti.
 #
 # Haifuti image yoyote (de: siku ya deploy hakuna kufuta). Haiandiki thamani ya siri kwenye output.
 # Majaribio (PC): L93_HOME, L93_DIR, L93_BASE, L93_SLEEP=0, L93_IMG_BE - kwa server ya kuigiza tu.
@@ -107,6 +108,7 @@ arifa() {
 }
 # (gy) swichi ya marejesho (C4). Inachapishwa "JINA =thamani" (nafasi kabla ya =) ili ficha.awk isiifiche.
 RET_KEY=APP_FEATURES_SALES_RETURNS_ENABLED
+PCF_KEY=LSMS_PURCHASE_CHECK_FROM   # (hc) onyo la manunuzi (6e) kuanzia tarehe ya deploy
 PM_OK="'CASH','VODACOM','TIGOPESA','HALOPESA','AIRTELMONEY','CRDB','NMB','NBC','SELCOM','PCB','CREDIT','BANK_TRANSFER','MOBILE_MONEY'"
 # thamani ya KEY kwenye environment ya backend kama docker compose inavyoiona (tupu = haijawekwa -> default ya jar)
 cfg_be() { awk '/^  backend:/{b=1;next} /^  [^ ]/{b=0} b' <<<"$1"; }
@@ -176,7 +178,7 @@ hali() {
     docker image inspect "$i" >/dev/null 2>&1 && say "image IPO $i" || say "image HAIPO $i"; done
   say ".backend.prev=$(cat .backend.prev 2>/dev/null) .frontend-v3.prev=$(cat .frontend-v3.prev 2>/dev/null)"
   [ -f "$HALI" ] && sed 's/^/[hali] /' "$HALI" || say "hakuna hatua iliyokamilika bado"
-  local hc; hc=$(DC config 2>/dev/null); say "compose: marejesho $RET_KEY =$(cfg_val "$hc" "$RET_KEY"); onyo la manunuzi =$(cfg_val "$hc" LSMS_PURCHASE_CHECK_FROM)"
+  local hc; hc=$(DC config 2>/dev/null); say "compose: marejesho $RET_KEY =$(cfg_val "$hc" "$RET_KEY"); onyo la manunuzi $PCF_KEY =$(cfg_val "$hc" "$PCF_KEY")"
   if [ "$TARGET" = staging ]; then
     local t="$NEW_BE"; docker image inspect "$IMG_BE:$NEW_BE" >/dev/null 2>&1 || t="$OLD_BE"
     arifa "$t" || say "ARIFA HAZIJAZIMWA (hali - kusoma tu; deploy itasimama K4)"
@@ -270,6 +272,7 @@ k4() {
   say "marejesho $RET_KEY =${rv:-HAIJAWEKWA (default ya jar: false)}"
   say "onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =${pv:-HAIJAWEKWA (default ya jar: 2026-12-02)}"
   if [ "$TARGET" = prod ] && [ "$rv" != true ]; then die "(gy) prod: marejesho lazima yawe =true kuanzia deploy hii - endesha kwanza: 93-deploy-250.cmd prod marejesho"; fi
+  if [ "$TARGET" = prod ] && ! [[ "$pv" =~ ^20[0-9]{2}-[01][0-9]-[0-3][0-9]$ ]]; then die "(hc) prod: onyo la manunuzi lazima liwe tarehe ya deploy (ni '${pv:-HAIJAWEKWA}') - endesha kwanza: 93-deploy-250.cmd prod marejesho"; fi
   say ".env + compose: BACKEND_VERSION / FRONTEND_V3_VERSION zinabadilishwa na K5; swichi kama zilivyo hapo juu"
   if [ "$TARGET" = staging ]; then arifa "$NEW_BE" || die "ARIFA HAZIJAZIMWA - staging ingeweza kutuma nje; HAKUNA kilichobadilishwa (rekebisha .env ya staging, kisha deploy tena)"; fi
   mark K4-KAGUA
@@ -313,6 +316,9 @@ k6() {
   [ "$(psql_q "select coalesce(bank_cutover_date::text,'HAIJAWEKWA') from gl_config order by id limit 1")" = HAIJAWEKWA ] && say "D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)" || say "ONYO: D IMEWEKWA tayari"
   local rc6; rc6=$(docker exec "$cid" printenv "$RET_KEY" 2>/dev/null | tr -dc 'a-z')
   say "marejesho kwenye container inayoendesha: $RET_KEY =${rc6:-HAIJAWEKWA (default ya jar: false)}"
+  local pc6; pc6=$(docker exec "$cid" printenv "$PCF_KEY" 2>/dev/null | tr -dc '0-9-')
+  say "onyo la manunuzi kwenye container inayoendesha: $PCF_KEY =${pc6:-HAIJAWEKWA (default ya jar: 2026-12-02)}"
+  if [ "$TARGET" = prod ] && [ -z "$pc6" ]; then die "(hc) prod: container haina $PCF_KEY (rollback: bash $0 $TARGET rollback)"; fi
   if [ "$TARGET" = prod ] && [ "$rc6" != true ]; then die "(gy) prod: container haina marejesho =true (rollback: bash $0 $TARGET rollback)"; fi
   local later; later=$(docker logs "$cid" 2>&1 | sed "1,/$START_MARK/d" | grep -cE ' (ERROR|FATAL) ')
   say "ERROR baada ya kuanza (maombi ya moja kwa moja): $later"
@@ -369,53 +375,62 @@ refresh_db() {
 
 # ═════════════════════════════════════════ MAREJESHO (gy): KAGUA -> (PC: 🛑 ANDIKA) -> ANDIKA ═══════════════════
 marejesho() {
-  local mode="$1" c v e ef st n
+  # (gy) marejesho =true + (hc) onyo la manunuzi kuanzia LEO (tarehe ya ANDIKA = tarehe ya deploy; EAT)
+  local mode="$1" c st n k want e v ef todo="" f
+  local PCF_VAL; PCF_VAL=$(TZ=Africa/Dar_es_Salaam date +%F)
   c=$(DC config 2>/dev/null) || die "docker compose config imeshindwa"
-  v=$(cfg_val "$c" "$RET_KEY"); e=$(envv "$RET_KEY")
-  ef=$(grep -lE "^ +(- )?$RET_KEY[:=]" $COMPOSE_FILES 2>/dev/null | head -n1)
-  say "KAGUA: .env $RET_KEY =${e:-HAIPO} | compose (backend) =${v:-HAIJAWEKWA} | compose inayoitaja: ${ef:-HAKUNA}"
-  say "KAGUA: container ya backend $(tag_of backend): $RET_KEY =$(docker exec "$(DC ps -q backend | head -n1)" printenv "$RET_KEY" 2>/dev/null | tr -dc 'a-z')"
-  if [ "$v" = true ] && [ "$e" = true ]; then say "MAREJESHO_TAYARI =true (.env + compose) - hakuna cha kuandika"; return 0; fi
-  [ "$mode" = andika ] || { say "MAREJESHO_KAGUA_OK: ANDIKA itaweka .env $RET_KEY =true na mstari wake kwenye environment ya backend (docker-compose.yml)"; return 0; }
+  for k in "$RET_KEY" "$PCF_KEY"; do
+    want=true; [ "$k" = "$PCF_KEY" ] && want="$PCF_VAL"
+    v=$(cfg_val "$c" "$k"); e=$(envv "$k"); ef=$(grep -lE "^ +(- )?$k[:=]" $COMPOSE_FILES 2>/dev/null | head -n1)
+    say "KAGUA: $k | .env =${e:-HAIPO} | compose (backend) =${v:-HAIJAWEKWA} | compose inayoitaja: ${ef:-HAKUNA} | lengo =$want"
+    say "KAGUA: container ya backend $(tag_of backend): $k =$(docker exec "$(DC ps -q backend | head -n1)" printenv "$k" 2>/dev/null | tr -dc 'a-z0-9-')"
+    { [ "$v" = "$want" ] && [ "$e" = "$want" ]; } || todo="$todo $k"
+  done
+  if [ -z "$todo" ]; then say "MAREJESHO_TAYARI: marejesho =true, onyo la manunuzi =$PCF_VAL (.env + compose) - hakuna cha kuandika"; return 0; fi
+  [ "$mode" = andika ] || { say "MAREJESHO_KAGUA_OK: ANDIKA itaweka kwenye .env + environment ya backend:$(for k in $todo; do [ "$k" = "$PCF_KEY" ] && printf ' %s =%s' "$k" "$PCF_VAL" || printf ' %s =true' "$k"; done)"; return 0; }
   KT=$(date +%s); st="$ST/marejesho-$(date +%Y%m%d-%H%M%S)"; mkdir -p "$st"
   cp -p .env $COMPOSE_FILES "$st/" || die "backup ya .env/compose imeshindwa"
   printf '%s\n' "$c" > "$st/config-kabla.yml"
   say "backup: $st"
   restore() { cp -p "$st/.env" .env; local f; for f in $COMPOSE_FILES; do cp -p "$st/$f" "$f"; done; }
-  # .env
-  if grep -q "^$RET_KEY=" .env; then set_line "$RET_KEY" true || { restore; die ".env: kuweka $RET_KEY kumeshindwa - imerudishwa"; }
-  else [ -z "$(tail -c1 .env)" ] || echo >> .env; echo "$RET_KEY=true" >> .env; fi
-  # compose: mstari ndani ya environment ya backend (mtindo wa orodha "- K=V" au ramani "K: V", kama mistari iliyopo)
-  if [ -z "$ef" ]; then
-    awk -v k="$RET_KEY" '
-      function ind(s) { match(s, /^ */); return RLENGTH }
-      { lines[NR] = $0 }
-      END {
-        for (i = 1; i <= NR; i++) {
-          print lines[i]
-          if (!done && lines[i] ~ /^ +backend:[ \t]*$/) { inb = 1; bi = ind(lines[i]); continue }
-          if (inb && lines[i] !~ /^[ \t]*$/ && ind(lines[i]) <= bi) inb = 0
-          if (!done && inb && lines[i] ~ /^ +environment:[ \t]*$/) {
-            j = i + 1; while (j <= NR && lines[j] ~ /^[ \t]*$/) j++
-            e = substr(lines[j], 1, ind(lines[j]))
-            if (lines[j] ~ /^ *- /) print e "- " k "=${" k ":-false}"; else print e k ": ${" k ":-false}"
-            done = 1
+  for k in $todo; do
+    want=true; local def=false; [ "$k" = "$PCF_KEY" ] && { want="$PCF_VAL"; def=2026-12-02; }
+    # .env
+    if grep -q "^$k=" .env; then set_line "$k" "$want" || { restore; die ".env: kuweka $k kumeshindwa - imerudishwa"; }
+    else [ -z "$(tail -c1 .env)" ] || echo >> .env; echo "$k=$want" >> .env; fi
+    # compose: mstari ndani ya environment ya backend (mtindo wa orodha "- K=V" au ramani "K: V", kama mistari iliyopo)
+    if ! grep -qE "^ +(- )?$k[:=]" $COMPOSE_FILES 2>/dev/null; then
+      awk -v k="$k" -v d="$def" '
+        function ind(s) { match(s, /^ */); return RLENGTH }
+        { lines[NR] = $0 }
+        END {
+          for (i = 1; i <= NR; i++) {
+            print lines[i]
+            if (!done && lines[i] ~ /^ +backend:[ \t]*$/) { inb = 1; bi = ind(lines[i]); continue }
+            if (inb && lines[i] !~ /^[ \t]*$/ && ind(lines[i]) <= bi) inb = 0
+            if (!done && inb && lines[i] ~ /^ +environment:[ \t]*$/) {
+              j = i + 1; while (j <= NR && lines[j] ~ /^[ \t]*$/) j++
+              e = substr(lines[j], 1, ind(lines[j]))
+              if (lines[j] ~ /^ *- /) print e "- " k "=${" k ":-" d "}"; else print e k ": ${" k ":-" d "}"
+              done = 1
+            }
           }
-        }
-        if (!done) exit 3
-      }' docker-compose.yml > "$st/compose-mpya.yml" || { restore; die "docker-compose.yml: environment ya backend haikupatikana - imerudishwa, HAKUNA kilichobadilishwa"; }
-    cp "$st/compose-mpya.yml" docker-compose.yml
-  fi
-  # uthibitisho: config mpya = config ya zamani + mstari huu tu, na backend =true
+          if (!done) exit 3
+        }' docker-compose.yml > "$st/compose-mpya.yml" || { restore; die "docker-compose.yml: environment ya backend haikupatikana - imerudishwa, HAKUNA kilichobadilishwa"; }
+      cp "$st/compose-mpya.yml" docker-compose.yml
+    fi
+  done
+  # uthibitisho: config mpya = config ya zamani + mistari ya funguo hizi tu, na thamani ni lengo
   local c2; c2=$(DC config 2>/dev/null) || { restore; die "docker compose config baada ya kuandika imeshindwa - imerudishwa"; }
-  if [ "$(cfg_val "$c2" "$RET_KEY")" != true ] || ! diff -q <(grep -v "$RET_KEY" <<<"$c") <(grep -v "$RET_KEY" <<<"$c2") >/dev/null; then
-    diff <(grep -v "$RET_KEY" <<<"$c") <(grep -v "$RET_KEY" <<<"$c2") | head -5 | sed 's/^/[diff] /'
-    restore; die "config baada ya kuandika si sawa (au si =true) - .env + compose zimerudishwa"
+  if [ "$(cfg_val "$c2" "$RET_KEY")" != true ] || [ "$(cfg_val "$c2" "$PCF_KEY")" != "$PCF_VAL" ] \
+     || ! diff -q <(grep -v -e "$RET_KEY" -e "$PCF_KEY" <<<"$c") <(grep -v -e "$RET_KEY" -e "$PCF_KEY" <<<"$c2") >/dev/null; then
+    diff <(grep -v -e "$RET_KEY" -e "$PCF_KEY" <<<"$c") <(grep -v -e "$RET_KEY" -e "$PCF_KEY" <<<"$c2") | head -5 | sed 's/^/[diff] /'
+    restore; die "config baada ya kuandika si sawa (au thamani si lengo) - .env + compose zimerudishwa"
   fi
   n=$(diff "$st/config-kabla.yml" <(printf '%s\n' "$c2") | grep -c '^[<>]')
-  say "ANDIKA SAWA: compose (backend) $RET_KEY =true; config imebadilika mstari $n tu; backup $st"
+  say "ANDIKA SAWA: compose (backend) $RET_KEY =true, $PCF_KEY =$PCF_VAL; mistari iliyobadilika kwenye config: $n (funguo hizi tu); backup $st"
   unmark K4-KAGUA; unmark K6-SMOKE
-  say "MAREJESHO_IMEANDIKWA: inaanza kufanya kazi kwenye deploy inayofuata (K4 / K6 zitaonyesha =true); container ya sasa haijaguswa"
+  say "MAREJESHO_IMEANDIKWA: inaanza kufanya kazi kwenye deploy inayofuata (K4 / K6 zitaonyesha thamani); container ya sasa haijaguswa"
 }
 
 case "$ACTION" in

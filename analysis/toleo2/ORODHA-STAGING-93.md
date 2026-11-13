@@ -86,16 +86,20 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
 - Kisha: `93-deploy-250.cmd staging smoke` → `SMOKE_OK n/n` (GET 6 + `sales/changes/pending` + `login_audit`), `---93_OK--- smoke`.
 - Mwisho: `93-deploy-250.cmd staging hali` → `backend 2.5.0 | frontend-v3 3.3.0`, `Flyway ya mwisho: 151`.
 
-## 6. Marejesho ON kwenye staging (gy 1)
+## 6. Marejesho ON + onyo la manunuzi kuanzia leo, kwenye staging (gy 1, hc 1)
 
 1. `93-deploy-250.cmd staging marejesho` → `93-staging-marejesho.log`
-   - KAGUA (kusoma tu): `KAGUA: .env APP_FEATURES_SALES_RETURNS_ENABLED =HAIPO | compose (backend) =HAIJAWEKWA | …`, `MAREJESHO_KAGUA_OK`
+   - KAGUA (kusoma tu), mstari kwa kila swichi: `KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =HAIPO | compose (backend) =HAIJAWEKWA | … | lengo =true`
+     na `KAGUA: LSMS_PURCHASE_CHECK_FROM | … | lengo =<tarehe ya leo>`; `MAREJESHO_KAGUA_OK: ANDIKA itaweka … =true … =<leo>`
    - **STOP:** andika `ANDIKA` (herufi kubwa) kuendelea; kingine chochote = hakuna kinachoandikwa.
-   - ANDIKA: `backup: …/marejesho-<saa>`, `ANDIKA SAWA: compose (backend) … =true; config imebadilika mstari 1 tu`,
+   - ANDIKA: `backup: …/marejesho-<saa>`, `ANDIKA SAWA: compose (backend) APP_FEATURES_SALES_RETURNS_ENABLED =true, LSMS_PURCHASE_CHECK_FROM =<leo>; mistari … (funguo hizi tu)`,
      `MAREJESHO_IMEANDIKWA`, `---93_OK--- marejesho`. Ikishindwa: `.env + compose zimerudishwa`.
-2. `93-deploy-250.cmd staging deploy` → K4 **`marejesho APP_FEATURES_SALES_RETURNS_ENABLED =true`**; K5
+2. `93-deploy-250.cmd staging deploy` → K4 **`marejesho APP_FEATURES_SALES_RETURNS_ENABLED =true`** na
+   **`onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =<leo>`**; K5
    `K5-BADILI ilishakamilika - .env/compose zimebadilika: backend imeundwa upya` + `HEALTH SAWA`; K6
-   **`marejesho kwenye container inayoendesha: APP_FEATURES_SALES_RETURNS_ENABLED =true`**, `ARIFA_ZIMEZIMWA`.
+   **`marejesho kwenye container inayoendesha: APP_FEATURES_SALES_RETURNS_ENABLED =true`**,
+   **`onyo la manunuzi kwenye container inayoendesha: LSMS_PURCHASE_CHECK_FROM =<leo>`**, `ARIFA_ZIMEZIMWA`.
+   Onyo la 6e: ukurasa wa Manunuzi / reco unaanza kulinganisha reco za kuanzia leo tu.
 3. Jaribio la UI (C4) kwenye staging — mfano wa MWONGOZO-MACHEDA sehemu 1b:
    - sale ya Taslimu ya siku iliyopita (reco yake IMEIDHINISHWA) → Rudisha bidhaa → kipande 1 → Omba kurudisha → PENDING;
    - CEO → Marejesho — idhinisha / kataa → Idhinisha, Taslimu;
@@ -105,10 +109,12 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
 ## 7. Prod (14 au 15/11) — mpangilio
 
 1. `93-deploy-250.cmd prod marejesho` (KAGUA → STOP `ANDIKA` → ANDIKA) — 2.4.0 inaendelea, haiguswi.
+   **Iendeshwe SIKU YA DEPLOY** (EAT): tarehe ya onyo la manunuzi = tarehe ya ANDIKA. Ikiendeshwa siku tofauti, iendeshe
+   tena siku ya deploy (KAGUA itaonyesha tarehe ya zamani na kuisasisha).
 2. `93-deploy-250.cmd prod deploy`:
    - K1 **`payment_method dhidi ya V151: HAIKUBALIKI 0 (payments n, credit_payments n)`** — vinginevyo inasimama kabla ya kubadili;
-   - K4 **`marejesho … =true`** (prod bila hiyo inasimama: "endesha kwanza 93 prod marejesho");
-   - K5 Flyway 139–151 true; K6 marejesho `=true` kwenye container, `D: HAIJAWEKWA`.
+   - K4 **`marejesho … =true`** na **`onyo la manunuzi … =<tarehe ya deploy>`** (prod bila hizo inasimama: "endesha kwanza 93 prod marejesho");
+   - K5 Flyway 139–151 true; K6 marejesho `=true` na onyo la manunuzi `=<tarehe>` kwenye container, `D: HAIJAWEKWA`.
 3. `93-deploy-250.cmd prod smoke` → `SMOKE_OK`.
 
 ## Staging imepita =

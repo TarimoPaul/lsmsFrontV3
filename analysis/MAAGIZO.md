@@ -1528,3 +1528,11 @@ Mpya:
   4. Kwenye 2.5.0: ununuzi WENYE msambazaji unalazimika kuwa na chanzo (Droo/benki/simu/deni)? Kama hapana, onyo la 6e
      litakuwa la uongo kila siku. Ripoti kwa code + jaribio; usijenge.
   5. LSMS_PURCHASE_CHECK_FROM: subiri uamuzi wa Chief baada ya 1–4.
+
+## 2026-11-13 (hc)
+(hb) imekubaliwa: hakuna kosa la pesa; kazi93 mpya sawa.
+1. LSMS_PURCHASE_CHECK_FROM = tarehe ya deploy (Chief amekubali). Ongeza kwenye hatua ya KAGUA→STOP→ANDIKA
+   pamoja na marejesho (staging kwanza, kisha prod). K4 ionyeshe thamani.
+2. MUHTASARI — Desemba (usijenge sasa, main imefungwa):
+   a. malipo yenye purchaseUid hayabadilishi payment_status/amount_paid (lebo tu, GL sawa) — hadi hapo, 74 kila mwezi;
+   b. "Nunua tena" haipokei msambazaji/deni — muhimu tu Chief akianza kununua kwa mkopo.

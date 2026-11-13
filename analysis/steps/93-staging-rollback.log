@@ -1,0 +1,44 @@
+﻿[12:21:38] ===== 93 staging rollback 2026-11-13 =====
+[12:22:05] script zimenakiliwa server (~/lsms-250)
+[12:22:12] ANZISHWA
+[12:22:12] nafuatilia ~/lsms-250/logs/staging-rollback.log (mtandao ukikatika: endesha '93-deploy-250.cmd staging fuata')
+[12:22:24] [93 staging 12:22:12] === ROLLBACK kwenda 2.4.0 + 3.2.0
+[12:22:24] [log] 2026-11-13 11:41:59 WARN  c.L.u.e.GlobalExceptionHandler - Validation failed: {password=***FICHWA***
+[12:22:24] [log] 2026-11-13 11:49:04 WARN  c.Lsms.uaa.Controller.AuthController - SECURITY: Failed login attempt. Email: tarimo@gmail.com, IP: 172.19.0.1, Attempts: see LoginAttemptService
+[12:22:24] [93 staging 12:22:13] .env + compose zimerudishwa kutoka /home/chief/lsms-250/staging/backup
+[12:22:24]  Container lsms-staging-backend-1 Recreate 
+[12:22:24]  Container lsms-staging-frontend-v3-1 Recreate 
+[12:22:24]  Container lsms-staging-frontend-v3-1 Recreated 
+[12:22:24]  Container lsms-staging-backend-1 Recreated 
+[12:22:24]  Container lsms-staging-frontend-v3-1 Starting 
+[12:22:24]  Container lsms-staging-backend-1 Starting 
+[12:22:24]  Container lsms-staging-frontend-v3-1 Started 
+[12:22:24]  Container lsms-staging-backend-1 Started 
+[12:22:58] [93 staging 12:22:57] backend: 'Started LsmsApplication' baada ya ~39s
+[12:22:58] [93 staging 12:22:58] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[12:22:58] [93 staging 12:22:58] HEALTH SAWA: backend 2.4.0, frontend-v3 3.2.0
+[12:23:07] [93 staging 12:22:59] Flyway ya mwisho: 151 (DB HAIJARUDISHWA - V139-V151 ni za kuongeza; 2.4.0 inaziandikia bila kosa - jaribio ge)
+[12:23:07] [93 staging 12:22:59] ROLLBACK SAWA (47s): 2.4.0 + 3.2.0 zinafanya kazi
+[12:23:07] [93 staging 12:23:00] backend 2.4.0 | frontend-v3 3.2.0 | .env BACKEND_VERSION=***FICHWA***
+[12:23:07] [93 staging 12:23:01] Flyway ya mwisho: 151
+[12:23:07] [93 staging 12:23:01] .env HAINA ADMIN_EMAIL
+[12:23:07] [93 staging 12:23:01] .env HAINA ADMIN_PASSWORD
+[12:23:07] [93 staging 12:23:01] .env HAINA DOCKERHUB_USERNAME
+[12:23:07] [93 staging 12:23:01] .env HAINA DOCKERHUB_PASSWORD
+[12:23:07] [93 staging 12:23:01] .env ina DAILY_SALES_PROFIT_ROLES
+[12:23:07] [93 staging 12:23:01] image IPO chiefmaster/my-lsms-backend:2.4.0
+[12:23:07] [93 staging 12:23:02] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[12:23:07] [93 staging 12:23:02] image IPO chiefmaster/my-lsms-backend:2.5.0
+[12:23:07] [93 staging 12:23:03] image IPO chiefmaster/lsms-frontend-v3:3.3.0
+[12:23:07] [93 staging 12:23:03] .backend.prev=2.4.0 .frontend-v3.prev=3.2.0
+[12:23:07] [hali] DONE K1-KAGUA 2026-11-13T11:41:03 3s
+[12:23:07] [hali] DONE K2-BACKUP 2026-11-13T11:41:07 4s
+[12:23:07] [hali] ROLLBACK 2026-11-13T12:22:59 47s rc=0
+[12:23:07] [93 staging 12:23:03] compose: marejesho APP_FEATURES_SALES_RETURNS_ENABLED =; onyo la manunuzi =
+[12:23:07] [93 staging 12:23:04] ARIFA 1/3: APP_SCHEDULERS_ENABLED =false kwenye backend (profile prod)
+[12:23:07] [93 staging 12:23:04] ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)
+[12:23:07] [93 staging 12:23:06] ARIFA 3/3: jar ya 2.5.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client
+[12:23:07] [93 staging 12:23:06] ARIFA_ZIMEZIMWA: staging haitumi mail/SMS/WhatsApp/webhook/push; arifa za ndani (muhtasari wa mauzo 00:00 n.k.) zinaandikwa kwenye DB ya staging tu
+[12:23:07] [93 staging 12:23:06] cron za mtumiaji zinazotaja lsms-staging: 0 (taarifa)
+[12:23:07] ---93_MWISHO---
+[12:23:07] ---93_OK--- (55s)
