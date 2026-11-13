@@ -5,6 +5,7 @@
 // Run: NODE_PATH=<npx playwright node_modules> node sababu_e2e.cjs
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
+const { countingGuardFresh } = require('./e2e-muuzaji.cjs');
 
 const V3 = 'http://127.0.0.1:4300/v3';
 const API = 'http://127.0.0.1:18090';
@@ -39,6 +40,7 @@ async function login(page, email) {
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email in ('${MGR}','${CEO}')`);
   sql("update counting_session set started_at = '2026-06-01 06:00' where started_at > '2026-06-01 06:00'");
+  await countingGuardFresh(); // (gq) the guard caches the latest count for 60 s: a test that ran just before (a6) had loaded the real one
   const [suid, srcpt, sday] = sql("select s.uid, s.receipt_number, s.sale_date::date from sales s where s.is_active and not exists (select 1 from daily_reconciliation dr where dr.reconciliation_date = s.sale_date::date and dr.user_uid = s.user_uid) and exists (select 1 from sales_details d where d.sale_uid = s.uid) order by s.sale_date desc limit 1").split('|');
   // newest APPROVED reco of MANAGER: R1 is put to SUBMITTED for the unsubmit test (and put back), R2 stays APPROVED for reopen
   const recos = sql("select d.uid || ':' || d.reconciliation_date || ':' || d.status from daily_reconciliation d join users u on u.uid = d.user_uid where u.email = 'macheda@gmail.com' and not d.is_deleted and d.status = 'APPROVED' order by d.reconciliation_date desc limit 2").split('\n');

@@ -8,6 +8,7 @@
 //   at(day)                       a sale time on that day that is never in the future
 //   ensureLimitedUser(from, pw, perms)  a temporary role with exactly these permissions + its only user (permission checks)
 //   loginOrFail(api, email, pw)   an empty token is an error, never a fallback to another user's token
+//   countingGuardFresh()          after a test changes counting_session by SQL: waits out the guard's 60 s cache
 // Throw-away local copy only. Idempotent: the second call returns the same seller.
 const { execFileSync } = require('child_process');
 
@@ -92,6 +93,12 @@ function ensureLimitedUser(fromEmail, password, permissions) {
   return { email: LIMITED, uid, role };
 }
 
+/**
+ * CountingGuardService caches the latest count for 60 s and only the API invalidates it. A test that moves the counts by SQL
+ * (local copy only) must wait that cache out, or the backend still judges by the count another test loaded a moment ago.
+ */
+function countingGuardFresh() { return new Promise((r) => setTimeout(r, 62000)); }
+
 /** The permissions this user really holds through live roles, sorted (for an assertion that the limited user is limited). */
 function permissionsOf(email) {
   return sql(`select coalesce(string_agg(distinct p.name, ',' order by p.name), '') from users u join user_roles ur on ur.user_uid = u.uid join roles r on r.uid = ur.role_uid and not r.is_deleted
@@ -108,4 +115,4 @@ async function loginOrFail(API, email, password) {
   return token;
 }
 
-module.exports = { SELLER, sellerEmail, ensureSeller, lastCountDay, freeDays, today, at, ensureLimitedUser, permissionsOf, loginOrFail };
+module.exports = { countingGuardFresh, SELLER, sellerEmail, ensureSeller, lastCountDay, freeDays, today, at, ensureLimitedUser, permissionsOf, loginOrFail };

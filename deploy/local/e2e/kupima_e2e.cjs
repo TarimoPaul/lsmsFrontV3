@@ -51,6 +51,9 @@ const closeBanners = async (page) => { const c = page.getByRole('button', { name
     for (const t of ['pour_measure', 'pour_parent', 'pour_parent_price', 'pour_product']) sql(`delete from ${t} where product_uid='${u}'`);
   }
   sql(`update products set current_stock = greatest(current_stock, 3) where uid in ('${GR}','${ML}')`);
+  // (gq) the test opens 3 bottles of the parent (U4, U7, U8) and kupima_api before it opens some too: on the 12/11 dump the
+  // parent had too few left, so U8 could not open a new bottle (refused and rolled back - correct). Stock to open from, as above.
+  sql(`update products set current_stock = greatest(current_stock, 6) where uid = '${parent}'`);
   const browser = await chromium.launch();
 
   // ── CEO: settings through the dialog ──

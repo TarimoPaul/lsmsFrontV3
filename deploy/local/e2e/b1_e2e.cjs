@@ -4,6 +4,7 @@
 // Run: NODE_PATH=<npx playwright node_modules> node b1_e2e.cjs
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
+const { countingGuardFresh } = require('./e2e-muuzaji.cjs');
 
 const V3 = 'http://127.0.0.1:4300/v3';
 const API = 'http://127.0.0.1:18090';
@@ -64,6 +65,7 @@ const bannerCount = async (page) => { await page.waitForTimeout(2500); return pa
   const hash = execFileSync('python', ['-c', "import bcrypt,sys; print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt(10, prefix=b'2a')).decode())", PW], { encoding: 'utf8' }).trim();
   sql(`update users set password='${hash}', status='ACTIVE', is_locked=false where email in ('${MGR}','${CEO}')`);
   sql("update counting_session set started_at = '2026-06-01 06:00' where started_at > '2026-06-01 06:00'");
+  await countingGuardFresh(); // (gq) the guard caches the latest count for 60 s: a test that ran just before (a6) had loaded the real one
   const pick = (extra) => sql(`select s.uid, s.receipt_number, s.sale_date::date from sales s where s.is_active and not exists (select 1 from daily_reconciliation dr where dr.reconciliation_date = s.sale_date::date and dr.user_uid = s.user_uid) and exists (select 1 from sales_details d where d.sale_uid = s.uid) ${extra} order by s.sale_date desc limit 1`).split('|');
   const [s1uid, s1, s1day] = pick('');
   const [s2uid, s2] = pick(`and s.uid <> '${s1uid}'`);
