@@ -1618,3 +1618,9 @@ Majibu ya Chief: Camino 50ml = 4,000. MA-LOT BOX WINE = 5L (5,000ml ni sahihi).
 Fanya (hm) kwanza (akaunti ya 36,000 kwa chanzo, si 3900; ANDIKA ikatae ml > 0 kwa mzazi avg 0).
 KAGUA ya 85: jedwali la faida litumie Camino 4,000.
 Niambie "done" + amri.
+
+## 2026-11-13 (ho)
+(hm)/(hn) zimekubaliwa.
+MUHTASARI / uchambuzi wa 2910 (D): chanzo kinachojulikana +46,000 kwenye 1000 — manunuzi ya bandia ya kupima (Feb–Ago,
+jumla 80,000, Cr 1000 bila malipo); 34,000 zinarudishwa na 85 (HATUA85-HM), 46,000 zilienda 5000 kwenye vipindi vilivyopita
+→ zitaonekana ndani ya tofauti ya 2910 siku ya D. Usirekebishe vipindi vya zamani.
