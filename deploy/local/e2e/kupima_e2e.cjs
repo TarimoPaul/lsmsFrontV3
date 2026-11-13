@@ -1,7 +1,10 @@
 // KUPIMA in the browser, on the PRODUCTION build of feature/t2-kupima + backend Docker-local (V143) (owner ef/ek):
 //   CEO   Bidhaa -> "Kupima" -> "+ Mipangilio": Konyagi ya kupima, chupa 750ml, mzazi KONYAGI 750ML, 30ml = 1,000, 60ml = 2,000
-//   MGR   no "+ Mipangilio"; POS: card with bar, measure buttons; registered price cannot be edited
-//         no open container -> "Fungua chombo kipya" -> sold, bar 720, parent -1
+//   MGR   no "+ Mipangilio"; POS (hq, 3.3.1): one ROW per drink at the top of the list, bar, measure buttons in RETAIL;
+//         registered price cannot be edited
+//         no open container -> RETAIL = "Fungua chupa (n)" (no measures) -> opened 750, parent -1 -> 30ml sold, bar 720
+//   (hq) colours by ml (ok / mid / low / empty), 0 ml -> "Fungua chupa", parent stock 0 -> text, no button; wine 2 buttons;
+//         chip "Kupima (n)"; rows on top, same height; screenshots light + dark (KUPIMA_SHOTS=<folder>)
 //         (i)  container 40ml, 60ml -> "Tumia ml zilizobaki + fungua kipya" -> old CLOSED SPLIT, no loss, bar 730
 //         (ii) container 20ml, 30ml -> "Chombo kimeisha kweli" -> 20ml loss Dr 5100 / Cr 1200, bar 720
 //         "Kupima" dialog: "Chombo kimeisha" -> loss; containers tab shows the loss
@@ -20,8 +23,8 @@ const K = () => sql("select uid from products where product_name = 'KONYAGI YA K
 const bar = (p) => sql(`select coalesce((select ml_left from pour_container where product_uid = '${p}' and status = 'OPEN'), -1)`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function session(browser, email) {
-  const page = await (await browser.newContext({ viewport: { width: 1500, height: 950 } })).newPage();
+async function session(browser, email, colorScheme = 'light') {
+  const page = await (await browser.newContext({ viewport: { width: 1500, height: 950 }, colorScheme })).newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto(V3 + '/login');
@@ -95,18 +98,30 @@ const closeBanners = async (page) => { const c = page.getByRole('button', { name
   const done = async () => { await mgr.page.locator('app-sale-done-dialog').waitFor({ timeout: 20000 }); await mgr.page.keyboard.press('Escape'); await sleep(800); };
 
   let card = await pos();
-  ok('U1 POS: Konyagi ya kupima iko kama kadi (si kwenye orodha ya bidhaa), "Hakuna chupa wazi"', (await card.count()) === 1 && /Hakuna chupa wazi|No open chupa/.test(await card.innerText()), await card.innerText().catch(() => ''));
+  const p0 = Number(sql(`select current_stock from products where uid='${parent}'`));
+  ok('U1 POS (hq): Konyagi ya kupima ni MSTARI ndani ya orodha (.item), "Hakuna wazi", bar tupu (empty)',
+    (await card.count()) === 1 && (await card.evaluate((e) => e.classList.contains('item'))) && /Hakuna wazi|None open/.test(await card.innerText())
+    && (await card.getAttribute('data-level')) === 'empty', await card.innerText().catch(() => ''));
+  ok('U3 (hq) hakuna chombo wazi -> RETAIL ni "Fungua chupa (n)" (n = stock ya mzazi), hakuna vitufe vya vipimo',
+    (await card.locator('[data-test="pour-open"]').count()) === 1 && (await card.locator('[data-test="pour-open"]').innerText()).includes(`(${p0})`)
+    && (await card.locator('[data-ml]').count()) === 0, await card.innerText().catch(() => ''));
+  await card.locator('[data-test="pour-open"]').click();
+  await sleep(2500);
+  card = mgr.page.locator(`[data-pour="KONYAGI YA KUPIMA"]`);
+  ok('U3b "Fungua chupa": chombo 750 wazi, mzazi -1, bar kijani (ok), vitufe 30/60 vinaonekana', bar(k) === '750.00'
+    && Number(sql(`select current_stock from products where uid='${parent}'`)) === p0 - 1 && (await card.getAttribute('data-level')) === 'ok'
+    && (await card.locator('[data-ml]').count()) === 2, `bar=${bar(k)} ${await card.innerText().catch(() => '')}`);
   await card.locator('[data-ml="30"]').click();
   await sleep(700);
   const line = mgr.page.locator('.price-btn').filter({ hasText: '1,000' }).first();
   ok('U2 mstari wa 30ml kwa 1,000; bei haibadilishwi (kitufe kimezimwa)', (await line.count()) === 1 && await line.isDisabled());
-  const p0 = Number(sql(`select current_stock from products where uid='${parent}'`));
+  ok('H6a kipimo kwenye kapu kinashusha bar papo hapo: "720 / 750 ml", "30 ml kwenye kapu"', /720 \/ 750 ml/.test(await card.innerText()) && /30 ml (kwenye kapu|in cart)/.test(await card.innerText()), await card.innerText());
   await pay().click();
-  await shortDlg().waitFor({ timeout: 15000 });
-  ok('U3 hakuna chombo wazi -> dialog "Fungua chombo kipya"', (await shortDlg().locator('[data-choice="OPEN"]').count()) === 1);
-  await shortDlg().locator('[data-choice="OPEN"]').click();
   await done();
-  ok('U4 imeuzwa: bar 720, mzazi -1', bar(k) === '720.00' && Number(sql(`select current_stock from products where uid='${parent}'`)) === p0 - 1, `bar=${bar(k)}`);
+  ok('U4 imeuzwa: bar 720, mzazi -1 (mara moja tu - kufungua)', bar(k) === '720.00' && Number(sql(`select current_stock from products where uid='${parent}'`)) === p0 - 1, `bar=${bar(k)}`);
+  card = await pos();
+  const w96 = await card.locator('[data-test="pour-bar"] i').evaluate((e) => e.getBoundingClientRect().width / e.parentElement.getBoundingClientRect().width);
+  ok('H6 baada ya kuuza: mstari unaonyesha 720 / 750 ml, upana wa bar 96%', /720 \/ 750 ml/.test(await card.innerText()) && Math.abs(w96 - 0.96) < 0.02, `w=${w96}`);
 
   // (i) SPLIT
   const c1 = sql(`select uid from pour_container where product_uid='${k}' and status='OPEN'`);
@@ -167,6 +182,9 @@ const closeBanners = async (page) => { const c = page.getByRole('button', { name
   await dlg.locator('[data-test="cml"]').fill('5000');
   await dlg.locator('[data-test="ml-0"]').fill('70');
   await dlg.locator('[data-test="price-0"]').fill('2000');
+  await dlg.locator('[data-test="add-measure"]').click();
+  await dlg.locator('[data-test="ml-1"]').fill('80');
+  await dlg.locator('[data-test="price-1"]').fill('3000');
   await dlg.locator('[data-test="parent"]').selectOption(GR);
   await dlg.locator('[data-test="add-parent"]').click();
   await dlg.locator('[data-test="parent-1"]').selectOption(ML);
@@ -179,21 +197,25 @@ const closeBanners = async (page) => { const c = page.getByRole('button', { name
     && sql(`select round(price) from pour_parent_price where product_uid='${WK}' and parent_product_uid='${ML}' and ml=70 and active`) === '2500'
     && sql(`select round(price) from pour_measure where product_uid='${WK}' and ml=70 and active`) === '2000');
   const posW = async () => { await mgr.page.goto(V3 + '/sales/new'); await sleep(3000); await closeBanners(mgr.page); return mgr.page.locator(`[data-pour="WINE ZA KUPIMA"]`); };
-  const wcard = await posW();
-  await wcard.locator('[data-ml="70"]').click();
-  await sleep(700);
-  ok('W2 POS: hakuna chombo wazi -> bei ya msingi 2,000', (await mgr.page.locator('.price-btn').filter({ hasText: '2,000' }).count()) === 1);
+  let wcard = await posW();
   const ml0 = Number(sql(`select current_stock from products where uid='${ML}'`)), gr0 = Number(sql(`select current_stock from products where uid='${GR}'`));
-  await pay().click();
+  ok('W2 (hq) POS: hakuna chombo wazi -> "Fungua dumu (n)", n = GREPA + MA-LOT', (await wcard.locator('[data-test="pour-open"]').innerText().catch(() => '')).includes(`(${ml0 + gr0})`),
+    await wcard.innerText().catch(() => ''));
+  await wcard.locator('[data-test="pour-open"]').click();
   await shortDlg().waitFor({ timeout: 15000 });
   const openBtn = shortDlg().locator('[data-choice="OPEN"]');
   ok('W3 dialog inauliza mzazi: GREPA na MA-LOT; "Fungua" imezimwa mpaka uchague', (await shortDlg().locator('[data-parent="GREPA WINE"]').count()) === 1
     && (await shortDlg().locator('[data-parent="MA-LOT BOX WINE"]').count()) === 1 && await openBtn.isDisabled());
   await shortDlg().locator('[data-parent="MA-LOT BOX WINE"]').click();
   await openBtn.click();
-  await sleep(1200);
-  ok('W4 MA-LOT ina bei zake: kikapu kinabadilika kuwa 2,500 na sale haijatumwa bado', (await mgr.page.locator('.price-btn').filter({ hasText: '2,500' }).count()) === 1
-    && Number(sql(`select current_stock from products where uid='${ML}'`)) === ml0);
+  await sleep(2500);
+  wcard = mgr.page.locator(`[data-pour="WINE ZA KUPIMA"]`);
+  ok('W4 (hq) dumu imefunguliwa kutoka MA-LOT (MA-LOT -1, GREPA haijaguswa); vitufe 2 (70 / 80), 70ml = 2,500 (bei ya MA-LOT)',
+    Number(sql(`select current_stock from products where uid='${ML}'`)) === ml0 - 1 && Number(sql(`select current_stock from products where uid='${GR}'`)) === gr0
+    && (await wcard.locator('[data-ml]').count()) === 2 && /2,500/.test(await wcard.locator('[data-ml="70"]').innerText()), (await wcard.innerText()).replace(/\s+/g, ' '));
+  await wcard.locator('[data-ml="70"]').click();
+  await sleep(700);
+  ok('W4b kapu: 70ml kwa 2,500', (await mgr.page.locator('.price-btn').filter({ hasText: '2,500' }).count()) === 1);
   await pay().click();
   await done();
   const sold = sql(`select round(d.sub_total)||'|'||c.parent_product_uid from sales_details d join pour_use u on u.sale_detail_uid=d.uid join pour_container c on c.uid=u.container_uid where d.product_uid='${WK}' order by d.id desc limit 1`).split('|');
@@ -201,6 +223,71 @@ const closeBanners = async (page) => { const c = page.getByRole('button', { name
     && Number(sql(`select current_stock from products where uid='${ML}'`)) === ml0 - 1 && Number(sql(`select current_stock from products where uid='${GR}'`)) === gr0, sold.join('|'));
   const wcard2 = await posW();
   ok('W6 POS inaonyesha bei za chombo kilicho wazi (MA-LOT): 70ml 2,500', /2,500/.test(await wcard2.innerText()), (await wcard2.innerText()).replace(/\s+/g, ' '));
+  ok('H5 (hq) wine: vitufe 2 kwenye safu ya RETAIL (70 / 80), QUARTER/HALF/WHOLESALE = "—"', (await wcard2.locator('.pour-ms [data-ml]').count()) === 2
+    && (await wcard2.locator('.price.none').count()) === 3);
+
+  // ── (hq) colours, 0 ml, stock 0, chip, row height, screenshots ──
+  const cK = () => sql(`select uid from pour_container where product_uid='${k}' and status='OPEN'`);
+  if (!cK()) { const kc = await pos(); await kc.locator('[data-test="pour-open"]').click(); await sleep(2500); }
+  const level = async (ml) => {
+    sql(`update pour_container set ml_left = ${ml} where uid='${cK()}'`);
+    const r = await pos();
+    return r.evaluate((e) => {
+      const i = e.querySelector('[data-test="pour-bar"]');
+      const probe = (v) => { const d = document.createElement('i'); d.style.color = v; document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; };
+      const lv = getComputedStyle(i).getPropertyValue('--lv').trim();
+      return { level: e.getAttribute('data-level'), track: getComputedStyle(i).backgroundColor, fill: i.firstElementChild ? getComputedStyle(i.firstElementChild).backgroundColor : '',
+        ok: probe('var(--c-success)'), mid: probe('var(--c-warning)'), low: probe('var(--c-error)'), lv: probe(lv), open: !!e.querySelector('[data-test="pour-open"]') };
+    });
+  };
+  const l1 = await level(600), l2 = await level(300), l3 = await level(100), l4 = await level(0);
+  ok('H1 rangi 4 kwa ml: 600 (80%) kijani, 300 (40%) njano, 100 (13%) nyekundu, 0 nyekundu iliyokolea + "Fungua chupa"',
+    l1.level === 'ok' && l1.fill === l1.ok && l2.level === 'mid' && l2.fill === l2.mid && l3.level === 'low' && l3.fill === l3.low
+    && l4.level === 'empty' && l4.track === l4.lv && l4.track !== l4.low && l4.open,
+    JSON.stringify({ l1, l2, l3, l4 }));
+  // 0 ml -> "Fungua chupa": the 0 ml container is closed (no loss) and a new one opened (parent -1)
+  const c0 = cK(), pk0 = Number(sql(`select current_stock from products where uid='${parent}'`));
+  await (await pos()).locator('[data-test="pour-open"]').click();
+  await sleep(3000);
+  ok('H3 0 ml -> "Fungua chupa": chombo cha 0 ml CLOSED bila upotevu wala journal, kipya 750, mzazi -1',
+    sql(`select status||'|'||ml_lost from pour_container where uid='${c0}'`) === 'CLOSED|0.00' && sql(`select count(*) from journal_entry where reference_uid='${c0}'`) === '0'
+    && bar(k) === '750.00' && Number(sql(`select current_stock from products where uid='${parent}'`)) === pk0 - 1,
+    `${sql(`select status||'|'||ml_lost from pour_container where uid='${c0}'`)} bar=${bar(k)}`);
+  // parent stock 0: no button, the warning text
+  const ps = sql(`select current_stock from products where uid='${parent}'`);
+  sql(`update pour_container set status='CLOSED', close_kind='FINISHED', closed_at=now(), closed_by='E2E-hq', ml_left=0 where uid='${cK()}'`);
+  sql(`update products set current_stock = 0 where uid='${parent}'`);
+  const z = await pos();
+  ok('H4 mzazi stock 0: "Stock 0 — andika manunuzi", HAKUNA kitufe (wala cha kukataliwa)', (await z.locator('[data-test="pour-zero"]').count()) === 1
+    && (await z.locator('[data-test="pour-open"]').count()) === 0 && (await z.locator('button').count()) === 0 && /Stock 0/.test(await z.innerText()), await z.innerText());
+  sql(`update products set current_stock = ${ps} where uid='${parent}'`);
+  // rows on top, same height; the chip
+  await pos();
+  const rows = await mgr.page.locator('.board .item').evaluateAll((els) => els.map((e) => ({ pour: e.hasAttribute('data-pour'), h: Math.round(e.getBoundingClientRect().height) })));
+  const firstNormal = rows.findIndex((r) => !r.pour), lastPour = rows.map((r) => r.pour).lastIndexOf(true);
+  const hp = rows.filter((r) => r.pour).map((r) => r.h), hn = rows.filter((r) => !r.pour).slice(0, 5).map((r) => r.h);
+  ok('H8 mistari ya kupima iko JUU ya bidhaa za kawaida, urefu sawa (+-4px)', lastPour >= 0 && firstNormal > lastPour && hp.every((h) => Math.abs(h - hn[0]) <= 4), JSON.stringify({ hp, hn, firstNormal, lastPour }));
+  const chip = mgr.page.locator('[data-test="chip-kupima"]');
+  const nP = rows.filter((r) => r.pour).length;
+  ok('H7a chip "Kupima (n)" kwenye mstari wa makundi', (await chip.count()) === 1 && (await chip.innerText()).includes(String(nP)), await chip.innerText().catch(() => ''));
+  await chip.click(); await sleep(500);
+  const only = await mgr.page.locator('.board .item').evaluateAll((els) => els.map((e) => e.hasAttribute('data-pour')));
+  await chip.click(); await sleep(500);
+  const back = await mgr.page.locator('.board .item:not([data-pour])').count();
+  ok('H7 chip: inaonyesha mistari ya kupima TU; ikibonyezwa tena bidhaa zinarudi', only.length === nP && only.every(Boolean) && back > 0, JSON.stringify({ only: only.length, nP, back }));
+  // screenshots (light + dark): Konyagi at 650 ml
+  if (!cK()) { await (await pos()).locator('[data-test="pour-open"]').click(); await sleep(2500); }
+  sql(`update pour_container set ml_left = 650 where uid='${cK()}'`);
+  const SHOT = process.env.KUPIMA_SHOTS;
+  if (SHOT) {
+    await pos(); await sleep(500);
+    await mgr.page.locator('section.products').screenshot({ path: `${SHOT}/pos-kupima-light.png` });
+    const dark = await session(browser, MGR, 'dark');
+    await dark.page.goto(V3 + '/sales/new'); await sleep(3000); await closeBanners(dark.page);
+    await dark.page.locator('section.products').screenshot({ path: `${SHOT}/pos-kupima-dark.png` });
+    ok('H9 screenshot light + dark (dark: data-theme=dark)', (await dark.page.evaluate(() => document.documentElement.getAttribute('data-theme'))) === 'dark');
+    mgr.errors.push(...dark.errors);
+  }
 
   ok('U11 hakuna kosa la JavaScript', ceo.errors.length + mgr.errors.length === 0, [...ceo.errors, ...mgr.errors].join(' | ').slice(0, 300));
   await browser.close();

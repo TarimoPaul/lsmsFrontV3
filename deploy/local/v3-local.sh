@@ -3,6 +3,7 @@
 #
 #   deploy/local/v3-local.sh build   production build of THIS worktree (--base-href /v3/, like deploy/Dockerfile)
 #   deploy/local/v3-local.sh up      serve dist/ with the prod nginx.conf behind an edge nginx: http://127.0.0.1:4300/v3/
+#   deploy/local/v3-local.sh up-image <img>  (hr) serve a PRODUCTION image (deploy/Dockerfile) instead of dist/
 #   deploy/local/v3-local.sh down
 #
 # /api goes to the backend Docker-local (backend repo: deploy/local/local.sh up <image>), which must be running.
@@ -27,6 +28,19 @@ case "${1:-}" in
     WANT=$(tr -d '[:space:]' < .frontend-v3-version)
     grep -q "\"version\": *\"$WANT\"" dist/lsmsFrontV3/browser/version.json || die "version.json ya build si $WANT"
     echo "BUILD_SAWA $(git rev-parse --short HEAD)$([ -n "$(git status --porcelain -- src)" ] && echo ' (+ mabadiliko yasiyocommitiwa)')"
+    ;;
+  up-image)
+    # (hr 2) the production image itself (deploy/Dockerfile), e.g. lsms-frontend-v3:3.3.1-local or chiefmaster/lsms-frontend-v3:3.3.1
+    IMG="${2:-}"; [ -n "$IMG" ] || die "taja image: v3-local.sh up-image <image>"
+    docker image inspect "$IMG" >/dev/null 2>&1 || die "image $IMG haipo kwenye PC"
+    docker network inspect lsms-local_default >/dev/null 2>&1 || die "backend Docker-local haiko juu (lsms-local_default)"
+    V3_IMAGE="$IMG" MSYS_NO_PATHCONV=1 docker compose -f "$HW/docker-compose.v3-image.yml" --project-directory "$HW" up -d --force-recreate --remove-orphans >/dev/null || die "docker compose up"
+    for i in $(seq 1 30); do
+      [ "$(curl -s -o /dev/null -w '%{http_code}' "127.0.0.1:${V3_LOCAL_PORT:-4300}/v3/")" = 200 ] && break; sleep 1
+    done
+    echo "IMAGE $IMG $(docker image inspect -f '{{.Id}}' "$IMG" | cut -c8-19) | version.json $(curl -s "127.0.0.1:${V3_LOCAL_PORT:-4300}/v3/version.json" | tr -d ' 
+')"
+    echo "V3_LOCAL_TAYARI http://127.0.0.1:${V3_LOCAL_PORT:-4300}/v3/ (image)"
     ;;
   up)
     [ -f "$ROOT/dist/lsmsFrontV3/browser/index.html" ] || die "hakuna dist - endesha build kwanza"

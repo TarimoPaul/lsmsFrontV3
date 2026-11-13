@@ -1,0 +1,21 @@
+# (hr 2) V3 Docker-local on a PRODUCTION IMAGE (not dist/): the image built by deploy/Dockerfile (as deploy-v3.ps1 does),
+# behind the same edge nginx. Run through: v3-local.sh up-image <image>. Same project name as v3-local -> replaces it.
+name: lsms-v3-local
+
+services:
+  v3:
+    image: ${V3_IMAGE:?V3_IMAGE}
+    networks: [lsms]
+
+  edge:
+    image: nginx:1.31.2-alpine
+    volumes:
+      - ./edge.conf:/etc/nginx/conf.d/default.conf:ro
+    ports: ["127.0.0.1:${V3_LOCAL_PORT:-4300}:80"]
+    depends_on: [v3]
+    networks: [lsms]
+
+networks:
+  lsms:
+    name: lsms-local_default
+    external: true

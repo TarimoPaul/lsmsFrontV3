@@ -124,7 +124,7 @@
               <span class="name">
                 <strong [title]="p.productName">{{ p.productName }} <i class="tag">{{ i18n.t('by measure', 'kupima') }}</i></strong>
                 <span
-                  [class]="'pbar ' + lv"
+                  [class]="'pbar lv-' + lv"
                   role="meter"
                   aria-valuemin="0"
                   [attr.aria-valuemax]="p.containerMl"
@@ -155,7 +155,7 @@
                       <b>{{ i18n.t('Open ' + p.containerName, 'Fungua ' + p.containerName) }} ({{ openable(p) }})</b>
                     </button>
                   } @else {
-                    <span class="pour-zero" data-test="pour-zero"><lsms-icon name="warning" [size]="14" />{{ i18n.t('Stock 0 — record a purchase', 'Stock 0 — andika manunuzi') }}</span>
+                    <span class="pour-zero" data-test="pour-zero"><lsms-icon name="warning" [size]="12" />{{ i18n.t('Stock 0 — record a purchase', 'Stock 0 — andika manunuzi') }}</span>
                   }
                 } @else {
                   @for (m of p.measures; track m.uid) {
