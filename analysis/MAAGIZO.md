@@ -1553,3 +1553,15 @@ Staging: marejesho =true na onyo =2026-11-13 kwenye container (K4/K6), DEPLOY_OK
    PASS: reco ya X haibadiliki; droo ya leo inapungua (Taslimu); stock +1; GL Dr 4020/Cr 1000 + Dr 1200/Cr 5000; TB 0.
    + kesi M-Pesa (haitolewi droo). Isiguse prod (amri ya staging tu).
 2. Niambie pia: staging inafunguliwa kwenye browser vipi (URL au ssh -L)? Kwa jaribio la UI la macho baadaye.
+
+## 2026-11-13 (hg)
+HARAKA. prod marejesho 2026-11-14: SIYO "docker-compose.yml: environment ya backend haikupatikana" — imerudishwa,
+hakuna kilichobadilishwa. prod deploy ilisimama K4 (K1/K2/K3 DONE: payment 0, dump+B2 SAWA, pull SAWA). Prod = 2.4.0/138.
+1. Soma (kusoma tu) sehemu ya backend ya docker-compose.yml ya PROD: env_file? environment? jinsi BACKEND_VERSION na
+   funguo nyingine zinavyofika kwenye container. Linganisha na staging.
+2. Rekebisha hatua ya marejesho kwa mtindo wa prod (mf. env_file: .env → andika .env tu; thibitisha kwa
+   `docker compose config` kuwa backend inapata =true na =2026-11-14), bila kubadilisha muundo wa compose ya prod
+   isipokuwa ni lazima — kama ni lazima, nieleze kwanza.
+3. Jaribio kwa compose ya mtindo huo hapa local. Niambie "done" + amri ya Chief.
+Swali: staging marejesho-jaribio (he)1 iliendeshwa? Matokeo?
+(Kumbuka ya Claude: (hf) haikunifikia.)

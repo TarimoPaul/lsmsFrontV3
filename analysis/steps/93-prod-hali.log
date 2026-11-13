@@ -1,0 +1,18 @@
+﻿[13:03:54] ===== 93 prod hali 2026-11-13 =====
+[13:04:40] script zimenakiliwa server (~/lsms-250)
+[13:04:45] [93 prod 13:04:45] backend 2.4.0 | frontend-v3 3.2.0 | .env BACKEND_VERSION=***FICHWA***
+[13:04:45] [93 prod 13:04:45] Flyway ya mwisho: 138
+[13:04:45] [93 prod 13:04:45] .env HAINA ADMIN_EMAIL
+[13:04:45] [93 prod 13:04:45] .env HAINA ADMIN_PASSWORD
+[13:04:45] [93 prod 13:04:45] .env HAINA DOCKERHUB_USERNAME
+[13:04:45] [93 prod 13:04:45] .env HAINA DOCKERHUB_PASSWORD
+[13:04:45] [93 prod 13:04:45] .env ina DAILY_SALES_PROFIT_ROLES
+[13:04:45] [93 prod 13:04:45] image IPO chiefmaster/my-lsms-backend:2.4.0
+[13:04:45] [93 prod 13:04:45] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[13:04:45] [93 prod 13:04:45] image IPO chiefmaster/my-lsms-backend:2.5.0
+[13:04:45] [93 prod 13:04:45] image IPO chiefmaster/lsms-frontend-v3:3.3.0
+[13:04:45] [93 prod 13:04:45] .backend.prev=2.3.0 .frontend-v3.prev=3.1.11
+[13:04:45] [93 prod 13:04:45] hakuna hatua iliyokamilika bado
+[13:04:45] [93 prod 13:04:45] compose: marejesho APP_FEATURES_SALES_RETURNS_ENABLED =; onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =
+[13:04:45] ---93_MWISHO---
+[13:04:45] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 1

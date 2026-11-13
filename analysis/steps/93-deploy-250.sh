@@ -113,6 +113,55 @@ PM_OK="'CASH','VODACOM','TIGOPESA','HALOPESA','AIRTELMONEY','CRDB','NMB','NBC','
 # thamani ya KEY kwenye environment ya backend kama docker compose inavyoiona (tupu = haijawekwa -> default ya jar)
 cfg_be() { awk '/^  backend:/{b=1;next} /^  [^ ]/{b=0} b' <<<"$1"; }
 cfg_val() { cfg_be "$1" | grep -oE "^ +$2(:|=) *\"?[A-Za-z0-9._-]*" | head -n1 | sed -E 's/^ +[A-Z0-9_]+(:|=) *"?//'; }
+# (hg) muundo wa sehemu ya backend kwenye faili za compose (KUSOMA TU): majina ya funguo tu, thamani zimefichwa ("…"),
+#   [CRLF] kama faili lina mwisho wa mstari wa Windows. Kwa kuelewa compose ya server bila kuisoma kwa mkono.
+compose_muundo() {
+  local f; for f in docker-compose.yml docker-compose.override.yml; do
+    [ -f "$f" ] || continue
+    awk -v f="$f" '
+      function ind(s) { match(s, /^ */); return RLENGTH }
+      { t = $0; cr = sub(/\r$/, "", t); if (cr) ncr++ }
+      t ~ /^ +backend:[ \t]*(#.*)?$/ { inb = 1; bi = ind(t); print "MUUNDO " f ":" NR ": " t; next }
+      inb && t !~ /^[ \t]*(#.*)?$/ && ind(t) <= bi { inb = 0 }
+      inb {
+        u = t
+        if (u ~ /^ *- /) sub(/=.*/, "=…", u)                       # - KEY=value
+        else if (u ~ /^ *[A-Za-z_][A-Za-z0-9_.-]*:[ \t]*[^ \t#]/) sub(/:[ \t]*[^#]*/, ": …", u)  # key: value
+        print "MUUNDO " f ":" NR ": " u
+      }
+      END { print "MUUNDO " f ": mistari " NR ", [CRLF] " (ncr ? ncr : 0) }' "$f"
+  done
+}
+# (hg) mstari wa KEY ndani ya environment ya backend: faili la kwanza kati ya docker-compose.yml / docker-compose.override.yml
+#   lenye backend + environment; mtindo wa mistari iliyopo (orodha "- K=V" au ramani "K: V"); CRLF na maoni (#) yanaheshimiwa.
+#   compose_weka KEY DEFAULT OUT -> 0 + jina la faili (stdout) | 1 hakuna faili lenye environment ya backend
+compose_weka() {
+  local k="$1" d="$2" out="$3" f rc
+  for f in docker-compose.yml docker-compose.override.yml; do
+    [ -f "$f" ] || continue
+    awk -v k="$k" -v d="$d" '
+      function ind(s) { match(s, /^ */); return RLENGTH }
+      { raw[NR] = $0; t = $0; sub(/\r$/, "", t); line[NR] = t }
+      END {
+        for (i = 1; i <= NR; i++) {
+          print raw[i]
+          t = line[i]
+          if (!done && t ~ /^ +backend:[ \t]*(#.*)?$/) { inb = 1; bi = ind(t); continue }
+          if (inb && t !~ /^[ \t]*(#.*)?$/ && ind(t) <= bi) inb = 0
+          if (!done && inb && t ~ /^ +environment:[ \t]*(#.*)?$/) {
+            j = i + 1; while (j <= NR && line[j] ~ /^[ \t]*(#.*)?$/) j++
+            if (j > NR || ind(line[j]) <= ind(t)) exit 4
+            e = substr(line[j], 1, ind(line[j])); eol = (raw[j] ~ /\r$/) ? "\r" : ""
+            if (line[j] ~ /^ *- /) print e "- " k "=${" k ":-" d "}" eol; else print e k ": ${" k ":-" d "}" eol
+            done = 1
+          }
+        }
+        if (!done) exit 3
+      }' "$f" > "$out"; rc=$?
+    [ $rc = 0 ] && { echo "$f"; return 0; }
+  done
+  return 1
+}
 fly_max(){ psql_q "select max(version::int) from flyway_schema_history where success and version ~ '^[0-9]+\$'"; }
 
 cd "$DIR" 2>/dev/null || die "folda $DIR haipo"
@@ -390,6 +439,7 @@ marejesho() {
     say "KAGUA: container ya backend $(tag_of backend): $k =$(docker exec "$(DC ps -q backend | head -n1)" printenv "$k" 2>/dev/null | tr -dc 'a-z0-9-')"
     { [ "$v" = "$want" ] && [ "$e" = "$want" ]; } || todo="$todo $k"
   done
+  compose_muundo | while IFS= read -r l; do say "$l"; done
   if [ -z "$todo" ]; then say "MAREJESHO_TAYARI: marejesho =true, onyo la manunuzi =$PCF_VAL (.env + compose) - hakuna cha kuandika"; return 0; fi
   [ "$mode" = andika ] || { say "MAREJESHO_KAGUA_OK: ANDIKA itaweka kwenye .env + environment ya backend:$(for k in $todo; do [ "$k" = "$PCF_KEY" ] && printf ' %s =%s' "$k" "$PCF_VAL" || printf ' %s =true' "$k"; done)"; return 0; }
   KT=$(date +%s); st="$ST/marejesho-$(date +%Y%m%d-%H%M%S)"; mkdir -p "$st"
@@ -403,25 +453,12 @@ marejesho() {
     if grep -q "^$k=" .env; then set_line "$k" "$want" || { restore; die ".env: kuweka $k kumeshindwa - imerudishwa"; }
     else [ -z "$(tail -c1 .env)" ] || echo >> .env; echo "$k=$want" >> .env; fi
     # compose: mstari ndani ya environment ya backend (mtindo wa orodha "- K=V" au ramani "K: V", kama mistari iliyopo)
-    if ! grep -qE "^ +(- )?$k[:=]" $COMPOSE_FILES 2>/dev/null; then
-      awk -v k="$k" -v d="$def" '
-        function ind(s) { match(s, /^ */); return RLENGTH }
-        { lines[NR] = $0 }
-        END {
-          for (i = 1; i <= NR; i++) {
-            print lines[i]
-            if (!done && lines[i] ~ /^ +backend:[ \t]*$/) { inb = 1; bi = ind(lines[i]); continue }
-            if (inb && lines[i] !~ /^[ \t]*$/ && ind(lines[i]) <= bi) inb = 0
-            if (!done && inb && lines[i] ~ /^ +environment:[ \t]*$/) {
-              j = i + 1; while (j <= NR && lines[j] ~ /^[ \t]*$/) j++
-              e = substr(lines[j], 1, ind(lines[j]))
-              if (lines[j] ~ /^ *- /) print e "- " k "=${" k ":-" d "}"; else print e k ": ${" k ":-" d "}"
-              done = 1
-            }
-          }
-          if (!done) exit 3
-        }' docker-compose.yml > "$st/compose-mpya.yml" || { restore; die "docker-compose.yml: environment ya backend haikupatikana - imerudishwa, HAKUNA kilichobadilishwa"; }
-      cp "$st/compose-mpya.yml" docker-compose.yml
+    # (hg) env_file / njia nyingine ikishaipeleka kwenye backend baada ya .env -> compose haiguswi
+    if [ "$(cfg_val "$(DC config 2>/dev/null)" "$k")" = "$want" ]; then say "compose: $k inafika kwenye backend kupitia .env (compose haijaguswa)"
+    elif ! grep -qE "^ +(- )?$k[:=]" $COMPOSE_FILES 2>/dev/null; then
+      local cf; cf=$(compose_weka "$k" "$def" "$st/compose-mpya.yml") \
+        || { restore; die "environment ya backend haikupatikana kwenye docker-compose.yml wala docker-compose.override.yml (angalia mistari ya MUUNDO) - imerudishwa, HAKUNA kilichobadilishwa"; }
+      cp "$st/compose-mpya.yml" "$cf"; say "compose: $k imeongezwa kwenye $cf"
     fi
   done
   # uthibitisho: config mpya = config ya zamani + mistari ya funguo hizi tu, na thamani ni lengo

@@ -1,0 +1,33 @@
+﻿[13:02:13] ===== 93 staging marejesho-jaribio 2026-11-13 =====
+[13:02:53] script zimenakiliwa server (~/lsms-250)
+[13:03:40] === 93 marejesho-jaribio staging | backend 2.5.0 | MAREJESHO93-130321 | leo 2026-11-13
+[13:03:40] PASS login (2.5.0)
+[13:03:40] PASS swichi ya marejesho IMEWASHWA kwenye backend hii
+[13:03:40] PASS siku X = 2026-11-12 (huru kwa mtumiaji huyu, au ya jaribio hili tu; kuhesabu mali kwa mwisho 2026-11-12; < leo 2026-11-13)
+[13:03:40] bidhaa: PEPSI && MIRINDA | bei 1000.00 | gharama 533.33 | stock 375
+[13:03:40] PASS sale A siku 2026-11-12: vipande 2 Taslimu
+[13:03:40] PASS sale B siku 2026-11-12: kipande 1 M-Pesa
+[13:03:40] PASS reco ya 2026-11-12 IMEIDHINISHWA (taslimu iliyotangazwa 2000.00 HTTP 200)
+[13:03:40] kabla: reco X APPROVED|3000.00|0 | auto-summary X totalSales 1314000.00 | leo returnDeductions 0.00 | stock 372 | TB 0.00
+[13:03:40] PASS ombi la marejesho A -> PENDING
+[13:03:40] PASS marejesho A IMEIDHINISHWA leo, Taslimu
+[13:03:40] PASS stock 372 -> 373 (+1)
+[13:03:40] PASS GL ya marejesho A: Dr 4020 / Cr 1000 + Dr 1200 / Cr 5000 (1000:-1000.00,1200:533.33,4020:1000.00,5000:-533.33)
+[13:03:40] PASS reco ya 2026-11-12 HAIJABADILIKA (reco APPROVED|3000.00|0; auto-summary 1314000.00)
+[13:03:40] PASS droo ya leo inapungua 1000.00 (returnDeductions 0.00 -> 1000.00)
+[13:03:40] PASS TB 0 (0.00)
+[13:03:40] PASS ombi la marejesho B -> PENDING
+[13:03:40] PASS marejesho B IMEIDHINISHWA leo, M-Pesa
+[13:03:40] PASS GL ya marejesho B: Cr 1030 / Dr 4020, hakuna 1000 (1030:-1000.00,1200:533.33,4020:1000.00,5000:-533.33)
+[13:03:40] PASS M-Pesa HAITOLEWI droo (returnDeductions 1000.00 -> 1000.00)
+[13:03:40] PASS reco ya 2026-11-12 bado HAIJABADILIKA (APPROVED|3000.00|0; 1314000.00)
+[13:03:40] PASS TB 0 (0.00)
+[13:03:40] --- kusafisha (alama MAREJESHO93-130321): sale zenye marejesho haziguswi; zinazobaki:
+[13:03:40] BAKI: 10d33894-7eb3-44a4-822d-6c1cbb33b192 121126-1100-2 0.00 marejesho 1
+[13:03:40] BAKI: 910154e5-3e71-4ec5-9359-64e76963a21d 121126-1100 1000.00 marejesho 1
+[13:03:40] PASS TB 0 baada ya kusafisha (0.00)
+[13:03:40] MAREJESHO_MATOKEO (2.5.0) PASS 20 FAIL 0 | alama MAREJESHO93-130321 | siku X 2026-11-12
+[13:03:40] MAREJESHO_OK 20/20
+[13:03:40] ---93K_MWISHO---
+[13:03:40] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 0
+[13:03:40] ---93_OK--- marejesho-jaribio

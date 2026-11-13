@@ -1,0 +1,25 @@
+﻿[13:07:46] ===== 93 prod deploy 2026-11-13 =====
+[13:08:28] script zimenakiliwa server (~/lsms-250)
+[13:08:35] ANZISHWA
+[13:08:35] nafuatilia ~/lsms-250/logs/prod-deploy.log (mtandao ukikatika: endesha '93-deploy-250.cmd prod fuata')
+[13:08:47] [93 prod 13:08:35] === K1-KAGUA
+[13:08:47] [93 prod 13:08:36] inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 138
+[13:08:47] [93 prod 13:08:36] image za rollback zipo: 2.4.0 + 3.2.0
+[13:08:47] [93 prod 13:08:36] payment_method dhidi ya V151: HAIKUBALIKI 0 (payments 3117, credit_payments 0)
+[13:08:47] [93 prod 13:08:36] diski wazi 181G
+[13:08:47] [93 prod 13:08:36] K1-KAGUA IMEKAMILIKA (1s)
+[13:08:47] [93 prod 13:08:36] === K2-BACKUP
+[13:08:47] [93 prod 13:08:39] DUMP lsms_kabla_250_20261113_130836.dump bytes 9962837 sha256 2136d415e16c4642... pg_restore --list entries 1187, kusoma faili lote SAWA
+[13:08:47] [93 prod 13:08:46] B2 SAWA: deploy/lsms_kabla_250_20261113_130836.dump (9962837 bytes)
+[13:08:47] [93 prod 13:08:46] K2-BACKUP IMEKAMILIKA (10s)
+[13:08:47] [93 prod 13:08:46] === K3-PULL
+[13:08:56] docker.io/chiefmaster/my-lsms-backend:2.5.0
+[13:08:56] docker.io/chiefmaster/lsms-frontend-v3:3.3.0
+[13:08:56] [93 prod 13:08:49] digest: sha256:5fae5a7268d0 / sha256:b431d4ac52ba
+[13:08:56] [93 prod 13:08:49] K3-PULL IMEKAMILIKA (3s)
+[13:08:56] [93 prod 13:08:49] === K4-KAGUA
+[13:08:56] [93 prod 13:08:50] marejesho APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA (default ya jar: false)
+[13:08:56] [93 prod 13:08:50] onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =HAIJAWEKWA (default ya jar: 2026-12-02)
+[13:08:56] [93 prod 13:08:50] SIYO: (gy) prod: marejesho lazima yawe =true kuanzia deploy hii - endesha kwanza: 93-deploy-250.cmd prod marejesho
+[13:08:56] ---93_IMESHINDWA---
+[13:08:56] ---93_IMESHINDWA--- soma log hapo juu

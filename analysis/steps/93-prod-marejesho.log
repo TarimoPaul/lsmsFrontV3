@@ -1,0 +1,19 @@
+﻿[13:06:06] ===== 93 prod marejesho 2026-11-13 =====
+[13:06:47] script zimenakiliwa server (~/lsms-250)
+[13:06:55] [93 prod 13:06:54] KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =true
+[13:06:55] [93 prod 13:06:54] KAGUA: container ya backend 2.4.0: APP_FEATURES_SALES_RETURNS_ENABLED =
+[13:06:55] [93 prod 13:06:54] KAGUA: LSMS_PURCHASE_CHECK_FROM | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =2026-11-14
+[13:06:55] [93 prod 13:06:55] KAGUA: container ya backend 2.4.0: LSMS_PURCHASE_CHECK_FROM =
+[13:06:55] [93 prod 13:06:55] MAREJESHO_KAGUA_OK: ANDIKA itaweka kwenye .env + environment ya backend: APP_FEATURES_SALES_RETURNS_ENABLED =true LSMS_PURCHASE_CHECK_FROM =2026-11-14
+[13:06:55] ---93_MWISHO---
+[13:06:55] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 0
+[13:07:23] mmiliki ameandika: ANDIKA
+[13:07:28] [93 prod 13:07:27] KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =true
+[13:07:28] [93 prod 13:07:28] KAGUA: container ya backend 2.4.0: APP_FEATURES_SALES_RETURNS_ENABLED =
+[13:07:28] [93 prod 13:07:28] KAGUA: LSMS_PURCHASE_CHECK_FROM | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =2026-11-14
+[13:07:28] [93 prod 13:07:28] KAGUA: container ya backend 2.4.0: LSMS_PURCHASE_CHECK_FROM =
+[13:07:28] [93 prod 13:07:28] backup: /home/chief/lsms-250/prod/marejesho-20261113-130728
+[13:07:28] [93 prod 13:07:28] SIYO: docker-compose.yml: environment ya backend haikupatikana - imerudishwa, HAKUNA kilichobadilishwa
+[13:07:28] ---93_IMESHINDWA---
+[13:07:28] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 0
+[13:07:28] ---93_IMESHINDWA--- marejesho (soma log; backup imerudishwa kama ilivyoandikwa)
