@@ -1487,3 +1487,10 @@ ambazo hazijapushwa: token, password, ghp_/github_pat_, https://<kitu>@, Bearer,
 Tumia pia kinga ya hash prefix ya hatua 73. Ripoti: faili | imesafishwa? Ikiwa kuna siri: ondoa kwenye historia ya
 commit ambazo HAZIJAPUSHWA (amend/rebase ya local), na ongeza *.log ya steps kwenye .gitignore au ficha.awk kabla
 ya kuandika. Usipushe — niambie.
+
+## 2026-11-13 (gv)
+Staging deploy: K1–K6 SAWA, DEPLOY_OK 2.5.0+3.3.0, Flyway 151, D HAIJAWEKWA, .prev 2.4.0/3.2.0.
+Swali (soma code/config, ripoti tu): defaults za jar kwa
+  APP_FEATURES_SALES_RETURNS_ENABLED na LSMS_PURCHASE_CHECK_FROM (lsms.purchase-check.from) — thamani gani?
+  Prod 02/12 bila kuziweka → marejesho ON/OFF? onyo la manunuzi linaanza lini?
+Kama marejesho yanatakiwa ON prod: ni mstari gani wa .env, na staging iuweke kwanza (jaribio la UI la marejesho kwenye staging).
