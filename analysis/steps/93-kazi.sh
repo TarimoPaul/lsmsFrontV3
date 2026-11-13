@@ -2,7 +2,9 @@
 # HATUA 93-kazi (mmiliki 12/11 ge; nakala ya 76-kazi kwa 2.5.0) - KAZI HALISI kupitia API + ukaguzi wa DB.
 #   bash 76-kazi.sh <staging|prod> smoke   KUSOMA TU: login + GET za kawaida (2.3.0 na 2.4.0) -> SMOKE_OK n/n   (dg: K6 ya prod)
 #   bash 76-kazi.sh staging kazi           INAANDIKA (STAGING TU): login, sale cash + GL journal, kufuta sale (+ reversal),
-#                                          ununuzi + kuidhinisha + malipo ya msambazaji (+ GL), reco expense ongeza/futa -> KAZI_OK n/n
+#                                          ununuzi wa MKOPO wa msambazaji (Cr 2000) + malipo yake (Cr 1000, mara moja) + kufuta malipo,
+#                                          reco expense ongeza/futa -> KAZI_OK n/n
+# Majaribio (PC): L93_PROJ, L93_DIR, L93_BASE, L93_BE_MPYA=1 - Docker-local.
 # stdin: mstari 1 = email, mstari 2 = password (kutoka driver, Read-Host ya siri). Thamani haziandikwi popote.
 # Kila rekodi ya jaribio ina alama "KAZI93-<saa>" (sale_notes / purchase_notes / reference / description).
 set -uo pipefail
@@ -10,7 +12,7 @@ TARGET="${1:-}"; MODE="${2:-}"
 H="${L93_HOME:-$HOME}"
 case "$TARGET" in
   prod)    PROJ=lsms-deployment; DIR="$H/lsms-deployment"; BASE="${L93_BASE:-http://localhost}" ;;
-  staging) PROJ=lsms-staging;    DIR="$H/lsms-staging";    BASE="${L93_BASE:-http://127.0.0.1:8081}" ;;
+  staging) PROJ=${L93_PROJ:-lsms-staging}; DIR="${L93_DIR:-$H/lsms-staging}";    BASE="${L93_BASE:-http://127.0.0.1:8081}" ;;
   *) echo "MATUMIZI: $0 <staging|prod> <smoke|kazi>"; exit 2 ;;
 esac
 [ "$MODE" = smoke ] || [ "$MODE" = kazi ] || { echo "MATUMIZI: $0 <staging|prod> <smoke|kazi>"; exit 2; }
@@ -52,10 +54,10 @@ if [ "$MODE" = smoke ]; then
            "/api/v1/gl/journal-entries?startDate=$D7&endDate=$TODAY&size=5" "/api/v1/gl/accounts" "/api/v1/notifications/unread-counts"; do
     api GET "$p"; if okb; then pass "GET ${p%%\?*}"; else fail "GET ${p%%\?*} HTTP $HC $(msg)"; fi
   done
-  if { [ "$BE" = 2.4.0 ] || [ "$BE" = 2.5.0 ]; }; then
-    api GET "/api/v1/sales/changes/pending"; if okb; then pass "GET /api/v1/sales/changes/pending (2.4.0)"; else fail "GET /sales/changes/pending HTTP $HC $(msg)"; fi
+  if { [ "$BE" = 2.4.0 ] || [ "$BE" = 2.5.0 ] || [ -n "${L93_BE_MPYA:-}" ]; }; then
+    api GET "/api/v1/sales/changes/pending"; if okb; then pass "GET /api/v1/sales/changes/pending (tangu 2.4.0; backend $BE)"; else fail "GET /sales/changes/pending HTTP $HC $(msg)"; fi
     n=$(q "select count(*) from login_audit where at > now() - interval '5 minutes' and result='SUCCESS'")
-    [ "${n:-0}" -ge 1 ] && pass "login_audit imeandika login hii (2.4.0)" || fail "login_audit haina login ya dakika 5 zilizopita"
+    [ "${n:-0}" -ge 1 ] && pass "login_audit imeandika login hii (tangu 2.4.0; backend $BE)" || fail "login_audit haina login ya dakika 5 zilizopita"
   fi
   echo "SMOKE_MATOKEO PASS $ok FAIL $bad"
   [ "$bad" = 0 ] && { echo "SMOKE_OK $ok/$ok"; echo "---93K_MWISHO---"; exit 0; } || { echo "---93K_IMESHINDWA---"; exit 1; }
@@ -98,47 +100,60 @@ if [ -n "$SU" ]; then
   [ "$S3" = "$PS" ] && pass "stock imerudi $S3" || fail "stock baada ya kufuta $S3 (ilitarajiwa $PS)"
   R=$(q "select count(*) from journal_entry where reference_uid='$SU' and coalesce(is_reversal,false)=true")
   [ "${R:-0}" -ge 1 ] && pass "GL reversal ya sale ipo ($R)" || fail "hakuna GL reversal ya sale"
-  if { [ "$BE" = 2.4.0 ] || [ "$BE" = 2.5.0 ]; }; then
+  if { [ "$BE" = 2.4.0 ] || [ "$BE" = 2.5.0 ] || [ -n "${L93_BE_MPYA:-}" ]; }; then
     AU=$(q "select action||'/'||result from sale_change_audit where sale_uid='$SU' order by id desc limit 1")
-    [ "$AU" = DELETE/ALLOWED ] && pass "sale_change_audit DELETE/ALLOWED (2.4.0)" || fail "sale_change_audit: '$AU'"
+    [ "$AU" = DELETE/ALLOWED ] && pass "sale_change_audit DELETE/ALLOWED (tangu 2.4.0; backend $BE)" || fail "sale_change_audit: '$AU'"
   fi
 fi
-# 3. UNUNUZI + MALIPO YA MSAMBAZAJI ---------------------------------------------------------------------------
-# Ununuzi: "Nunua tena" (repurchase/bulk, kama V3) - unafanya kazi kwa bidhaa yoyote isiyo na ununuzi PENDING/APPROVED.
-# Malipo: kwa msambazaji aliyesajiliwa (on-account, bila purchaseUid), kisha yanafutwa (reversal) ili salio lisibaki.
+# 3. UNUNUZI WA MKOPO KWA MSAMBAZAJI + MALIPO YAKE (ha) -------------------------------------------------------
+# (ha) Ununuzi wa msambazaji ALIYESAJILIWA, HAUJALIPWA (UNPAID): kuidhinisha -> Dr 1200 / Cr 2000 tu (HAKUNA 1000).
+# Malipo ya ununuzi HUO (purchaseUid) kutoka droo -> Dr 2000 / Cr 1000. Pesa imetoka MARA MOJA: 1000 ya ununuzi + malipo = -100,
+# 2000 ya ununuzi + malipo = 0. Kisha malipo yanafutwa (reversal): 1000 inarudi 0, deni (2000) linarudi -100.
+# (Kabla ya ha: ununuzi ulikuwa "Nunua tena" BILA msambazaji (umelipwa, Cr 1000) na malipo yalikuwa ya msambazaji mwingine
+#  bila purchaseUid - njia mbili zisizohusiana, zilionekana kama pesa mara mbili kwa mzigo mmoja.)
 IFS='|' read -r SPU SPN < <(q "select uid, name from suppliers where coalesce(is_deleted,false)=false and coalesce(is_active,true) order by id limit 1")
-IFS='|' read -r QU QN < <(q "select pr.uid, pr.product_name from products pr where coalesce(pr.is_deleted,false)=false
-   and not exists (select 1 from purchases x where x.product_uid=pr.uid and x.status in ('PENDING','APPROVED'))
-   order by pr.id desc limit 1")
+# Ununuzi wa kwanza tu (POST /purchases) unapokea supplierUid + amountPaid; "Nunua tena" (repurchase) hauna msambazaji kamwe
+# (unalipwa sasa). Kwa hiyo jaribio linachagua bidhaa ISIYOWAHI kununuliwa.
+IFS='|' read -r QU QN < <(q "select pr.uid, pr.product_name from products pr where coalesce(pr.is_deleted,false)=false and coalesce(pr.is_active,true)
+   and not exists (select 1 from purchases x where x.product_uid=pr.uid) order by pr.id desc limit 1")
+[ -n "$QU" ] || fail "hakuna bidhaa isiyowahi kununuliwa (ununuzi wa kwanza ndio unaopokea msambazaji)"
 P0=$(q "select coalesce(max(id),0) from purchases")
-echo "bidhaa ya ununuzi: $QN | msambazaji wa malipo: $SPN"
-BODY="{\"paymentSource\":\"DROO\",\"sourceAccount\":null,\"items\":[{\"productUid\":\"$QU\",\"useLastPurchaseData\":false,\"purchaseType\":\"INDIVIDUAL_PIECES\",
- \"priceInputMode\":\"PER_PIECE\",\"quantity\":1,\"purchasePrice\":100,\"supplierName\":\"$RUN\"}]}"
-api POST /api/v1/purchases/repurchase/bulk "$BODY"
+echo "bidhaa ya ununuzi: $QN | msambazaji (ununuzi + malipo): $SPN"
+gl() { q "select coalesce(string_agg(a||':'||v, ',' order by a), '') from (select l.account_code a, sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0))::numeric(19,0) v
+         from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.status='POSTED' and not coalesce(e.is_deleted,false) and e.reference_uid in ($1)
+         group by 1 having sum(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0)) <> 0) x" 2>&1; }
+BODY="{\"productUid\":\"$QU\",\"purchaseType\":\"INDIVIDUAL_PIECES\",\"priceInputMode\":\"PER_PIECE\",\"quantity\":1,\"purchasePrice\":100,
+ \"supplierUid\":\"$SPU\",\"supplierName\":\"$(jesc "$SPN")\",\"amountPaid\":0,\"paymentStatus\":\"UNPAID\",\"purchaseNotes\":\"$RUN ununuzi wa mkopo\"}"
+api POST /api/v1/purchases "$BODY"
 PUU=$(q "select uid from purchases where product_uid='$QU' and id > $P0 order by id desc limit 1")
-if [ -n "$PUU" ]; then pass "ununuzi umeandikwa ($(q "select status||' '||total_amount from purchases where uid='$PUU'"))"; else fail "ununuzi HTTP $HC: $(msg)"; fi
+if [ -n "$PUU" ]; then pass "ununuzi wa mkopo umeandikwa ($(q "select status||' '||total_amount||' '||coalesce(payment_status,'-')||' msambazaji '||coalesce(supplier_uid,'-') from purchases where uid='$PUU'"))"
+else fail "ununuzi HTTP $HC: $(msg)"; fi
 if [ -n "$PUU" ]; then
   api POST "/api/v1/purchases/$PUU/approve?approvalNotes=$RUN" '{}'
-  ST=$(q "select status from purchases where uid='$PUU'")
-  [ "$ST" = APPROVED ] && pass "ununuzi APPROVED" || fail "ununuzi status $ST HTTP $HC $(msg)"
+  ST=$(q "select status||' '||coalesce(payment_status,'-') from purchases where uid='$PUU'")
+  [ "${ST%% *}" = APPROVED ] && pass "ununuzi APPROVED ($ST)" || fail "ununuzi status $ST HTTP $HC $(msg)"
   sleep 2
-  PJ=$(q "select string_agg(l.account_code||':'||(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0))::numeric(19,0), ',' order by l.account_code)
-         from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.reference_uid='$PUU' and coalesce(e.is_reversal,false)=false" 2>&1)
-  [[ "$PJ" == *"1200:100"* ]] && pass "GL ya ununuzi ($PJ)" || fail "GL ya ununuzi: '$PJ'"
-fi
-BODY="{\"supplierUid\":\"$SPU\",\"amount\":100,\"paymentMethod\":\"CASH\",\"paymentSource\":\"DROO\",\"sourceAccount\":null,
- \"paymentDate\":\"$NOW\",\"reference\":\"$RUN\",\"notes\":\"malipo ya jaribio 93\"}"
-api POST /api/v1/supplier-payments "$BODY"
-PY=$(q "select uid from supplier_payments where reference='$RUN' and coalesce(is_deleted,false)=false order by id desc limit 1")
-if okb && [ -n "$PY" ]; then pass "malipo ya msambazaji yameandikwa"; else fail "malipo HTTP $HC: $(msg)"; fi
-if [ -n "$PY" ]; then
-  sleep 2
-  YJ=$(q "select string_agg(l.account_code||':'||(coalesce(l.debit_amount,0)-coalesce(l.credit_amount,0))::numeric(19,0), ',' order by l.account_code)
-         from journal_entry e join journal_entry_line l on l.journal_entry_uid=e.uid where e.reference_uid='$PY' and coalesce(e.is_reversal,false)=false" 2>&1)
-  [[ "$YJ" == *"2000:100"* ]] && pass "GL ya malipo ($YJ)" || fail "GL ya malipo: '$YJ'"
-  api DELETE "/api/v1/supplier-payments/$PY"
-  D=$(q "select count(*) from supplier_payments where uid='$PY' and coalesce(is_deleted,false)=false")
-  okb && [ "$D" = 0 ] && pass "malipo yamefutwa (reversal)" || fail "kufuta malipo HTTP $HC (bado: $D) $(msg)"
+  PJ=$(gl "'$PUU'")
+  [ "$PJ" = "1200:100,2000:-100" ] && pass "GL ya ununuzi wa mkopo: Dr 1200 / Cr 2000, hakuna 1000 ($PJ)" || fail "GL ya ununuzi wa mkopo: '$PJ' (lazima 1200:100,2000:-100)"
+  BODY="{\"supplierUid\":\"$SPU\",\"purchaseUid\":\"$PUU\",\"amount\":100,\"paymentMethod\":\"CASH\",\"paymentSource\":\"DROO\",\"sourceAccount\":null,
+   \"paymentDate\":\"$NOW\",\"reference\":\"$RUN\",\"notes\":\"malipo ya ununuzi wa jaribio 93\"}"
+  api POST /api/v1/supplier-payments "$BODY"
+  PY=$(q "select uid from supplier_payments where reference='$RUN' and coalesce(is_deleted,false)=false order by id desc limit 1")
+  if okb && [ -n "$PY" ]; then pass "malipo ya ununuzi huo yameandikwa (purchaseUid)"; else fail "malipo HTTP $HC: $(msg)"; fi
+  if [ -n "$PY" ]; then
+    sleep 2
+    YJ=$(gl "'$PY'")
+    [ "$YJ" = "1000:-100,2000:100" ] && pass "GL ya malipo: Dr 2000 / Cr 1000 ($YJ)" || fail "GL ya malipo: '$YJ' (lazima 1000:-100,2000:100)"
+    BOTH=$(gl "'$PUU','$PY'")
+    [ "$BOTH" = "1000:-100,1200:100" ] && pass "ununuzi + malipo: pesa imetoka MARA MOJA (1000 -100), deni 2000 = 0 ($BOTH)" || fail "ununuzi + malipo: '$BOTH' (lazima 1000:-100,1200:100)"
+    echo "hali ya ununuzi baada ya malipo: $(q "select coalesce(payment_status,'-')||' amount_paid '||coalesce(amount_paid,0) from purchases where uid='$PUU'")"
+    api DELETE "/api/v1/supplier-payments/$PY"
+    D=$(q "select count(*) from supplier_payments where uid='$PY' and coalesce(is_deleted,false)=false")
+    okb && [ "$D" = 0 ] && pass "malipo yamefutwa (reversal)" || fail "kufuta malipo HTTP $HC (bado: $D) $(msg)"
+    sleep 2
+    AFT=$(gl "'$PUU','$PY'")
+    [ "$AFT" = "1200:100,2000:-100" ] && pass "baada ya kufuta malipo: pesa imerudi (1000 0), deni la 100 limerudi ($AFT)" || fail "baada ya kufuta malipo: '$AFT' (lazima 1200:100,2000:-100)"
+  fi
 fi
 # 4. RECO ENTRY (expense: ongeza + futa) ---------------------------------------------------------------------
 # (dk) reco ya siku inahitaji mauzo ya siku hiyo: sale-B ya jaribio INABAKI mpaka reco (create + expense + kufuta

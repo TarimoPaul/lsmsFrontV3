@@ -1509,3 +1509,22 @@ SALES_RETURNS_ENABLED) = ON kuanzia deploy hiyo. Inachukua nafasi ya (gw)3 na (g
 6. MUHTASARI na kalenda: cutoff 25/11 inaondoka; main imefungwa kuanzia staging kupita; hotfix baada ya prod = kutoka tag v2.5.0/v3.3.0;
    74b kagua/andika siku ya deploy; D 07/12 haibadiliki; DROP-MV + C6 = siku 7 baada ya prod.
 (Kumbuka ya Claude: maandishi ya (gw) na (gx) hayakunifikia.)
+
+## 2026-11-13 (ha)
+93 staging kazi: KAZI_OK 20/20 (401 ya kwanza = kosa la kuandika password).
+Hakiki (kusoma tu, data ya prod/staging): kazi ilionyesha ununuzi wa "grepa" GL 1000:-100,1200:100 NA malipo
+1000:-100,2000:100 → 1000 −200 kwa mzigo wa 100.
+1. Jaribio la kazi liliandika ununuzi BILA msambazaji (unalipwa papo hapo) kisha malipo kwa grepa? Kama ndiyo → kasoro
+   ya jaribio; rekebisha kazi93 (ununuzi wenye supplier_uid, UNPAID → malipo).
+2. Data halisi: ununuzi wenye supplier_uid (Takawedo 778) → GL ni Cr 2000 au Cr 1000? Kuna malipo ya msambazaji
+   yaliyoandikwa juu ya ununuzi uliokwisha kuandika Cr 1000? Hesabu idadi + jumla kama yapo. Hili likiwa kweli = kosa la pesa → simama.
+3. Mstari wa audit unasema "DELETE/ALLOWED (2.4.0)" ingawa backend ni 2.5.0 — ni lebo ya script tu?
+
+## 2026-11-13 (hb)
+(gy) imekubaliwa. (gw)/(gx) hazihitajiki tena. Kama (ha) haijakufikia, iko hapa chini — ni ya kwanza.
+(ha) [kama juu] 1. kasoro ya jaribio -> rekebisha kazi93. 2. data halisi: Cr 2000 au Cr 1000; malipo juu ya ununuzi wa Cr 1000
+  -> idadi + jumla; likiwa kweli = kosa la pesa -> simama, prod haiendi. 3. "DELETE/ALLOWED (2.4.0)" - lebo ya script tu?
+Mpya:
+  4. Kwenye 2.5.0: ununuzi WENYE msambazaji unalazimika kuwa na chanzo (Droo/benki/simu/deni)? Kama hapana, onyo la 6e
+     litakuwa la uongo kila siku. Ripoti kwa code + jaribio; usijenge.
+  5. LSMS_PURCHASE_CHECK_FROM: subiri uamuzi wa Chief baada ya 1–4.
