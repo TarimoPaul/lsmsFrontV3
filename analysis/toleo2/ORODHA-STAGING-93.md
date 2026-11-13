@@ -14,6 +14,17 @@ Commit za build: backend `a86fbcf`, V3 `a1caafc` (lango LANGO_OK 13/11 kwenye du
 | 0b | `push-yote` (main zote mbili) | `push-yote.log` | main ya backend = `a86fbcf`, main ya V3 = HEAD ya sasa (analysis juu ya `a1caafc`). |
 | 0c | `93-deploy-250.cmd login` | `93-pc-login.log` | `---76L_OK---` (token ya server ni READ-ONLY). |
 
+## 0d. ARIFA — staging haitumi nje (gt), KUSOMA TU, kabla ya hatua 1
+
+Amri: `93-deploy-250.cmd staging hali`  → `93-staging-hali.log`
+
+- `ARIFA 1/3: APP_SCHEDULERS_ENABLED=false kwenye backend (profile …)`
+- `ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)`
+- `ARIFA 3/3: jar ya 2.4.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client` (2.5.0 ikishavutwa: `jar ya 2.5.0`)
+- **`ARIFA_ZIMEZIMWA: …`** — ukiona `ARIFA … SIYO` au `ARIFA HAZIJAZIMWA` **simama**, nitumie log.
+- `cron za mtumiaji zinazotaja lsms-staging: <n> (taarifa)`
+- Kusoma tu: container ya muda ya image (`--network none`) inasoma orodha ya maktaba ya jar; staging haiguswi.
+
 ## 1. refresh-db — staging inapata DB ya prod ya leo
 
 Amri: `93-deploy-250.cmd staging refresh-db`  → `93-staging-refresh-db.log`
@@ -33,9 +44,9 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log`
 | **K1 kagua** | `inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 138`; `image za rollback zipo: 2.4.0 + 3.2.0`; `diski wazi <n>G` (≥ 5). |
 | **K2 backup** | `DUMP <jina> bytes <n> sha256 …` (> MB 5); kwa staging: `B2: staging - dump inabaki kwenye server tu`. |
 | **K3 pull** | `digest: sha256:… / sha256:…` — linganisha mwanzo wa digest na ile ya `93-pc-build.log` (image ileile iliyojengwa). |
-| **K4 env/compose** | `APP_FEATURES_SALES_RETURNS_ENABLED: haijawekwa (default ya jar)`; `LSMS_PURCHASE_CHECK_FROM: haijawekwa (default ya jar)`; `.env + compose: HAKUNA mabadiliko kwa 2.5.0`. |
+| **K4 env/compose** | `APP_FEATURES_SALES_RETURNS_ENABLED: haijawekwa (default ya jar)`; `LSMS_PURCHASE_CHECK_FROM: haijawekwa (default ya jar)`; `.env + compose: HAKUNA mabadiliko kwa 2.5.0`; **`ARIFA 1/3`, `2/3`, `3/3: jar ya 2.5.0 …` na `ARIFA_ZIMEZIMWA`** — bila hiyo K4 inasimama (`ARIFA HAZIJAZIMWA`) KABLA ya kubadili chochote. |
 | **K5 badili** | `backend: 'Started LsmsApplication' baada ya ~<n>s`; `http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401/403`; `HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0`; **`Flyway: 139:true 140:true … 151:true (max 151)`** — zote 13 ziwe `true`. |
-| **K6 smoke (server)** | `jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA`; **`D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)`** — ukiona `ONYO: D IMEWEKWA tayari` simama; `ERROR baada ya kuanza (maombi ya moja kwa moja): 0`. |
+| **K6 smoke (server)** | `jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA`; **`D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)`** — ukiona `ONYO: D IMEWEKWA tayari` simama; `ERROR baada ya kuanza (maombi ya moja kwa moja): 0`; **`ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED=false)`**. |
 
 Mwisho: `---93_OK---`. Ikishindwa ndani ya K5, script inafanya ROLLBACK yenyewe na kusema hivyo.
 

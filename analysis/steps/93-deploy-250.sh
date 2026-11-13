@@ -12,13 +12,21 @@
 #   bash 93-deploy-250.sh staging refresh-db [dump]  STAGING TU: DB <- dump ya prod (default: ~/backups/daily ya leo)
 #
 # Haifuti image yoyote (de: siku ya deploy hakuna kufuta). Haiandiki thamani ya siri kwenye output.
-# Majaribio (PC): L93_HOME, L93_DIR, L93_BASE, L93_SLEEP=0 - kwa server ya kuigiza tu.
+# Majaribio (PC): L93_HOME, L93_DIR, L93_BASE, L93_SLEEP=0, L93_IMG_BE - kwa server ya kuigiza tu.
+#
+# (mmiliki 13/11 gt) STAGING HAITUMI NJE: K4 (kabla ya kubadili) + K6 (container inayoendesha) + hali -> ARIFA_ZIMEZIMWA au SIMAMA.
+#   Njia zote za kutoka nje kwenye 2.5.0 (ukaguzi wa code 13/11): HAKUNA mail/SMS/WhatsApp/webhook/push - jar haina maktaba
+#   ya mail wala HTTP client, hakuna RestTemplate/WebClient/URL.openConnection. "Arifa" (muhtasari wa mauzo 00:00 kwa
+#   Macheda, sale/ununuzi/badiliko) ni safu kwenye jedwali notifications la DB YA STAGING TU - zinaonekana tu kwa anayeingia
+#   staging. Schedulers zinazoandika (capex 00:05/00:10/kila mwezi, riba ya mikopo, GL health, order suggestion, audit
+#   retention) zinafungwa na APP_SCHEDULERS_ENABLED=false; muhtasari wa mauzo 00:00 na kusafisha tokeni 02:00 hazina swichi
+#   (zinaandika DB ya staging tu).
 set -uo pipefail
 
 TARGET="${1:-}"; ACTION="${2:-}"; ARG3="${3:-}"
 H="${L93_HOME:-$HOME}"
 NEW_BE=2.5.0; NEW_V3=3.3.0; OLD_BE=2.4.0; OLD_V3=3.2.0
-IMG_BE=chiefmaster/my-lsms-backend; IMG_V3=chiefmaster/lsms-frontend-v3
+IMG_BE=${L93_IMG_BE:-chiefmaster/my-lsms-backend}; IMG_V3=chiefmaster/lsms-frontend-v3
 ROLES='CEO,Executive CEO'
 ENV_ONDOA='ADMIN_EMAIL ADMIN_PASSWORD DOCKERHUB_USERNAME DOCKERHUB_PASSWORD'
 FLY_OLD=138; FLY_NEW=151
@@ -61,6 +69,33 @@ dump_ok() {
   [ "$n" -gt 100 ] || { say "pg_restore --list: entries $n tu"; return 1; }
   DC exec -T postgres pg_restore -f /dev/null < "$1" || { say "pg_restore haikusoma faili lote (limekatika?): $1"; return 1; }
   DUMP_INFO="pg_restore --list entries $n, kusoma faili lote SAWA"
+}
+# (gt) ARIFA: staging haitumi chochote nje. arifa <tag-ya-backend> -> 0 + ARIFA_ZIMEZIMWA, au 1 + sababu.
+#   1) backend ya compose ina APP_SCHEDULERS_ENABLED=false (profile prod ingeiwasha);
+#   2) hakuna funguo za kutuma nje kwenye .env wala kwenye environment ya backend (majina tu, thamani hazichapishwi);
+#   3) jar ya image hiyo haina maktaba ya mail / SMS / push / HTTP client (inasomwa kwenye container ya muda, --network none).
+OUT_KEYS='MAIL|SMTP|SMS|WHATSAPP|TWILIO|WEBHOOK|FCM|FIREBASE|TELEGRAM|SENDGRID|BEEM|NEXTSMS|ONESIGNAL|PUSH'
+OUT_LIBS='mail|twilio|firebase|okhttp|webflux|reactor-netty|httpclient|feign|retrofit|telegram|sendgrid|aws-java-sdk|amqp|kafka|onesignal'
+arifa() {
+  local c be sch prof keys libs n r=0
+  c=$(DC config 2>/dev/null) || { say "ARIFA: docker compose config imeshindwa"; return 1; }
+  be=$(awk '/^  backend:/{b=1;next} /^  [^ ]/{b=0} b' <<<"$c")
+  sch=$(grep -oE 'APP_SCHEDULERS_ENABLED(:|=) *"?[A-Za-z]+' <<<"$be" | sed -E 's/.*(:|=) *"?//' | head -n1)
+  prof=$(grep -oE 'SPRING_PROFILES_ACTIVE(:|=) *"?[A-Za-z,]+' <<<"$be" | sed -E 's/.*(:|=) *"?//' | head -n1)
+  if [ "$sch" = false ]; then say "ARIFA 1/3: APP_SCHEDULERS_ENABLED=false kwenye backend (profile ${prof:-HAIPO})"
+  else say "ARIFA 1/3 SIYO: APP_SCHEDULERS_ENABLED ya backend ni '${sch:-HAIPO}' (lazima false; profile ${prof:-HAIPO})"; r=1; fi
+  keys=$( { sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' .env; grep -oE '^ +[A-Z][A-Z0-9_]*:' <<<"$be" | tr -d ' :'; } | grep -E "(^|_)($OUT_KEYS)(_|$)" | sort -u | tr '\n' ' ')
+  if [ -z "$keys" ]; then say "ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)"
+  else say "ARIFA 2/3 SIYO: funguo za kutuma nje zipo: $keys"; r=1; fi
+  if docker image inspect "$IMG_BE:$1" >/dev/null 2>&1; then
+    libs=$(docker run --rm --network none --entrypoint sh "$IMG_BE:$1" -c 'unzip -l /app/app.jar' 2>/dev/null | sed -n 's#.*BOOT-INF/lib/##p')
+    n=$(grep -c . <<<"$libs")
+    if [ "$n" -lt 50 ]; then say "ARIFA 3/3 SIYO: maktaba za jar ya $1 hazikusomeka ($n)"; r=1
+    elif grep -iqE "$OUT_LIBS" <<<"$libs"; then say "ARIFA 3/3 SIYO: jar ya $1 ina: $(grep -iE "$OUT_LIBS" <<<"$libs" | tr '\n' ' ')"; r=1
+    else say "ARIFA 3/3: jar ya $1 - maktaba $n, hakuna ya mail/SMS/push/HTTP client"; fi
+  else say "ARIFA 3/3 SIYO: image $IMG_BE:$1 haipo kwenye server"; r=1; fi
+  [ $r = 0 ] && say "ARIFA_ZIMEZIMWA: staging haitumi mail/SMS/WhatsApp/webhook/push; arifa za ndani (muhtasari wa mauzo 00:00 n.k.) zinaandikwa kwenye DB ya staging tu"
+  return $r
 }
 fly_max(){ psql_q "select max(version::int) from flyway_schema_history where success and version ~ '^[0-9]+\$'"; }
 
@@ -127,6 +162,11 @@ hali() {
     docker image inspect "$i" >/dev/null 2>&1 && say "image IPO $i" || say "image HAIPO $i"; done
   say ".backend.prev=$(cat .backend.prev 2>/dev/null) .frontend-v3.prev=$(cat .frontend-v3.prev 2>/dev/null)"
   [ -f "$HALI" ] && sed 's/^/[hali] /' "$HALI" || say "hakuna hatua iliyokamilika bado"
+  if [ "$TARGET" = staging ]; then
+    local t="$NEW_BE"; docker image inspect "$IMG_BE:$NEW_BE" >/dev/null 2>&1 || t="$OLD_BE"
+    arifa "$t" || say "ARIFA HAZIJAZIMWA (hali - kusoma tu; deploy itasimama K4)"
+    say "cron za mtumiaji zinazotaja lsms-staging: $(crontab -l 2>/dev/null | grep -v '^ *#' | grep -c lsms-staging) (taarifa)"
+  fi
 }
 
 # ═════════════════════════════════════════ K1 KAGUA (kusoma tu) ═════════════════════════════════════════════
@@ -209,6 +249,7 @@ k4() {
   done
   grep -qiE "APP_FEATURES_SALES_RETURNS_ENABLED.*true" <<<"$c" && die "marejesho (C4) yamewashwa kwenye compose - lazima yaanze OFF"
   say ".env + compose: HAKUNA mabadiliko kwa 2.5.0"
+  if [ "$TARGET" = staging ]; then arifa "$NEW_BE" || die "ARIFA HAZIJAZIMWA - staging ingeweza kutuma nje; HAKUNA kilichobadilishwa (rekebisha .env ya staging, kisha deploy tena)"; fi
   mark K4-KAGUA
 }
 
@@ -242,6 +283,11 @@ k6() {
   [ "$(psql_q "select coalesce(bank_cutover_date::text,'HAIJAWEKWA') from gl_config order by id limit 1")" = HAIJAWEKWA ] && say "D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)" || say "ONYO: D IMEWEKWA tayari"
   local later; later=$(docker logs "$cid" 2>&1 | sed "1,/$START_MARK/d" | grep -cE ' (ERROR|FATAL) ')
   say "ERROR baada ya kuanza (maombi ya moja kwa moja): $later"
+  if [ "$TARGET" = staging ]; then
+    local se; se=$(docker exec "$cid" printenv APP_SCHEDULERS_ENABLED 2>/dev/null | tr -dc 'a-z')
+    [ "$se" = false ] || die "ARIFA: container ya backend inaendesha na APP_SCHEDULERS_ENABLED='${se:-HAIPO}' (rollback: bash $0 $TARGET rollback)"
+    say "ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED=false)"
+  fi
   mark K6-SMOKE
 }
 

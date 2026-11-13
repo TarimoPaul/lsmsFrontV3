@@ -1470,3 +1470,12 @@ LANGO_OK imekubaliwa.
 2. Lango la zamani: muda (timestamp) wa kuliua vs muda wa restore ya nakala mpya — kuliua kulikuwa KABLA ya restore? Ripoti mistari ya log.
 3. MUHTASARI: baada ya staging kupita → main IMEFUNGWA hadi 02/12 (code ya app); badiliko lolote = lango + staging upya. Hotfix = kutoka tag.
 4. Andaa orodha ya staging (93): refresh-db → deploy → kazi → rollback → deploy, na nini cha kusoma kwenye kila log (K1–K6, smoke, Flyway 151, D HAIJAWEKWA).
+
+## 2026-11-13 (gt)
+(gs) imekubaliwa. Kabla ya hatua 2 ya staging (deploy 2.5.0 juu ya data ya prod):
+1. Orodhesha kila kitu kinachotuma NJE kwenye 2.5.0: arifa ya mauzo ya kila siku (Macheda), SMS/WhatsApp/email,
+   scheduler zozote, webhooks. Kwa kila kimoja: staging inakizuia vipi (env/config)? Thibitisha kwa .env ya staging
+   (kusoma tu, ficha siri).
+2. Kama chochote hakijazuiwa → ongeza kwenye K4/K6 ya staging: "ARIFA_ZIMEZIMWA" au simama. Staging isimtumie
+   Macheda wala mtu yeyote ujumbe halisi.
+3. Ongeza mstari huo kwenye ORODHA-STAGING-93.md hatua 2.
