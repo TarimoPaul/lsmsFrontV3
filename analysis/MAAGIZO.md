@@ -1624,3 +1624,11 @@ Niambie "done" + amri.
 MUHTASARI / uchambuzi wa 2910 (D): chanzo kinachojulikana +46,000 kwenye 1000 — manunuzi ya bandia ya kupima (Feb–Ago,
 jumla 80,000, Cr 1000 bila malipo); 34,000 zinarudishwa na 85 (HATUA85-HM), 46,000 zilienda 5000 kwenye vipindi vilivyopita
 → zitaonekana ndani ya tofauti ya 2910 siku ya D. Usirekebishe vipindi vya zamani.
+
+## 2026-11-13 (hp)
+BADILISHA (ho) — namba sahihi kutoka 85 KAGUA ya prod:
+Manunuzi ya bandia ya kupima Cr 1000 bila malipo = 159,000 (Konyagi 34k, Moon Light 40k, GK 20k, Gilbeys 20k,
+Camino 20k, Wine 25k). 85 inarudisha 34,000 (Dr 1000/Cr 1200). 125,000 zilizobaki zilienda 5000 → chanzo kinachojulikana
+ndani ya tofauti ya 2910 siku ya D. Usirekebishe vipindi vya zamani.
+Pia: mtiririko hasi Konyagi −60,000 (vipande 60 bila GL) + Wine −10,000 (vipande 20) → 1200 chini ~70,000 → itaonekana
+kwenye kuhesabu mali 30/11; andika kama chanzo kinachojulikana kwenye MUHTASARI (hesabu ya mali + 2910).

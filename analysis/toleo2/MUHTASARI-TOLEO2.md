@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (ho)
+nimesoma hadi (hp)
 
 **(hi) PROD = backend 2.5.0 + V3 3.3.0 tangu 13/11/2026 14:05 EAT** (hatua 93: DEPLOY_OK, Flyway 151, marejesho OFF (hh), onyo la manunuzi 2026-11-14, D HAIJAWEKWA, ERROR 0; smoke 9/9; 74b ANDIKA 419 -> PAID, GL haikubadilika). Tag (local, push ni ya Chief kwa push-yote 8/9): **v2.5.0 -> a86fbcf**, **v3.3.0 -> a1caafc**. **Main iko WAZI tena** kwa kazi ya Desemba (lango zima + staging kabla ya prod yoyote).
 
@@ -75,15 +75,12 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | **07/12 asubuhi (D)** | **60** kagua -> andika | salio la ufunguzi kwa akaunti ZOTE 9 za benki/simu + tofauti -> 2910 + D |
 | 07/12 + siku 30 | journal ya mkono | 2910 chambua; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO) |
 
-**(ho) Uchambuzi wa 2910 (D) — vyanzo vinavyojulikana** (vipindi vya zamani HAVIREKEBISHWI):
+**(hp, inachukua nafasi ya ho) Vyanzo vinavyojulikana — 2910 (D) na kuhesabu mali** (namba za 85 KAGUA ya prod; vipindi vya zamani HAVIREKEBISHWI):
 
-| Chanzo | Athari kwenye 1000 (GL chini ya halisi) | Hali |
+| Chanzo | Athari | Itaonekana wapi |
 |---|---|---|
-| Manunuzi ya bandia ya KUPIMA, Feb–Ago: Gilbeys 20,000 + Golden King 20,000 + Moon Light 40,000 = **80,000** Cr 1000 bila malipo (Chief) | 34,000 zinarudishwa na hatua 85 (`HATUA85-HM`, Dr 1000 / Cr 1200, 14/11); **46,000** zilikwenda 5000 (gharama ya mauzo ya vipande, vipindi vilivyopita) | **+46,000** itaonekana ndani ya tofauti ya 2910 siku ya D |
-
-Data (nakala 12/11, kusoma tu): bidhaa nyingine 3 za kupima pia zina manunuzi yaliyoandikwa Cr 1000 — KONYAGI YA KUPIMA 34,000,
-CAMINO KUPIMA 20,000, WINE ZA KUPIMA 25,000 (stock yao sasa 0; hatua 85 haizigusi). Kama nazo hazikulipwa, zinaongeza hadi
-79,000 kwenye chanzo hiki cha 2910 — haijathibitishwa na Chief.
+| Manunuzi ya bandia ya KUPIMA, Cr 1000 bila malipo: Konyagi 34,000 + Moon Light 40,000 + Golden King 20,000 + Gilbeys 20,000 + Camino 20,000 + Wine 25,000 = **159,000** | 34,000 zinarudishwa na hatua 85 (`HATUA85-HM`, Dr 1000 / Cr 1200); **125,000** zilikwenda 5000 (vipindi vilivyopita) -> 1000 kwenye GL iko chini ya halisi kwa 125,000 | ndani ya tofauti ya **2910** siku ya D (07/12, hatua 60) |
+| Mtiririko hasi wa vipande vya kupima visivyo na GL: Konyagi -60,000 (vipande 60) + Wine -10,000 (vipande 20) | gharama ya mauzo ilitoa 1200 kwa vipande ambavyo havikuwahi kuingia 1200 -> **1200 chini ~70,000** | **kuhesabu mali 30/11** (tofauti ya thamani ya stock dhidi ya GL) |
 
 ## 3. Kilichobaki kabla ya kuunganisha (kazi 10)
 
