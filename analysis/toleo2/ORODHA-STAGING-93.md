@@ -1,0 +1,88 @@
+# Orodha ya staging — hatua 93 (backend 2.5.0 + V3 3.3.0)
+
+(mmiliki 13/11 gs 4) Chief anaendesha kila amri mwenyewe. Kila amri inaandika `analysis\steps\93-<lengo>-<kitendo>.log`.
+Kila hatua inaisha kwa `---93_OK---`; ukiona `---93_IMESHINDWA---` **simama** na unitumie log hiyo.
+Mtandao ukikatika: kazi inaendelea kwenye server; endesha amri ileile tena au `93-deploy-250.cmd staging fuata`.
+
+Commit za build: backend `a86fbcf`, V3 `a1caafc` (lango LANGO_OK 13/11 kwenye dump ya prod ya 12/11).
+
+## 0. Build + push + login (PC, mara moja)
+
+| # | Amri | Log | Cha kusoma |
+|---|---|---|---|
+| 0a | `93-deploy-250.cmd build a86fbcf a1caafc` | `93-pc-build.log` | Mistari 2 ya `imetajwa … = <sha> | HEAD … | tawi main | … = 2.5.0 / 3.3.0 | mabadiliko 0`; `COMMIT ZA BUILD: backend 2.5.0 <sha kamili ya a86fbcf> | v3 3.3.0 <sha kamili ya a1caafc>`; `Docker Hub SAWA` x2; `---93_BUILD_OK---`. Push ya backend ni ~MB 88 (layer ya jar mara moja), V3 ~MB 3; push ikikatika inajaribiwa mara 3. |
+| 0b | `push-yote` (main zote mbili) | `push-yote.log` | main ya backend = `a86fbcf`, main ya V3 = HEAD ya sasa (analysis juu ya `a1caafc`). |
+| 0c | `93-deploy-250.cmd login` | `93-pc-login.log` | `---76L_OK---` (token ya server ni READ-ONLY). |
+
+## 1. refresh-db — staging inapata DB ya prod ya leo
+
+Amri: `93-deploy-250.cmd staging refresh-db`  → `93-staging-refresh-db.log`
+
+- Sharti: staging iko kwenye 2.4.0. Ikisema `staging lazima iwe 2.4.0 kabla ya refresh` → endesha `staging rollback` kwanza.
+- `=== REFRESH-DB staging <- lsms_<LEO>_0200.dump` — tarehe ya dump lazima iwe ya **leo**.
+- `restore SAWA: Flyway 138, sales <n>, users <n>` — **Flyway 138** (hali ya prod kabla ya 2.5.0).
+- `HEALTH SAWA: backend 2.4.0, frontend-v3 3.2.0`
+- `REFRESH-DB SAWA (...s); hali ya 93 ya staging imefutwa (deploy itaanza K1)`
+
+## 2. deploy (ya kwanza) — K1 hadi K6
+
+Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log`
+
+| Hatua | Cha kusoma kwenye log |
+|---|---|
+| **K1 kagua** | `inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 138`; `image za rollback zipo: 2.4.0 + 3.2.0`; `diski wazi <n>G` (≥ 5). |
+| **K2 backup** | `DUMP <jina> bytes <n> sha256 …` (> MB 5); kwa staging: `B2: staging - dump inabaki kwenye server tu`. |
+| **K3 pull** | `digest: sha256:… / sha256:…` — linganisha mwanzo wa digest na ile ya `93-pc-build.log` (image ileile iliyojengwa). |
+| **K4 env/compose** | `APP_FEATURES_SALES_RETURNS_ENABLED: haijawekwa (default ya jar)`; `LSMS_PURCHASE_CHECK_FROM: haijawekwa (default ya jar)`; `.env + compose: HAKUNA mabadiliko kwa 2.5.0`. |
+| **K5 badili** | `backend: 'Started LsmsApplication' baada ya ~<n>s`; `http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401/403`; `HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0`; **`Flyway: 139:true 140:true … 151:true (max 151)`** — zote 13 ziwe `true`. |
+| **K6 smoke (server)** | `jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA`; **`D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)`** — ukiona `ONYO: D IMEWEKWA tayari` simama; `ERROR baada ya kuanza (maombi ya moja kwa moja): 0`. |
+
+Mwisho: `---93_OK---`. Ikishindwa ndani ya K5, script inafanya ROLLBACK yenyewe na kusema hivyo.
+
+Kwa macho (dakika 2): fungua staging `/v3/` → footer ya login inaonyesha **3.3.0**; `/v3/version.json` = `"version": "3.3.0"`.
+
+## 3. kazi — kuandika kwa kweli kwenye staging (2.5.0)
+
+Amri: `93-deploy-250.cmd staging kazi` (inauliza email + password ya CEO)  → `93-staging-kazi.log`
+
+Mistari ya `PASS` inayotarajiwa (hakuna `FAIL` hata moja):
+- `login (2.5.0)`
+- `sale cash imeandikwa`, `stock n -> n-1`, `GL journal ya sale ipo, inagusa 1000`
+- `sale imefutwa (API)`, `sales.is_active=false`, `stock imerudi`, `GL reversal ya sale ipo`, `sale_change_audit DELETE/ALLOWED`
+- `ununuzi umeandikwa`, `ununuzi APPROVED`, `GL ya ununuzi (…1200:100…)`
+- `malipo ya msambazaji yameandikwa`, `GL ya malipo (…2000:100…)`, `malipo yamefutwa (reversal)`
+- `sale-B ya reco imeandikwa`, `reco ya leo ipo`, `reco expense imeongezwa`, `reco expense imefutwa`, `sale-B imefutwa baada ya reco`
+- Mwisho: `KAZI_MATOKEO (2.5.0) PASS n FAIL 0`, `KAZI_OK n/n`, `---93_OK--- kazi`
+
+## 4. rollback — 2.4.0 juu ya schema 151
+
+Amri: `93-deploy-250.cmd staging rollback`  → `93-staging-rollback.log`
+
+- `=== ROLLBACK kwenda 2.4.0 + 3.2.0`; `.env + compose zimerudishwa kutoka <backup>`
+- `HEALTH SAWA: backend 2.4.0, frontend-v3 3.2.0`
+- **`Flyway ya mwisho: 151 (DB HAIJARUDISHWA …)`** — schema inabaki 151, 2.4.0 inawaka juu yake.
+- Kisha uthibitisho wa kuandika kwenye 2.4.0: `93-deploy-250.cmd staging kazi` → `login (2.4.0)`, `KAZI_OK n/n`.
+  (Lango la PC lilithibitisha hili: rollback kwa kuandika 5/0.)
+
+## 5. deploy (ya pili) — kurudi 2.5.0
+
+Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezwa chini)
+
+- K1: `inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 151` — sasa **151** inakubaliwa (baada ya rollback).
+- `K2-BACKUP ilishakamilika - inarukwa` (backup ya awali ndiyo ya "kabla"); K3 pull tena.
+- K5: `HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0`; `Flyway: 139:true … 151:true (max 151)` — hakuna migration mpya inayoendeshwa.
+- K6: mistari ileile ya hatua 2, pamoja na `D: HAIJAWEKWA`.
+- Kisha: `93-deploy-250.cmd staging smoke` → `SMOKE_OK n/n` (GET 6 + `sales/changes/pending` + `login_audit`), `---93_OK--- smoke`.
+- Mwisho: `93-deploy-250.cmd staging hali` → `backend 2.5.0 | frontend-v3 3.3.0`, `Flyway ya mwisho: 151`.
+
+## Staging imepita =
+
+1. refresh-db: Flyway 138, dump ya leo.
+2. deploy 1: K1–K6 zote, Flyway 139–151 `true`, D HAIJAWEKWA, ERROR 0.
+3. kazi kwenye 2.5.0: `KAZI_OK`, FAIL 0.
+4. rollback: HEALTH 2.4.0/3.2.0, Flyway 151; kazi kwenye 2.4.0 `KAZI_OK`.
+5. deploy 2: K1–K6, smoke `SMOKE_OK`, hali 2.5.0 / 3.3.0 / 151.
+
+Baada ya hapo: **main IMEFUNGWA hadi 02/12** (code ya app). Badiliko lolote = lango + staging upya. Hotfix = `hotfix/*` kutoka
+tag `v2.4.0` / `v3.2.0`. Prod 02/12: `93-deploy-250.cmd prod deploy` → `prod smoke`; kisha tag `v2.5.0` / `v3.3.0` kwenye SHA za
+`93-build-commits.txt`.

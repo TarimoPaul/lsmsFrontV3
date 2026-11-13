@@ -1463,3 +1463,10 @@ Lango: uchambuzi wa makosa 7 umekubaliwa. Kabla ya kuendelea: (gp) ilikufikia? K
    tozo kuunda mali yake kupitia manunuzi ya Capital; cache ya sekunde 60 ya kinga ya kuhesabu;
    worktree za feature/t2-* — ondoa kiungo cha node_modules kabla ya kuzifuta ~09/12.
 4. Lango likipita: ripoti fupi + amri ya 93 (build 7c9ce11 a1caafc). Push ni ya Chief.
+
+## 2026-11-13 (gs)
+LANGO_OK imekubaliwa.
+1. Ushahidi kabla ya build: git diff --stat 7c9ce11 a86fbcf — faili zote ziwe deploy/local/ tu. Ripoti matokeo.
+2. Lango la zamani: muda (timestamp) wa kuliua vs muda wa restore ya nakala mpya — kuliua kulikuwa KABLA ya restore? Ripoti mistari ya log.
+3. MUHTASARI: baada ya staging kupita → main IMEFUNGWA hadi 02/12 (code ya app); badiliko lolote = lango + staging upya. Hotfix = kutoka tag.
+4. Andaa orodha ya staging (93): refresh-db → deploy → kazi → rollback → deploy, na nini cha kusoma kwenye kila log (K1–K6, smoke, Flyway 151, D HAIJAWEKWA).

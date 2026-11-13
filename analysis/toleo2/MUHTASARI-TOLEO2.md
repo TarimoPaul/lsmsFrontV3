@@ -133,6 +133,10 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      7c9ce11 + kinga ya RAM ya lango.sh): suite 696/0/1 (peke yake), ng test 104/104, payment_method dhidi ya V151 = 0,
      Flyway 138 -> 151 zote true, c2 2/2, awamu A 30/30 (a6 12/0 na A8e, b1 29/0, sababu 20/0, kupima_e2e 22/0), awamu B 4/4,
      rollback kwa kuandika 5/0. Log: `toleo2/lango-b2-1211-gr/`. 93: `93-deploy-250.cmd build a86fbcf a1caafc`. Push ni ya Chief.
+   - **(gs) 13/11 KANUNI: baada ya staging kupita -> main IMEFUNGWA hadi 02/12 (code ya app).** Badiliko lolote la code =
+     lango zima + staging upya. Hotfix = `hotfix/*` kutoka tag v2.4.0 / v3.2.0 (si kutoka main). Commit za analysis/ haziathiri.
+     Orodha ya staging (amri + cha kusoma kwenye kila log): `toleo2/ORODHA-STAGING-93.md`. git diff 7c9ce11..a86fbcf =
+     deploy/local/lango.sh tu (+6).
    - **DESEMBA (gr 3) - usijenge sasa:**
      1. Tarehe zilizobandikwa kwenye majaribio: `manunuzi_onyo` (08/11 + LSMS_PURCHASE_CHECK_FROM=2026-11-01 ya lango.sh),
         `b3`/`b4` (mikopo 26/09, 04/10), `akaunti` (CRDB 24/08), `kupima_api` (kipindi 2026-12-01..2026-11-01).
