@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (hl)
+nimesoma hadi (hn)
 
 **(hi) PROD = backend 2.5.0 + V3 3.3.0 tangu 13/11/2026 14:05 EAT** (hatua 93: DEPLOY_OK, Flyway 151, marejesho OFF (hh), onyo la manunuzi 2026-11-14, D HAIJAWEKWA, ERROR 0; smoke 9/9; 74b ANDIKA 419 -> PAID, GL haikubadilika). Tag (local, push ni ya Chief kwa push-yote 8/9): **v2.5.0 -> a86fbcf**, **v3.3.0 -> a1caafc**. **Main iko WAZI tena** kwa kazi ya Desemba (lango zima + staging kabla ya prod yoyote).
 
@@ -68,7 +68,7 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Baada ya deploy (hi 5: KAGUA kwenye ripoti 95 ya 14/11) | **74** | ununuzi 18 -> PAID (bila journal). Baada ya 74b: Grepa (bila msambazaji) inatarajiwa TAYARI-PAID; 17 wenye msambazaji HAWAGUSWI na 74b -> 74 bado inahitajika kwa hao (nakala 12/11: SAWA 18) |
 | ~~Siku ya deploy~~ IMEFANYIKA 13/11 14:12 | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
-| **14/11 asubuhi kabla ya duka kufunguliwa** (hk/hl) | **85** kagua -> andika | uhamisho wa KUPIMA: wazazi kwa uid (33/105/64/59/102) + GILBEYS/CAMINO 750ml kwa uid8 ya KAGUA; ml za chupa iliyo wazi (mzazi hapunguzwi); bei ya Camino 50ml = Chief (KADIRIO gharama 45,000/chupa -> bei ya chini kwa faida > 10%: 3,500); MA-LOT/Grepa bei ya mzazi hiari; ONYO faida <= 10%. Nakala 12/11: GL ya kufuta 36,000 (Moon Light 18,000, Golden King 9,000, Gilbeys 9,000) |
+| **14/11 asubuhi kabla ya duka kufunguliwa** (hk/hl) | **85** kagua -> andika | uhamisho wa KUPIMA: wazazi kwa uid (33/105/64/59/102) + GILBEYS/CAMINO 750ml kwa uid8 ya KAGUA; ml za chupa iliyo wazi (mzazi hapunguzwi); Camino 50ml = 4,000 (hn); MA-LOT = 5L (hn); MA-LOT/Grepa bei ya mzazi hiari; ONYO faida <= 10%. **(hm) stock ya bandia kwa CHANZO, si 3900:** manunuzi ya vipande yaliandikwa Dr 1200 / Cr 1000 (Chief: hayakulipwa) -> journal ya mkono `HATUA85-HM <uid8>` Dr 1000 / Cr 1200 (vingine -> 5100). Nakala 12/11: **34,000** = Moon Light 16,000 (vipande 9, kimoja cha marekebisho ya 30/03 bila GL) + Golden King 9,000 + Gilbeys 9,000. ml > 0 kwa mzazi mwenye avg 0 (Gilbeys/Camino 750 bila manunuzi) -> ANDIKA inakataa. |
 | **>= 20/11** (hi: siku 7 baada ya prod 13/11, bila rollback) | **DROP-MV** | migration/hatua tofauti: DROP view 4 + kuondoa initializer/repository |
 | **>= 20/11** (hi), baada ya kuthibitisha dump ya B2 ina backup table | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
 | 04/12 | — | Loan A awamu 2 kwenye app (Cr 1000), hakuna kazi |

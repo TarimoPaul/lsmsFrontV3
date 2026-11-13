@@ -1602,3 +1602,19 @@ Chief amesajili: Camino 750ml (Brandy/Cognac, 6/pkg, 270,000/pkg) na Gilbeys 750
 KAGUA ya 85 itafute hizi kwa data ya prod. Bei ya Camino 50ml = [Chief ajaze] (si 3,000 — gharama 45,000/chupa = faida 0).
 KAGUA ionyeshe kwa kila mzazi: gharama/chupa, vipimo kwa chupa, mapato kwa chupa kwa bei ya kipimo, faida/chupa —
 na ionye (ONYO) kipimo chochote chenye faida/chupa ≤ 10% ya gharama.
+
+## 2026-11-13 (hm)
+85: KABLA ya ANDIKA ya kesho, badilisha akaunti ya kuondoa stock ya bandia (36,000):
+  3900 SI sahihi (mtaji wa ufunguzi; vipande viliundwa ndani ya mfumo). Fuatilia chanzo kwa data (kusoma tu):
+  - manunuzi ya bandia ya vipande hivi: journal zake zilikuwa Cr 1000? (Chief: hayakulipwa) → Dr 1000 / Cr 1200;
+  - vinginevyo (upotevu/marekebisho ya mkono) → Dr 5100 / Cr 1200 (kama (ek)-2).
+  Ripoti kwa kila bidhaa: chanzo | journal ya awali | akaunti mpya | kiasi. Jaribio upya: TB 0.
+2. KAGUA ionyeshe ONYO wazi kama mzazi ana avg 0 wakati ml > 0 zinaombwa — na ANDIKA ikatae (si onyo tu) kuanzisha
+   chombo chenye ml > 0 kwa mzazi mwenye avg 0, mpaka manunuzi yaandikwe.
+3. Niambie "done" + amri.
+
+## 2026-11-13 (hn)
+Majibu ya Chief: Camino 50ml = 4,000. MA-LOT BOX WINE = 5L (5,000ml ni sahihi).
+Fanya (hm) kwanza (akaunti ya 36,000 kwa chanzo, si 3900; ANDIKA ikatae ml > 0 kwa mzazi avg 0).
+KAGUA ya 85: jedwali la faida litumie Camino 4,000.
+Niambie "done" + amri.
