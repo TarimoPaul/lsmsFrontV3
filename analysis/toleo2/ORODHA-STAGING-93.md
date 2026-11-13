@@ -18,7 +18,7 @@ Commit za build: backend `a86fbcf`, V3 `a1caafc` (lango LANGO_OK 13/11 kwenye du
 
 Amri: `93-deploy-250.cmd staging hali`  → `93-staging-hali.log`
 
-- `ARIFA 1/3: APP_SCHEDULERS_ENABLED=false kwenye backend (profile …)`
+- `ARIFA 1/3: APP_SCHEDULERS_ENABLED =false kwenye backend (profile …)`
 - `ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)`
 - `ARIFA 3/3: jar ya 2.4.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client` (2.5.0 ikishavutwa: `jar ya 2.5.0`)
 - **`ARIFA_ZIMEZIMWA: …`** — ukiona `ARIFA … SIYO` au `ARIFA HAZIJAZIMWA` **simama**, nitumie log.
@@ -46,7 +46,7 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log`
 | **K3 pull** | `digest: sha256:… / sha256:…` — linganisha mwanzo wa digest na ile ya `93-pc-build.log` (image ileile iliyojengwa). |
 | **K4 env/compose** | (gy, script ya sasa) `marejesho APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA (default ya jar: false)` (baada ya sehemu 6: `=true`); `onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =HAIJAWEKWA (default ya jar: 2026-12-02)`; **`ARIFA 1/3`, `2/3`, `3/3: jar ya 2.5.0 …` na `ARIFA_ZIMEZIMWA`** — bila hiyo K4 inasimama (`ARIFA HAZIJAZIMWA`) KABLA ya kubadili chochote. |
 | **K5 badili** | `backend: 'Started LsmsApplication' baada ya ~<n>s`; `http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401/403`; `HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0`; **`Flyway: 139:true 140:true … 151:true (max 151)`** — zote 13 ziwe `true`. |
-| **K6 smoke (server)** | `jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA`; **`D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)`** — ukiona `ONYO: D IMEWEKWA tayari` simama; `ERROR baada ya kuanza (maombi ya moja kwa moja): 0`; **`ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED=false)`**. |
+| **K6 smoke (server)** | `jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA`; **`D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)`** — ukiona `ONYO: D IMEWEKWA tayari` simama; `ERROR baada ya kuanza (maombi ya moja kwa moja): 0`; **`ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED =false)`**. |
 
 Mwisho: `---93_OK---`. Ikishindwa ndani ya K5, script inafanya ROLLBACK yenyewe na kusema hivyo.
 

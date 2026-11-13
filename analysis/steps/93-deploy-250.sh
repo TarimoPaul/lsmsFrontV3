@@ -90,7 +90,7 @@ arifa() {
   be=$(awk '/^  backend:/{b=1;next} /^  [^ ]/{b=0} b' <<<"$c")
   sch=$(grep -oE 'APP_SCHEDULERS_ENABLED(:|=) *"?[A-Za-z]+' <<<"$be" | sed -E 's/.*(:|=) *"?//' | head -n1)
   prof=$(grep -oE 'SPRING_PROFILES_ACTIVE(:|=) *"?[A-Za-z,]+' <<<"$be" | sed -E 's/.*(:|=) *"?//' | head -n1)
-  if [ "$sch" = false ]; then say "ARIFA 1/3: APP_SCHEDULERS_ENABLED=false kwenye backend (profile ${prof:-HAIPO})"
+  if [ "$sch" = false ]; then say "ARIFA 1/3: APP_SCHEDULERS_ENABLED =false kwenye backend (profile ${prof:-HAIPO})"
   else say "ARIFA 1/3 SIYO: APP_SCHEDULERS_ENABLED ya backend ni '${sch:-HAIPO}' (lazima false; profile ${prof:-HAIPO})"; r=1; fi
   keys=$( { sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' .env; grep -oE '^ +[A-Z][A-Z0-9_]*:' <<<"$be" | tr -d ' :'; } | grep -E "(^|_)($OUT_KEYS)(_|$)" | sort -u | tr '\n' ' ')
   if [ -z "$keys" ]; then say "ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)"
@@ -318,8 +318,8 @@ k6() {
   say "ERROR baada ya kuanza (maombi ya moja kwa moja): $later"
   if [ "$TARGET" = staging ]; then
     local se; se=$(docker exec "$cid" printenv APP_SCHEDULERS_ENABLED 2>/dev/null | tr -dc 'a-z')
-    [ "$se" = false ] || die "ARIFA: container ya backend inaendesha na APP_SCHEDULERS_ENABLED='${se:-HAIPO}' (rollback: bash $0 $TARGET rollback)"
-    say "ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED=false)"
+    [ "$se" = false ] || die "ARIFA: container ya backend inaendesha na APP_SCHEDULERS_ENABLED ='${se:-HAIPO}' (rollback: bash $0 $TARGET rollback)"
+    say "ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED =false)"
   fi
   mark K6-SMOKE
 }
