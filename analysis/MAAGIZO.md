@@ -1452,3 +1452,14 @@ Lango: uchambuzi wa makosa 7 umekubaliwa. Kabla ya kuendelea: (gp) ilikufikia? K
 5. (gp)4: version.json ya V3 inaonyesha 3.0.0 — build ya 3.3.0 inaandika version sahihi? Kuna kinachoisoma (cache/taarifa ya toleo)? Rekebisha.
 6. (gp)5: Dockerfile COPY --chown=lsms:lsms badala ya RUN chown (nimekubali). Jaribio: container inawaka kama lsms, inaandika log; ripoti ukubwa wa layer.
 7. (gp)6: futa release/2.4.0 na release/3.2.0 local (SHA zinatofautiana na tag kwa version/gitignore tu — hakuna code inayopotea).
+
+## 2026-11-13 (gr)
+(gq) imekubaliwa.
+1. lango.sh — kinga ya RAM mwanzoni: RAM huru < 3 GB → simama mara moja na ujumbe "funga programu; huru X GB".
+   (Hariri KABLA ya kuendesha, si wakati linaendesha.)
+2. Ruhusa: endesha lango ZIMA tena kwenye nakala safi ya dump 12/11 (backend 7c9ce11, V3 a1caafc), PAMOJA na ng test.
+   Lango limepita = awamu zote + A8e + b1/sababu + kupima_e2e ndani ya lango + ng 104/104.
+3. MUHTASARI (Desemba, usijenge sasa): tarehe zilizobandikwa (manunuzi_onyo, b3/b4, akaunti CRDB 24/08, kupima_api);
+   tozo kuunda mali yake kupitia manunuzi ya Capital; cache ya sekunde 60 ya kinga ya kuhesabu;
+   worktree za feature/t2-* — ondoa kiungo cha node_modules kabla ya kuzifuta ~09/12.
+4. Lango likipita: ripoti fupi + amri ya 93 (build 7c9ce11 a1caafc). Push ni ya Chief.

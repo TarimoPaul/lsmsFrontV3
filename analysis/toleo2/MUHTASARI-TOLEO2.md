@@ -123,6 +123,22 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
    - **(gj) release/2.4.0 / 3.2.0:** HAZIJAFUTWA - SHA si sawa na tag. release/2.4.0 b3e04ef = mzazi wa v2.4.0 9b6678a (tofauti:
      .backend-version tu). release/3.2.0 c12dd10 = ancestor ya v3.2.0 922c3ac (commit 69; nje ya analysis/: .frontend-v3-version,
      .gitattributes, .gitignore). Hakuna code ya app inayopotea zikifutwa - uamuzi wa Chief.
+   - **(gp)(gq)(gr) 13/11:** release/2.4.0 + release/3.2.0 zimefutwa local (tag v2.4.0 / v3.2.0 zipo; origin ni ya Chief).
+     Majaribio ya E2E yanajitengenezea data kutokana na hali ya nakala (`e2e-muuzaji.cjs`: muuzaji kwa kila jaribio, siku huru
+     tangu kuhesabu mali kwa query, role ya muda E2E_KIKOMO, login bila token = FAIL). Backend 7c9ce11 = Dockerfile COPY --chown
+     (image 296 MB badala ya 384 MB); a86fbcf = kinga ya RAM ya lango.sh (huru < 3 GB -> linasimama). V3 a1caafc = commit ya build
+     (version.json ya build ya local sasa 3.3.0). Lango la 13/11 (1): majaribio 6 + A8e + B 4/4 + rollback 5/0 SAWA; b1 + kupima_e2e
+     zilishindwa (data / mpangilio) -> zimerekebishwa a1caafc; lango la 2 lilisimamishwa na mfumo (RAM). **Lango bado halijapita.**
+   - **DESEMBA (gr 3) - usijenge sasa:**
+     1. Tarehe zilizobandikwa kwenye majaribio: `manunuzi_onyo` (08/11 + LSMS_PURCHASE_CHECK_FROM=2026-11-01 ya lango.sh),
+        `b3`/`b4` (mikopo 26/09, 04/10), `akaunti` (CRDB 24/08), `kupima_api` (kipindi 2026-12-01..2026-11-01).
+     2. `tozo_api`: iunde mali yake kupitia manunuzi ya Capital (sasa: E kwa query, D kwa jina "Kreti za soda coca").
+     3. Cache ya sekunde 60 ya CountingGuardService: majaribio yanayohamisha counting_session kwa SQL yanasubiri sekunde 62
+        (`countingGuardFresh`, b1 + sababu); hesabu/tozo zinategemea muda kupita - zipate njia moja ya wazi.
+     4. Worktree za feature/t2-* (~09/12): `node_modules` ni KIUNGO (kwenda lsmsFrontV3, lsmsFrontV3-t2 au lsmsFrontV3-t2-tozo).
+        Ondoa kiungo kwanza (`cmd /c rmdir "<worktree>
+ode_modules"`), kisha `git worktree remove`; lsmsFrontV3-t2-tozo na
+        lsmsFrontV3-t2 ziwe za mwisho. 13/11: kuondoa lsmsFrontV3-320 kulifuta node_modules ya main (imerejeshwa kwa robocopy).
    (mpango wa awali:)  unganisha t2-* -> release/2.5.0 na release/3.3.0; lango kamili kwenye nakala safi (suite + PG + c2 + run-all E2E, Flyway 134 -> 151 kwenye nakala ya 29/10, 138 -> 151 kwenye prod);
    script ya deploy (kama 76) + rollback; staging; prod 02/12.
 
