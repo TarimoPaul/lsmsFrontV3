@@ -100,7 +100,12 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
    **`marejesho kwenye container inayoendesha: APP_FEATURES_SALES_RETURNS_ENABLED =true`**,
    **`onyo la manunuzi kwenye container inayoendesha: LSMS_PURCHASE_CHECK_FROM =<leo>`**, `ARIFA_ZIMEZIMWA`.
    Onyo la 6e: ukurasa wa Manunuzi / reco unaanza kulinganisha reco za kuanzia leo tu.
-3. Jaribio la UI (C4) kwenye staging — mfano wa MWONGOZO-MACHEDA sehemu 1b:
+3. Jaribio la API (he): `93-deploy-250.cmd staging marejesho-jaribio` (email + password ya CEO) → `93-staging-marejesho-jaribio.log`:
+   `MAREJESHO_OK 20/20`, `---93_OK--- marejesho-jaribio`. Sale za jaribio zenye marejesho HAZIFUTWI (kasoro ya he) - `BAKI: …`.
+   Linaweza kurudiwa (linatumia tena siku X yake).
+4. Jaribio la UI (C4) kwa macho — staging kwenye browser: `analysis\steps\tunnel.cmd` (ssh -L, dirisha libaki wazi), kisha
+   **http://localhost:8081/v3/** (au port ya `LSMS_TUNNEL_PORT`). V3 inaita API kwa njia ya ndani (apiBaseUrl tupu), kwa hiyo
+   kila kitu kinakwenda staging, si prod. Mfano wa MWONGOZO-MACHEDA sehemu 1b:
    - sale ya Taslimu ya siku iliyopita (reco yake IMEIDHINISHWA) → Rudisha bidhaa → kipande 1 → Omba kurudisha → PENDING;
    - CEO → Marejesho — idhinisha / kataa → Idhinisha, Taslimu;
    - angalia: stock +1; reco ya **leo** ina marejesho = bei ya kipande; reco ya **siku ya mauzo** haijabadilika (jumla ileile);

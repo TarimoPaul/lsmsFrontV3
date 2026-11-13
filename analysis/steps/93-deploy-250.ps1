@@ -12,6 +12,8 @@
 #   93-deploy-250.cmd <staging|prod> hali    kusoma tu
 #   93-deploy-250.cmd <staging|prod> fuata   fuatilia log ya kazi inayoendelea (baada ya mtandao kukatika)
 #   93-deploy-250.cmd <staging|prod> smoke   KUSOMA TU: login + GET za kawaida (dg: baada ya deploy ya prod)
+#   93-deploy-250.cmd staging marejesho-jaribio   (he) INAANDIKA: sale Taslimu + M-Pesa siku X, reco X imeidhinishwa, marejesho
+#                                            leo (Taslimu + M-Pesa) -> reco X haibadiliki, droo, stock, GL, TB (93-marejesho.sh)
 #   93-deploy-250.cmd staging kazi           INAANDIKA: sale cash+GL, kufuta sale, ununuzi+malipo ya msambazaji+GL, reco expense
 #   93-deploy-250.cmd <staging|prod> marejesho [YYYY-MM-DD]   (gy, hc, hd) KAGUA (kusoma tu) -> 🛑 andika ANDIKA -> ANDIKA: marejesho =true +
 #                                            LSMS_PURCHASE_CHECK_FROM = tarehe ya leo (EAT) kwenye
@@ -29,10 +31,10 @@ $SshO  = @('-o', 'BatchMode=yes', '-o', 'ConnectTimeout=20', '-o', 'ServerAliveI
 $R     = '~/lsms-250'
 
 if ($A1 -in 'build', 'login') { $Target = 'pc'; $Action = $A1 } else { $Target = $A1; $Action = $A2 }
-if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db', 'kazi', 'smoke', 'marejesho')) {
+if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db', 'kazi', 'smoke', 'marejesho', 'marejesho-jaribio')) {
     Write-Host "MATUMIZI: 93-deploy-250.cmd build <be-commit> <v3-commit> | login | <staging|prod> <deploy|rollback|hali|fuata> | staging refresh-db"; exit 2
 }
-if ($Action -in 'refresh-db', 'kazi' -and $Target -ne 'staging') { Write-Host "SIYO: $Action ni ya staging tu (inaandika)"; exit 2 }
+if ($Action -in 'refresh-db', 'kazi', 'marejesho-jaribio' -and $Target -ne 'staging') { Write-Host "SIYO: $Action ni ya staging tu (inaandika)"; exit 2 }
 $LogDir = if ($env:L93_LOGDIR) { $env:L93_LOGDIR } else { $Steps }   # L93_LOGDIR: majaribio tu
 $Log = Join-Path $LogDir ("93-{0}-{1}.log" -f $Target, $Action)
 function L([string]$m) { $line = "[{0}] {1}" -f (Get-Date -Format 'HH:mm:ss'), $m; Write-Host $line; Add-Content -Path $Log -Value $line -Encoding UTF8 }
@@ -90,7 +92,7 @@ if ($Action -eq 'build') {
 
 # ── nakili script kwenda server ─────────────────────────────────────────────────────────────────────────────
 Remote "mkdir -p $R/logs && chmod 700 $R" | Out-Null
-foreach ($f in '93-deploy-250.sh', '76-login.sh', '93-kazi.sh', 'ficha.awk') {
+foreach ($f in '93-deploy-250.sh', '76-login.sh', '93-kazi.sh', '93-marejesho.sh', 'ficha.awk') {
     & scp @SshO (Join-Path $Steps $f) "contabo:$R/$f" 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { L "SIYO: scp $f imeshindwa (mtandao?)"; exit 1 }
 }
@@ -110,12 +112,14 @@ if ($Action -eq 'login') {
 }
 
 # ── kazi / smoke (moja kwa moja; email + password kwa stdin, haziandikwi popote) ────────────────────────────
-if ($Action -in 'kazi', 'smoke') {
+if ($Action -in 'kazi', 'smoke', 'marejesho-jaribio') {
     $email = Read-Host 'Email ya CEO (mtumiaji wa jaribio)'
     $sec = Read-Host -AsSecureString 'Password yake (haionekani)'
     $b = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
     try { $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b) } finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b) }
-    $out = ("$email`n$plain") | & ssh @SshO contabo "bash $R/93-kazi.sh $Target $Action 2>&1 | $F" 2>&1 | ForEach-Object { "$_" }
+    # (he) marejesho-jaribio: script yake (93-marejesho.sh), staging tu; kazi / smoke: 93-kazi.sh
+    $cmd = if ($Action -eq 'marejesho-jaribio') { "bash $R/93-marejesho.sh $Target" } else { "bash $R/93-kazi.sh $Target $Action" }
+    $out = ("$email`n$plain") | & ssh @SshO contabo "$cmd 2>&1 | $F" 2>&1 | ForEach-Object { "$_" }
     $plain = $null
     $out | ForEach-Object { L $_ }
     if ($out -match '^---93K_MWISHO---$') { L "---93_OK--- $Action"; exit 0 } else { L "---93_IMESHINDWA--- $Action"; exit 1 }

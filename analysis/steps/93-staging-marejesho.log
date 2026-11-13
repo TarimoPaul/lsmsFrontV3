@@ -1,1 +1,30 @@
 ﻿[12:45:13] ===== 93 staging marejesho 2026-11-13 =====
+[12:45:44] script zimenakiliwa server (~/lsms-250)
+[12:45:51] [93 staging 12:45:50] KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =true
+[12:45:51] [93 staging 12:45:51] KAGUA: container ya backend 2.5.0: APP_FEATURES_SALES_RETURNS_ENABLED =
+[12:45:51] [93 staging 12:45:51] KAGUA: LSMS_PURCHASE_CHECK_FROM | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =2026-11-13
+[12:45:51] [93 staging 12:45:51] KAGUA: container ya backend 2.5.0: LSMS_PURCHASE_CHECK_FROM =
+[12:45:51] [93 staging 12:45:51] MAREJESHO_KAGUA_OK: ANDIKA itaweka kwenye .env + environment ya backend: APP_FEATURES_SALES_RETURNS_ENABLED =true LSMS_PURCHASE_CHECK_FROM =2026-11-13
+[12:45:51] ---93_MWISHO---
+[12:45:51] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:46:03] mmiliki ameandika: ANDIKA
+[12:46:09] [93 staging 12:46:07] KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =true
+[12:46:09] [93 staging 12:46:08] KAGUA: container ya backend 2.5.0: APP_FEATURES_SALES_RETURNS_ENABLED =
+[12:46:09] [93 staging 12:46:08] KAGUA: LSMS_PURCHASE_CHECK_FROM | .env =HAIPO | compose (backend) =HAIJAWEKWA | compose inayoitaja: HAKUNA | lengo =2026-11-13
+[12:46:09] [93 staging 12:46:08] KAGUA: container ya backend 2.5.0: LSMS_PURCHASE_CHECK_FROM =
+[12:46:09] [93 staging 12:46:09] backup: /home/chief/lsms-250/staging/marejesho-20261113-124608
+[12:46:09] [93 staging 12:46:09] ANDIKA SAWA: compose (backend) APP_FEATURES_SALES_RETURNS_ENABLED =true, LSMS_PURCHASE_CHECK_FROM =2026-11-13; mistari iliyobadilika kwenye config: 2 (funguo hizi tu); backup /home/chief/lsms-250/staging/marejesho-20261113-124608
+[12:46:09] [93 staging 12:46:09] MAREJESHO_IMEANDIKWA: inaanza kufanya kazi kwenye deploy inayofuata (K4 / K6 zitaonyesha thamani); container ya sasa haijaguswa
+[12:46:09] ---93_MWISHO---
+[12:46:09] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:46:09] ---93_OK--- marejesho; sasa: 93-deploy-250.cmd staging deploy
+[12:46:54] ===== 93 staging marejesho 2026-11-13 =====
+[12:47:21] script zimenakiliwa server (~/lsms-250)
+[12:47:26] [93 staging 12:47:25] KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =true | compose (backend) =true | compose inayoitaja: docker-compose.yml | lengo =true
+[12:47:26] [93 staging 12:47:25] KAGUA: container ya backend 2.5.0: APP_FEATURES_SALES_RETURNS_ENABLED =
+[12:47:26] [93 staging 12:47:25] KAGUA: LSMS_PURCHASE_CHECK_FROM | .env =2026-11-13 | compose (backend) =2026-11-13 | compose inayoitaja: docker-compose.yml | lengo =2026-11-13
+[12:47:26] [93 staging 12:47:26] KAGUA: container ya backend 2.5.0: LSMS_PURCHASE_CHECK_FROM =
+[12:47:26] [93 staging 12:47:26] MAREJESHO_TAYARI: marejesho =true, onyo la manunuzi =2026-11-13 (.env + compose) - hakuna cha kuandika
+[12:47:26] ---93_MWISHO---
+[12:47:26] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 0
+[12:47:26] ---93_OK--- marejesho =true na onyo la manunuzi =leo tayari

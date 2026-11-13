@@ -153,3 +153,73 @@
 [12:34:31] [93 staging 12:34:26] DEPLOY_OK 2.5.0 + 3.3.0 (jumla 64s)
 [12:34:31] ---93_MWISHO---
 [12:34:31] ---93_OK--- (69s)
+[12:49:05] ===== 93 staging deploy 2026-11-13 =====
+[12:49:33] script zimenakiliwa server (~/lsms-250)
+[12:49:41] ANZISHWA
+[12:49:41] nafuatilia ~/lsms-250/logs/staging-deploy.log (mtandao ukikatika: endesha '93-deploy-250.cmd staging fuata')
+[12:49:53] [93 staging 12:49:41] === K1-KAGUA
+[12:49:53] [93 staging 12:49:42] inaendesha: backend 2.5.0, frontend-v3 3.3.0, Flyway 151
+[12:49:53] [93 staging 12:49:42] image za rollback zipo: 2.4.0 + 3.2.0
+[12:49:53] [93 staging 12:49:42] diski wazi 181G
+[12:49:53] [93 staging 12:49:42] K1-KAGUA IMEKAMILIKA (1s)
+[12:49:53] [93 staging 12:49:42] K2-BACKUP ilishakamilika - inarukwa (backup ya awali: /home/chief/lsms-250/staging/backup)
+[12:49:53] [93 staging 12:49:42] K3-PULL ilishakamilika - inarukwa
+[12:49:53] [93 staging 12:49:42] === K4-KAGUA
+[12:49:53] [93 staging 12:49:42] marejesho APP_FEATURES_SALES_RETURNS_ENABLED =true
+[12:49:53] [93 staging 12:49:42] onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =2026-11-13
+[12:49:53] [93 staging 12:49:42] .env + compose: BACKEND_VERSION / FRONTEND_V3_VERSION zinabadilishwa na K5; swichi kama zilivyo hapo juu
+[12:49:53] [93 staging 12:49:42] ARIFA 1/3: APP_SCHEDULERS_ENABLED =false kwenye backend (profile prod)
+[12:49:53] [93 staging 12:49:42] ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)
+[12:49:53] [93 staging 12:49:43] ARIFA 3/3: jar ya 2.5.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client
+[12:49:53] [93 staging 12:49:43] ARIFA_ZIMEZIMWA: staging haitumi mail/SMS/WhatsApp/webhook/push; arifa za ndani (muhtasari wa mauzo 00:00 n.k.) zinaandikwa kwenye DB ya staging tu
+[12:49:53] [93 staging 12:49:43] K4-KAGUA IMEKAMILIKA (1s)
+[12:49:53]  Container lsms-staging-frontend-v3-1 Running 
+[12:49:53]  Container lsms-staging-backend-1 Recreate 
+[12:49:53]  Container lsms-staging-backend-1 Recreated 
+[12:49:53]  Container lsms-staging-backend-1 Starting 
+[12:49:53]  Container lsms-staging-backend-1 Started 
+[12:49:53] [93 staging 12:49:45] K5-BADILI ilishakamilika - .env/compose zimebadilika: backend imeundwa upya
+[12:50:37] [93 staging 12:50:28] backend: 'Started LsmsApplication' baada ya ~39s
+[12:50:37] [93 staging 12:50:29] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[12:50:37] [93 staging 12:50:29] HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0
+[12:50:37] [93 staging 12:50:29] === K6-SMOKE
+[12:50:37] [93 staging 12:50:31] backend: 'Started LsmsApplication' baada ya ~0s
+[12:50:37] [93 staging 12:50:31] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[12:50:37] [93 staging 12:50:31] HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0
+[12:50:37] [93 staging 12:50:36] jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA
+[12:50:45] [93 staging 12:50:37] D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)
+[12:50:45] [93 staging 12:50:37] marejesho kwenye container inayoendesha: APP_FEATURES_SALES_RETURNS_ENABLED =true
+[12:50:45] [93 staging 12:50:37] onyo la manunuzi kwenye container inayoendesha: LSMS_PURCHASE_CHECK_FROM =2026-11-13
+[12:50:45] [93 staging 12:50:38] ERROR baada ya kuanza (maombi ya moja kwa moja): 0
+[12:50:45] [93 staging 12:50:38] ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED =false)
+[12:50:45] [93 staging 12:50:38] K6-SMOKE IMEKAMILIKA (9s)
+[12:50:45] [93 staging 12:50:38] backend 2.5.0 | frontend-v3 3.3.0 | .env BACKEND_VERSION=***FICHWA***
+[12:50:45] [93 staging 12:50:39] Flyway ya mwisho: 151
+[12:50:45] [93 staging 12:50:39] .env HAINA ADMIN_EMAIL
+[12:50:45] [93 staging 12:50:39] .env HAINA ADMIN_PASSWORD
+[12:50:45] [93 staging 12:50:39] .env HAINA DOCKERHUB_USERNAME
+[12:50:45] [93 staging 12:50:39] .env HAINA DOCKERHUB_PASSWORD
+[12:50:45] [93 staging 12:50:39] .env ina DAILY_SALES_PROFIT_ROLES
+[12:50:45] [93 staging 12:50:39] image IPO chiefmaster/my-lsms-backend:2.4.0
+[12:50:45] [93 staging 12:50:39] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[12:50:45] [93 staging 12:50:39] image IPO chiefmaster/my-lsms-backend:2.5.0
+[12:50:45] [93 staging 12:50:40] image IPO chiefmaster/lsms-frontend-v3:3.3.0
+[12:50:45] [93 staging 12:50:40] .backend.prev=2.4.0 .frontend-v3.prev=3.2.0
+[12:50:45] [hali] DONE K1-KAGUA 2026-11-13T11:41:03 3s
+[12:50:45] [hali] DONE K2-BACKUP 2026-11-13T11:41:07 4s
+[12:50:45] [hali] ROLLBACK 2026-11-13T12:22:59 47s rc=0
+[12:50:45] [hali] DONE K1-KAGUA 2026-11-13T12:33:23 1s
+[12:50:45] [hali] DONE K3-PULL 2026-11-13T12:33:27 4s
+[12:50:45] [hali] DONE K5-BADILI 2026-11-13T12:34:16 47s
+[12:50:45] [hali] DONE K1-KAGUA 2026-11-13T12:49:42 1s
+[12:50:45] [hali] DONE K4-KAGUA 2026-11-13T12:49:43 1s
+[12:50:45] [hali] DONE K6-SMOKE 2026-11-13T12:50:38 9s
+[12:50:45] [93 staging 12:50:40] compose: marejesho APP_FEATURES_SALES_RETURNS_ENABLED =true; onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =2026-11-13
+[12:50:45] [93 staging 12:50:41] ARIFA 1/3: APP_SCHEDULERS_ENABLED =false kwenye backend (profile prod)
+[12:50:45] [93 staging 12:50:41] ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)
+[12:50:45] [93 staging 12:50:42] ARIFA 3/3: jar ya 2.5.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client
+[12:50:45] [93 staging 12:50:42] ARIFA_ZIMEZIMWA: staging haitumi mail/SMS/WhatsApp/webhook/push; arifa za ndani (muhtasari wa mauzo 00:00 n.k.) zinaandikwa kwenye DB ya staging tu
+[12:50:45] [93 staging 12:50:42] cron za mtumiaji zinazotaja lsms-staging: 0 (taarifa)
+[12:50:45] [93 staging 12:50:42] DEPLOY_OK 2.5.0 + 3.3.0 (jumla 61s)
+[12:50:45] ---93_MWISHO---
+[12:50:45] ---93_OK--- (65s)

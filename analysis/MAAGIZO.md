@@ -1545,3 +1545,11 @@ Mpya:
   Sababu: prod ikideployiwa usiku, onyo lianze KESHO (reco ya leo ni ya 2.4.0 bila "Droo" → onyo la uongo siku ya kwanza).
   ORODHA sehemu 7: "deploy usiku → tarehe ya kesho; deploy alfajiri → leo".
 Jaribio: hoja ya kesho → KAGUA lengo = kesho; hoja ya jana → inakataliwa.
+
+## 2026-11-13 (he)
+Staging: marejesho =true na onyo =2026-11-13 kwenye container (K4/K6), DEPLOY_OK. Kilichobaki: jaribio la marejesho.
+1. Ongeza `93-deploy-250.cmd staging marejesho-jaribio` (kama kazi: login ya CEO, alama ya KAZI, kusafisha mwishoni):
+   sale Taslimu siku X (siku huru ≥ kuhesabu mali, < leo) → reco ya X imeidhinishwa → marejesho leo yaidhinishwe →
+   PASS: reco ya X haibadiliki; droo ya leo inapungua (Taslimu); stock +1; GL Dr 4020/Cr 1000 + Dr 1200/Cr 5000; TB 0.
+   + kesi M-Pesa (haitolewi droo). Isiguse prod (amri ya staging tu).
+2. Niambie pia: staging inafunguliwa kwenye browser vipi (URL au ssh -L)? Kwa jaribio la UI la macho baadaye.
