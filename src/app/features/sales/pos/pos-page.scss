@@ -741,15 +741,102 @@
   font-size: 0.95rem;
 }
 
-/* KUPIMA: drinks sold by measure - their open container's bar and the registered measures */
-.pours { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin: 0 0 12px; }
-.pour { border: 1px solid var(--c-border); border-radius: 12px; padding: 8px 10px; background: var(--c-surface); display: flex; flex-direction: column; gap: 6px; }
-.pour-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.pour-head strong { font-size: 0.84rem; }
-.pour-head small { font-size: 0.72rem; color: var(--c-text-2); white-space: nowrap; }
-.pour-bar { height: 8px; border-radius: 999px; background: var(--c-bg); border: 1px solid var(--c-border); overflow: hidden; }
-.pour-bar i { display: block; height: 100%; background: var(--c-primary); }
-.pour-bar.empty { opacity: 0.5; }
-.pour-ms { display: flex; gap: 6px; flex-wrap: wrap; }
-.pour-ms .price { display: inline-flex; flex-direction: column; align-items: flex-start; padding: 4px 10px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-bg); font: inherit; cursor: pointer; color: var(--c-text); }
-.pour-ms .price .lbl { font-size: 0.68rem; color: var(--c-text-2); }
+/* (hq) KUPIMA: one row per drink sold by measure, at the top of the list - name + tag, a thin bar coloured by what is
+   left (ok >= 50%, mid 20-50%, low < 20% or <= 2 of the biggest measure, empty = dark red), "650 / 750 ml" in the stock
+   column, the measures in the RETAIL column, "—" in the others. Colours are the V3 tokens (light + dark). */
+.pour-row {
+  .pour-tile {
+    --cat: var(--c-primary);
+  }
+  .name strong .tag {
+    margin-left: 4px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-style: normal;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    vertical-align: 1px;
+    color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 12%, transparent);
+  }
+  .stock.pour-left {
+    color: var(--c-text);
+    background: color-mix(in srgb, var(--c-text) 7%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+}
+.pbar {
+  --lv: var(--c-success);
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: 5px;
+  margin-top: 5px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--lv) 18%, var(--c-bg));
+  i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--lv);
+    transition: width 0.2s ease;
+  }
+  &.mid {
+    --lv: var(--c-warning);
+  }
+  &.low {
+    --lv: var(--c-error);
+  }
+  &.empty {
+    --lv: color-mix(in srgb, var(--c-error) 70%, #000);
+    background: var(--lv);
+  }
+}
+.pour-ms {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  .price {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 3px 4px;
+    .lbl {
+      display: block;
+      color: var(--c-text-2);
+    }
+  }
+  .pour-open {
+    border-color: color-mix(in srgb, var(--c-error) 45%, var(--c-border));
+    b {
+      font-size: 0.72rem;
+      line-height: 1.2;
+      white-space: normal;
+      text-align: center;
+    }
+  }
+}
+.pour-zero {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  color: var(--c-error);
+}
+.kupima-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+@container board (max-width: 860px) {
+  .pour-ms {
+    grid-row: 1 / span 2;
+  }
+}
+@container board (max-width: 560px) {
+  .pour-ms {
+    flex: 1 1 auto;
+  }
+}

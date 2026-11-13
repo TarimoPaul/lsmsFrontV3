@@ -1,4 +1,4 @@
-import { barFraction, normalizePour, normalizeProfitRow, priceFor } from './kupima.service';
+import { barFraction, needsOpen, normalizePour, normalizeProfitRow, openableStock, pourLevel, priceFor } from './kupima.service';
 
 describe('KUPIMA (ef/ek)', () => {
   const raw = {
@@ -30,6 +30,38 @@ describe('KUPIMA (ef/ek)', () => {
     expect(barFraction(p, 75)).toBe(0.4);
     expect(barFraction(p, 1000)).toBe(0);
     expect(barFraction({ ...p, open: null })).toBe(0);
+  });
+
+  it('(hq 4) bar colour by what is left: >=50% ok, 20-50% mid, <20% or <= 2 x biggest measure low, 0 / none empty', () => {
+    const p = normalizePour(raw); // 750 ml, measures 30 / 60
+    const at = (ml: number) => pourLevel({ ...p, open: { ...p.open!, mlLeft: ml } });
+    expect(at(750)).toBe('ok');
+    expect(at(375)).toBe('ok');
+    expect(at(374)).toBe('mid');
+    expect(at(150)).toBe('mid');
+    expect(at(149)).toBe('low');
+    expect(at(30)).toBe('low');
+    expect(at(0)).toBe('empty');
+    expect(pourLevel({ ...p, open: null })).toBe('empty');
+    // the cart counts: 375 left, 300 in the cart -> 75 (10%) -> low
+    expect(pourLevel(p, 300)).toBe('low');
+    // "not % only": a small container (200 ml, 50 ml measure) at 100 ml (50%) is only 2 measures -> low
+    const small = normalizePour({ ...raw, containerMl: 200, measures: [{ uid: 'm50', ml: 50, price: '2000' }], open: { ...raw.open, containerMl: 200, mlLeft: '100' } });
+    expect(pourLevel(small)).toBe('low');
+    // wine 5 L, 70 / 80 ml: 2 x 80 = 160 ml is under 20% anyway; 1,200 ml (24%) -> mid
+    const wine = normalizePour({ ...raw, containerMl: 5000, measures: [{ uid: 'a', ml: 70, price: '2000' }, { uid: 'b', ml: 80, price: '3000' }], open: { ...raw.open, containerMl: 5000, mlLeft: '1200' } });
+    expect(pourLevel(wine)).toBe('mid');
+  });
+
+  it('(hq 3) "Fungua chupa": nothing open or 0 ml; the bottles to open = the parents stock together', () => {
+    const p = normalizePour(raw);
+    expect(needsOpen(p)).toBe(false);
+    expect(needsOpen({ ...p, open: null })).toBe(true);
+    expect(needsOpen({ ...p, open: { ...p.open!, mlLeft: 0 } })).toBe(true);
+    expect(openableStock(p)).toBe(8); // no parents listed -> parentStock
+    const two = normalizePour({ ...raw, parents: [{ uid: 'G', name: 'GREPA', stock: 2, prices: [] }, { uid: 'M', name: 'MA-LOT', stock: 3, prices: [] }] });
+    expect(openableStock(two)).toBe(5);
+    expect(openableStock({ ...two, parents: two.parents.map((x) => ({ ...x, stock: 0 })) })).toBe(0);
   });
 
   it('es/eu: parents with their own prices; priceFor = own price, else the base', () => {

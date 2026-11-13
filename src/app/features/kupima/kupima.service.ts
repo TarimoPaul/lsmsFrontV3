@@ -187,6 +187,36 @@ export function normalizePour(r: Raw): PourProduct {
   };
 }
 
+/**
+ * (hq 4) The bar's colour by what is LEFT for sale, not by % alone:
+ *   empty  no open container, or 0 ml left (after the cart)          -> dark red + "Fungua chupa"
+ *   low    under 20% of the container, OR at most 2 of the biggest measure left -> red
+ *   mid    20% - 50%                                                  -> yellow
+ *   ok     50% and more                                               -> green
+ */
+export type PourLevel = 'ok' | 'mid' | 'low' | 'empty';
+export function pourLevel(p: PourProduct, reservedMl = 0): PourLevel {
+  if (!p.open || !p.open.containerMl) return 'empty';
+  const left = p.open.mlLeft - reservedMl;
+  if (left <= 0) return 'empty';
+  const biggest = p.measures.reduce((m, x) => Math.max(m, x.ml), 0);
+  const frac = left / p.open.containerMl;
+  if (frac < 0.2 || (biggest > 0 && left <= 2 * biggest)) return 'low';
+  if (frac < 0.5) return 'mid';
+  return 'ok';
+}
+
+/** (hq 3) Whole bottles a new container can be opened from: the parents' stock together (none listed -> parentStock). */
+export function openableStock(p: PourProduct): number {
+  if (p.parents.length) return p.parents.reduce((n, x) => n + Math.max(0, x.stock), 0);
+  return Math.max(0, p.parentStock ?? 0);
+}
+
+/** (hq 3) The till shows "Fungua chupa" instead of the measures: nothing open, or the open one is at 0 ml. */
+export function needsOpen(p: PourProduct): boolean {
+  return !p.open || p.open.mlLeft <= 0;
+}
+
 /** Share of the container still in it, 0..1 (what the bar shows). */
 export function barFraction(p: PourProduct, reservedMl = 0): number {
   if (!p.open || !p.open.containerMl) return 0;

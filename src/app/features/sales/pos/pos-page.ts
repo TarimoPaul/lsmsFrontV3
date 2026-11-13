@@ -20,12 +20,15 @@ import { categoryColor, categoryInitials } from '../../categories/categories.mod
 import { PAYMENT_METHODS, PosProduct, SALE_TYPE_ORDER, SALE_TYPES, Sale, SaleRequest, SaleType, methodLabel, shortReceipt } from '../sales.models';
 import { SalesService } from '../sales.service';
 import { BELOW_COST_CODE, askBelowCostReason } from '../sale-reason';
-import { KupimaService, PourProduct, barFraction, priceFor } from '../../kupima/kupima.service';
+import { KupimaService, PourLevel, PourProduct, barFraction, needsOpen, openableStock, pourLevel, priceFor } from '../../kupima/kupima.service';
 import type { KupimaShortAnswer, KupimaShortData } from '../../kupima/kupima-short-dialog';
 import { CartCustomer, CartLine, CartStore } from './cart.store';
 import { RemakeStore } from './remake.store';
 
 type StockFilter = 'all' | 'in' | 'low';
+
+/** (hq 5) The category chip value that shows only the drinks sold by measure. */
+const KUPIMA = '__KUPIMA__';
 
 /** Days checked for "no sales recorded" (Flutter getMissingSalesDays). */
 const MISSING_LOOKBACK = 7;
@@ -68,8 +71,9 @@ export class PosPage {
   protected readonly types = SALE_TYPES;
   protected readonly typeOrder = SALE_TYPE_ORDER;
   private readonly kupima = inject(KupimaService);
-  /** KUPIMA: drinks sold by measure (shown with their bar, not in the product grid). */
+  /** KUPIMA (hq): drinks sold by measure - one row each AT THE TOP of the product list (bar, ml left, measure buttons). */
   protected readonly pours = this.kupima.products;
+  protected readonly KUPIMA = KUPIMA;
   private readonly pourUids = computed(() => new Set(this.pours().map((p) => p.productUid)));
   protected readonly products = computed(() => (this.api.posStock.value() ?? []).filter((p) => !this.pourUids().has(p.uid)));
   protected readonly loading = computed(() => this.api.posStock.initialLoading());
@@ -123,6 +127,13 @@ export class PosPage {
     });
   });
   protected readonly shown = computed(() => this.filtered().slice(0, this.limit()));
+  /** (hq 1/5) The measure rows: all, or only them under the "Kupima" chip; another category hides them; search by name. */
+  protected readonly pourShown = computed(() => {
+    const c = this.category();
+    if (c && c !== KUPIMA) return [];
+    const q = this.search().trim().toLowerCase();
+    return this.pours().filter((p) => !q || p.productName.toLowerCase().includes(q));
+  });
 
   protected readonly customerOptions = computed<ComboOption[]>(() =>
     (this.customersApi.list.value() ?? []).map((c) => ({
@@ -281,6 +292,53 @@ export class PosPage {
 
   protected pourBar(p: PourProduct): number {
     return barFraction(p, this.pourReserved(p));
+  }
+
+  protected pourLevel(p: PourProduct): PourLevel {
+    return pourLevel(p, this.pourReserved(p));
+  }
+
+  protected needsOpen(p: PourProduct): boolean {
+    return needsOpen(p);
+  }
+
+  protected openable(p: PourProduct): number {
+    return openableStock(p);
+  }
+
+  protected readonly opening = signal<string | null>(null);
+
+  /**
+   * (hq 3) "Fungua chupa (n)": a new container from a parent (parent -1). More than one parent with stock -> the person
+   * chooses (es). An open container at 0 ml is closed first ("kimeisha", 0 ml = no loss).
+   */
+  protected async openPour(p: PourProduct): Promise<void> {
+    if (this.opening()) return;
+    let parentUid: string | null = null;
+    const withStock = p.parents.filter((x) => x.stock > 0);
+    if (p.parents.length > 1) {
+      const { KupimaShortDialog } = await import('../../kupima/kupima-short-dialog');
+      const a = await this.dialogs.openAsync<KupimaShortAnswer, KupimaShortData>(KupimaShortDialog, {
+        size: 'sm',
+        data: { message: p.productName, hasOpen: false, mlLeft: 0, openOnly: true, parents: p.parents.map((x) => ({ uid: x.uid, name: x.name, stock: x.stock })) },
+      });
+      if (!a?.parentUid) return;
+      parentUid = a.parentUid;
+    } else if (withStock.length === 1) {
+      parentUid = withStock[0].uid;
+    }
+    this.opening.set(p.productUid);
+    try {
+      if (p.open && p.open.mlLeft <= 0) await this.kupima.finish(p.productUid, 'chombo kimeisha (0 ml) - chupa mpya imefunguliwa POS');
+      await this.kupima.open(p.productUid, parentUid);
+      this.toast.success(this.i18n.t(`${p.productName}: new ${p.containerName} opened`, `${p.productName}: ${p.containerName} mpya imefunguliwa`));
+    } catch (e) {
+      this.toast.error(ApiError.from(e).message);
+    } finally {
+      this.opening.set(null);
+      this.loadPours();
+      void this.reload();
+    }
   }
 
   protected addPour(p: PourProduct, m: PourProduct['measures'][number]): void {
