@@ -1,0 +1,12 @@
+PASS D1 mistari yote ya daraja inaonekana (7 + isiyoelezeka)
+PASS D2 kiasi cha kila mstari = API
+PASS D3 net ya uendeshaji 2126387 na ya GL 2156853 zinaonekana
+PASS D4 isiyoelezeka 0.00, si nyekundu
+PASS D6 mistari ya GL (droo 83610, madeni 13000, DMG 31500, riba 48087) = API
+PASS D7 mistari inajumlika hadi faida halisi 2126387 = net ya daraja
+PASS D5 kinga: +1,000 bila sababu -> isiyoelezeka +1,000.00 nyekundu
+PASS E1 akiba ya kila mkopo (2) = API
+PASS E2 inayobaki 15635305 = API, nyekundu ikiwa < 0
+PASS E3 siku chini ya sifuri (27) = API
+PASS Z hakuna JS error
+JUMLA PASS 11 FAIL 0

@@ -1,0 +1,5 @@
+PASS U1 kidirisha: kinaanza na vyote; kipande 1 -> "sehemu", pesa ya kurudisha = bei ya kipande 563
+PASS U2 ombi -> PENDING, kipande 1, hakuna GL bado
+PASS U3 CEO anaidhinisha kwa M-Pesa -> APPROVED, Cr 1030 / Dr 4020
+PASS U4 mauzo yanaonyesha "imerudishwa sehemu"; hakuna makosa ya ukurasa
+MWISHO PASS 4 FAIL 0

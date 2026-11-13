@@ -1,0 +1,14 @@
+MUUZAJI e2e.muuzaji.a6@local.test | kuhesabu mali kwa mwisho 2026-11-11 | siku X 2026-11-12 | siku Y 2026-11-11 | bidhaa COCA && FANTA 1000
+PASS A1 kabla ya kuidhinisha: muuzaji anabadilisha sale ya 2026-11-12 kwa sababu -> Success, audit ALLOWED
+PASS A2 reco ya 2026-11-12 IMEIDHINISHWA na CEO
+PASS A3 muuzaji anabadilisha sale ya siku iliyoidhinishwa -> IMEKATALIWA (RECO_APPROVED), sale haijabadilika
+PASS A4 CEO pia -> IMEKATALIWA (RECO_APPROVED), audit by_is_ceo
+PASS A5 CEO anafuta sale ya siku iliyoidhinishwa -> IMEKATALIWA, sale haijafutwa
+PASS A6 sale ya 2026-11-11 inahamishiwa 2026-11-12 (imeidhinishwa) -> IMEKATALIWA, tarehe haijabadilika
+PASS A8a muuzaji HAWEZI kufungua reco iliyoidhinishwa -> imekataliwa, bado APPROVED
+PASS A8b CEO anafungua kwa sababu -> REOPENED; muuzaji bado hawezi kubadilisha (NEEDS_CEO)
+PASS A8c CEO anafuta sale ya siku iliyofunguliwa -> imeruhusiwa, audit ALLOWED (REOPENED, sababu)
+PASS A8d imeidhinishwa tena; GL ya sale 1000:1000.00,1200:-533.33,4000:-1000.00,5000:533.33 -> imefutwa (net 0 kila akaunti); TB = 0
+PASS A8e journal zote za sale ni tarehe 2026-11-12 (siku ya reco); GL 2026-11-12 mapato 0 = reco 0; 2026-11-13 haina mstari wa sale hii
+PASS A7 Macheda halisi: hakuna sale wala reco mpya kutoka jaribio hili
+MWISHO PASS 12 FAIL 0

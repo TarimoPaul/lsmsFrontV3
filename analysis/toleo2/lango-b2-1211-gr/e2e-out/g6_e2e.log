@@ -1,0 +1,14 @@
+PASS S1 deni la majaribio: 2400 +50,000 (journal ya mkono)
+PASS U1 2400 inaonyesha salio lake
+PASS U2 kiasi kinachozidi deni: "Kinazidi" + kitufe kimezimwa
+PASS U3 malipo yameandikwa: Dr 2400 30,000 / Cr 1000 30,000, hakuna akaunti ya gharama
+PASS U4 deni la 2400 limepungua kwa 30,000
+PASS U5 orodha ya malipo kwenye dialog inaonyesha malipo mapya
+PASS A1 zaidi ya deni lililobaki -> kataa
+PASS A2 maelezo takataka -> kataa
+PASS A3 akaunti ya gharama (6000) -> kataa
+PASS A4 MANAGER (bila FINANCE_WRITE) -> 403
+PASS U6 kubatilisha: REVERSED, journal jumla 0, 2400 imerudi
+PASS U7 hakuna kosa la JavaScript
+PASS Z1 usafi: 2400 imerudi kama mwanzo, TB haijabadilika
+MWISHO PASS 13 FAIL 0

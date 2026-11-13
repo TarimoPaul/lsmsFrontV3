@@ -1,0 +1,25 @@
+PASS S1 nakala: msambazaji wa majaribio + akaunti 2300 + D haijawekwa
+PASS A0 hakuna chanzo kilichochaguliwa mwanzoni (bila default)
+PASS A1 bila chanzo: "Chagua chanzo" na hakuna kilichoandikwa
+PASS A2 Benki bila benki: "Chagua benki" na hakuna kilichoandikwa
+PASS A3 orodha ya benki ni akaunti halisi 5 (si maandishi)
+PASS A4 imehifadhiwa: BENKI / 1021 / BANK_TRANSFER / NMB
+PASS A5 GL (D haijawekwa): Dr 2000 / Cr 1000
+PASS A6 taarifa ya msambazaji inaonyesha "Benki · NMB"
+PASS B1 baada ya D: SIMU Tigo -> Cr 1031
+PASS B2 MMILIKI Paul -> Cr 2300 (si 3000)
+PASS B2b 6c: MMILIKI bila mmiliki -> imekataliwa
+PASS B2c 6c: MMILIKI Jess -> Cr 2310
+PASS B3 kabla ya D: BENKI NBC -> Cr 1000, chanzo kimehifadhiwa
+PASS B4 bila chanzo / benki ya maandishi -> inakataliwa, hakuna kilichoandikwa
+PASS C1 bila msambazaji: ujumbe "umelipwa sasa" + chanzo kinaonekana
+PASS C2 bila chanzo: hakuna POST
+PASS C3 MMILIKI: ununuzi umehifadhiwa na chanzo
+PASS C4 kuidhinisha: Dr 1200 / Cr 2310 (Jess)
+PASS D1 agizo bila chanzo: halitumwi
+PASS D2 Simu bila akaunti: halitumwi
+PASS D3 agizo: body ina SIMU / 1030 kwa agizo lote
+PASS E1 hakuna kosa la JavaScript
+PASS Z1 usafi: malipo ya majaribio yamefutwa (GL imerudishwa)
+PASS Z2 usafi: ununuzi wa majaribio umesitishwa (CANCELLED)
+MUHTASARI c3_e2e: PASS 24, FAIL 0

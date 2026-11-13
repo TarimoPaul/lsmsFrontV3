@@ -1,0 +1,9 @@
+PASS S1 deni la UI: chupa 3, kwa gharama + tofauti
+PASS U1 kadi inaonyesha mgawanyo: gharama + tofauti ya bei (mapato yakilipwa tu)
+PASS U2 dialogi: kiasi = tofauti yote; Rekodi imezimwa bila karatasi na maelezo
+PASS U3a tofauti yote imekubaliwa, hakuna senti iliyobaki (margin_open = 0)
+PASS U3 imehifadhiwa: Dr 1120 / Cr 4900 = tofauti yote, hati imeandikwa
+PASS U4 kadi inaorodhesha makubaliano; kitufe cha makubaliano kimeondoka (tofauti nje ya vitabu = 0)
+PASS U5 MANAGER anaona mgawanyo wa deni lake, bila kitufe cha makubaliano
+PASS U6 hakuna page error
+MATOKEO 8/0

@@ -1,0 +1,21 @@
+PASS U0 kapu: CASTLE LITE x4 + punguzo, kitufe kinaonyesha total = gharama - 600
+PASS U1 dialog "Mauzo chini ya gharama" na takwimu za server (chini kwa TZS 600)
+PASS U2 hakuna kilichohifadhiwa kabla ya sababu
+PASS U3 sababu takataka: kitufe kimezimwa
+PASS U4 sale imehifadhiwa + BELOW_COST: gharama -> total, sababu, MANAGER
+PASS U5 ombi la pili lilibeba belowCostReason (la kwanza halikuwa nalo)
+PASS U6 hakuna kosa la JavaScript (POS)
+PASS A1 bila sababu -> 422 BELOW_COST_REASON, hakuna sale, stock haijaguswa
+PASS A2 sababu takataka -> 422, hakuna sale
+PASS A3 bila punguzo (juu ya gharama) -> 200, hakuna BELOW_COST mpya
+PASS A4 edit: punguzo linashusha chini ya gharama -> inaruhusiwa kwa sababu ya A6, BELOW_COST yenye sababu hiyo
+PASS A5 bei 1700 (juu ya gharama, chini ya x1.1) -> 200 bila sababu, hakuna BELOW_COST
+PASS R1 /pending ya CEO ina BELOW_COST 2; kiasi hakijumuishi gharama
+PASS R2 MANAGER hana Kagua (403)
+PASS R3 banner ya CEO inataja chini ya gharama
+PASS R4 Kagua inaonyesha "Imeuzwa chini ya gharama" + sababu
+PASS R5 "Nimeona" inaondoa BELOW_COST kwenye pending ya CEO
+PASS R6 hakuna kosa la JavaScript (CEO)
+PASS L1 "SELLING BELOW RECOMMENDED PRICE" ni WARN tu, si ERROR
+PASS L2 "SALE BELOW COST allowed" iko kwenye log (WARN)
+MWISHO PASS 20 FAIL 0

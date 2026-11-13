@@ -1,0 +1,23 @@
+PASS S1 CEO: mipangilio imehifadhiwa kupitia dialog (vipimo 30/60, mzazi KONYAGI 750ML)
+PASS S2 orodha ya dialog inaonyesha Konyagi ya kupima
+PASS M1 MANAGER: hakuna "+ Mipangilio" wala "Mipangilio" (KUPIMA_SETTINGS tu)
+PASS U1 POS: Konyagi ya kupima iko kama kadi (si kwenye orodha ya bidhaa), "Hakuna chupa wazi"
+PASS U2 mstari wa 30ml kwa 1,000; bei haibadilishwi (kitufe kimezimwa)
+PASS U3 hakuna chombo wazi -> dialog "Fungua chombo kipya"
+PASS U4 imeuzwa: bar 720, mzazi -1
+PASS U5 bar inaonyesha 40 / 750 ml
+PASS U6 haitoshi -> chaguo mbili: (i) tumia zilizobaki + fungua kipya, (ii) kimeisha kweli
+PASS U7 (i): chombo cha zamani CLOSED SPLIT bila upotevu; kipya bar 730 (40 + 20)
+PASS U8 (ii): 20ml upotevu, Dr 5100 / Cr 1200; kipya bar 720
+PASS U9 "Chombo kimeisha" kwa mkono: hakuna chombo wazi, 720ml upotevu
+PASS U10 ripoti ya vyombo inaonyesha upotevu (720ml ≈ 24 × 30ml)
+PASS E1 kila chombo kinaonyesha FAIDA na gharama yake
+PASS E2 kichupo cha Faida: kadi ya wiki, KONYAGI kwenye jedwali la kinywaji, mwezi huu kwenye jedwali la mwezi
+PASS W1 dialog: wazazi 2 (GREPA, MA-LOT) na bei ya MA-LOT 70ml = 2,500 (msingi 2,000)
+PASS W2 POS: hakuna chombo wazi -> bei ya msingi 2,000
+PASS W3 dialog inauliza mzazi: GREPA na MA-LOT; "Fungua" imezimwa mpaka uchague
+PASS W4 MA-LOT ina bei zake: kikapu kinabadilika kuwa 2,500 na sale haijatumwa bado
+PASS W5 imeuzwa 2,500 kutoka chombo cha MA-LOT: MA-LOT -1, GREPA haijaguswa
+PASS W6 POS inaonyesha bei za chombo kilicho wazi (MA-LOT): 70ml 2,500
+PASS U11 hakuna kosa la JavaScript
+MWISHO PASS 22 FAIL 0

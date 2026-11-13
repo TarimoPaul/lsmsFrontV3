@@ -1,0 +1,13 @@
+PASS S1 nakala: CEO = FINANCE_READ+WRITE, Executive CEO = FINANCE_READ tu
+CEO {"journal":{"shown":true,"write":2,"text":3959},"periods":{"shown":true,"write":10,"text":2283},"overview":{"shown":true,"write":4,"text":1231},"loans":{"shown":true,"write":7,"text":1521}} | EXEC {"journal":{"shown":true,"write":0,"text":3920},"periods":{"shown":true,"write":0,"text":2113},"overview":{"shown":true,"write":0,"text":1199},"loans":{"shown":true,"write":0,"text":1399}}
+PASS B1 CEO: Journal ina vitufe 2 (Journal ya mkono, Uhamisho)
+PASS B2 CEO: Vipindi vina Funga/Fungua upya
+PASS B3 CEO: Mikopo ina "Mkopo mpya" (na vitufe vya mkopo)
+PASS B4 CEO: Muhtasari wa GL una vitufe vya kuandika (Hesabu/Rekebisha)
+PASS E-journal Executive CEO: ukurasa unaonekana bila kitufe chochote cha kuandika
+PASS E-periods Executive CEO: ukurasa unaonekana bila kitufe chochote cha kuandika
+PASS E-overview Executive CEO: ukurasa unaonekana bila kitufe chochote cha kuandika
+PASS E-loans Executive CEO: ukurasa unaonekana bila kitufe chochote cha kuandika
+PASS API Executive CEO POST /gl/transfers -> 403 (server inakubaliana na V3)
+PASS Z hakuna JS error kwenye kurasa
+JUMLA PASS 11 FAIL 0

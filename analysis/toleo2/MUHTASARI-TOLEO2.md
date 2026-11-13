@@ -129,6 +129,10 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      (image 296 MB badala ya 384 MB); a86fbcf = kinga ya RAM ya lango.sh (huru < 3 GB -> linasimama). V3 a1caafc = commit ya build
      (version.json ya build ya local sasa 3.3.0). Lango la 13/11 (1): majaribio 6 + A8e + B 4/4 + rollback 5/0 SAWA; b1 + kupima_e2e
      zilishindwa (data / mpangilio) -> zimerekebishwa a1caafc; lango la 2 lilisimamishwa na mfumo (RAM). **Lango bado halijapita.**
+   - **(gr) 13/11 LANGO_OK** kwenye nakala safi ya dump ya prod 12/11 (image local-7c9ce11, V3 a1caafc; backend main a86fbcf =
+     7c9ce11 + kinga ya RAM ya lango.sh): suite 696/0/1 (peke yake), ng test 104/104, payment_method dhidi ya V151 = 0,
+     Flyway 138 -> 151 zote true, c2 2/2, awamu A 30/30 (a6 12/0 na A8e, b1 29/0, sababu 20/0, kupima_e2e 22/0), awamu B 4/4,
+     rollback kwa kuandika 5/0. Log: `toleo2/lango-b2-1211-gr/`. 93: `93-deploy-250.cmd build a86fbcf a1caafc`. Push ni ya Chief.
    - **DESEMBA (gr 3) - usijenge sasa:**
      1. Tarehe zilizobandikwa kwenye majaribio: `manunuzi_onyo` (08/11 + LSMS_PURCHASE_CHECK_FROM=2026-11-01 ya lango.sh),
         `b3`/`b4` (mikopo 26/09, 04/10), `akaunti` (CRDB 24/08), `kupima_api` (kipindi 2026-12-01..2026-11-01).

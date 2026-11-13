@@ -1,0 +1,23 @@
+PASS B1 V146: kila mstari wenye tofauti wa hesabu iliyothibitishwa una uamuzi (backfill)
+PASS B2 backfill: NO_ACTION = mistari isiyo na stock_adjustment
+PASS H1a bila jibu la swali la mzigo -> imekataliwa
+PASS H1b NDIYO bila bidhaa -> imekataliwa (andika manunuzi kwanza)
+PASS H1c bidhaa isiyokuwepo -> imekataliwa
+PASS H1d majaribio yaliyokataliwa hayakuacha zoezi
+PASS H1e NDIYO + bidhaa: bidhaa hiyo haina mstari leo, zoezi linaikumbuka
+PASS H1f API inaonyesha jibu + jina la bidhaa iliyoachwa
+PASS H2 bidhaa ya KUPIMA haipo kwenye hesabu ya kila siku
+PASS H4a hesabu 1: Y -2 NO_ACTION inathibitishwa
+PASS H4b uamuzi umehifadhiwa kwenye mstari (NO_ACTION, aliyeamua, saa)
+PASS H3a ziada > 50,000 bila mtu wa pili -> uthibitisho umekataliwa
+PASS H3b API inaonyesha needsSecondCount kwa X
+PASS H3c aliyeanzisha/aliyehesabu hawezi kuhesabu kwa pili
+PASS H3d mtu wa pili (CEO) anahesabu: tofauti = hesabu ya pili - stock ya sasa
+PASS H3e hesabu ya pili ni mara moja tu
+PASS H4c Y -2 NO_ACTION mara ya pili mfululizo -> imekataliwa
+PASS H4d iliyokataliwa haikuandika chochote (bado PENDING_APPROVAL, hakuna stock_adjustment)
+PASS H4e Y ikiandikwa (ADJUST) -> inathibitishwa
+PASS H4f maamuzi ya hesabu 2 yamehifadhiwa (ADJUST + sababu)
+PASS H4g tofauti ileile lakini mara iliyopita iliandikwa -> NO_ACTION inaruhusiwa
+PASS GL TB = 0 (haijabadilika)
+MWISHO PASS 22 FAIL 0

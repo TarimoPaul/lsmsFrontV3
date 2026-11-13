@@ -1,0 +1,42 @@
+S1 111126-1100 2026-11-11 | S2 RCP-20260613-238000-DB91 | approved 101126-1619 2026-11-10 | nudged aef4d66c-951e-4707-8416-485875852e55 1777.00
+UPDATE 1
+PASS A1 dialogi ya sababu inaeleza kanuni
+PASS A2 sababu fupi -> kitufe kimezimwa
+PASS A3 toast inaonyesha imerekodiwa #
+PASS A4 DB: deleted_by = MANAGER
+PASS A5 mauzo ya pili yamefutwa (API)
+PASS B1 kukataliwa: ujumbe wa upatanisho
+PASS B2 DB: mauzo bado hai
+PASS C1 hakuna kitufe cha Restore
+PASS C2 kapu linaonyesha "Badala ya <risiti>"
+PASS C3 bei ya zamani inaonyeshwa pembeni (bei imebadilika)
+PAY-API 200 POST /api/v1/sales/pre-validate
+PAY-REQ "replacesSaleUid\":\"a292c91f-db60-438b-b23e-a1b1f38d896a\",\"saleNotes\":\"B" S1 a292c91f-db60-438b-b23e-a1b1f38d896a
+PAY-API 200 POST /api/v1/sales/partial
+PAY-BODY Success Sale completed successfully! {"sale":{"uid":"3139d0f0-7fa9-45bf-9519-a6068e179ca2","saleDate":"2026-11-13T09:43:02","subtotalAmount":1000,"discountAmount":0,"totalAmount":1000,"saleNotes":"2026-11-13 09:43:02: SALE COMPLETED - Receipt: 131126-0943, Items: 1, Total: 1,000.00, Profit: 466.67\nBadala ya mauzo yaliyofutwa: 111126-1
+PAY-API 200 GET http://127.0.0.1:4300/v3/chunk-WPAKH2DQ.js
+PAY-API 200 GET /api/v1/kupima/products
+PAY-API 403 GET /api/v1/business-settings/resolved
+PASS C4 mauzo mapya yamekamilika
+PASS C5 DB: sales.replaces_sale_uid = mauzo yaliyofutwa
+PASS C6 maelezo "Badala ya <risiti>" yamebaki
+PAY-API 200 GET /api/store/display/stock/available
+PASS D1 banner ya CEO inaonekana
+PASS D2 banner haina kitufe cha kufunga
+PAY-API 200 GET /api/v1/notifications/unread-count
+PASS D2a /pending ikichelewa: "Nimeona" haibofyeki mpaka orodha ionekane
+PASS D3 Kagua: mauzo, mtumiaji na sababu
+PASS D4 Kagua: S1 "Imerudishwa → #<mpya>"
+PASS D5 Kagua: S2 "Haijarudishwa"
+PASS D6 Nimeona inahitaji maelezo
+PASS D2b maelezo yapo + /pending inachelewa: "Nimeona" bado haibofyeki
+PASS D7 toast ya Nimeona
+PASS D8 banner ya CEO imeondoka baada ya Nimeona
+PAY-API 200 GET /api/v1/notifications/unread-count
+PASS E1 MANAGER bila ruhusa haoni banner
+PASS E2 MANAGER role inapewa SALE_DELETE_REVIEW (API ya roles)
+PASS E3 MANAGER akipewa ruhusa anaona banner
+PASS E4 Nimeona ya CEO haimfichii MANAGER
+PASS E5 CEO bado hana banner
+PASS Z hakuna JS error kwenye kurasa
+JUMLA PASS 29 FAIL 0
