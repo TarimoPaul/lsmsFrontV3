@@ -88,7 +88,7 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
 
 ## 6. Marejesho ON + onyo la manunuzi kuanzia leo, kwenye staging (gy 1, hc 1)
 
-1. `93-deploy-250.cmd staging marejesho` → `93-staging-marejesho.log`
+1. `93-deploy-250.cmd staging marejesho [YYYY-MM-DD]` (bila hoja = leo; hd: leo hadi leo+2) → `93-staging-marejesho.log`
    - KAGUA (kusoma tu), mstari kwa kila swichi: `KAGUA: APP_FEATURES_SALES_RETURNS_ENABLED | .env =HAIPO | compose (backend) =HAIJAWEKWA | … | lengo =true`
      na `KAGUA: LSMS_PURCHASE_CHECK_FROM | … | lengo =<tarehe ya leo>`; `MAREJESHO_KAGUA_OK: ANDIKA itaweka … =true … =<leo>`
    - **STOP:** andika `ANDIKA` (herufi kubwa) kuendelea; kingine chochote = hakuna kinachoandikwa.
@@ -108,9 +108,13 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
 
 ## 7. Prod (14 au 15/11) — mpangilio
 
-1. `93-deploy-250.cmd prod marejesho` (KAGUA → STOP `ANDIKA` → ANDIKA) — 2.4.0 inaendelea, haiguswi.
-   **Iendeshwe SIKU YA DEPLOY** (EAT): tarehe ya onyo la manunuzi = tarehe ya ANDIKA. Ikiendeshwa siku tofauti, iendeshe
-   tena siku ya deploy (KAGUA itaonyesha tarehe ya zamani na kuisasisha).
+1. `93-deploy-250.cmd prod marejesho [YYYY-MM-DD]` (KAGUA → STOP `ANDIKA` → ANDIKA) — 2.4.0 inaendelea, haiguswi.
+   Tarehe ni siku ya kwanza ya onyo la manunuzi (hd):
+   - **deploy usiku → tarehe ya kesho** (mf. `93-deploy-250.cmd prod marejesho 2026-11-15`): reco ya leo ni ya 2.4.0, bila "Droo";
+   - **deploy alfajiri → leo** (bila hoja, au tarehe ya leo).
+   - Tarehe ya nyuma (< leo) au zaidi ya siku 2 mbele inakataliwa kabla ya kugusa chochote (`SIYO: tarehe … ni ya nyuma`).
+   - KAGUA inaonyesha `KAGUA: LSMS_PURCHASE_CHECK_FROM | … | lengo =<tarehe>` — hakikisha ni tarehe uliyokusudia kabla ya `ANDIKA`.
+   - Ukiiendesha tena, **toa tarehe ileile**: bila hoja lengo ni leo na ANDIKA ingeisogeza.
 2. `93-deploy-250.cmd prod deploy`:
    - K1 **`payment_method dhidi ya V151: HAIKUBALIKI 0 (payments n, credit_payments n)`** — vinginevyo inasimama kabla ya kubadili;
    - K4 **`marejesho … =true`** na **`onyo la manunuzi … =<tarehe ya deploy>`** (prod bila hizo inasimama: "endesha kwanza 93 prod marejesho");

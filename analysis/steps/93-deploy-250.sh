@@ -10,8 +10,8 @@
 #                                                    NOT NULL DEFAULT, check pana zaidi). Jaribio (ge): 2.4.0 juu ya schema 151 inawaka
 #                                                    na inaandika sale/deni/reco/manunuzi bila kosa (rollback_kuandika 5/0).
 #   bash 93-deploy-250.sh staging refresh-db [dump]  STAGING TU: DB <- dump ya prod (default: ~/backups/daily ya leo)
-#   bash 93-deploy-250.sh <staging|prod> marejesho kagua|andika   (gy) swichi ya marejesho C4 = ON + (hc) onyo la manunuzi
-#                                                    LSMS_PURCHASE_CHECK_FROM = tarehe ya ANDIKA (EAT) = tarehe ya deploy:
+#   bash 93-deploy-250.sh <staging|prod> marejesho kagua|andika [YYYY-MM-DD]   (gy) swichi ya marejesho C4 = ON + (hc) onyo
+#                                                    la manunuzi LSMS_PURCHASE_CHECK_FROM = tarehe ya hoja (hd: leo..leo+2) au leo (EAT):
 #                                                    kagua = kusoma tu (thamani ya .env, compose, container); andika = backup ya
 #                                                    .env + compose, kisha APP_FEATURES_SALES_RETURNS_ENABLED=true kwenye .env NA
 #                                                    kwenye environment ya backend ya compose; docker compose config inathibitisha
@@ -32,7 +32,7 @@
 #   (zinaandika DB ya staging tu).
 set -uo pipefail
 
-TARGET="${1:-}"; ACTION="${2:-}"; ARG3="${3:-}"
+TARGET="${1:-}"; ACTION="${2:-}"; ARG3="${3:-}"; ARG4="${4:-}"
 H="${L93_HOME:-$HOME}"
 NEW_BE=2.5.0; NEW_V3=3.3.0; OLD_BE=2.4.0; OLD_V3=3.2.0
 IMG_BE=${L93_IMG_BE:-chiefmaster/my-lsms-backend}; IMG_V3=chiefmaster/lsms-frontend-v3
@@ -377,7 +377,11 @@ refresh_db() {
 marejesho() {
   # (gy) marejesho =true + (hc) onyo la manunuzi kuanzia LEO (tarehe ya ANDIKA = tarehe ya deploy; EAT)
   local mode="$1" c st n k want e v ef todo="" f
-  local PCF_VAL; PCF_VAL=$(TZ=Africa/Dar_es_Salaam date +%F)
+  # (hd) tarehe ya onyo: hoja (YYYY-MM-DD, leo hadi leo+2) au leo (EAT). Deploy usiku -> kesho (reco ya leo ni ya 2.4.0).
+  local PCF_VAL LEO; LEO=$(TZ=Africa/Dar_es_Salaam date +%F); PCF_VAL="${2:-$LEO}"
+  [[ "$PCF_VAL" =~ ^20[0-9]{2}-[01][0-9]-[0-3][0-9]$ ]] && [ "$(date -d "$PCF_VAL" +%F 2>/dev/null)" = "$PCF_VAL" ]     || die "tarehe '$PCF_VAL' si sahihi (YYYY-MM-DD)"
+  [[ ! "$PCF_VAL" < "$LEO" ]] || die "tarehe $PCF_VAL ni ya nyuma (leo $LEO) - onyo la manunuzi haliwezi kuanza nyuma; HAKUNA kilichobadilishwa"
+  [[ ! "$PCF_VAL" > "$(date -d "$LEO +2 days" +%F)" ]] || die "tarehe $PCF_VAL ni zaidi ya siku 2 mbele ya leo $LEO; HAKUNA kilichobadilishwa"
   c=$(DC config 2>/dev/null) || die "docker compose config imeshindwa"
   for k in "$RET_KEY" "$PCF_KEY"; do
     want=true; [ "$k" = "$PCF_KEY" ] && want="$PCF_VAL"
@@ -434,7 +438,7 @@ marejesho() {
 }
 
 case "$ACTION" in
-  marejesho)  [ "$ARG3" = kagua ] || [ "$ARG3" = andika ] || die "marejesho kagua|andika"; marejesho "$ARG3" ;;
+  marejesho)  [ "$ARG3" = kagua ] || [ "$ARG3" = andika ] || die "marejesho kagua|andika"; marejesho "$ARG3" "$ARG4" ;;
   hali)       hali ;;
   deploy)     k1; k2; k3; k4; k5; k6; hali; say "DEPLOY_OK $NEW_BE + $NEW_V3 (jumla $(( $(date +%s) - T0 ))s)" ;;
   rollback)   rollback_core || { echo "---93_IMESHINDWA---"; exit 1; }; hali ;;

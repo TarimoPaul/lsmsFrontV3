@@ -13,7 +13,7 @@
 #   93-deploy-250.cmd <staging|prod> fuata   fuatilia log ya kazi inayoendelea (baada ya mtandao kukatika)
 #   93-deploy-250.cmd <staging|prod> smoke   KUSOMA TU: login + GET za kawaida (dg: baada ya deploy ya prod)
 #   93-deploy-250.cmd staging kazi           INAANDIKA: sale cash+GL, kufuta sale, ununuzi+malipo ya msambazaji+GL, reco expense
-#   93-deploy-250.cmd <staging|prod> marejesho   (gy, hc) KAGUA (kusoma tu) -> 🛑 andika ANDIKA -> ANDIKA: marejesho =true +
+#   93-deploy-250.cmd <staging|prod> marejesho [YYYY-MM-DD]   (gy, hc, hd) KAGUA (kusoma tu) -> 🛑 andika ANDIKA -> ANDIKA: marejesho =true +
 #                                            LSMS_PURCHASE_CHECK_FROM = tarehe ya leo (EAT) kwenye
 #                                            .env + compose (backup kwanza); inaanza kufanya kazi kwenye deploy inayofuata
 #
@@ -123,14 +123,16 @@ if ($Action -in 'kazi', 'smoke') {
 
 # ── marejesho (gy): KAGUA -> 🛑 -> ANDIKA, moja kwa moja ─────────────────────────────────────────────────────
 if ($Action -eq 'marejesho') {
-    $k = @(Remote "bash $R/93-deploy-250.sh $Target marejesho kagua 2>&1 | $F")
+    # (hd) hoja ya 3 = tarehe ya onyo la manunuzi (YYYY-MM-DD); bila hoja = leo. Inakaguliwa kwenye server (leo..leo+2).
+    if ($A3 -and $A3 -notmatch '^\d{4}-\d{2}-\d{2}$') { L "SIYO: tarehe '$A3' si YYYY-MM-DD"; exit 2 }
+    $k = @(Remote "bash $R/93-deploy-250.sh $Target marejesho kagua $A3 2>&1 | $F")
     $k | ForEach-Object { L $_ }
     if ($k -match 'MAREJESHO_TAYARI') { L "---93_OK--- marejesho =true na onyo la manunuzi =leo tayari"; exit 0 }
     if (-not ($k -match 'MAREJESHO_KAGUA_OK') -or -not ($k -match '^---93_MWISHO---$')) { L '---93_IMESHINDWA--- KAGUA (hakuna kilichoandikwa)'; exit 1 }
-    $j = Read-Host "STOP: andika ANDIKA kuweka marejesho =true na onyo la manunuzi kuanzia leo kwenye $Target (kingine chochote = simama)"
+    $j = Read-Host "STOP: andika ANDIKA kuweka marejesho =true na onyo la manunuzi kuanzia $(if ($A3) { $A3 } else { 'leo' }) kwenye $Target (kingine chochote = simama)"
     if ($j -cne 'ANDIKA') { L "IMESIMAMISHWA na mmiliki - hakuna kilichoandikwa"; exit 1 }
     L 'mmiliki ameandika: ANDIKA'
-    $a = @(Remote "bash $R/93-deploy-250.sh $Target marejesho andika 2>&1 | $F")
+    $a = @(Remote "bash $R/93-deploy-250.sh $Target marejesho andika $A3 2>&1 | $F")
     $a | ForEach-Object { L $_ }
     if (($a -match 'MAREJESHO_IMEANDIKWA') -and ($a -match '^---93_MWISHO---$')) { L "---93_OK--- marejesho; sasa: 93-deploy-250.cmd $Target deploy"; exit 0 }
     L '---93_IMESHINDWA--- marejesho (soma log; backup imerudishwa kama ilivyoandikwa)'; exit 1

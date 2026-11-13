@@ -37,3 +37,37 @@
 [12:12:36] ---93K_MWISHO---
 [12:12:36] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
 [12:12:36] ---93_OK--- kazi
+[12:24:29] ===== 93 staging kazi 2026-11-13 =====
+[12:25:11] script zimenakiliwa server (~/lsms-250)
+[12:26:02] === 93-kazi staging kazi | backend 2.4.0 | KAZI93-122530
+[12:26:02] PASS login (2.4.0)
+[12:26:02] bidhaa ya sale: PEPSI && MIRINDA | bei 1000.00 | stock 375
+[12:26:02] PASS sale cash imeandikwa (131126-1225 1000.00)
+[12:26:02] PASS stock 375 -> 374
+[12:26:02] GL ya sale: 1000:1000,1200:-533,4000:-1000,5000:533 (1 0.00)
+[12:26:02] PASS GL journal ya sale ipo, inagusa 1000 (1000:1000,1200:-533,4000:-1000,5000:533)
+[12:26:02] PASS sale imefutwa (API)
+[12:26:02] PASS sales.is_active=false
+[12:26:02] PASS stock imerudi 375
+[12:26:02] PASS GL reversal ya sale ipo (1)
+[12:26:02] PASS sale_change_audit DELETE/ALLOWED (tangu 2.4.0; backend 2.4.0)
+[12:26:02] bidhaa ya ununuzi: AZAM ENERGY PLASTICK | msambazaji (ununuzi + malipo): grepa
+[12:26:02] PASS ununuzi wa mkopo umeandikwa (PENDING 100.00 UNPAID msambazaji f53d2f3d-48ed-4421-bd37-029a335c1ffd)
+[12:26:02] PASS ununuzi APPROVED (APPROVED UNPAID)
+[12:26:02] PASS GL ya ununuzi wa mkopo: Dr 1200 / Cr 2000, hakuna 1000 (1200:100,2000:-100)
+[12:26:02] PASS malipo ya ununuzi huo yameandikwa (purchaseUid)
+[12:26:02] PASS GL ya malipo: Dr 2000 / Cr 1000 (1000:-100,2000:100)
+[12:26:02] PASS ununuzi + malipo: pesa imetoka MARA MOJA (1000 -100), deni 2000 = 0 (1000:-100,1200:100)
+[12:26:02] hali ya ununuzi baada ya malipo: UNPAID amount_paid 0.00
+[12:26:02] PASS malipo yamefutwa (reversal)
+[12:26:02] PASS baada ya kufuta malipo: pesa imerudi (1000 0), deni la 100 limerudi (1200:100,2000:-100)
+[12:26:02] PASS sale-B ya reco imeandikwa (inabaki mpaka reco iishe)
+[12:26:02] PASS reco ya leo ipo (DRAFT)
+[12:26:02] PASS reco expense imeongezwa
+[12:26:02] PASS reco expense imefutwa
+[12:26:02] PASS sale-B imefutwa baada ya reco (stock 375)
+[12:26:02] KAZI_MATOKEO (2.4.0) PASS 22 FAIL 0 | rekodi za jaribio: alama KAZI93-122530
+[12:26:02] KAZI_OK 22/22
+[12:26:02] ---93K_MWISHO---
+[12:26:02] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:26:02] ---93_OK--- kazi

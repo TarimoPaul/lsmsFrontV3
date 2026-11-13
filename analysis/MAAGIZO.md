@@ -1536,3 +1536,12 @@ Mpya:
 2. MUHTASARI — Desemba (usijenge sasa, main imefungwa):
    a. malipo yenye purchaseUid hayabadilishi payment_status/amount_paid (lebo tu, GL sawa) — hadi hapo, 74 kila mwezi;
    b. "Nunua tena" haipokei msambazaji/deni — muhimu tu Chief akianza kununua kwa mkopo.
+
+## 2026-11-13 (hd)
+(hc) imekubaliwa. Badiliko moja: `marejesho` ipokee tarehe kama hoja:
+  93-deploy-250.cmd <staging|prod> marejesho [YYYY-MM-DD]
+  - bila hoja → tarehe ya leo (EAT), kama sasa;
+  - na hoja → tarehe hiyo; ikatae tarehe ya nyuma (< leo) na tarehe zaidi ya siku 2 mbele.
+  Sababu: prod ikideployiwa usiku, onyo lianze KESHO (reco ya leo ni ya 2.4.0 bila "Droo" → onyo la uongo siku ya kwanza).
+  ORODHA sehemu 7: "deploy usiku → tarehe ya kesho; deploy alfajiri → leo".
+Jaribio: hoja ya kesho → KAGUA lengo = kesho; hoja ya jana → inakataliwa.

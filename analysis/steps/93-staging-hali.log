@@ -20,3 +20,33 @@
 [11:33:05] [93 staging 11:33:05] cron za mtumiaji zinazotaja lsms-staging: 0 (taarifa)
 [11:33:05] ---93_MWISHO---
 [11:33:05] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 2
+[12:37:20] ===== 93 staging hali 2026-11-13 =====
+[12:37:50] script zimenakiliwa server (~/lsms-250)
+[12:37:56] [93 staging 12:37:54] backend 2.5.0 | frontend-v3 3.3.0 | .env BACKEND_VERSION=***FICHWA***
+[12:37:56] [93 staging 12:37:55] Flyway ya mwisho: 151
+[12:37:56] [93 staging 12:37:55] .env HAINA ADMIN_EMAIL
+[12:37:56] [93 staging 12:37:55] .env HAINA ADMIN_PASSWORD
+[12:37:56] [93 staging 12:37:55] .env HAINA DOCKERHUB_USERNAME
+[12:37:56] [93 staging 12:37:55] .env HAINA DOCKERHUB_PASSWORD
+[12:37:56] [93 staging 12:37:55] .env ina DAILY_SALES_PROFIT_ROLES
+[12:37:56] [93 staging 12:37:55] image IPO chiefmaster/my-lsms-backend:2.4.0
+[12:37:56] [93 staging 12:37:55] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[12:37:56] [93 staging 12:37:55] image IPO chiefmaster/my-lsms-backend:2.5.0
+[12:37:56] [93 staging 12:37:55] image IPO chiefmaster/lsms-frontend-v3:3.3.0
+[12:37:56] [93 staging 12:37:55] .backend.prev=2.4.0 .frontend-v3.prev=3.2.0
+[12:37:56] [hali] DONE K1-KAGUA 2026-11-13T11:41:03 3s
+[12:37:56] [hali] DONE K2-BACKUP 2026-11-13T11:41:07 4s
+[12:37:56] [hali] ROLLBACK 2026-11-13T12:22:59 47s rc=0
+[12:37:56] [hali] DONE K1-KAGUA 2026-11-13T12:33:23 1s
+[12:37:56] [hali] DONE K3-PULL 2026-11-13T12:33:27 4s
+[12:37:56] [hali] DONE K4-KAGUA 2026-11-13T12:33:29 2s
+[12:37:56] [hali] DONE K5-BADILI 2026-11-13T12:34:16 47s
+[12:37:56] [hali] DONE K6-SMOKE 2026-11-13T12:34:23 7s
+[12:37:56] [93 staging 12:37:55] compose: marejesho APP_FEATURES_SALES_RETURNS_ENABLED =; onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =
+[12:37:56] [93 staging 12:37:56] ARIFA 1/3: APP_SCHEDULERS_ENABLED =false kwenye backend (profile prod)
+[12:37:56] [93 staging 12:37:56] ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)
+[12:37:56] [93 staging 12:37:56] ARIFA 3/3: jar ya 2.5.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client
+[12:37:56] [93 staging 12:37:56] ARIFA_ZIMEZIMWA: staging haitumi mail/SMS/WhatsApp/webhook/push; arifa za ndani (muhtasari wa mauzo 00:00 n.k.) zinaandikwa kwenye DB ya staging tu
+[12:37:56] [93 staging 12:37:56] cron za mtumiaji zinazotaja lsms-staging: 0 (taarifa)
+[12:37:56] ---93_MWISHO---
+[12:37:56] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 1

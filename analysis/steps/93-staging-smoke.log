@@ -1,0 +1,17 @@
+﻿[12:34:55] ===== 93 staging smoke 2026-11-13 =====
+[12:35:36] script zimenakiliwa server (~/lsms-250)
+[12:37:04] === 93-kazi staging smoke | backend 2.5.0 | KAZI93-123659
+[12:37:04] PASS login (2.5.0)
+[12:37:04] PASS GET /api/v1/sales
+[12:37:04] PASS GET /api/v1/purchases
+[12:37:04] PASS GET /api/v1/gl/trial-balance
+[12:37:04] PASS GET /api/v1/gl/journal-entries
+[12:37:04] PASS GET /api/v1/gl/accounts
+[12:37:04] PASS GET /api/v1/notifications/unread-counts
+[12:37:04] PASS GET /api/v1/sales/changes/pending (tangu 2.4.0; backend 2.5.0)
+[12:37:04] PASS login_audit imeandika login hii (tangu 2.4.0; backend 2.5.0)
+[12:37:04] SMOKE_MATOKEO PASS 9 FAIL 0
+[12:37:04] SMOKE_OK 9/9
+[12:37:04] ---93K_MWISHO---
+[12:37:04] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:37:04] ---93_OK--- smoke
