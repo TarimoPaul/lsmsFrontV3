@@ -1479,3 +1479,11 @@ LANGO_OK imekubaliwa.
 2. Kama chochote hakijazuiwa → ongeza kwenye K4/K6 ya staging: "ARIFA_ZIMEZIMWA" au simama. Staging isimtumie
    Macheda wala mtu yeyote ujumbe halisi.
 3. Ongeza mstari huo kwenye ORODHA-STAGING-93.md hatua 2.
+
+## 2026-11-13 (gu)
+(gt) imekubaliwa.
+KABLA ya push-yote: ce77a9f ina 92-pakua.log na push-yote.log. Kagua log zote za analysis/ zilizo kwenye commit
+ambazo hazijapushwa: token, password, ghp_/github_pat_, https://<kitu>@, Bearer, funguo za .env, IP + user wa SSH.
+Tumia pia kinga ya hash prefix ya hatua 73. Ripoti: faili | imesafishwa? Ikiwa kuna siri: ondoa kwenye historia ya
+commit ambazo HAZIJAPUSHWA (amend/rebase ya local), na ongeza *.log ya steps kwenye .gitignore au ficha.awk kabla
+ya kuandika. Usipushe — niambie.
