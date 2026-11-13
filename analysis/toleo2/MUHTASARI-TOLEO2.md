@@ -1,6 +1,6 @@
 # MUHTASARI WA TOLEO 2 — ukaguzi wa mwisho (fi/fj, 12/11/2026)
 
-nimesoma hadi (hp)
+nimesoma hadi (hr)
 
 **(hi) PROD = backend 2.5.0 + V3 3.3.0 tangu 13/11/2026 14:05 EAT** (hatua 93: DEPLOY_OK, Flyway 151, marejesho OFF (hh), onyo la manunuzi 2026-11-14, D HAIJAWEKWA, ERROR 0; smoke 9/9; 74b ANDIKA 419 -> PAID, GL haikubadilika). Tag (local, push ni ya Chief kwa push-yote 8/9): **v2.5.0 -> a86fbcf**, **v3.3.0 -> a1caafc**. **Main iko WAZI tena** kwa kazi ya Desemba (lango zima + staging kabla ya prod yoyote).
 
@@ -74,6 +74,14 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | 04/12 | — | Loan A awamu 2 kwenye app (Cr 1000), hakuna kazi |
 | **07/12 asubuhi (D)** | **60** kagua -> andika | salio la ufunguzi kwa akaunti ZOTE 9 za benki/simu + tofauti -> 2910 + D |
 | 07/12 + siku 30 | journal ya mkono | 2910 chambua; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO) |
+
+**(hq/hr) 13/11 — V3 3.3.1 (V3 TU, prod moja kwa moja bila staging - Chief hr):** KUPIMA kwenye orodha ya POS (mstari mmoja kwa
+kinywaji juu ya orodha, bar ya 5px yenye rangi kwa kilichobaki, "650 / 750 ml", vitufe vya vipimo kwenye RETAIL, "Fungua chupa (n)",
+"Stock 0 — andika manunuzi", chip "Kupima (n)"). API za 2.5.0 tu (GET /api/v1/kupima/products, POST .../open, POST .../finish) -
+backend haibadiliki. Code: V3 main 5426486 + **3ac227f** (commit ya build). ng 106/106; kupima_e2e 34/0 kwenye IMAGE ya production
+(deploy/Dockerfile, APP_VERSION 3.3.1) + backend 2.5.0 + nakala ya prod 12/11 baada ya hatua 85; screenshot light/dark:
+`toleo2/kupima-pos-331/`. Deploy: **hatua 96** (`96-deploy-v3.cmd build 3ac227f` -> push-yote -> `96-deploy-v3.cmd prod deploy`;
+rollback `96-deploy-v3.cmd prod rollback` -> 3.3.0). Image 3.3.0 ibaki server hadi >= 20/11 pamoja na 2.4.0/3.2.0.
 
 **(hp, inachukua nafasi ya ho) Vyanzo vinavyojulikana — 2910 (D) na kuhesabu mali** (namba za 85 KAGUA ya prod; vipindi vya zamani HAVIREKEBISHWI):
 

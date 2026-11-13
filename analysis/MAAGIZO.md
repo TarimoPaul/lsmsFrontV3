@@ -1632,3 +1632,28 @@ Camino 20k, Wine 25k). 85 inarudisha 34,000 (Dr 1000/Cr 1200). 125,000 zilizobak
 ndani ya tofauti ya 2910 siku ya D. Usirekebishe vipindi vya zamani.
 Pia: mtiririko hasi Konyagi −60,000 (vipande 60 bila GL) + Wine −10,000 (vipande 20) → 1200 chini ~70,000 → itaonekana
 kwenye kuhesabu mali 30/11; andika kama chanzo kinachojulikana kwenye MUHTASARI (hesabu ya mali + 2910).
+
+## 2026-11-13 (hq)
+KUPIMA kwenye POS (V3 tu, backend haiguswi) — muundo mpya, Chief ameukubali:
+1. Ondoa kadi kubwa za "Kupima" juu ya bidhaa. Kila kinywaji cha kupima = MSTARI mmoja ndani ya orodha ya bidhaa,
+   urefu sawa na bidhaa nyingine, mistari ya kupima IKAE JUU ya orodha (kabla ya bidhaa za kawaida).
+2. Mstari: jina + lebo ndogo "kupima"; progress bar nyembamba (≈5px) chini ya jina; safu ya stock = "650 / 750 ml";
+   safu ya RETAIL = kitufe kwa kila kipimo ("50ml · 2,000"; wine vitufe 2); QUARTER/HALF/WHOLESALE = "—".
+3. Hakuna chombo wazi: bar tupu, safu ya stock "Hakuna wazi"; RETAIL = kitufe "Fungua chupa (n)" (n = stock ya mzazi).
+   Stock ya mzazi 0: badala ya kitufe, maandishi ya onyo "Stock 0 — andika manunuzi" (hakuna kitufe kinachokataliwa).
+4. Rangi ya bar kwa vipimo vilivyobaki (si % tu):
+   ≥50% kijani; 20–50% njano; ≤ vipimo 2 vya kipimo kikubwa zaidi chini ya bei → nyekundu;
+   0 ml → nyekundu iliyokolea + "Fungua chupa". Tumia tokens za rangi zilizopo za V3 (dark mode pia).
+5. Chip ya kuchuja "Kupima (n)" kwenye mstari wa makundi.
+6. Majaribio: ng + E2E ya kupima (rangi 4 kwa ml tofauti, fungua chupa, stock 0 bila kitufe, wine vitufe 2, kuuza kipimo
+   kunashusha bar). Screenshot ya POS (light + dark) kwenye ripoti.
+7. Toleo: V3 3.3.1 — lango (ng + E2E kupima) → staging → prod. Backend 2.5.0 haibadiliki.
+
+## 2026-11-13 (hr)
+Ongeza kwenye (hq): Chief — 3.3.1 ni V3 TU, deploy prod MOJA KWA MOJA bila staging, kwa masharti:
+1. Thibitisha kwa code: UI mpya inatumia API zilizopo za 2.5.0 TU (hakuna field/endpoint mpya). Kama inahitaji backend → SIMAMA, niambie.
+2. Jaribio la local kwenye IMAGE YA PRODUCTION ya 3.3.1 (si ng serve) dhidi ya backend 2.5.0 + dump ya prod ya karibuni:
+   ng + E2E ya kupima + screenshot light/dark.
+3. Hatua ya deploy ya V3 pekee (93 au deploy-v3) yenye: K1 3.3.0 ipo kwa rollback, HEALTH frontend-v3 3.3.1, backend
+   bado 2.5.0, na amri ya rollback (→ 3.3.0) iandikwe kwenye log kabla ya kubadilisha.
+4. Deploy wakati duka halina wateja wengi; baada ya deploy Chief anafungua POS: mistari ya kupima inaonekana, rangi sahihi.

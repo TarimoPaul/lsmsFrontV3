@@ -1,0 +1,43 @@
+﻿[15:14:57] ===== 85 kagua 2026-11-13 =====
+[15:15:44] === 85 KAGUA 2026-11-13 15:15:15 - KUSOMA TU
+[15:15:44] V143 (KUPIMA): IPO
+[15:15:44] --- 1 ORODHA YA WAZAZI (eq, hk) - THIBITISHA: KEY | uid | id (lazima) | jina | aina | vipande/pkg | stock | avg | hali
+[15:15:44] KONYAGI | d0d16e3c-8a94-45ee-82af-2d595f50e339 | 33 | 33 | KONYAGI 750ML | Spirit za ndani | 12 | 2 | 10250 | SAWA
+[15:15:44] MOONLIGHT | 436b7e69-c8c9-41ef-bd8b-4067af203e8c | 105 | 105 | MOON LIGHT | Beer | - | 2 | 8166 | SAWA
+[15:15:44] GOLDENKING | 0ae6e777-24f3-4875-a738-2598d6656211 | 64 | 64 | GOLDEN KING | Spirit za ndani | 12 | 8 | 8166 | SAWA
+[15:15:44] GILBEYS | MGOMBEA kwa jina 'gilbey': 1
+[15:15:44] GILBEYS |   uid8 [0600f8e7] -5e7e-4e63-80f9-247b8e0a46f7 | 145 | Gilbeys | 12 | 0 | 0
+[15:15:44] CAMINO | MGOMBEA kwa jina 'camino': 1
+[15:15:44] CAMINO |   uid8 [a5eee808] -2f53-45e0-90ea-a6cfdaadf4b1 | 146 | Camino | 6 | 0 | 0
+[15:15:44] WINE | fd9877ee-e6bd-4cfd-bd9d-20ca46a762ed | 59 | 59 | GREPA WINE | Wines | 10 | 0 | 25000 | SAWA
+[15:15:44] WINE | a3081011-e370-4687-a7e7-bc5f02063b23 | 102 | 102 | MA-LOT BOX WINE | Wines | - | 2 | 35000 | SAWA
+[15:15:44] --- 2 FAIDA KWA CHUPA (hl): KEY | mzazi | gharama/chupa | kipimo | bei | vipimo/chupa | mapato/chupa | faida/chupa | % | hali
+[15:15:44] KONYAGI | KONYAGI 750ML | 10250 | 30ml | 1000 | 25 | 25000 | 14750 | 144% | SAWA
+[15:15:44] MOONLIGHT | MOON LIGHT | 8166 | 50ml | 2000 | 15 | 30000 | 21834 | 267% | SAWA
+[15:15:44] GOLDENKING | GOLDEN KING | 8166 | 50ml | 3000 | 15 | 45000 | 36834 | 451% | SAWA
+[15:15:44] GILBEYS | Gilbeys | 18000 (KADIRIO: avg 0, bei ya pkg / vipande) | 50ml | 3000 | 15 | 45000 | 27000 | 150% | ONYO: avg 0 (hakuna manunuzi) - ANDIKA INAKATAA ml > 0 kwa mzazi huyu hadi manunuzi yaandikwe (hm)
+[15:15:44] CAMINO | Camino | 45000 (KADIRIO: avg 0, bei ya pkg / vipande) | 50ml | 4000 | 15 | 60000 | 15000 | 33% | ONYO: avg 0 (hakuna manunuzi) - ANDIKA INAKATAA ml > 0 kwa mzazi huyu hadi manunuzi yaandikwe (hm)
+[15:15:44] WINE | GREPA WINE | 25000 | 70ml | 2000 | 71 | 142000 | 117000 | 468% | SAWA
+[15:15:44] WINE | GREPA WINE | 25000 | 80ml | 3000 | 62 | 186000 | 161000 | 644% | SAWA
+[15:15:44] WINE | MA-LOT BOX WINE | 35000 | 70ml | 2000 | 71 | 142000 | 107000 | 306% | SAWA
+[15:15:44] WINE | MA-LOT BOX WINE | 35000 | 80ml | 3000 | 62 | 186000 | 151000 | 431% | SAWA
+[15:15:44]   ONYO za faida: 2   (vipimo/chupa = ml ya chombo / ml ya kipimo, chini; gharama = avg ya mzazi = gharama ya chupa itakayofunguliwa)
+[15:15:44] --- 3 BIDHAA ZA KUPIMA: KEY | bidhaa | vipande vya bandia | avg | mauzo yake ya mwisho | chombo | hali
+[15:15:44] KONYAGI | KONYAGI YA KUPIMA | 0 | 1000 | 2026-11-02 | chupa 750ml | bado
+[15:15:44] MOONLIGHT | Moon Light Kupima | 9 | 2000 | 2026-08-16 | chupa 750ml | bado
+[15:15:44] GOLDENKING | GOLDEN KING KUPIMA | 9 | 1000 | 2026-05-08 | chupa 750ml | bado
+[15:15:44] GILBEYS | GILBEYS KUPIMA | 9 | 1000 | 2026-07-18 | chupa 750ml | bado
+[15:15:44] CAMINO | CAMINO KUPIMA | 0 | 1000 | 2026-05-31 | chupa 750ml | bado
+[15:15:44] WINE | WINE ZA KUPIMA | 0 | 500 | 2026-10-11 | dumu 5000ml | bado
+[15:15:44] --- 3b CHANZO (hm): KEY | manunuzi Cr 1000 | manunuzi mengine | marekebisho yenye GL | gharama ya mauzo | journal ya awali | akaunti mpya | kiasi | hali
+[15:15:44] KONYAGI | 34000.00 | 0.00 | 10000.00 | 104000.00 (mtiririko -60000.00; vipande visivyo na GL 60) | PUR-2ad6a559-15a0-4969-a565-59b3ec695946 [Cr 1000 1000] ; PUR-180d6a4c-ec3e-4a6a-bed4-3cadef4b2d9f [Cr 1000 20000] ; PUR-ee99fd68-09ad-40f3-969e-37f3045b900a [Cr 1000 13000] | hakuna (0) | 0.00 | SAWA
+[15:15:44] MOONLIGHT | 40000.00 | 0.00 | 0.00 | 24000.00 (mtiririko 16000.00; vipande visivyo na GL 1) | PUR-785548b1-a178-4b2a-b1ee-dc3b102dcf1c [Cr 1000 20000] ; PUR-e9bb33a8-b64c-4296-8c6d-65e8bda4a021 [Cr 1000 20000] | Dr 1000 16000.00 / Cr 1200 | 16000.00 | SAWA
+[15:15:44] GOLDENKING | 20000.00 | 0.00 | 0.00 | 11000.00 (mtiririko 9000.00; vipande visivyo na GL 0) | PUR-5cf4df05-bb8d-425f-be09-f3d12a27e663 [Cr 1000 20000] | Dr 1000 9000.00 / Cr 1200 | 9000.00 | SAWA
+[15:15:44] GILBEYS | 20000.00 | 0.00 | 0.00 | 11000.00 (mtiririko 9000.00; vipande visivyo na GL 0) | PUR-b5209495-8d25-452d-a81d-65488139f192 [Cr 1000 20000] | Dr 1000 9000.00 / Cr 1200 | 9000.00 | SAWA
+[15:15:44] CAMINO | 20000.00 | 0.00 | 0.00 | 20000.00 (mtiririko 0.00; vipande visivyo na GL 0) | PUR-5bd88c75-15e4-431e-ac41-ef5a03d612c3 [Cr 1000 20000] | hakuna (0) | 0.00 | SAWA
+[15:15:45] WINE | 25000.00 | 0.00 | 0.00 | 35000.00 (mtiririko -10000.00; vipande visivyo na GL 20) | PUR-a9b5b973-6e28-46a0-b6c1-76528d1f946e [Cr 1000 25000] | hakuna (0) | 0.00 | SAWA
+[15:15:45]   jumla: Dr 1000 34000.00 + Dr 5100 0.00 / Cr 1200 34000.00   (hm: SI 3900; journal ya mkono 'HATUA85-HM <uid8>' tarehe ya ANDIKA)
+[15:15:45] --- 4 bidhaa NYINGINE zenye 'pima' kwenye jina (85 haizigusi): id | jina | stock
+[15:15:45] --- salio: 1200 4503373.53   3900 -1214841.53   TB 0.00
+[15:15:45] ---85_KAGUA_MWISHO---
+[15:15:45] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 13, mistari iliyofichwa/kubadilishwa: 0
