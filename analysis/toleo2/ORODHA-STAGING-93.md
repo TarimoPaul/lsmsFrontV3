@@ -41,10 +41,10 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log`
 
 | Hatua | Cha kusoma kwenye log |
 |---|---|
-| **K1 kagua** | `inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 138`; `image za rollback zipo: 2.4.0 + 3.2.0`; `diski wazi <n>G` (≥ 5). |
+| **K1 kagua** | `inaendesha: backend 2.4.0, frontend-v3 3.2.0, Flyway 138`; (gy) `payment_method dhidi ya V151: HAIKUBALIKI 0 (payments n, credit_payments n)`; `image za rollback zipo: 2.4.0 + 3.2.0`; `diski wazi <n>G` (≥ 5). |
 | **K2 backup** | `DUMP <jina> bytes <n> sha256 …` (> MB 5); kwa staging: `B2: staging - dump inabaki kwenye server tu`. |
 | **K3 pull** | `digest: sha256:… / sha256:…` — linganisha mwanzo wa digest na ile ya `93-pc-build.log` (image ileile iliyojengwa). |
-| **K4 env/compose** | `APP_FEATURES_SALES_RETURNS_ENABLED: haijawekwa (default ya jar)`; `LSMS_PURCHASE_CHECK_FROM: haijawekwa (default ya jar)`; `.env + compose: HAKUNA mabadiliko kwa 2.5.0`; **`ARIFA 1/3`, `2/3`, `3/3: jar ya 2.5.0 …` na `ARIFA_ZIMEZIMWA`** — bila hiyo K4 inasimama (`ARIFA HAZIJAZIMWA`) KABLA ya kubadili chochote. |
+| **K4 env/compose** | (gy, script ya sasa) `marejesho APP_FEATURES_SALES_RETURNS_ENABLED =HAIJAWEKWA (default ya jar: false)` (baada ya sehemu 6: `=true`); `onyo la manunuzi LSMS_PURCHASE_CHECK_FROM =HAIJAWEKWA (default ya jar: 2026-12-02)`; **`ARIFA 1/3`, `2/3`, `3/3: jar ya 2.5.0 …` na `ARIFA_ZIMEZIMWA`** — bila hiyo K4 inasimama (`ARIFA HAZIJAZIMWA`) KABLA ya kubadili chochote. |
 | **K5 badili** | `backend: 'Started LsmsApplication' baada ya ~<n>s`; `http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401/403`; `HEALTH SAWA: backend 2.5.0, frontend-v3 3.3.0`; **`Flyway: 139:true 140:true … 151:true (max 151)`** — zote 13 ziwe `true`. |
 | **K6 smoke (server)** | `jedwali 7 mapya + akaunti 1160/2310/2910/6130 + check ya V151 SAWA`; **`D: HAIJAWEKWA (inawekwa na hatua 60 tarehe 07/12)`** — ukiona `ONYO: D IMEWEKWA tayari` simama; `ERROR baada ya kuanza (maombi ya moja kwa moja): 0`; **`ARIFA_ZIMEZIMWA (container inayoendesha: APP_SCHEDULERS_ENABLED=false)`**. |
 
@@ -86,6 +86,31 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
 - Kisha: `93-deploy-250.cmd staging smoke` → `SMOKE_OK n/n` (GET 6 + `sales/changes/pending` + `login_audit`), `---93_OK--- smoke`.
 - Mwisho: `93-deploy-250.cmd staging hali` → `backend 2.5.0 | frontend-v3 3.3.0`, `Flyway ya mwisho: 151`.
 
+## 6. Marejesho ON kwenye staging (gy 1)
+
+1. `93-deploy-250.cmd staging marejesho` → `93-staging-marejesho.log`
+   - KAGUA (kusoma tu): `KAGUA: .env APP_FEATURES_SALES_RETURNS_ENABLED =HAIPO | compose (backend) =HAIJAWEKWA | …`, `MAREJESHO_KAGUA_OK`
+   - **STOP:** andika `ANDIKA` (herufi kubwa) kuendelea; kingine chochote = hakuna kinachoandikwa.
+   - ANDIKA: `backup: …/marejesho-<saa>`, `ANDIKA SAWA: compose (backend) … =true; config imebadilika mstari 1 tu`,
+     `MAREJESHO_IMEANDIKWA`, `---93_OK--- marejesho`. Ikishindwa: `.env + compose zimerudishwa`.
+2. `93-deploy-250.cmd staging deploy` → K4 **`marejesho APP_FEATURES_SALES_RETURNS_ENABLED =true`**; K5
+   `K5-BADILI ilishakamilika - .env/compose zimebadilika: backend imeundwa upya` + `HEALTH SAWA`; K6
+   **`marejesho kwenye container inayoendesha: APP_FEATURES_SALES_RETURNS_ENABLED =true`**, `ARIFA_ZIMEZIMWA`.
+3. Jaribio la UI (C4) kwenye staging — mfano wa MWONGOZO-MACHEDA sehemu 1b:
+   - sale ya Taslimu ya siku iliyopita (reco yake IMEIDHINISHWA) → Rudisha bidhaa → kipande 1 → Omba kurudisha → PENDING;
+   - CEO → Marejesho — idhinisha / kataa → Idhinisha, Taslimu;
+   - angalia: stock +1; reco ya **leo** ina marejesho = bei ya kipande; reco ya **siku ya mauzo** haijabadilika (jumla ileile);
+     GL ya marejesho: Dr 4020 / Cr 1000 na Dr 1200 / Cr 5000; mtumiaji asiye na ruhusa ya marejesho haoni vitufe.
+
+## 7. Prod (14 au 15/11) — mpangilio
+
+1. `93-deploy-250.cmd prod marejesho` (KAGUA → STOP `ANDIKA` → ANDIKA) — 2.4.0 inaendelea, haiguswi.
+2. `93-deploy-250.cmd prod deploy`:
+   - K1 **`payment_method dhidi ya V151: HAIKUBALIKI 0 (payments n, credit_payments n)`** — vinginevyo inasimama kabla ya kubadili;
+   - K4 **`marejesho … =true`** (prod bila hiyo inasimama: "endesha kwanza 93 prod marejesho");
+   - K5 Flyway 139–151 true; K6 marejesho `=true` kwenye container, `D: HAIJAWEKWA`.
+3. `93-deploy-250.cmd prod smoke` → `SMOKE_OK`.
+
 ## Staging imepita =
 
 1. refresh-db: Flyway 138, dump ya leo.
@@ -94,6 +119,6 @@ Amri: `93-deploy-250.cmd staging deploy`  → `93-staging-deploy.log` (inaongezw
 4. rollback: HEALTH 2.4.0/3.2.0, Flyway 151; kazi kwenye 2.4.0 `KAZI_OK`.
 5. deploy 2: K1–K6, smoke `SMOKE_OK`, hali 2.5.0 / 3.3.0 / 151.
 
-Baada ya hapo: **main IMEFUNGWA hadi 02/12** (code ya app). Badiliko lolote = lango + staging upya. Hotfix = `hotfix/*` kutoka
-tag `v2.4.0` / `v3.2.0`. Prod 02/12: `93-deploy-250.cmd prod deploy` → `prod smoke`; kisha tag `v2.5.0` / `v3.3.0` kwenye SHA za
+Baada ya hapo: **main IMEFUNGWA hadi prod (14 au 15/11)** (code ya app). Badiliko lolote = lango + staging upya. Hotfix = `hotfix/*` kutoka
+tag `v2.4.0` / `v3.2.0`. Prod: sehemu 7 (`prod marejesho` → `prod deploy` → `prod smoke`); kisha tag `v2.5.0` / `v3.3.0` kwenye SHA za
 `93-build-commits.txt`.

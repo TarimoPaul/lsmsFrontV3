@@ -2,7 +2,7 @@
 
 nimesoma hadi (ge)
 
-Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod **Jumatano 02/12**, D **Jumatatu 07/12** (Qff-1).
+Toleo 2 = backend **release/2.5.0** (V139–V151; prod sasa Flyway 138 kwa hatua 91 ya 12/11, nakala ya 29/10 = 134) + V3 **release/3.3.0**. Prod ~~Jumatano 02/12~~ **(gy) mara baada ya staging kupita: 14 au 15/11**, marejesho (C4) ON kuanzia deploy hiyo; D **Jumatatu 07/12** (Qff-1) haibadiliki.
 Push imethibitishwa kwa `git ls-remote` (12/11): matawi yote ya t2-* (backend na V3) na `main` yalikuwa sawa na origin kabla ya kazi ya (fj).
 
 Kwa nini nimeweza kuthibitisha kwa data tu sehemu: siwezi kuingia prod (ssh: `Permission denied (publickey)`), kwa hiyo yote ya prod
@@ -63,19 +63,19 @@ Hali: **IMEKAMILIKA** = code + majaribio kwenye nakala safi ya 29/10; **BADO** =
 | Lini | Hatua | Nini |
 |---|---|---|
 | Kabla ya release (sasa) | **91** kagua | prod kusoma tu: Jagger, Flyway, D (lazima HAIJAWEKWA), akaunti za pesa, mikopo, 5 (fl) + 90 (Flutter) — IMEFANYIKA 12/11; tena kabla ya deploy |
-| Baada ya deploy 02/12 | **74** | ununuzi 18 -> PAID (bila journal) |
-| Baada ya deploy | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
+| Baada ya deploy (14/15-11) | **74** | ununuzi 18 -> PAID (bila journal) |
+| **Siku ya deploy** (gy) | **74b** kagua -> andika | manunuzi yote bila msambazaji + UNPAID -> PAID (bila journal; idadi ya KAGUA inatajwa kwenye ANDIKA) |
 | Baada ya deploy | **89** | Frame/TRA Nov nje ya ripoti ya uendeshaji |
 | Baada ya deploy + hesabu ya Chief | **85** | uhamisho wa KUPIMA |
-| ~09/12 (siku 7 bila rollback) | **DROP-MV** | migration/hatua tofauti: DROP view 4 + kuondoa initializer/repository |
-| ~09/12, baada ya kuthibitisha dump ya B2 ina backup table | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
+| **Siku 7 baada ya prod** bila rollback (gy; ~21-22/11) | **DROP-MV** | migration/hatua tofauti: DROP view 4 + kuondoa initializer/repository |
+| **Siku 7 baada ya prod** (gy), baada ya kuthibitisha dump ya B2 ina backup table | **C6** kagua -> andika | backup_20260930_journal_entry -> B2 (sha256) -> DROP |
 | 04/12 | — | Loan A awamu 2 kwenye app (Cr 1000), hakuna kazi |
 | **07/12 asubuhi (D)** | **60** kagua -> andika | salio la ufunguzi kwa akaunti ZOTE 9 za benki/simu + tofauti -> 2910 + D |
 | 07/12 + siku 30 | journal ya mkono | 2910 chambua; kisichoelezeka -> 3900 (CEO + taarifa kwa Executive CEO) |
 
 ## 3. Kilichobaki kabla ya kuunganisha (kazi 10)
 
-Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + staging) siku 3–4 kabla ya **25/11**; prod 02/12.
+~~Ratiba (fx): 6e + usafi 9 viishe ~20/11; kazi 10 siku 3–4 kabla ya 25/11; prod 02/12.~~ **(gy) Ratiba mpya:** cutoff 25/11 imeondoka; lango LANGO_OK 13/11; staging 13-14/11; prod mara baada ya staging kupita (14 au 15/11).
 
 
 1. ~~6e~~ IMEKAMILIKA (ga: onyo tu).
@@ -133,10 +133,21 @@ Ratiba (fx): 6e + usafi 9 viishe **~20/11**; kazi 10 (unganisha + lango + stagin
      7c9ce11 + kinga ya RAM ya lango.sh): suite 696/0/1 (peke yake), ng test 104/104, payment_method dhidi ya V151 = 0,
      Flyway 138 -> 151 zote true, c2 2/2, awamu A 30/30 (a6 12/0 na A8e, b1 29/0, sababu 20/0, kupima_e2e 22/0), awamu B 4/4,
      rollback kwa kuandika 5/0. Log: `toleo2/lango-b2-1211-gr/`. 93: `93-deploy-250.cmd build a86fbcf a1caafc`. Push ni ya Chief.
-   - **(gs) 13/11 KANUNI: baada ya staging kupita -> main IMEFUNGWA hadi 02/12 (code ya app).** Badiliko lolote la code =
-     lango zima + staging upya. Hotfix = `hotfix/*` kutoka tag v2.4.0 / v3.2.0 (si kutoka main). Commit za analysis/ haziathiri.
+   - **(gs) 13/11 KANUNI: baada ya staging kupita -> main IMEFUNGWA hadi prod (gy: 14/15-11; ilikuwa 02/12) (code ya app).** Badiliko lolote la code =
+     lango zima + staging upya. Hotfix KABLA ya prod = `hotfix/*` kutoka tag v2.4.0 / v3.2.0; BAADA ya prod = kutoka v2.5.0 / v3.3.0 (si kutoka main). Commit za analysis/ haziathiri.
      Orodha ya staging (amri + cha kusoma kwenye kila log): `toleo2/ORODHA-STAGING-93.md`. git diff 7c9ce11..a86fbcf =
      deploy/local/lango.sh tu (+6).
+   - **(gy) 13/11 KALENDA MPYA (uamuzi wa Chief):**
+     | Lini | Nini |
+     |---|---|
+     | 13-14/11 | staging: kazi -> rollback -> kazi -> deploy -> smoke; kisha `93 staging marejesho` (KAGUA -> STOP -> ANDIKA) -> `93 staging deploy` (K4 "=true") -> jaribio la UI la marejesho (C4) |
+     | Staging ikipita | **main IMEFUNGWA** (code ya app) hadi prod; badiliko lolote = lango + staging upya |
+     | 14 au 15/11 | prod: `93 prod marejesho` (KAGUA -> STOP -> ANDIKA) -> `93 prod deploy` (K1 payment_method dhidi ya V151; K4 + K6 marejesho "=true") -> `93 prod smoke`; tag v2.5.0 / v3.3.0 kwenye SHA za 93-build-commits.txt |
+     | Siku ya deploy | 74b kagua -> andika; 74, 89, 85 kama jedwali la sehemu 2 |
+     | Baada ya prod | hotfix = `hotfix/*` kutoka tag **v2.5.0 / v3.3.0** |
+     | Siku 7 baada ya prod bila rollback | DROP-MV + C6; kufuta feature/t2-* (kiungo cha node_modules kwanza) |
+     | 07/12 (haibadiliki) | hatua 60: salio la ufunguzi + D |
+     LSMS_PURCHASE_CHECK_FROM: pendekezo (gy 3) - tarehe ya deploy; Chief ataamua (bila kuiweka = 02/12, default ya jar).
    - **DESEMBA (gr 3) - usijenge sasa:**
      1. Tarehe zilizobandikwa kwenye majaribio: `manunuzi_onyo` (08/11 + LSMS_PURCHASE_CHECK_FROM=2026-11-01 ya lango.sh),
         `b3`/`b4` (mikopo 26/09, 04/10), `akaunti` (CRDB 24/08), `kupima_api` (kipindi 2026-12-01..2026-11-01).

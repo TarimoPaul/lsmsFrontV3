@@ -13,6 +13,8 @@
 #   93-deploy-250.cmd <staging|prod> fuata   fuatilia log ya kazi inayoendelea (baada ya mtandao kukatika)
 #   93-deploy-250.cmd <staging|prod> smoke   KUSOMA TU: login + GET za kawaida (dg: baada ya deploy ya prod)
 #   93-deploy-250.cmd staging kazi           INAANDIKA: sale cash+GL, kufuta sale, ununuzi+malipo ya msambazaji+GL, reco expense
+#   93-deploy-250.cmd <staging|prod> marejesho   (gy) KAGUA (kusoma tu) -> 🛑 andika ANDIKA -> ANDIKA: marejesho =true kwenye
+#                                            .env + compose (backup kwanza); inaanza kufanya kazi kwenye deploy inayofuata
 #
 # Deploy/rollback/refresh-db zinaendeshwa kwenye server kwa nohup: mtandao/umeme wa PC ukikatika KAZI INAENDELEA server.
 # Endesha amri ileile tena (au 'fuata'): ikiwa bado inaendesha, inafuatilia tu; ikiwa ilisimama, inaendelea pale ilipoishia.
@@ -26,7 +28,7 @@ $SshO  = @('-o', 'BatchMode=yes', '-o', 'ConnectTimeout=20', '-o', 'ServerAliveI
 $R     = '~/lsms-250'
 
 if ($A1 -in 'build', 'login') { $Target = 'pc'; $Action = $A1 } else { $Target = $A1; $Action = $A2 }
-if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db', 'kazi', 'smoke')) {
+if ($A1 -notin 'build', 'login' -and ($Target -notin 'staging', 'prod' -or $Action -notin 'deploy', 'rollback', 'hali', 'fuata', 'refresh-db', 'kazi', 'smoke', 'marejesho')) {
     Write-Host "MATUMIZI: 93-deploy-250.cmd build <be-commit> <v3-commit> | login | <staging|prod> <deploy|rollback|hali|fuata> | staging refresh-db"; exit 2
 }
 if ($Action -in 'refresh-db', 'kazi' -and $Target -ne 'staging') { Write-Host "SIYO: $Action ni ya staging tu (inaandika)"; exit 2 }
@@ -116,6 +118,21 @@ if ($Action -in 'kazi', 'smoke') {
     $plain = $null
     $out | ForEach-Object { L $_ }
     if ($out -match '^---93K_MWISHO---$') { L "---93_OK--- $Action"; exit 0 } else { L "---93_IMESHINDWA--- $Action"; exit 1 }
+}
+
+# ── marejesho (gy): KAGUA -> 🛑 -> ANDIKA, moja kwa moja ─────────────────────────────────────────────────────
+if ($Action -eq 'marejesho') {
+    $k = @(Remote "bash $R/93-deploy-250.sh $Target marejesho kagua 2>&1 | $F")
+    $k | ForEach-Object { L $_ }
+    if ($k -match 'MAREJESHO_TAYARI') { L "---93_OK--- marejesho tayari =true"; exit 0 }
+    if (-not ($k -match 'MAREJESHO_KAGUA_OK') -or -not ($k -match '^---93_MWISHO---$')) { L '---93_IMESHINDWA--- KAGUA (hakuna kilichoandikwa)'; exit 1 }
+    $j = Read-Host "STOP: andika ANDIKA kuweka marejesho =true kwenye $Target (kingine chochote = simama)"
+    if ($j -cne 'ANDIKA') { L "IMESIMAMISHWA na mmiliki - hakuna kilichoandikwa"; exit 1 }
+    L 'mmiliki ameandika: ANDIKA'
+    $a = @(Remote "bash $R/93-deploy-250.sh $Target marejesho andika 2>&1 | $F")
+    $a | ForEach-Object { L $_ }
+    if (($a -match 'MAREJESHO_IMEANDIKWA') -and ($a -match '^---93_MWISHO---$')) { L "---93_OK--- marejesho; sasa: 93-deploy-250.cmd $Target deploy"; exit 0 }
+    L '---93_IMESHINDWA--- marejesho (soma log; backup imerudishwa kama ilivyoandikwa)'; exit 1
 }
 
 # ── hali (kusoma tu, moja kwa moja) ─────────────────────────────────────────────────────────────────────────

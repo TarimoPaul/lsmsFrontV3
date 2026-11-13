@@ -1,0 +1,7 @@
+﻿[11:26:28] ===== 93 pc login 2026-11-13 =====
+[11:26:59] script zimenakiliwa server (~/lsms-250)
+[11:31:37] token ya majaribio SAWA (login + pull chiefmaster/lsms-frontend-v3:3.1.11 kwenye config ya muda)
+[11:31:37] docker logout SAWA
+[11:31:37] docker login (token read-only) SAWA; pull chiefmaster/lsms-frontend-v3:3.1.11 SAWA
+[11:31:37] ---76L_OK---
+[11:31:37] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0

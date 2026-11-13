@@ -1,0 +1,17 @@
+﻿[11:37:20] ===== 93 staging refresh-db 2026-11-13 =====
+[11:37:47] script zimenakiliwa server (~/lsms-250)
+[11:37:54] ANZISHWA
+[11:37:54] nafuatilia ~/lsms-250/logs/staging-refresh-db.log (mtandao ukikatika: endesha '93-deploy-250.cmd staging fuata')
+[11:38:06] [93 staging 11:37:54] === REFRESH-DB staging <- lsms_20261113_0200.dump (9941209 bytes)
+[11:38:06] [93 staging 11:37:55] dump: pg_restore --list entries 1187, kusoma faili lote SAWA
+[11:38:06]  Container lsms-staging-backend-1 Stopping 
+[11:38:06]  Container lsms-staging-backend-1 Stopped 
+[11:38:06] [93 staging 11:38:05] restore SAWA: Flyway 138, sales 3048, users 8
+[11:38:14]  Container lsms-staging-backend-1 Starting 
+[11:38:14]  Container lsms-staging-backend-1 Started 
+[11:38:49] [93 staging 11:38:42] backend: 'Started LsmsApplication' baada ya ~33s
+[11:38:49] [93 staging 11:38:42] http SAWA: POST /api/auth/login {}=400, /v3/=200, /api/v1/sales (bila tokeni) 401
+[11:38:49] [93 staging 11:38:43] HEALTH SAWA: backend 2.4.0, frontend-v3 3.2.0
+[11:38:49] [93 staging 11:38:43] REFRESH-DB SAWA (49s); hali ya 93 ya staging imefutwa (deploy itaanza K1)
+[11:38:49] ---93_MWISHO---
+[11:38:49] ---93_OK--- (56s)

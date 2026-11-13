@@ -1,9 +1,7 @@
 ---MWENDESHO-PUSH-YOTE--- 
-saa Fri 11/13/2026 10:51:24.45 
+saa Fri 11/13/2026 10:58:14.64 
 ---KAGUA--- 
-TAWI_1 release/2.4.0 SIYO: halipo local kwenye D:\MY PROJECT\DUKA PROJECT\Lsms\Lsms 
-TAWI_2 release/3.2.0 SIYO: halipo local kwenye D:\MY PROJECT\DUKA PROJECT\LsmsVersion3\lsmsFrontV3 
-TAWI_3 main local ce77a9f198e53eea1b2c252397844ccf29cc0c4b origin 454b0c8d467596390f6494cb4a64d90f58625cf8 - FF, commit 60 mpya 
+TAWI_3 main local 319f64f927f80ec5afee1ae96fa43382dfa7e3af origin 454b0c8d467596390f6494cb4a64d90f58625cf8 - FF, commit 61 mpya 
 TAWI_4 feature/c2-null-params local 3ab2b3b66785a17051701ae5f5847120d291f895 origin 3ab2b3b66785a17051701ae5f5847120d291f895 - TAYARI, hakuna cha kupush 
 TAWI_5 main local a86fbcf75a61370deb5711c831c402acc8f26ceb origin 9b6678ac2aeb9f0a103b7be463f2ccf32779b33a - FF, commit 56 mpya 
 TAG_6 v2.4.0 local 238b7dc92d216aebd5913542490bbf4de77189e1 origin 238b7dc92d216aebd5913542490bbf4de77189e1 - TAYARI 
@@ -27,4 +25,7 @@ TAWI_23 feature/t2-pesa local 959cad497d21e7cd773c7e4f9cf156652c5004e7 origin 95
 TAWI_24 feature/t2-ripoti local 80407f755ef7c5bf826aad5bf499ad1172b6cd4e origin 80407f755ef7c5bf826aad5bf499ad1172b6cd4e - TAYARI, hakuna cha kupush 
 TAWI_25 feature/t2-tozo local af82b73e1f19c62f6a89cded01f4eb6cda5db74e origin af82b73e1f19c62f6a89cded01f4eb6cda5db74e - TAYARI, hakuna cha kupush 
 MATAWI_YA_TOLEO_2 feature/t2-*: 18 yamegunduliwa 
----IMEKATALIWA: tawi release/3.2.0 halipushiki bila force - hakuna kilichopushwa--- 
+---KINGA-YA-SIRI--- 
+KINGA_73 prefix 4 (ADMIN_PASSWORD, DOCKERHUB_PASSWORD, JWT_SECRET, POSTGRES_PASSWORD)
+KINGA_73 prefix 4 (ADMIN_PASSWORD, DOCKERHUB_PASSWORD, JWT_SECRET, POSTGRES_PASSWORD)
+---IMEKATALIWA: kinga ya siri backend - hakuna kilichopushwa--- 

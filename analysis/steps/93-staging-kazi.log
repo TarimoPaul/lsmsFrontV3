@@ -1,0 +1,39 @@
+﻿[11:48:12] ===== 93 staging kazi 2026-11-13 =====
+[11:48:38] script zimenakiliwa server (~/lsms-250)
+[11:49:04] === 93-kazi staging kazi | backend 2.5.0 | KAZI93-114903
+[11:49:04] FAIL login HTTP 401: 
+[11:49:04] KAZI_IMESHINDWA (bila login hakuna kingine)
+[11:49:04] ---93K_IMESHINDWA---
+[11:49:04] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[11:49:04] ---93_IMESHINDWA--- kazi
+[12:11:21] ===== 93 staging kazi 2026-11-13 =====
+[12:11:46] script zimenakiliwa server (~/lsms-250)
+[12:12:36] === 93-kazi staging kazi | backend 2.5.0 | KAZI93-121216
+[12:12:36] PASS login (2.5.0)
+[12:12:36] bidhaa ya sale: PEPSI && MIRINDA | bei 1000.00 | stock 375
+[12:12:36] PASS sale cash imeandikwa (131126-1212 1000.00)
+[12:12:36] PASS stock 375 -> 374
+[12:12:36] GL ya sale: 1000:1000,1200:-533,4000:-1000,5000:533 (1 0.00)
+[12:12:36] PASS GL journal ya sale ipo, inagusa 1000 (1000:1000,1200:-533,4000:-1000,5000:533)
+[12:12:36] PASS sale imefutwa (API)
+[12:12:36] PASS sales.is_active=false
+[12:12:36] PASS stock imerudi 375
+[12:12:36] PASS GL reversal ya sale ipo (1)
+[12:12:36] PASS sale_change_audit DELETE/ALLOWED (2.4.0)
+[12:12:36] bidhaa ya ununuzi: kilimanjaro Lemon & Lime | msambazaji wa malipo: grepa
+[12:12:36] PASS ununuzi umeandikwa (PENDING 100.00)
+[12:12:36] PASS ununuzi APPROVED
+[12:12:36] PASS GL ya ununuzi (1000:-100,1200:100)
+[12:12:36] PASS malipo ya msambazaji yameandikwa
+[12:12:36] PASS GL ya malipo (1000:-100,2000:100)
+[12:12:36] PASS malipo yamefutwa (reversal)
+[12:12:36] PASS sale-B ya reco imeandikwa (inabaki mpaka reco iishe)
+[12:12:36] PASS reco ya leo ipo (DRAFT)
+[12:12:36] PASS reco expense imeongezwa
+[12:12:36] PASS reco expense imefutwa
+[12:12:36] PASS sale-B imefutwa baada ya reco (stock 375)
+[12:12:36] KAZI_MATOKEO (2.5.0) PASS 20 FAIL 0 | rekodi za jaribio: alama KAZI93-121216
+[12:12:36] KAZI_OK 20/20
+[12:12:36] ---93K_MWISHO---
+[12:12:36] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 0
+[12:12:36] ---93_OK--- kazi

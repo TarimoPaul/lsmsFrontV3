@@ -1494,3 +1494,18 @@ Swali (soma code/config, ripoti tu): defaults za jar kwa
   APP_FEATURES_SALES_RETURNS_ENABLED na LSMS_PURCHASE_CHECK_FROM (lsms.purchase-check.from) — thamani gani?
   Prod 02/12 bila kuziweka → marejesho ON/OFF? onyo la manunuzi linaanza lini?
 Kama marejesho yanatakiwa ON prod: ni mstari gani wa .env, na staging iuweke kwanza (jaribio la UI la marejesho kwenye staging).
+
+## 2026-11-13 (gy)
+UAMUZI WA CHIEF: prod inasogezwa kutoka 02/12 → mara baada ya staging kupita (14 au 15/11). Marejesho (APP_FEATURES_
+SALES_RETURNS_ENABLED) = ON kuanzia deploy hiyo. Inachukua nafasi ya (gw)3 na (gx).
+1. Staging: maliza kazi → rollback → kazi → deploy → smoke. Kisha ongeza marejesho=true kwenye .env ya staging (hatua
+   KAGUA→🛑→ANDIKA), deploy, jaribio la UI la marejesho (mteja anarudisha, siku nyingine inaidhinishwa → mauzo ya siku ya
+   awali hayabadiliki — C4). K4 ionyeshe "=true".
+2. (gw)1–2 bado zinahitajika: default ya jar, na C4 inafanya kazi swichi OFF/ON.
+3. LSMS_PURCHASE_CHECK_FROM: pendekeza kuanzia tarehe ya deploy (si 02/12) — eleza athari, Chief ataamua.
+4. 93 prod: K1 iongeze ukaguzi wa payment_method dhidi ya V151 (kusoma tu) KABLA ya K5; isipopita → simama.
+   Mstari wa marejesho uwekwe na 93 prod kwa KAGUA→🛑→ANDIKA; K4 "=true".
+5. Mwongozo wa Macheda: badilisha kila "mpaka 02/12" kuwa tarehe ya deploy; ongeza sehemu fupi ya marejesho (hatua 4–5 + mfano).
+6. MUHTASARI na kalenda: cutoff 25/11 inaondoka; main imefungwa kuanzia staging kupita; hotfix baada ya prod = kutoka tag v2.5.0/v3.3.0;
+   74b kagua/andika siku ya deploy; D 07/12 haibadiliki; DROP-MV + C6 = siku 7 baada ya prod.
+(Kumbuka ya Claude: maandishi ya (gw) na (gx) hayakunifikia.)

@@ -1,0 +1,22 @@
+﻿[11:32:28] ===== 93 staging hali 2026-11-13 =====
+[11:32:58] script zimenakiliwa server (~/lsms-250)
+[11:33:05] [93 staging 11:33:02] backend 2.4.0 | frontend-v3 3.2.0 | .env BACKEND_VERSION=***FICHWA***
+[11:33:05] [93 staging 11:33:02] Flyway ya mwisho: 138
+[11:33:05] [93 staging 11:33:02] .env HAINA ADMIN_EMAIL
+[11:33:05] [93 staging 11:33:02] .env HAINA ADMIN_PASSWORD
+[11:33:05] [93 staging 11:33:02] .env HAINA DOCKERHUB_USERNAME
+[11:33:05] [93 staging 11:33:02] .env HAINA DOCKERHUB_PASSWORD
+[11:33:05] [93 staging 11:33:02] .env ina DAILY_SALES_PROFIT_ROLES
+[11:33:05] [93 staging 11:33:03] image IPO chiefmaster/my-lsms-backend:2.4.0
+[11:33:05] [93 staging 11:33:03] image IPO chiefmaster/lsms-frontend-v3:3.2.0
+[11:33:05] [93 staging 11:33:03] image HAIPO chiefmaster/my-lsms-backend:2.5.0
+[11:33:05] [93 staging 11:33:03] image HAIPO chiefmaster/lsms-frontend-v3:3.3.0
+[11:33:05] [93 staging 11:33:03] .backend.prev=2.3.0 .frontend-v3.prev=3.1.11
+[11:33:05] [93 staging 11:33:03] hakuna hatua iliyokamilika bado
+[11:33:05] [93 staging 11:33:04] ARIFA 1/3: APP_SCHEDULERS_ENABLED=***FICHWA***
+[11:33:05] [93 staging 11:33:04] ARIFA 2/3: hakuna funguo za kutuma nje (.env + environment ya backend)
+[11:33:05] [93 staging 11:33:05] ARIFA 3/3: jar ya 2.4.0 - maktaba 97, hakuna ya mail/SMS/push/HTTP client
+[11:33:05] [93 staging 11:33:05] ARIFA_ZIMEZIMWA: staging haitumi mail/SMS/WhatsApp/webhook/push; arifa za ndani (muhtasari wa mauzo 00:00 n.k.) zinaandikwa kwenye DB ya staging tu
+[11:33:05] [93 staging 11:33:05] cron za mtumiaji zinazotaja lsms-staging: 0 (taarifa)
+[11:33:05] ---93_MWISHO---
+[11:33:05] [ficha] .env zilizosomwa: 2 kati ya 2, majina: 11, mistari iliyofichwa/kubadilishwa: 2

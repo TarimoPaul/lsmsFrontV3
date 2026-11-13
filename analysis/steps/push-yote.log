@@ -1,4 +1,64 @@
 ---MWENDESHO-PUSH-YOTE--- 
-saa Fri 11/13/2026 10:58:14.64 
+saa Fri 11/13/2026 11:23:38.11 
 ---KAGUA--- 
-TAWI_3 main local 319f64f927f80ec5afee1ae96fa43382dfa7e3af origin 454b0c8d467596390f6494cb4a64d90f58625cf8 - FF, commit 61 mpya 
+TAWI_3 main local aa2a18475e7731ea508b8fb22a0405de528a27b8 origin 454b0c8d467596390f6494cb4a64d90f58625cf8 - FF, commit 62 mpya 
+TAWI_4 feature/c2-null-params local 3ab2b3b66785a17051701ae5f5847120d291f895 origin 3ab2b3b66785a17051701ae5f5847120d291f895 - TAYARI, hakuna cha kupush 
+TAWI_5 main local a86fbcf75a61370deb5711c831c402acc8f26ceb origin 9b6678ac2aeb9f0a103b7be463f2ccf32779b33a - FF, commit 56 mpya 
+TAG_6 v2.4.0 local 238b7dc92d216aebd5913542490bbf4de77189e1 origin 238b7dc92d216aebd5913542490bbf4de77189e1 - TAYARI 
+TAG_7 v3.2.0 local ff6f1c6ee061f42015e941cdfdeaea925e1d53f1 origin ff6f1c6ee061f42015e941cdfdeaea925e1d53f1 - TAYARI 
+TAWI_8 feature/t2-afya local 2a64f7e4084b70c40769a7b329f8985ca8362a83 origin 2a64f7e4084b70c40769a7b329f8985ca8362a83 - TAYARI, hakuna cha kupush 
+TAWI_9 feature/t2-cutover local 3286f3a17cf347f60d8b2e61db5f73ef024315fa origin 3286f3a17cf347f60d8b2e61db5f73ef024315fa - TAYARI, hakuna cha kupush 
+TAWI_10 feature/t2-gharama local 9c496b84df2d388588fb945534dd6f4b436d7fdb origin 9c496b84df2d388588fb945534dd6f4b436d7fdb - TAYARI, hakuna cha kupush 
+TAWI_11 feature/t2-hesabu local dfbfc4dde36109e124aa30092bc2439bb46763bd origin dfbfc4dde36109e124aa30092bc2439bb46763bd - TAYARI, hakuna cha kupush 
+TAWI_12 feature/t2-kupima local d5b35f54f0ff0d34d8267e58e852a46b20838d50 origin d5b35f54f0ff0d34d8267e58e852a46b20838d50 - TAYARI, hakuna cha kupush 
+TAWI_13 feature/t2-marejesho local a268e3fd4b704e426466e2e660e88256b5a92841 origin a268e3fd4b704e426466e2e660e88256b5a92841 - TAYARI, hakuna cha kupush 
+TAWI_14 feature/t2-pesa local 1d8abb3cd3cdb427ae4f490b17890cb590dfabb3 origin 1d8abb3cd3cdb427ae4f490b17890cb590dfabb3 - TAYARI, hakuna cha kupush 
+TAWI_15 feature/t2-ripoti local d92da834bd9ee9d351187489ecd048388b23cd5f origin d92da834bd9ee9d351187489ecd048388b23cd5f - TAYARI, hakuna cha kupush 
+TAWI_16 feature/t2-tozo local 55b1d267bd0a9e2cde8ce6230c08d16f89323728 origin 55b1d267bd0a9e2cde8ce6230c08d16f89323728 - TAYARI, hakuna cha kupush 
+TAWI_17 feature/t2-afya local e70d2ba5f4bddfa9d70516ae9bf358d8d6af2d29 origin e70d2ba5f4bddfa9d70516ae9bf358d8d6af2d29 - TAYARI, hakuna cha kupush 
+TAWI_18 feature/t2-cutover local 9ec5bd97134bc1432095af86ac0b764a8644e991 origin 9ec5bd97134bc1432095af86ac0b764a8644e991 - TAYARI, hakuna cha kupush 
+TAWI_19 feature/t2-gharama local 6c34ca779700eecedde66fd17988f8e2afc192f4 origin 6c34ca779700eecedde66fd17988f8e2afc192f4 - TAYARI, hakuna cha kupush 
+TAWI_20 feature/t2-hesabu local bddc178a26938e956f367584709136959ede8699 origin bddc178a26938e956f367584709136959ede8699 - TAYARI, hakuna cha kupush 
+TAWI_21 feature/t2-kupima local f0f8667c2c6b1382500f2e3d09ec3865738da50f origin f0f8667c2c6b1382500f2e3d09ec3865738da50f - TAYARI, hakuna cha kupush 
+TAWI_22 feature/t2-marejesho local cb4e89539d785d7885722d9bb331adf10f30e84d origin cb4e89539d785d7885722d9bb331adf10f30e84d - TAYARI, hakuna cha kupush 
+TAWI_23 feature/t2-pesa local 959cad497d21e7cd773c7e4f9cf156652c5004e7 origin 959cad497d21e7cd773c7e4f9cf156652c5004e7 - TAYARI, hakuna cha kupush 
+TAWI_24 feature/t2-ripoti local 80407f755ef7c5bf826aad5bf499ad1172b6cd4e origin 80407f755ef7c5bf826aad5bf499ad1172b6cd4e - TAYARI, hakuna cha kupush 
+TAWI_25 feature/t2-tozo local af82b73e1f19c62f6a89cded01f4eb6cda5db74e origin af82b73e1f19c62f6a89cded01f4eb6cda5db74e - TAYARI, hakuna cha kupush 
+MATAWI_YA_TOLEO_2 feature/t2-*: 18 yamegunduliwa 
+---KINGA-YA-SIRI--- 
+KINGA_73 prefix 4 (ADMIN_PASSWORD, DOCKERHUB_PASSWORD, JWT_SECRET, POSTGRES_PASSWORD)
+COMMIT 62 (origin/main..HEAD) | matoleo ya faili (analysis) 149 | faili 122
+KAGUA_SIRI_SAFI
+KINGA_73 prefix 4 (ADMIN_PASSWORD, DOCKERHUB_PASSWORD, JWT_SECRET, POSTGRES_PASSWORD)
+COMMIT 56 (origin/main..HEAD) | matoleo ya faili (.) 214 | faili 141
+KAGUA_SIRI_SAFI
+mmiliki ameandika: push 
+---PUSH--- 
+To https://github.com/TarimoPaul/lsmsFrontV3.git
+   454b0c8..aa2a184  main -> main
+PUSH_3 main SAWA origin = local = aa2a18475e7731ea508b8fb22a0405de528a27b8 
+PUSH_4 feature/c2-null-params - TAYARI, imerukwa 
+To https://github.com/TarimoPaul/lsmsBackend.git
+   9b6678a..a86fbcf  main -> main
+PUSH_5 main SAWA origin = local = a86fbcf75a61370deb5711c831c402acc8f26ceb 
+PUSH_6 v2.4.0 - TAYARI, imerukwa 
+PUSH_7 v3.2.0 - TAYARI, imerukwa 
+PUSH_8 feature/t2-afya - TAYARI, imerukwa 
+PUSH_9 feature/t2-cutover - TAYARI, imerukwa 
+PUSH_10 feature/t2-gharama - TAYARI, imerukwa 
+PUSH_11 feature/t2-hesabu - TAYARI, imerukwa 
+PUSH_12 feature/t2-kupima - TAYARI, imerukwa 
+PUSH_13 feature/t2-marejesho - TAYARI, imerukwa 
+PUSH_14 feature/t2-pesa - TAYARI, imerukwa 
+PUSH_15 feature/t2-ripoti - TAYARI, imerukwa 
+PUSH_16 feature/t2-tozo - TAYARI, imerukwa 
+PUSH_17 feature/t2-afya - TAYARI, imerukwa 
+PUSH_18 feature/t2-cutover - TAYARI, imerukwa 
+PUSH_19 feature/t2-gharama - TAYARI, imerukwa 
+PUSH_20 feature/t2-hesabu - TAYARI, imerukwa 
+PUSH_21 feature/t2-kupima - TAYARI, imerukwa 
+PUSH_22 feature/t2-marejesho - TAYARI, imerukwa 
+PUSH_23 feature/t2-pesa - TAYARI, imerukwa 
+PUSH_24 feature/t2-ripoti - TAYARI, imerukwa 
+PUSH_25 feature/t2-tozo - TAYARI, imerukwa 
+---OK--- 
